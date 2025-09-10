@@ -1,14 +1,13 @@
 import { View, Text } from 'react-native'
 import React from 'react'
-import { Stack } from 'expo-router';
+import { Stack } from 'expo-router'
 
-const AuthRoutesLayout = () => {
+const HomeRoutesLayout = () => {
     return (
         <Stack 
             screenOptions={{ headerShown: false }}
-            initialRouteName='sign-in'
         />
     )
 }
 
-export default AuthRoutesLayout;
+export default HomeRoutesLayout

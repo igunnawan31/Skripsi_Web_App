@@ -1,13 +1,14 @@
 import { Dimensions, StyleSheet } from "react-native"
 import { COLORS } from "@/constants/colors"
-import ButtonLogin from "@/components/welcomeComponents/ButtonLogin";
 
 const { width } = Dimensions.get("window");
 
 export const welcomeStyles = StyleSheet.create({
     container: {
         flex: 1,
+        width: "100%",
         backgroundColor: COLORS.primary,
+        justifyContent: "center",
     },
     header: {
         flexDirection: "row",
@@ -22,7 +23,7 @@ export const welcomeStyles = StyleSheet.create({
         padding: 16,
         marginHorizontal: 10,
         width: width,
-        height: "76%",
+        height: "74%",
         alignSelf: "center"
     },
     imageView : {
