@@ -60,19 +60,19 @@ export const MenuProps = [
         title: "Manajemen KPI",
         items: [
             {
-                icon: icons.indikatorKPI,
+                icon: icons.indikatorKPILogo,
                 alt: "Manajemen Indikator KPI",
                 label: "Manajemen Indikator KPI",
                 href: "/dashboard/manajemen-indikator-kpi",
             },
             {
-                icon: icons.penilaianKPI,
+                icon: icons.penilaianKPILogo,
                 alt: "Penilaian KPI",
                 label: "Penilaian KPI",
                 href: "/dashboard/penilaian-kpi",
             },
             {
-                icon: icons.hasilKPI,
+                icon: icons.hasilKPILogo,
                 alt: "Hasil KPI Karyawan",
                 label: "Hasil KPI Karyawan",
                 href: "/dashboard/hasil-kpi-karyawan",
@@ -83,7 +83,7 @@ export const MenuProps = [
         title: "Rekomendasi Freelance",
         items: [
             {
-                icon: icons.rekomendasiFreelance,
+                icon: icons.rekomendasiFreelancerLogo,
                 alt: "Rekomendasi Freelance",
                 label: "Rekomendasi Freelance",
                 href: "/dashboard/rekomendasi-freelance",
@@ -94,7 +94,7 @@ export const MenuProps = [
         title: "Manejemen Karyawan",
         items: [
             {
-                icon: icons.manejemenKaryawan,
+                icon: icons.manajemenKaryawanLogo,
                 alt: "Manejemen Karyawan",
                 label: "Manejemen Karyawan",
                 href: "/dashboard/manejemen-karyawan",
