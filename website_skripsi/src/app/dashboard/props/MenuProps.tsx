@@ -52,30 +52,30 @@ export const MenuProps = [
                 icon: icons.kontrakKerjaLogo,
                 alt: "Kontrak Kerja",
                 label: "Kontrak Kerja Karyawan",
-                href: "/dashboard/gaji-karyawan",
+                href: "/dashboard/kontrak-kerja-karyawan",
             },
         ],
     },
     {
-        title: "Manajemen KPI",
+        title: "Manajemen Kinerja Karyawan",
         items: [
             {
                 icon: icons.indikatorKPILogo,
-                alt: "Manajemen Indikator KPI",
-                label: "Manajemen Indikator KPI",
-                href: "/dashboard/manajemen-indikator-kpi",
+                alt: "Manajemen Indikator Kinerja Karyawan",
+                label: "Manajemen Indikator Kinerja Karyawan",
+                href: "/dashboard/manajemen-indikator-kinerja-karyawan",
             },
             {
                 icon: icons.penilaianKPILogo,
-                alt: "Penilaian KPI",
-                label: "Penilaian KPI",
-                href: "/dashboard/penilaian-kpi",
+                alt: "Penilaian Kinerja Karyawan",
+                label: "Penilaian Kinerja Karyawan",
+                href: "/dashboard/penilaian-kinerja-karyawan",
             },
             {
                 icon: icons.hasilKPILogo,
-                alt: "Hasil KPI Karyawan",
-                label: "Hasil KPI Karyawan",
-                href: "/dashboard/hasil-kpi-karyawan",
+                alt: "Hasil Kinerja Karyawan",
+                label: "Hasil Kinerja Karyawan",
+                href: "/dashboard/hasil-kinerja-karyawan",
             },
         ],
     },
@@ -100,5 +100,40 @@ export const MenuProps = [
                 href: "/dashboard/manejemen-karyawan",
             },
         ],
-    }
+    },
+    {
+        title: "Laporan Perusahaan",
+        items: [
+            {
+                icon: icons.rekapAbsensiKaryawanLogo,
+                alt: "Rekap Absensi Karyawan",
+                label: "Rekap Absensi Karyawan",
+                href: "/dashboard/rekap-absensi-karyawan",
+            },
+            {
+                icon: icons.rekapCutiKaryawanLogo,
+                alt: "Rekap Cuti Karyawan",
+                label: "Rekap Cuti Karyawan",
+                href: "/dashboard/rekap-cuti-karyawan",
+            },
+            {
+                icon: icons.rekapGajiKaryawanLogo,
+                alt: "Rekap Gaji Karyawan",
+                label: "Rekap Gaji Karyawan",
+                href: "/dashboard/rekap-gaji-karyawan",
+            },
+            {
+                icon: icons.rekapKPIKaryawanLogo,
+                alt: "Rekap Kinerja Karyawan",
+                label: "Rekap Kinerja Karyawan",
+                href: "/dashboard/rekap-kinerja-karyawan",
+            },
+            {
+                icon: icons.rekapReimbursePengeluaranLogo,
+                alt: "Rekap Reimburse Pengeluaran",
+                label: "Rekap Reimburse Pengeluaran",
+                href: "/dashboard/rekap-reimburse-pengeluaran",
+            },
+        ],
+    },
 ]

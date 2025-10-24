@@ -6,6 +6,7 @@
   --color-tertiary: #FDBA74;
   --color-background: #FFF9F0;
   --color-surface: #FFFFFF;
+  --color-backgroundIcon: #FDBA74;
 
   --color-success: #22C55E;
   --color-info: #3B82F6;
@@ -18,14 +19,28 @@
   --color-muted: #94A3B8;
 }
 
-/* @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-poppins: var(--font-poppins);
-} */
-
 
 body {
   background: var(--color-background);
   color: var(--color-text-primary);
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 10s ease infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }

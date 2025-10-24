@@ -1,3 +1,7 @@
+export const photo = {
+    profilePlaceholder: "/assets/images/Foto_Pribadi.jpeg",
+}
+
 export const background = {
     backgroundLogin: "/assets/images/background-login.png",
 };
@@ -11,8 +15,16 @@ export const logo = {
 };
 
 export const icons = {
+    // General Icons
+    logoutPrimaryIcon: "/assets/icons/logout-primary.svg",
+    hamburgerMenu: "/assets/icons/hamburger-white.svg",
+    closeMenu: "/assets/icons/close.svg",
+    arrowMenu: "/assets/icons/arrow-right.svg",
+    arrowDownMenu: "/assets/icons/arrow-down.svg",
     homeLogo: "/assets/icons/home.svg",
-    absensiLogo: "/assets/icons/absensi.svg",
+
+    // HR Management Icons
+    absensiLogo: "/assets/icons/absen.svg",
     cutiLogo: "/assets/icons/cuti.svg",
     gajiLogo: "/assets/icons/gaji.svg",
     kontrakKerjaLogo: "/assets/icons/kontrak-kerja.svg",
@@ -20,5 +32,12 @@ export const icons = {
     penilaianKPILogo: "/assets/icons/penilaian-kpi.svg",
     hasilKPILogo: "/assets/icons/hasil-kpi.svg",
     rekomendasiFreelancerLogo: "/assets/icons/rekomendasi-freelancer.svg",
-    manajemenKaryawanLogo: "/assets/icons/manajemen-karyawan.svg",
+    manajemenKaryawanLogo: "/assets/icons/manajemen-user.svg",
+
+    // Owner Management Icons
+    rekapAbsensiKaryawanLogo : "/assets/icons/absen.svg",
+    rekapCutiKaryawanLogo : "/assets/icons/cuti.svg",
+    rekapGajiKaryawanLogo : "/assets/icons/gaji.svg",
+    rekapKPIKaryawanLogo : "/assets/icons/indikator-kpi.svg",
+    rekapReimbursePengeluaranLogo : "/assets/icons/reimburse-pengeluaran.svg",
 }

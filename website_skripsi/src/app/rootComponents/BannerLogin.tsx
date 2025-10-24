@@ -37,35 +37,6 @@ const BannerLogin = () => {
             <footer className="absolute bottom-4 text-white/70 text-sm z-10">
                 © {new Date().getFullYear()} HRIS Berinovasi. All rights reserved.
             </footer>
-
-            <style jsx>{`
-                @keyframes gradient {
-                    0% {
-                        background-position: 0% 50%;
-                    }
-                    50% {
-                        background-position: 100% 50%;
-                    }
-                    100% {
-                        background-position: 0% 50%;
-                    }
-                }
-                .animate-gradient {
-                    background-size: 200% 200%;
-                    animation: gradient 10s ease infinite;
-                }
-                .animate-float {
-                    animation: float 6s ease-in-out infinite;
-                }
-                @keyframes float {
-                    0%, 100% {
-                        transform: translateY(0);
-                    }
-                    50% {
-                        transform: translateY(-10px);
-                    }
-                }
-            `}</style>
         </section>
     );
 };
