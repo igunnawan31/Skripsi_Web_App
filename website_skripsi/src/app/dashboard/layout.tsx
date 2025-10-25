@@ -12,12 +12,12 @@ export default function DashboardLayout({
     const renderHtml = (
         // <AuthProvider>
         <div className={`${poppins.className} antialiased flex h-screen`}>
-            <div className="w-[20%] h-full">
+            <div className="w-[20%] h-screen overflow-y-auto">
                 <SidebarMenu />
             </div>
-            <div className="w-[80%] h-full">
+            <div className="w-[80%] h-screen overflow-y-auto px-10">
                 <Navbar />
-                <div className="px-8 text-blue-900 w-full">
+                <div className=" text-(--color-text-primary) w-full">
                     {children}
                 </div>
             </div>

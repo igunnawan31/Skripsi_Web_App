@@ -23,7 +23,7 @@ const MobileMenu = ({
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     className="text-(--color-surface) focus:outline-none cursor-pointer"
                 >
-                    <div className="bg-(--color-tertiary) hover:bg-(--color-tertiary)/60 p-4 rounded-lg">
+                    <div className="hover:bg-(--color-tertiary)/60 p-4 rounded-lg">
                         <Image
                             src={icons.hamburgerMenu}
                             width={20}
@@ -40,7 +40,11 @@ const MobileMenu = ({
                     <Link
                         href={menu.items[0].href}
                         key={menu.items[0].label}
-                        className="flex items-center p-4 text-white hover:bg-(--color-tertiary)/60 rounded"
+                        className={`flex items-center justify-between gap-4 p-4 rounded-xl text-sm ${
+                        pathname === menu.items[0].href
+                            ? "bg-(--color-tertiary) text-white font-semibold"
+                            : "text-white hover:bg-(--color-tertiary)/60"
+                        }`}
                     >
                         <Image src={menu.items[0].icon} width={20} height={20} alt={menu.items[0].alt} className="block" />
                     </Link>
@@ -50,7 +54,11 @@ const MobileMenu = ({
                             <Link
                                 href={item.href}
                                 key={item.label}
-                                className="flex items-center gap-3 p-4 text-white hover:bg-(--color-tertiary)/60 rounded"
+                                className={`flex items-center justify-between gap-4 p-4 rounded-xl text-sm mt-4 ${
+                                pathname === item.href
+                                    ? "bg-(--color-tertiary) text-white font-semibold"
+                                    : "text-white hover:bg-(--color-tertiary)/60"
+                                }`}
                             >
                                 <Image
                                     src={item.icon}
@@ -76,7 +84,7 @@ const MobileMenu = ({
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         className="text-white focus:outline-none cursor-pointer"
                     >
-                        <div className="bg-(--color-tertiary) p-4 rounded-lg">
+                        <div className="hover:bg-(--color-tertiary)/60 p-4 rounded-lg">
                             <Image 
                                 src={icons.closeMenu} 
                                 width={20} 
@@ -166,14 +174,14 @@ const MobileMenu = ({
                     )}
                 </div>
             </div>
-            <div className="px-4 py-4 md:py-0">
-                <button className="flex md:hidden bg-(--color-surface) w-full items-center justify-between px-4 py-4 gap-2 text-white rounded-lg hover:opacity-90 transition cursor-pointer">
+            <div className="px-4 py-4 lg:py-0">
+                <button className="flex lg:hidden bg-(--color-surface) w-full items-center justify-between px-4 py-4 gap-2 text-white rounded-lg hover:opacity-90 transition cursor-pointer">
                     <Image
                         src={icons.logoutPrimaryIcon}
                         alt="Logout Icon"
                         width={20}
                         height={20}
-                        className="block md:hidden mx-auto"
+                        className="block lg:hidden mx-auto"
                     />
                 </button>
             </div>
