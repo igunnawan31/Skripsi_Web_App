@@ -6,7 +6,7 @@ const AuthRoutesLayout = () => {
     return (
         <Stack 
             screenOptions={{ headerShown: false }}
-            initialRouteName='sign-in'
+            initialRouteName='welcome'
         />
     )
 }
