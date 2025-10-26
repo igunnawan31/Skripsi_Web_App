@@ -3,12 +3,12 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/PaginationBar";
-import { Absensi } from "@/app/lib/types/types";
-import { AbsensiRequestProps } from "@/app/props/HRProps/AbsensiProps";
-import { fetchAbsensi } from "@/app/lib/hooks/dummyHooks/fetchAbsensi";
+import { Cuti } from "@/app/lib/types/types";
+import { fetchCuti } from "@/app/lib/hooks/dummyHooks/fetchCuti";
 import { useSearchParams, useRouter } from "next/navigation";
+import { CutiRequestProps } from "@/app/props/HRProps/cutiProps";
 
-const AbsensiShows: React.FC<AbsensiRequestProps> = ({
+const CutiShows: React.FC<CutiRequestProps> = ({
     showButton = false,
     buttonText = "Aksi",
     onButtonClick,
@@ -16,41 +16,41 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
     const searchParams = useSearchParams();
     const router = useRouter();
     const [loading, setLoading] = useState(true);
-    const [absensi, setAbsensi] = useState<Absensi[]>([]);
+    const [cuti, setCuti] = useState<Cuti[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
     const today = new Date().toISOString().split("T")[0];
-    const [selectedDate, setSelectedDate] = useState<string>(
-        searchParams.get("date") || today
+    const [selectedStatus, setSelectedStatus] = useState<string>(
+        searchParams.get("status") || "All"
     );
     const [selectedRole, setSelectedRole] = useState<string>(
-        searchParams.get("role") || "All"
+        searchParams.get("MajorRole") || "All"
     );
 
     const fetchData = async () => {
         setLoading(true);
-        const result = await fetchAbsensi(
+        const result = await fetchCuti(
             currentPage,
             itemsPerPage,
-            selectedDate,
+            selectedStatus,
             selectedRole
         );
-        setAbsensi(result.data);
+        setCuti(result.data);
         setTotalItems(result.total);
         setLoading(false);
     };
 
     useEffect(() => {
         fetchData();
-    }, [currentPage, itemsPerPage, selectedDate, selectedRole]);
+    }, [currentPage, itemsPerPage, selectedStatus, selectedRole]);
 
     useEffect(() => {
         const params = new URLSearchParams();
-        if (selectedDate) params.set("date", selectedDate);
+        if (selectedStatus) params.set("status", selectedStatus);
         if (selectedRole && selectedRole !== "All") params.set("role", selectedRole);
         router.replace(`?${params.toString()}`);
-    }, [selectedDate, selectedRole, router]);
+    }, [selectedStatus, selectedRole, router]);
 
     const renderHtml = (
         <div className="flex flex-col gap-4 w-full">
@@ -58,14 +58,18 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
                 <div className="flex flex-wrap items-center gap-4">
                     <div className="flex items-center gap-2">
                         <label className="text-sm font-medium text-(--color-text-secondary)">
-                            Filter by Date:
+                            Filter by Status:
                         </label>
-                        <input
-                            type="date"
-                            value={selectedDate}
-                            onChange={(e) => setSelectedDate(e.target.value)}
-                            className="border border-(--color-border) rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-(--color-primary)"
-                        />
+                        <select
+                            value={selectedStatus}
+                            onChange={(e) => setSelectedStatus(e.target.value)}
+                            className="border border-(--color-border) rounded-md px-3 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-(--color-primary)"
+                        >
+                            <option value="All">All Status</option>
+                            <option value="Menunggu">Menunggu</option>
+                            <option value="Ditolak">Ditolak</option>
+                            <option value="Diterima">Diterima</option>
+                        </select>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -97,52 +101,51 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
                     
                     ))}
                 </div>
-            ) : absensi.length > 0 ? (
+            ) : cuti.length > 0 ? (
                 <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {absensi.map((abs) => (
+                    {cuti.map((ct) => (
                         <Link
-                            key={abs.id}
-                            href={`/dashboard/absensi-karyawan/${abs.id}`}
+                            key={ct.id}
+                            href={`/dashboard/cuti-karyawan/${ct.id}`}
                             className="group bg-(--color-surface) border border-(--color-border) rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200"
                         >
                             <div className="p-5 flex flex-col gap-3">
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-(--color-muted) font-medium truncate">
-                                        {abs.id}
+                                        {ct.id}
                                     </span>
                                     <span className="px-3 py-1 text-xs rounded-lg border border-(--color-border) bg-(--color-background) text-(--color-text-primary)">
-                                        {abs.minorRole}
+                                        {ct.minorRole}
                                     </span>
                                 </div>
 
                                 <div className="flex flex-col gap-1 mt-2">
                                     <h2 className="font-semibold text-lg text-(--color-text-primary)">
-                                        {abs.name}
+                                        {ct.name}
                                     </h2>
                                     <p className="text-sm text-(--color-text-secondary)">
-                                        {abs.workStatus}
+                                        Alasan : {ct.reason}
                                     </p>
                                     <p className="text-sm text-(--color-text-secondary)">
                                         Date:{" "}
                                         <span className="font-medium text-(--color-text-primary)">
-                                        {abs.date || "-"}
+                                        {ct.startDate || "-"} s.d {ct.endDate}
                                         </span>
                                     </p>
-                                    <p className="text-sm text-(--color-text-secondary)">
+                                    {/* <p className="text-sm text-(--color-text-secondary)">
                                         Time: {abs.checkIn} - {abs.checkOut}
-                                    </p>
+                                    </p> */}
                                 </div>
 
                                 {showButton && (
                                     <button
                                         onClick={(e) => {
-                                            e.preventDefault();
-                                            onButtonClick?.(abs.id);
-                                            router.push(`/dashboard/absensi-karyawan/${abs.id}`);
+                                        e.preventDefault();
+                                            onButtonClick?.(ct.id);
                                         }}
-                                        className="mt-3 w-full py-2 rounded-lg text-sm font-semibold bg-(--color-primary) text-white hover:bg-(--color-tertiary) hover:text-(--color-secondary) transition cursor-pointer"
+                                        className="mt-3 w-full py-2 rounded-lg text-sm font-semibold bg-(--color-primary) text-white hover:bg-(--color-tertiary) hover:text-(--color-secondary) transition"
                                     >
-                                        {buttonText || "Absen Lebih Lanjut"}
+                                        {buttonText || "Cuti Lebih Lanjut"}
                                     </button>
                                 )}
                             </div>
@@ -151,11 +154,11 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
                 </div>
             ) : (
                 <p className="text-center text-gray-500 py-6">
-                    Tidak ada data absensi sesuai filter.
+                    Tidak ada data cuti sesuai filter.
                 </p>
             )}
 
-            {absensi.length > 0 && !loading && (
+            {cuti.length > 0 && !loading && (
                 <div className="mt-6">
                     <PaginationBar
                         totalItems={totalItems}
@@ -172,4 +175,4 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
     return renderHtml;
 };
 
-export default AbsensiShows;
+export default CutiShows;

@@ -30,7 +30,7 @@ const PaginationBar: React.FC<PaginationBarProps> = ({
             <div className="flex items-center space-x-2">
                 <span className="text-gray-500 text-sm hidden sm:block">Items per Page</span>
                 <select
-                    className="border px-2 py-1 rounded-md bg-blue-900 text-white border-blue-900 hover:bg-blue-800 cursor-pointer"
+                    className="border px-2 py-1 rounded-md bg-(--color-primary) text-white border-(--color-primary) hover:bg-(--color-primary) cursor-pointer"
                     value={itemsPerPage}
                     onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
                 >
@@ -51,7 +51,7 @@ const PaginationBar: React.FC<PaginationBarProps> = ({
                     disabled={currentPage === 1}
                     onClick={() => onPageChange(currentPage - 1)}
                     className={`px-2 py-1 border rounded-md flex items-center gap-2 ${
-                        currentPage === 1 ? "text-gray-300" : "bg-blue-900 text-white border-blue-900 hover:bg-blue-800 cursor-pointer"
+                        currentPage === 1 ? "text-gray-300" : "bg-(--color-primary) text-white border-(--color-primary) hover:bg-(--color-primary) cursor-pointer"
                     }`}
                 >
                     {/* <IoArrowBackCircle /> */}
@@ -75,7 +75,7 @@ const PaginationBar: React.FC<PaginationBarProps> = ({
                     disabled={currentPage === totalPages}
                     onClick={() => onPageChange(currentPage + 1)}
                     className={`px-2 py-1 border rounded-md flex items-center gap-1 ${
-                        currentPage === totalPages ? "text-gray-300" : "bg-blue-900 text-white border-blue-900 hover:bg-blue-800 cursor-pointer"
+                        currentPage === totalPages ? "text-gray-300" : "bg-(--color-primary) text-white border-(--color-primary) hover:bg-(--color-primary) cursor-pointer"
                     }`}
                 >
                     <div className="hidden sm:block">

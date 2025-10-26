@@ -2,12 +2,9 @@
 
 import { useState } from "react";
 import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
-import AbsensiShows from "./AbsensiShows";
-import TableModal from "@/app/dashboard/dashboardComponents/TableModal";
-import FilterBar from "@/app/dashboard/dashboardComponents/allComponents/FilterBar";
-import GrafikBar from "@/app/dashboard/dashboardComponents/allComponents/GrafikBar";
+import CutiShows from "./CutiShows";
 
-const AbsensiKaryawanPage = () => {
+const CutiPage = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const handleSearch = (query: string) => {
         setSearchQuery(query);
@@ -24,7 +21,7 @@ const AbsensiKaryawanPage = () => {
                         placeholder="Cari karyawan..."
                         onSearch={handleSearch}
                     />
-                    <AbsensiShows showButton={true} buttonText="Cek Absensi Disini" />
+                    <CutiShows showButton={true} buttonText="Detail Cuti" />
                 </div>
             </div>
         </div>
@@ -33,4 +30,4 @@ const AbsensiKaryawanPage = () => {
     return renderHtml;
 }
 
-export default AbsensiKaryawanPage;
+export default CutiPage;

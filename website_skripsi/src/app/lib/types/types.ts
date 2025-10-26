@@ -9,9 +9,17 @@ export type Absensi = {
     checkOut: string;
 }
 
-export type AbsensiRequestProps = {
-    showButton?: boolean;
-    buttonText?: string;
-    onButtonClick?: (invoiceId: string) => void;
-    loading?: boolean;
+export type Cuti = {
+    id: string;
+    name: string;
+    branch: string;
+    startDate: string;
+    endDate: string;
+    totalDays: number;
+    reason: string;
+    majorRole: string;
+    minorRole: string;
+    status: "Menunggu" | "Diterima" | "Ditolak";
+    approver: string;
+    submissionDate: string;
 };

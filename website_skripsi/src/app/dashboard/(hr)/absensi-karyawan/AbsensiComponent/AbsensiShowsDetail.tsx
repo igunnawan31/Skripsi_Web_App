@@ -16,9 +16,8 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
             setData(found || null);
             setLoading(false);
 
-            // simulasi history absensi (ambil semua dengan nama yang sama)
             const historyData = dummyAbsensi
-                .filter((item) => item.name === found?.name)
+                .filter((ct) => ct.name === found?.name && ct.id !== found?.id)
                 .slice(0, 10);
             setHistory(historyData);
         }, 400);
@@ -44,7 +43,6 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
             </div>
 
             <div className="w-full bg-(--color-surface) rounded-2xl shadow-md p-6 border border-(--color-border) flex flex-col gap-6">
-                {/* === Profile Section === */}
                 <div className="flex flex-col md:flex-row items-start gap-6">
                     <div className="w-full md:w-1/2 flex flex-col items-center text-center gap-4">
                         <div className="w-full h-96 bg-(--color-tertiary) flex items-center justify-center text-white text-xl font-semibold rounded-xl">
