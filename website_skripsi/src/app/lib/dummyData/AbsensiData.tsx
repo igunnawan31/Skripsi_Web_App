@@ -81,4 +81,14 @@ export const dummyAbsensi: Absensi[] = [
         checkIn: "08:05",
         checkOut: "17:05",
     },
+    {
+        id: "User-001-BudiSantoso-002",
+        name: "Budi Santoso",
+        workStatus: "Work From Home",
+        majorRole: "Karyawan",
+        minorRole: "HR",
+        date: "2025-10-27",
+        checkIn: "08:02",
+        checkOut: "17:00",
+    },
 ];

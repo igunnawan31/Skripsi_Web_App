@@ -71,4 +71,18 @@ export const dummyCuti: Cuti[] = [
         approver: "-",
         submissionDate: "2025-10-19",
     },
+    {
+        id: "C006",
+        name: "Andi Pratama",
+        branch: "Jakarta",
+        startDate: "2025-11-1",
+        endDate: "2025-11-3",
+        totalDays: 3,
+        reason: "Liburan keluarga",
+        majorRole: "Karyawan",
+        minorRole: "Frontend Developer",
+        status: "Diterima",
+        approver: "HRD - Sinta Rahmawati",
+        submissionDate: "2025-10-27",
+    },
 ];

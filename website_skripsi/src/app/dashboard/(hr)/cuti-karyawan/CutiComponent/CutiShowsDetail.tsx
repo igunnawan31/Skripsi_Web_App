@@ -18,7 +18,10 @@ export default function CutiShowsDetail({ id }: { id: string }) {
 
             if (found) {
                 const historyData = dummyCuti
-                    .filter((ct) => ct.name === found.name && ct.id !== found.id)
+                    .filter((ct) => 
+                        ct.name === found.name && 
+                        ct.submissionDate < found.submissionDate
+                    )
                     .slice(0,10);
                 setHistory(historyData);
             }

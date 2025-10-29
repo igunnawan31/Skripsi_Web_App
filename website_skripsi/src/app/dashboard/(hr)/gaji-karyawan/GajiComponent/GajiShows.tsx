@@ -3,12 +3,12 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/PaginationBar";
-import { Cuti } from "@/app/lib/types/types";
-import { fetchCuti } from "@/app/lib/hooks/dummyHooks/fetchCuti";
 import { useSearchParams, useRouter } from "next/navigation";
-import { CutiRequestProps } from "@/app/props/HRProps/cutiProps";
+import { GajiRequestProps } from "@/app/props/HRProps/GajiProps";
+import { Gaji } from "@/app/lib/types/types";
+import { fetchGaji } from "@/app/lib/hooks/dummyHooks/fetchGaji";
 
-const CutiShows: React.FC<CutiRequestProps> = ({
+const GajiShows: React.FC<GajiRequestProps> = ({
     showButton = false,
     buttonText = "Aksi",
     onButtonClick,
@@ -16,45 +16,75 @@ const CutiShows: React.FC<CutiRequestProps> = ({
     const searchParams = useSearchParams();
     const router = useRouter();
     const [loading, setLoading] = useState(true);
-    const [cuti, setCuti] = useState<Cuti[]>([]);
+    const [gaji, setGaji] = useState<Gaji[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
     const [selectedStatus, setSelectedStatus] = useState<string>(
         searchParams.get("status") || "All"
     );
-    const [selectedRole, setSelectedRole] = useState<string>(
-        searchParams.get("MajorRole") || "All"
+    const [selectedBulan, setSelectedBulan] = useState<string>(
+        searchParams.get("bulan") || ""
     );
 
     const fetchData = async () => {
         setLoading(true);
-        const result = await fetchCuti(
+        const result = await fetchGaji(
             currentPage,
             itemsPerPage,
             selectedStatus,
-            selectedRole
+            selectedBulan,
         );
-        setCuti(result.data);
+        setGaji(result.data);
         setTotalItems(result.total);
         setLoading(false);
     };
 
     useEffect(() => {
         fetchData();
-    }, [currentPage, itemsPerPage, selectedStatus, selectedRole]);
+    }, [currentPage, itemsPerPage, selectedStatus, selectedBulan]);
+
+    const getStatusColor = (gj: Gaji) => {
+        if (gj.status === "Belum Dibayar") return "bg-yellow-100 text-yellow-800";
+        if (gj.status === "Dibayar") return "bg-green-100 text-green-800";
+        const today = new Date();
+        const due = new Date(gj.dueDate);
+        if (gj.status === "Terlambat" || (gj.status === "Belum Dibayar" && due < today)) {
+            return "bg-red-100 text-red-800";
+        }
+        return "bg-gray-100 text-gray-700";
+    };
 
     useEffect(() => {
         const params = new URLSearchParams();
-        if (selectedStatus) params.set("status", selectedStatus);
-        if (selectedRole && selectedRole !== "All") params.set("role", selectedRole);
+        if (selectedStatus && selectedStatus !== "All") params.set("status", selectedStatus);
+        if (selectedBulan) params.set("bulan", selectedBulan);
         router.replace(`?${params.toString()}`);
-    }, [selectedStatus, selectedRole, router]);
+    }, [selectedStatus, selectedBulan, router]);
 
     const renderHtml = (
         <div className="flex flex-col gap-4 w-full">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm font-medium text-(--color-text-secondary)">
+                                Filter by Bulan:
+                            </label>
+                        <input
+                            type="month"
+                            value={selectedBulan}
+                            onChange={(e) => {
+                                const selectedMonth = e.target.value;
+                                setSelectedBulan(selectedMonth);
+                                const params = new URLSearchParams(searchParams);
+                                if (selectedMonth) params.set("bulan", selectedMonth);
+                                else params.delete("bulan");
+                                router.replace(`?${params.toString()}`);
+                            }}
+                            className="border border-(--color-border) rounded-md px-3 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-(--color-primary)"
+                        />
+                    </div>
+
                     <div className="flex items-center gap-2">
                         <label className="text-sm font-medium text-(--color-text-secondary)">
                             Filter by Status:
@@ -64,27 +94,10 @@ const CutiShows: React.FC<CutiRequestProps> = ({
                             onChange={(e) => setSelectedStatus(e.target.value)}
                             className="border border-(--color-border) rounded-md px-3 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-(--color-primary)"
                         >
-                            <option value="All">All Status</option>
-                            <option value="Menunggu">Menunggu</option>
-                            <option value="Ditolak">Ditolak</option>
-                            <option value="Diterima">Diterima</option>
-                        </select>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-(--color-text-secondary)">
-                            Filter by Role:
-                        </label>
-                        <select
-                            value={selectedRole}
-                            onChange={(e) => setSelectedRole(e.target.value)}
-                            className="border border-(--color-border) rounded-md px-3 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-(--color-primary)"
-                        >
-                            <option value="All">All Roles</option>
-                            <option value="HR">HR</option>
-                            <option value="Admin">Admin</option>
-                            <option value="Project_Manager">Project Manager</option>
-                            <option value="Freelance">Freelance</option>
+                            <option value="All">Semua Status</option>
+                            <option value="Dibayar">Dibayar</option>
+                            <option value="Belum Dibayar">Belum Dibayar</option>
+                            <option value="Terlambat">Terlambat</option>
                         </select>
                     </div>
                 </div>
@@ -100,52 +113,64 @@ const CutiShows: React.FC<CutiRequestProps> = ({
                     
                     ))}
                 </div>
-            ) : cuti.length > 0 ? (
+            ) : gaji.length > 0 ? (
                 <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {cuti.map((ct) => (
+                    {gaji.map((gj) => (
                         <Link
-                            key={ct.id}
-                            href={`/dashboard/cuti-karyawan/${ct.id}`}
+                            key={gj.id}
+                            href={`/dashboard/gaji-karyawan/${gj.id}`}
                             className="group bg-(--color-surface) border border-(--color-border) rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200"
                         >
                             <div className="p-5 flex flex-col gap-3">
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-(--color-muted) font-medium truncate">
-                                        {ct.id}
+                                        {gj.id}
                                     </span>
                                     <span className="px-3 py-1 text-xs rounded-lg border border-(--color-border) bg-(--color-background) text-(--color-text-primary)">
-                                        {ct.minorRole}
+                                        {gj.minorRole}
                                     </span>
                                 </div>
 
                                 <div className="flex flex-col gap-1 mt-2">
-                                    <h2 className="font-semibold text-lg text-(--color-text-primary)">
-                                        {ct.name}
-                                    </h2>
-                                    <p className="text-sm text-(--color-text-secondary)">
-                                        Alasan : {ct.reason}
+                                    <h2 className="font-semibold text-lg">{gj.name}</h2>
+                                    <p className="text-sm text-gray-600">{gj.branch}</p>
+                                    <p className="text-sm">
+                                        <span className="font-medium">{gj.month}</span> — {" "}
+                                        {gj.amount.toLocaleString("id-ID", {
+                                            style: "currency",
+                                            currency: "IDR",
+                                        })}
                                     </p>
-                                    <p className="text-sm text-(--color-text-secondary)">
-                                        Date:{" "}
-                                        <span className="font-medium text-(--color-text-primary)">
-                                        {ct.startDate || "-"} s.d {ct.endDate}
-                                        </span>
+                                    <p className="text-xs text-gray-500">
+                                        Tenggat: {gj.dueDate}
+                                        
                                     </p>
-                                    {/* <p className="text-sm text-(--color-text-secondary)">
-                                        Time: {abs.checkIn} - {abs.checkOut}
-                                    </p> */}
+                                    <p className="text-xs text-gray-500">
+                                        Dibayar: {gj.paymentDate ? `${gj.paymentDate}` : "-"}
+                                    </p>
+                                    <span
+                                        className={`px-3 py-1 text-xs font-semibold rounded-lg border ${getStatusColor(
+                                            gj
+                                        )}`}
+                                    >
+                                        {gj.status}
+                                    </span>
                                 </div>
 
                                 {showButton && (
                                     <button
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            onButtonClick?.(ct.id);
-                                            router.push(`/dashboard/cuti-karyawan/${ct.id}`);
+                                            onButtonClick?.(gj.id);
+                                            router.push(`/dashboard/gaji-karyawan/${gj.id}`);
                                         }}
                                         className="mt-3 w-full py-2 rounded-lg text-sm font-semibold bg-(--color-primary) text-white hover:bg-(--color-tertiary) hover:text-(--color-secondary) transition"
                                     >
-                                        {buttonText || "Cuti Lebih Lanjut"}
+                                        {(gj.status === "Belum Dibayar" || gj.status === "Terlambat") ? (
+                                            <p>{buttonText}</p>
+                                        ): (
+                                            <p>Detail Gaji Karyawan</p>
+                                        )}
                                     </button>
                                 )}
                             </div>
@@ -154,11 +179,11 @@ const CutiShows: React.FC<CutiRequestProps> = ({
                 </div>
             ) : (
                 <p className="text-center text-gray-500 py-6">
-                    Tidak ada data cuti sesuai filter.
+                    Tidak ada data gaji sesuai filter.
                 </p>
             )}
 
-            {cuti.length > 0 && !loading && (
+            {gaji.length > 0 && !loading && (
                 <div className="mt-6">
                     <PaginationBar
                         totalItems={totalItems}
@@ -175,4 +200,4 @@ const CutiShows: React.FC<CutiRequestProps> = ({
     return renderHtml;
 };
 
-export default CutiShows;
+export default GajiShows;

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { dummyAbsensi } from "@/app/lib/dummyData/AbsensiData";
 import { Absensi } from "@/app/lib/types/types";
+import Link from "next/link";
 
 export default function AbsensiShowsDetail({ id }: { id: string }) {
     const [data, setData] = useState<Absensi | null>(null);
@@ -17,7 +18,10 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
             setLoading(false);
 
             const historyData = dummyAbsensi
-                .filter((ct) => ct.name === found?.name && ct.id !== found?.id)
+                .filter((ct) => 
+                    ct.name === found?.name && 
+                    ct.date < found.date
+                )
                 .slice(0, 10);
             setHistory(historyData);
         }, 400);
@@ -94,53 +98,50 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
                         </select>
                     </div>
 
-                    <div className="overflow-x-auto rounded-xl border border-(--color-border)">
-                        <table className="min-w-full text-sm">
-                            <thead className="bg-(--color-tertiary) text-white text-left">
-                                <tr>
-                                    <th className="py-3 px-4 rounded-tl-xl">Tanggal</th>
-                                    <th className="py-3 px-4">Check In</th>
-                                    <th className="py-3 px-4">Check Out</th>
-                                    <th className="py-3 px-4 rounded-tr-xl">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {history.map((item, index) => (
-                                    <tr
-                                        key={index}
-                                        className={`border-b border-(--color-border) hover:bg-(--color-background) transition-colors ${
-                                            index % 2 === 0 ? "bg-white" : "bg-(--color-background)"
-                                        }`}
-                                    >
-                                        <td className="py-3 px-4 font-medium">{item.date}</td>
-                                        <td className="py-3 px-4 text-(--color-success)">
-                                            {item.checkIn}
-                                        </td>
-                                        <td className="py-3 px-4 text-(--color-error)">
-                                            {item.checkOut}
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            <span
-                                                className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                                    item.workStatus === "Work From Home"
-                                                        ? "bg-green-100 text-green-700"
-                                                        : item.workStatus === "Hybrid"
-                                                        ? "bg-yellow-100 text-yellow-700"
-                                                        : "bg-red-100 text-red-700"
-                                                }`}
-                                            >
-                                                {item.workStatus}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
                     {history.length === 0 && (
                         <div className="text-center text-(--color-muted) py-6">
                             Belum ada riwayat absensi.
+                        </div>
+                    )}
+                    {history.length > 0 ? (
+                        history.map((abs) => (
+                            <div
+                                key={abs.id}
+                                className="flex justify-between items-center rounded-lg p-4 border border-(--color-border) shadow-sm hover:shadow-md transition-shadow bg-white"
+                            >
+                                <div className="flex flex-col gap-0 items-start">
+                                    <p className="font-medium text-(--color-text-primary)">
+                                        {abs.date}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                        <span className="py-3 text-(--color-success)">{abs.checkIn}</span>
+                                        - 
+                                        <span className="py-3 text-(--color-error)">{abs.checkOut}</span>
+                                    </p>
+                                </div>
+                                <div className="flex flex-col md:flex-row md:items-center gap-2">
+                                    <span
+                                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                            abs.workStatus === "Work From Home"
+                                            ? "bg-green-100 text-green-700"
+                                            : abs.workStatus === "Hybrid"
+                                            ? "bg-red-100 text-red-700"
+                                            : "bg-yellow-100 text-yellow-700"
+                                        }`}
+                                    >
+                                        {abs.workStatus}
+                                    </span>
+                                    <Link
+                                        href={`/dashboard/absensi-karyawan/${abs.id}`}
+                                        className="flex items-center gap-2 p-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 cursor-pointer"
+                                    />
+                                    
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="text-center text-(--color-muted) py-6">
+                            Belum ada riwayat cuti lainnya.
                         </div>
                     )}
                 </div>

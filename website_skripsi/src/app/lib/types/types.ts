@@ -23,3 +23,15 @@ export type Cuti = {
     approver: string;
     submissionDate: string;
 };
+
+export type Gaji = {
+    id: string;
+    name: string;
+    minorRole: string;
+    branch: string;
+    month: string;
+    dueDate: string;
+    paymentDate?: string | null;
+    status: "Belum Dibayar" | "Dibayar" | "Terlambat";
+    amount: number;
+};
