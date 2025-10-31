@@ -22,6 +22,11 @@ export const icons = {
     arrowMenu: "/assets/icons/arrow-right.svg",
     arrowDownMenu: "/assets/icons/arrow-down.svg",
     homeLogo: "/assets/icons/home.svg",
+    viewLogo: "/assets/icons/view.svg",
+    editLogo: "/assets/icons/edit.svg",
+    deleteLogo: "/assets/icons/delete.svg",
+    addLogo: "/assets/icons/add.svg",
+    saveLogo: "/assets/icons/save.svg",
 
     // HR Management Icons
     absensiLogo: "/assets/icons/absen.svg",

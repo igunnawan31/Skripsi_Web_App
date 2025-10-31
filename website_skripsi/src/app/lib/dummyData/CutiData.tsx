@@ -1,4 +1,4 @@
-import { Cuti } from "@/app/lib/types/types";
+import { Cuti, CutiStatus } from "@/app/lib/types/types";
 
 export const dummyCuti: Cuti[] = [
     {
@@ -11,7 +11,7 @@ export const dummyCuti: Cuti[] = [
         reason: "Liburan keluarga",
         majorRole: "Karyawan",
         minorRole: "Frontend Developer",
-        status: "Diterima",
+        status: CutiStatus.DITERIMA,
         approver: "HRD - Sinta Rahmawati",
         submissionDate: "2025-10-05",
     },
@@ -25,7 +25,7 @@ export const dummyCuti: Cuti[] = [
         reason: "Acara keluarga",
         majorRole: "Karyawan",
         minorRole: "UI/UX Designer",
-        status: "Menunggu",
+        status: CutiStatus.MENUNGGU,
         approver: "-",
         submissionDate: "2025-10-15",
     },
@@ -39,7 +39,7 @@ export const dummyCuti: Cuti[] = [
         reason: "Sakit",
         majorRole: "Karyawan",
         minorRole: "Backend Developer",
-        status: "Diterima",
+        status: CutiStatus.DITERIMA,
         approver: "HRD - Sinta Rahmawati",
         submissionDate: "2025-09-24",
     },
@@ -53,7 +53,7 @@ export const dummyCuti: Cuti[] = [
         reason: "Menjaga orang tua",
         majorRole: "Karyawan",
         minorRole: "Project Manager",
-        status: "Ditolak",
+        status: CutiStatus.DITOLAK,
         approver: "HRD - Sinta Rahmawati",
         submissionDate: "2025-09-30",
     },
@@ -67,7 +67,7 @@ export const dummyCuti: Cuti[] = [
         reason: "Pernikahan saudara",
         majorRole: "Karyawan",
         minorRole: "Admin",
-        status: "Menunggu",
+        status: CutiStatus.MENUNGGU,
         approver: "-",
         submissionDate: "2025-10-19",
     },
@@ -81,7 +81,7 @@ export const dummyCuti: Cuti[] = [
         reason: "Liburan keluarga",
         majorRole: "Karyawan",
         minorRole: "Frontend Developer",
-        status: "Diterima",
+        status: CutiStatus.DITERIMA,
         approver: "HRD - Sinta Rahmawati",
         submissionDate: "2025-10-27",
     },

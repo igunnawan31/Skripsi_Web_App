@@ -3,10 +3,11 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/PaginationBar";
-import { Cuti } from "@/app/lib/types/types";
+import { Cuti, CutiStatus, GajiStatus } from "@/app/lib/types/types";
 import { fetchCuti } from "@/app/lib/hooks/dummyHooks/fetchCuti";
 import { useSearchParams, useRouter } from "next/navigation";
 import { CutiRequestProps } from "@/app/props/HRProps/cutiProps";
+import FilterBar from "@/app/dashboard/dashboardComponents/allComponents/FilterBar";
 
 const CutiShows: React.FC<CutiRequestProps> = ({
     showButton = false,
@@ -44,6 +45,15 @@ const CutiShows: React.FC<CutiRequestProps> = ({
         fetchData();
     }, [currentPage, itemsPerPage, selectedStatus, selectedRole]);
 
+    const getStatusColor = (ct: Cuti) => {
+        if (ct.status === CutiStatus.MENUNGGU) return "bg-yellow-100 text-yellow-800";
+        if (ct.status === CutiStatus.DITERIMA) return "bg-green-100 text-green-800";
+        if (ct.status === CutiStatus.DITOLAK) {
+            return "bg-red-100 text-red-800";
+        }
+        return "bg-gray-100 text-gray-700";
+    };
+
     useEffect(() => {
         const params = new URLSearchParams();
         if (selectedStatus) params.set("status", selectedStatus);
@@ -55,38 +65,29 @@ const CutiShows: React.FC<CutiRequestProps> = ({
         <div className="flex flex-col gap-4 w-full">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-4">
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-(--color-text-secondary)">
-                            Filter by Status:
-                        </label>
-                        <select
-                            value={selectedStatus}
-                            onChange={(e) => setSelectedStatus(e.target.value)}
-                            className="border border-(--color-border) rounded-md px-3 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-(--color-primary)"
-                        >
-                            <option value="All">All Status</option>
-                            <option value="Menunggu">Menunggu</option>
-                            <option value="Ditolak">Ditolak</option>
-                            <option value="Diterima">Diterima</option>
-                        </select>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-(--color-text-secondary)">
-                            Filter by Role:
-                        </label>
-                        <select
-                            value={selectedRole}
-                            onChange={(e) => setSelectedRole(e.target.value)}
-                            className="border border-(--color-border) rounded-md px-3 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-(--color-primary)"
-                        >
-                            <option value="All">All Roles</option>
-                            <option value="HR">HR</option>
-                            <option value="Admin">Admin</option>
-                            <option value="Project_Manager">Project Manager</option>
-                            <option value="Freelance">Freelance</option>
-                        </select>
-                    </div>
+                    <FilterBar
+                        label="Filter by Status:"
+                        value={selectedStatus}
+                        onChange={setSelectedStatus}
+                        options={[
+                            { value: "All", label: "Semua Status" },
+                            { value: "Menunggu", label: "Menunggu" },
+                            { value: "Ditolak", label: "Ditolak" },
+                            { value: "Diterima", label: "Diterima" },
+                        ]}
+                    />
+                    <FilterBar
+                        label="Filter by Role:"
+                        value={selectedRole}
+                        onChange={setSelectedRole}
+                        options={[
+                            { value: "All", label: "All Roles" },
+                            { value: "HR", label: "HR" },
+                            { value: "Admin", label: "Admin" },
+                            { value: "Project_Manager", label: "Project Manager" },
+                            { value: "Freelance", label: "Freelance" },
+                        ]}
+                    />
                 </div>
             </div>
 
@@ -97,7 +98,6 @@ const CutiShows: React.FC<CutiRequestProps> = ({
                             key={i}
                             className="animate-pulse w-full bg-slate-200 h-48 rounded-xl"
                         ></div>
-                    
                     ))}
                 </div>
             ) : cuti.length > 0 ? (
@@ -128,12 +128,19 @@ const CutiShows: React.FC<CutiRequestProps> = ({
                                     <p className="text-sm text-(--color-text-secondary)">
                                         Date:{" "}
                                         <span className="font-medium text-(--color-text-primary)">
-                                        {ct.startDate || "-"} s.d {ct.endDate}
+                                            {ct.startDate || "-"} s.d {ct.endDate}
                                         </span>
                                     </p>
-                                    {/* <p className="text-sm text-(--color-text-secondary)">
-                                        Time: {abs.checkIn} - {abs.checkOut}
-                                    </p> */}
+                                    <p className="text-sm text-(--color-text-secondary)">
+                                        Total Hari : {ct.totalDays}
+                                    </p>
+                                    <span
+                                        className={`px-3 py-1 text-xs font-semibold rounded-lg border ${getStatusColor(
+                                            ct
+                                        )}`}
+                                    >
+                                        {ct.status}
+                                    </span>
                                 </div>
 
                                 {showButton && (
@@ -143,9 +150,13 @@ const CutiShows: React.FC<CutiRequestProps> = ({
                                             onButtonClick?.(ct.id);
                                             router.push(`/dashboard/cuti-karyawan/${ct.id}`);
                                         }}
-                                        className="mt-3 w-full py-2 rounded-lg text-sm font-semibold bg-(--color-primary) text-white hover:bg-(--color-tertiary) hover:text-(--color-secondary) transition"
+                                        className="mt-3 w-full py-2 rounded-lg text-sm font-semibold bg-(--color-primary) text-white hover:bg-(--color-tertiary) hover:text-(--color-secondary) transition cursor-pointer"
                                     >
-                                        {buttonText || "Cuti Lebih Lanjut"}
+                                        {(ct.status === CutiStatus.MENUNGGU) ? (
+                                            <p>{buttonText}</p>
+                                        ): (
+                                            <p>Detail Gaji Karyawan</p>
+                                        )}
                                     </button>
                                 )}
                             </div>

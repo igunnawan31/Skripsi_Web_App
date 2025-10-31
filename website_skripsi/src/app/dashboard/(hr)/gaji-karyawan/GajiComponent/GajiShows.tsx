@@ -5,8 +5,9 @@ import React, { useEffect, useState } from "react";
 import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/PaginationBar";
 import { useSearchParams, useRouter } from "next/navigation";
 import { GajiRequestProps } from "@/app/props/HRProps/GajiProps";
-import { Gaji } from "@/app/lib/types/types";
+import { Gaji, GajiStatus } from "@/app/lib/types/types";
 import { fetchGaji } from "@/app/lib/hooks/dummyHooks/fetchGaji";
+import FilterBar from "@/app/dashboard/dashboardComponents/allComponents/FilterBar";
 
 const GajiShows: React.FC<GajiRequestProps> = ({
     showButton = false,
@@ -45,11 +46,11 @@ const GajiShows: React.FC<GajiRequestProps> = ({
     }, [currentPage, itemsPerPage, selectedStatus, selectedBulan]);
 
     const getStatusColor = (gj: Gaji) => {
-        if (gj.status === "Belum Dibayar") return "bg-yellow-100 text-yellow-800";
-        if (gj.status === "Dibayar") return "bg-green-100 text-green-800";
+        if (gj.status === GajiStatus.BELUM_DIBAYAR) return "bg-yellow-100 text-yellow-800";
+        if (gj.status === GajiStatus.DIBAYAR) return "bg-green-100 text-green-800";
         const today = new Date();
         const due = new Date(gj.dueDate);
-        if (gj.status === "Terlambat" || (gj.status === "Belum Dibayar" && due < today)) {
+        if (gj.status === GajiStatus.TERLAMBAT && due < today) {
             return "bg-red-100 text-red-800";
         }
         return "bg-gray-100 text-gray-700";
@@ -84,22 +85,18 @@ const GajiShows: React.FC<GajiRequestProps> = ({
                             className="border border-(--color-border) rounded-md px-3 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-(--color-primary)"
                         />
                     </div>
-
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-(--color-text-secondary)">
-                            Filter by Status:
-                        </label>
-                        <select
-                            value={selectedStatus}
-                            onChange={(e) => setSelectedStatus(e.target.value)}
-                            className="border border-(--color-border) rounded-md px-3 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-(--color-primary)"
-                        >
-                            <option value="All">Semua Status</option>
-                            <option value="Dibayar">Dibayar</option>
-                            <option value="Belum Dibayar">Belum Dibayar</option>
-                            <option value="Terlambat">Terlambat</option>
-                        </select>
-                    </div>
+                    
+                    <FilterBar
+                        label="Filter by Status:"
+                        value={selectedStatus}
+                        onChange={setSelectedStatus}
+                        options={[
+                            { value: "All", label: "Semua Status" },
+                            { value: "Dibayar", label: "Dibayar" },
+                            { value: "Belum_Dibayar", label: "Belum Dibayar" },
+                            { value: "Terlambat", label: "Terlambat" },
+                        ]}
+                    />
                 </div>
             </div>
 
@@ -110,7 +107,6 @@ const GajiShows: React.FC<GajiRequestProps> = ({
                             key={i}
                             className="animate-pulse w-full bg-slate-200 h-48 rounded-xl"
                         ></div>
-                    
                     ))}
                 </div>
             ) : gaji.length > 0 ? (
@@ -126,14 +122,10 @@ const GajiShows: React.FC<GajiRequestProps> = ({
                                     <span className="text-(--color-muted) font-medium truncate">
                                         {gj.id}
                                     </span>
-                                    <span className="px-3 py-1 text-xs rounded-lg border border-(--color-border) bg-(--color-background) text-(--color-text-primary)">
-                                        {gj.minorRole}
-                                    </span>
                                 </div>
 
                                 <div className="flex flex-col gap-1 mt-2">
                                     <h2 className="font-semibold text-lg">{gj.name}</h2>
-                                    <p className="text-sm text-gray-600">{gj.branch}</p>
                                     <p className="text-sm">
                                         <span className="font-medium">{gj.month}</span> — {" "}
                                         {gj.amount.toLocaleString("id-ID", {
@@ -164,9 +156,9 @@ const GajiShows: React.FC<GajiRequestProps> = ({
                                             onButtonClick?.(gj.id);
                                             router.push(`/dashboard/gaji-karyawan/${gj.id}`);
                                         }}
-                                        className="mt-3 w-full py-2 rounded-lg text-sm font-semibold bg-(--color-primary) text-white hover:bg-(--color-tertiary) hover:text-(--color-secondary) transition"
+                                        className="mt-3 w-full py-2 rounded-lg text-sm font-semibold bg-(--color-primary) text-white hover:bg-(--color-tertiary) hover:text-(--color-secondary) transition cursor-pointer"
                                     >
-                                        {(gj.status === "Belum Dibayar" || gj.status === "Terlambat") ? (
+                                        {(gj.status === GajiStatus.BELUM_DIBAYAR || gj.status === GajiStatus.TERLAMBAT) ? (
                                             <p>{buttonText}</p>
                                         ): (
                                             <p>Detail Gaji Karyawan</p>

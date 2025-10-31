@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Gaji } from "@/app/lib/types/types";
+import { Gaji, GajiStatus } from "@/app/lib/types/types";
 import { dummyGaji } from "@/app/lib/dummyData/GajiData";
 
 export default function GajiShowsDetail({ id }: { id: string }) {
     const [data, setData] = useState<Gaji | null>(null);
     const [loading, setLoading] = useState(true);
     const [history, setHistory] = useState<Gaji[]>([]);
-    const [showForm, setShowForm] = useState(false); // ✅ state untuk toggle form
+    const [showForm, setShowForm] = useState(false);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -43,14 +43,26 @@ export default function GajiShowsDetail({ id }: { id: string }) {
     };
 
     const getStatusColor = (gj: Gaji) => {
-        if (gj.status === "Belum Dibayar") return "bg-yellow-100 text-yellow-800";
-        if (gj.status === "Dibayar") return "bg-green-100 text-green-800";
         const today = new Date();
         const due = new Date(gj.dueDate);
-        if (gj.status === "Terlambat" || (gj.status === "Belum Dibayar" && due < today)) {
+
+        if (gj.status === GajiStatus.BELUM_DIBAYAR) 
+            return "bg-yellow-100 text-yellow-800";
+
+        if (gj.status === GajiStatus.DIBAYAR) 
+            return "bg-green-100 text-green-800";
+
+        if (gj.status === GajiStatus.TERLAMBAT || 
+        (gj.status === GajiStatus.BELUM_DIBAYAR && due < today)) 
             return "bg-red-100 text-red-800";
-        }
+
         return "bg-gray-100 text-gray-700";
+    };
+
+    const statusClasses: Record<GajiStatus, string> = {
+        [GajiStatus.BELUM_DIBAYAR]: "bg-yellow-100 text-yellow-800",
+        [GajiStatus.DIBAYAR]: "bg-green-100 text-green-800",
+        [GajiStatus.TERLAMBAT]: "bg-red-100 text-red-800",
     };
 
     if (loading) return <div className="text-center text-(--color-muted)">Memuat data...</div>;
@@ -73,21 +85,16 @@ export default function GajiShowsDetail({ id }: { id: string }) {
                             <h2 className="text-lg font-semibold text-(--color-text-primary)">
                                 {data.name}
                             </h2>
-                            <p className="text-sm text-(--color-text-secondary)">
-                                Jabatan: {data.minorRole}
-                            </p>
                         </div>
                     </div>
 
                     <div className="w-full md:w-1/2 flex flex-col gap-4">
                         <div className="flex flex-col gap-y-2 text-sm items-start justify-start">
-                            <p className="text-(--color-muted)">Cabang</p>
-                            <p className="font-medium text-(--color-text-primary)">{data.branch}</p>
                             <p className="text-(--color-muted)">Status Cuti</p>
                             <p>{data.status}</p>
                         </div>
 
-                        {(data.status === "Belum Dibayar" || data.status === "Terlambat") ? (
+                        {(data.status === GajiStatus.BELUM_DIBAYAR || data.status === GajiStatus.TERLAMBAT) ? (
                             <div className="w-full flex gap-3">
                                 <button
                                     onClick={handlePembayaran}
@@ -216,12 +223,16 @@ export default function GajiShowsDetail({ id }: { id: string }) {
                                 </div>
                                 <div className="flex flex-col md:flex-row md:items-center gap-2">
                                     <span
-                                        className={`px-3 py-1 text-xs font-semibold rounded-lg border ${getStatusColor(
-                                            gj
-                                        )}`}
-                                    >
+                                        className={`px-3 py-1 text-xs font-semibold rounded-lg border ${
+                                            gj.status === GajiStatus.DIBAYAR
+                                            ? "bg-green-100 text-green-800"
+                                            : gj.status === GajiStatus.TERLAMBAT
+                                            ? "bg-red-100 text-red-800"
+                                            : "bg-yellow-100 text-yellow-800"
+                                        }`}
+                                        >
                                         {gj.status}
-                                    </span>
+                                        </span>
                                     <Link
                                         href={`/dashboard/gaji-karyawan/${gj.id}`}
                                         className="flex items-center gap-2 p-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 cursor-pointer"

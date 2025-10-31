@@ -7,6 +7,7 @@ import { Absensi } from "@/app/lib/types/types";
 import { AbsensiRequestProps } from "@/app/props/HRProps/AbsensiProps";
 import { fetchAbsensi } from "@/app/lib/hooks/dummyHooks/fetchAbsensi";
 import { useSearchParams, useRouter } from "next/navigation";
+import FilterBar from "@/app/dashboard/dashboardComponents/allComponents/FilterBar";
 
 const AbsensiShows: React.FC<AbsensiRequestProps> = ({
     showButton = false,
@@ -67,23 +68,18 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
                             className="border border-(--color-border) rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-(--color-primary)"
                         />
                     </div>
-
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-(--color-text-secondary)">
-                            Filter by Role:
-                        </label>
-                        <select
-                            value={selectedRole}
-                            onChange={(e) => setSelectedRole(e.target.value)}
-                            className="border border-(--color-border) rounded-md px-3 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-(--color-primary)"
-                        >
-                            <option value="All">All Roles</option>
-                            <option value="HR">HR</option>
-                            <option value="Admin">Admin</option>
-                            <option value="Project_Manager">Project Manager</option>
-                            <option value="Freelance">Freelance</option>
-                        </select>
-                    </div>
+                    <FilterBar
+                        label="Filter by Role:"
+                        value={selectedRole}
+                        onChange={setSelectedRole}
+                        options={[
+                            { value: "All", label: "All Roles" },
+                            { value: "HR", label: "HR" },
+                            { value: "Admin", label: "Admin" },
+                            { value: "Project_Manager", label: "Project Manager" },
+                            { value: "Freelance", label: "Freelance" },
+                        ]}
+                    />
                 </div>
             </div>
 
@@ -94,7 +90,6 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
                             key={i}
                             className="animate-pulse w-full bg-slate-200 h-48 rounded-xl"
                         ></div>
-                    
                     ))}
                 </div>
             ) : absensi.length > 0 ? (
