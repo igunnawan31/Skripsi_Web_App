@@ -31,7 +31,7 @@ export const authStyles = StyleSheet.create({
     title: {
         fontSize: 24,
         fontWeight: "bold",
-        color: COLORS.primary,
+        color: COLORS.secondary,
         textAlign: "center",
         marginBottom: 24,
     },
@@ -65,17 +65,17 @@ export const authStyles = StyleSheet.create({
         alignItems: "center",
         width: "100%",
         borderWidth: 1,
-        borderColor: COLORS.primary,
+        borderColor: COLORS.secondary,
         borderRadius: 8,
         paddingHorizontal: 12,
     },
     inputTitle: {
         fontWeight: "600",
         marginBottom: 6,
-        color: COLORS.primary
+        color: COLORS.secondary,
     },
     button: {
-        backgroundColor: COLORS.primary,
+        backgroundColor: COLORS.tertiary,
         borderRadius: 12,
         padding: 16,
         alignItems: "center",
@@ -108,7 +108,7 @@ export const authStyles = StyleSheet.create({
         fontSize: 16,
     },
     linkText: {
-        color: COLORS.primary,
+        color: COLORS.tertiary,
         fontSize: 16,
         fontWeight: "600",
     },

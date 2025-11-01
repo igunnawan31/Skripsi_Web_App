@@ -1,13 +1,7 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import { Stack } from 'expo-router'
+import Tabs from "@/components/rootComponents/Tabs";
 
-const HomeRoutesLayout = () => {
+export default function RootTabsLayout() {
     return (
-        <Stack 
-            screenOptions={{ headerShown: false }}
-        />
+        <Tabs />
     )
 }
-
-export default HomeRoutesLayout

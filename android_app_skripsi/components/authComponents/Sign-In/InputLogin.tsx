@@ -31,7 +31,7 @@ const InputLogin: React.FC<InputLoginProps> = ({ title, placeholder, secureTextE
                         <Ionicons
                             name={isSecure ? "eye-off" : "eye"}
                             size={20}
-                            color={COLORS.primary}
+                            color={COLORS.tertiary}
                         />
                     </TouchableOpacity>
                 )}

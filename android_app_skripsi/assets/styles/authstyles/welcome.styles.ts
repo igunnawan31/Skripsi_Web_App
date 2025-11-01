@@ -23,7 +23,7 @@ export const welcomeStyles = StyleSheet.create({
         padding: 16,
         marginHorizontal: 10,
         width: width,
-        height: "74%",
+        height: "75%",
         alignSelf: "center"
     },
     imageView : {
