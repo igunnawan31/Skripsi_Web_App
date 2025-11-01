@@ -5,8 +5,8 @@ import { Image } from 'expo-image';
 import { authStyles } from '@/assets/styles/authstyles/auth.styles';
 import CardExplanation from '@/components/welcomeComponents/CardExplanation';
 import { useRouter } from 'expo-router';
-import CardLogin from '@/components/authComponents/CardLogin';
-import ButtonSignIn from '@/components/authComponents/ButtonSignIn';
+import CardLogin from '@/components/authComponents/Sign-In/CardLogin';
+import ButtonSignIn from '@/components/authComponents/Sign-In/ButtonSignIn';
 
 const { width } = Dimensions.get("window");
 

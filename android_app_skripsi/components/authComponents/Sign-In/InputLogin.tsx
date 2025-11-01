@@ -5,9 +5,9 @@ import { COLORS } from '@/constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 
 type InputLoginProps = {
-  title: string;
-  placeholder: string;
-  secureTextEntry?: boolean;
+    title: string;
+    placeholder: string;
+    secureTextEntry?: boolean;
 };
 
 const InputLogin: React.FC<InputLoginProps> = ({ title, placeholder, secureTextEntry }) => {
