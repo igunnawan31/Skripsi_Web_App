@@ -4,7 +4,7 @@ export const COLORS = {
   primary: "#F82237",     // Warna utama (merah khas brand)
   primaryOpacity80: "#F8223780",     // Warna utama (merah khas brand)
   secondary: "#1E293B",   // Warna sekunder (abu tua / biru gelap)
-  tertiary: "#FDBA74",    // Warna aksen (oranye lembut)
+  tertiary: "#DE8F0E",    // Warna aksen (oranye lembut)
 
   // 🧱 Background & Surface
   background: "#FFF9F0",  // Warna latar belakang utama (cream lembut)'
