@@ -11,7 +11,7 @@ const ButtonSignIn: React.FC<ButtonSignInProps> = ({text}) => {
     const router = useRouter();
     
     const handleSignIn = () => {
-        router.push('/')
+        router.push('/home')
     }
 
     return (

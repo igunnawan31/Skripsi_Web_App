@@ -1,7 +1,7 @@
-import HomePage from "@/app/(root)";
-import CutiPage from "@/app/(root)/cuti";
-import HistoryAbsensiPage from "@/app/(root)/historyAbsensi";
-import ProfilePage from "@/app/(root)/profile";
+import HomePage from "@/app/(tabs)/home";
+import CutiPage from "@/app/(tabs)/cuti";
+import HistoryAbsensiPage from "@/app/(tabs)/history";
+import ProfilePage from "@/app/(tabs)/profile";
 
 import { tabStyles } from "@/assets/styles/rootstyles/tab.styles";
 import { COLORS } from "@/constants/colors";

@@ -13,7 +13,7 @@ const { width } = Dimensions.get("window");
 const SignInPage = () => {
   const router = useRouter();
   const handleNext = () => {
-    router.push("/");
+    router.push("/home");
   }
 
   return (

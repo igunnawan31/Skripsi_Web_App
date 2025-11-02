@@ -12,7 +12,7 @@ const ProfilePage = () => {
     const [data, setData] = useState(dummyUsers);
     const [itemPick, setItemPick] = useState<"Personal" | "Business" | "Others">("Personal");
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [profileImage, setProfileImage] = useState(require("../../assets/images/foto2.jpeg"));
+    const [profileImage, setProfileImage] = useState(require("../../../assets/images/foto2.jpeg"));
 
     const pickImageFromGallery = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -68,7 +68,7 @@ const ProfilePage = () => {
                             onPress={() => setIsModalVisible(true)}
                         >
                             <Image
-                                source={require("../../assets/icons/changeImage.png")}
+                                source={require("../../../assets/icons/changeImage.png")}
                                 style={profileStyles.icons}
                             />
                             <Text style={profileStyles.textChangeImage}>Change Profile</Text>

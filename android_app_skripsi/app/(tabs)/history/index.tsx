@@ -53,12 +53,23 @@ const HistoryAbsensiPage = () => {
         >
             <View style={historyStyles.container}>
                 <View style={historyStyles.header}>
-                    <Text style={historyStyles.headerTitle}>
-                        History
-                    </Text>
-                    <Text style={historyStyles.headerDescription}>
-                        Ini adalah history absensi yang kamu miliki per bulannya
-                    </Text>
+                    <View style={historyStyles.logoHeaderContainer}>
+                        <Image
+                            style={historyStyles.logoHeader}
+                            source={require("../../../assets/icons/history.png")}
+                        />
+                    </View>
+                    <View>
+                        <Text style={historyStyles.headerTitle}>
+                            History
+                        </Text>
+                        <Text style={historyStyles.headerDescription}>
+                            Ini adalah history absensi yang kamu miliki
+                        </Text>
+                        <Text style={historyStyles.headerDescription}>
+                            per bulannya
+                        </Text>
+                    </View>
                 </View>
                 <TouchableOpacity
                     style={historyStyles.filterContainer}
@@ -125,7 +136,7 @@ const HistoryAbsensiPage = () => {
                                         {startDate ? startDate.toDateString() : "Pilih tanggal mulai"}
                                     </Text>
                                     <Image
-                                        source={require("../../assets/icons/calendar.png")}
+                                        source={require("../../../assets/icons/calendar.png")}
                                         style={historyStyles.iconCalendar}
                                     />
                                 </TouchableOpacity>
@@ -142,7 +153,7 @@ const HistoryAbsensiPage = () => {
                                         {endDate ? endDate.toDateString() : "Pilih tanggal selesai"}
                                     </Text>
                                     <Image
-                                        source={require("../../assets/icons/calendar.png")}
+                                        source={require("../../../assets/icons/calendar.png")}
                                         style={historyStyles.iconCalendar}
                                     />
                                 </TouchableOpacity>
@@ -206,14 +217,14 @@ const HistoryAbsensiPage = () => {
                         <View style={historyStyles.timeContainer}>
                             <View style={historyStyles.timeBox}>
                                 <Image
-                                    source={require("../../assets/icons/clock-in.png")}
+                                    source={require("../../../assets/icons/clock-in.png")}
                                     style={historyStyles.icon}
                                 />
                                 <Text style={historyStyles.timeText}>Masuk: {item.checkIn}</Text>
                             </View>
                             <View style={historyStyles.timeBox}>
                                 <Image
-                                    source={require("../../assets/icons/clock-out.png")}
+                                    source={require("../../../assets/icons/clock-out.png")}
                                     style={historyStyles.icon}
                                 />
                                 <Text style={historyStyles.timeText}>Pulang: {item.checkOut}</Text>

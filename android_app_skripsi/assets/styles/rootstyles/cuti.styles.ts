@@ -1,12 +1,12 @@
 import { Dimensions, StyleSheet } from "react-native"
 import { COLORS } from "@/constants/colors"
 
-export const historyStyles = StyleSheet.create({
+export const cutiStyles = StyleSheet.create({
     container: {
         flex: 1,
         width: "100%",
         backgroundColor: COLORS.background,
-        paddingBottom: 96,
+        paddingBottom: 48,
         alignItems: "center"
     },
     header: {
@@ -49,7 +49,7 @@ export const historyStyles = StyleSheet.create({
         width: "90%",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: COLORS.primary,
+        backgroundColor: COLORS.tertiary,
         paddingVertical: 10,
         marginVertical: 10,
         borderRadius: 15,
@@ -136,7 +136,7 @@ export const historyStyles = StyleSheet.create({
         tintColor: COLORS.primary,
     },
     applyButton: {
-        marginTop: 20,
+        marginTop: 10,
         backgroundColor: COLORS.primary,
         borderRadius: 10,
         paddingVertical: 15,
@@ -144,8 +144,24 @@ export const historyStyles = StyleSheet.create({
         alignItems: "center",
         width: "100%",
     },
+    cancelButton: {
+        marginTop: 20,
+        backgroundColor: COLORS.white,
+        borderRadius: 10,
+        paddingVertical: 15,
+        paddingHorizontal: 30,
+        alignItems: "center",
+        width: "100%",
+        borderWidth: 1,
+        borderColor: COLORS.primary,
+    },
     applyText: {
         color: COLORS.white,
+        fontSize: 16,
+        fontWeight: "600",
+    },
+    cancelText: {
+        color: COLORS.primary,
         fontSize: 16,
         fontWeight: "600",
     },
@@ -219,5 +235,79 @@ export const historyStyles = StyleSheet.create({
     timeText: {
         fontSize: 13,
         color: COLORS.textPrimary,
+    },
+    cutiAvailableContainer: {
+        width: "100%",
+        paddingHorizontal: 20,
+        flexDirection: "row",
+        justifyContent: "space-between",
+    },
+    cutiAvailable: {
+        height: "auto",
+        width: "48%",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: COLORS.white,
+        paddingVertical: 20,
+        marginVertical: 10,
+        borderRadius: 15,
+        shadowColor: COLORS.shadow,
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 1,
+        elevation: 11,
+        gap: 5,
+    },
+    logoCuti: {
+        width: 30,
+        height: 30,
+        tintColor: COLORS.tertiary,
+    },
+    titleCutiAvailable: {
+        color: COLORS.tertiary,
+        fontSize: 18,
+        fontWeight: "600",
+    },
+    textCutiAvailable: {
+
+    },
+    cutiContainer: {
+        width: "100%",
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+    },
+    ajukanCutiButton: {
+        width: "auto",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: COLORS.tertiary,
+        padding: 10,
+        borderRadius: 15,
+        flexDirection: "row",
+        gap: 10,
+        shadowColor: COLORS.shadow,
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 1,
+        elevation: 11,
+    },
+    textAjukanCuti: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: COLORS.white,
+    },
+    icons: {
+        width: 20,
+        height: 20,
+        tintColor: COLORS.white,
     },
 });

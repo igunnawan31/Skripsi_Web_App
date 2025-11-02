@@ -1,0 +1,47 @@
+export enum CutiStatus {
+    DITERIMA = "Cuti Diterima",
+    DITOLAK = "Cuti Ditolak",
+    MENUNGGU = "Menunggu Jawaban",
+}
+
+export const dummyCuti = [
+    {
+        id: "Cuti-001-Muhamad_Gunawan",
+        name: "Muhamad Gunawan",
+        startDate: "10-09-2025",
+        endDate: "11-09-2025",
+        submissionDate: "2025-09-05",
+        totalDays: 2,
+        reason: "Liburan keluarga",
+        majorRole: "Karyawan",
+        minorRole: "Backend Developer",
+        cutiStatus: CutiStatus.DITOLAK,
+        approver: "HRD - Sinta Rahmawati",
+    },
+    {
+        id: "Cuti-002-Muhamad_Gunawan",
+        name: "Muhamad Gunawan",
+        startDate: "10-10-2025",
+        endDate: "11-10-2025",
+        submissionDate: "2025-10-05",
+        totalDays: 2,
+        reason: "Liburan keluarga",
+        majorRole: "Karyawan",
+        minorRole: "Backend Developer",
+        cutiStatus: CutiStatus.DITERIMA,
+        approver: "HRD - Sinta Rahmawati",
+    },
+    {
+        id: "Cuti-003-Muhamad_Gunawan",
+        name: "Muhamad Gunawan",
+        startDate: "10-11-2025",
+        endDate: "11-11-2025",
+        submissionDate: "2025-11-05",
+        totalDays: 2,
+        reason: "Liburan keluarga",
+        majorRole: "Karyawan",
+        minorRole: "Backend Developer",
+        cutiStatus: CutiStatus.MENUNGGU,
+        approver: "HRD - Sinta Rahmawati",
+    },
+];
