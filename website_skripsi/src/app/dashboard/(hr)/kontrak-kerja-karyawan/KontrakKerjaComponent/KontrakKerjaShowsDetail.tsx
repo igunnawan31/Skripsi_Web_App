@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { KontrakKerja } from "@/app/lib/types/types";
+import { KontrakKerja, WorkStatus } from "@/app/lib/types/types";
 import { dummyKontrakKerja } from "@/app/lib/dummyData/KontrakKerjaData";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { icons } from "@/app/lib/assets/assets";
 
 export default function KontrakKerjaDetail({ id }: { id: string }) {
     const [data, setData] = useState<KontrakKerja | null>(null);
     const [loading, setLoading] = useState(true);
     const [monthlyPercentages, setMonthlyPercentages] = useState<number[]>([]);
     const [monthlyPresence, setMonthlyPresence] = useState<{ bulan: string; absensi: number; cuti: number }[]>([]);
+    const router = useRouter();
 
     const getMonthDifference = (startDate: string, endDate: string): number => {
         if (!startDate || !endDate) return 0;
@@ -90,7 +94,6 @@ export default function KontrakKerjaDetail({ id }: { id: string }) {
             </div>
 
             <div className="w-full bg-(--color-surface) rounded-2xl shadow-md p-6 border border-(--color-border) flex flex-col gap-6">
-                <div className="flex flex-col md:flex-row items-start gap-6">
                     <form className="space-y-6">
                         <div className="flex flex-col">
                             <label className="text-sm font-medium text-gray-600 mb-1">Nama Freelancer</label>
@@ -109,8 +112,22 @@ export default function KontrakKerjaDetail({ id }: { id: string }) {
                             <input
                                 type="text"
                                 name="projectName"
-                                value={data.projectName}
+                                value={data.project?.projectName}
                                 placeholder="Masukkan nama project"
+                                className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                disabled
+                            />
+                        </div>
+
+                        <div className="flex flex-col">
+                            <label className="text-sm font-medium text-gray-600 mb-1">
+                                Status Kerja
+                            </label>
+                           <input
+                                type="text"
+                                name="workStatus"
+                                value={data.workStatus ?? ""}
+                                placeholder="Status Kerja"
                                 className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                 disabled
                             />
@@ -145,7 +162,7 @@ export default function KontrakKerjaDetail({ id }: { id: string }) {
                                 <label className="text-sm text-gray-600">Jumlah Cuti (per bulan)</label>
                                 <input
                                     type="number"
-                                    value={data.absensiBulanan}
+                                    value={data.cutiBulanan}
                                     className="bg-gray-50 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                     disabled
                                 />
@@ -163,7 +180,10 @@ export default function KontrakKerjaDetail({ id }: { id: string }) {
                                     <span className="w-1/3 text-right">Cuti</span>
                                 </div>
                                 {monthlyPresence.map((data, i) => (
-                                    <div key={i} className="w-full flex flex-row text-sm text-gray-700 py-2 border-b">
+                                    <div 
+                                        key={i} 
+                                        className="w-full flex flex-row text-sm text-gray-700 py-2 border-b"
+                                    >
                                         <span className="w-1/3 text-left">{data.bulan}</span>
                                         <span className="w-1/3 text-center">{data.absensi} hari</span>
                                         <span className="w-1/3 text-right">{data.cuti} hari</span>
@@ -178,6 +198,7 @@ export default function KontrakKerjaDetail({ id }: { id: string }) {
                                 name="paymentType"
                                 value={data.metodePembayaran}
                                 className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                disabled
                             />
                         </div>
         
@@ -186,18 +207,22 @@ export default function KontrakKerjaDetail({ id }: { id: string }) {
                                 <label className="text-sm font-medium text-gray-600 mb-1">
                                     Nominal Pembayaran (Rp)
                                 </label>
-                                <input
-                                    type="number"
-                                    name="paymentAmount"
-                                    value={data.pembayaran}
-                                    onChange={handleChange}
-                                    placeholder="cth: 50000000"
-                                    className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                    required
-                                />
+                                <div className="w-full border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 flex items-center">
+                                    <span className="text-gray-600">
+                                        Rp
+                                    </span>
+                                    <input
+                                        type="text"
+                                        name="totalBayaran"
+                                        value={data.totalBayaran.toLocaleString("id-ID")}
+                                        placeholder="cth: 50000000"
+                                        className="w-full px-3 py-1 rounded-lg focus:outline-none transition-all"
+                                        disabled
+                                    />
+                                </div>
                             </div>
         
-                            {formData.paymentType === "DP+Final" && (
+                            {data.metodePembayaran === "DP+Final" && (
                                 <div className="flex flex-col w-full sm:w-1/3">
                                     <label className="text-sm font-medium text-gray-600 mb-1">
                                         Persentase DP (%)
@@ -205,17 +230,15 @@ export default function KontrakKerjaDetail({ id }: { id: string }) {
                                     <input
                                         type="number"
                                         name="dpPercentage"
-                                        value={formData.dpPercentage}
-                                        onChange={handleChange}
-                                        min={0}
-                                        max={100}
-                                        className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                        value={data.dpPercentage}
+                                        className="border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                        disabled
                                     />
                                 </div>
                             )}
                         </div>
         
-                        {formData.paymentType === "Bulanan" && monthlyPercentages.length > 0 && (
+                        {data.metodePembayaran === "Bulanan" && monthlyPercentages.length > 0 && (
                             <div>
                                 <h3 className="font-medium text-gray-700 mb-3">
                                     Pembagian Persentase Tiap Bulan
@@ -227,7 +250,7 @@ export default function KontrakKerjaDetail({ id }: { id: string }) {
                                         <span className="w-1/3 text-right">Jumlah</span>
                                     </div>
                                     {monthlyPercentages.map((percent, i) => {
-                                        const amount = (formData.paymentAmount * percent) / 100 || 0;
+                                        const amount = (data.totalBayaran * percent) / 100 || 0;
                                         return (
                                             <div
                                                 key={i}
@@ -239,8 +262,8 @@ export default function KontrakKerjaDetail({ id }: { id: string }) {
                                                 <input
                                                     type="number"
                                                     value={percent}
-                                                    onChange={(e) => handleMonthPercentageChange(i, e.target.value)}
                                                     className="w-1/3 text-center border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                                    disabled
                                                 />
                                                 <input
                                                     type="text"
@@ -255,7 +278,7 @@ export default function KontrakKerjaDetail({ id }: { id: string }) {
                                         );
                                     })}
                                 </div>
-                                <p
+                                {/* <p
                                     className={`mt-2 text-sm ${
                                         totalPercentage === 100
                                             ? "text-green-600"
@@ -263,19 +286,44 @@ export default function KontrakKerjaDetail({ id }: { id: string }) {
                                     }`}
                                 >
                                     Total: {totalPercentage}%
-                                </p>
+                                </p> */}
                             </div>
                         )}
+
+                        <div>
+                            <label className="text-sm font-medium text-gray-600 mb-1">
+                                Certification Docs
+                            </label>
+                            <div className="border border-(--color-border) rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 justify-between w-full flex items-center">
+                                <span className="truncate text-gray-600">
+                                    {/* {certificationDocs
+                                        ? certificationDocs.name
+                                        : (certificate?.document?.[0]?.path?.split("\\").pop() || "No document selected")} */}
+                                    nama document
+                                </span>
+                                <input
+                                    type="file"
+                                    id="certDocUpload"
+                                    className="hidden"
+                                />
+                                <label
+                                    htmlFor="certDocUpload"
+                                    className="ml-3 py-2 px-2 bg-(--color-primary) text-white rounded-lg cursor-pointer hover:bg-(--color-primary)/80 text-md"
+                                >
+                                    Upload
+                                </label>
+                            </div>
+                        </div>
         
                         <div className="flex flex-col">
                             <label className="text-sm font-medium text-gray-600 mb-1">Catatan Tambahan</label>
                             <textarea
                                 name="notes"
-                                value={formData.notes}
-                                onChange={handleChange}
+                                value={data.catatan}
                                 placeholder="Masukkan catatan tambahan (opsional)"
                                 rows={3}
                                 className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                disabled
                             ></textarea>
                         </div>
         
@@ -283,20 +331,12 @@ export default function KontrakKerjaDetail({ id }: { id: string }) {
                             <button
                                 type="button"
                                 onClick={() => router.back()}
-                                className="px-5 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
+                                className="px-5 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition cursor-pointer"
                             >
-                                Batal
-                            </button>
-                            <button
-                                type="submit"
-                                className="flex items-center gap-2 px-5 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 active:scale-[0.98] transition"
-                            >
-                                <Image src={icons.saveLogo} alt="Save Logo" width={18} height={18} />
-                                Simpan Kontrak
+                                Back to Kontrak Kerja
                             </button>
                         </div>
                     </form>
-                </div>
             </div>
         </div>
     );

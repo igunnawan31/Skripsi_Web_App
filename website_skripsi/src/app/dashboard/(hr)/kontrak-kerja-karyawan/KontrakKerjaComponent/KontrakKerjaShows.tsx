@@ -103,10 +103,10 @@ const KontrakKerjaShows = () => {
                             <div className="flex justify-between items-center py-2">
                                 <div className="flex flex-col gap-2 items-start">
                                     <p className="font-medium text-(--color-text-primary)">
-                                        {kk.namaFreelance} — {kk.role}
+                                        {kk.namaFreelance} — {kk.minorRole}
                                     </p>
                                     <p className="text-sm text-(--color-muted)">
-                                        Project: {kk.projectName}
+                                        Project: {kk.project?.projectName}
                                     </p>
                                     <p className="text-sm font-medium px-4 py-2 bg-(--color-primary) rounded-lg text-(--color-surface)">
                                         Total: Rp {kk.totalBayaran.toLocaleString("id-ID")}

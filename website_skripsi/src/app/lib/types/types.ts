@@ -93,13 +93,16 @@ export type KontrakKerja = {
     id: string;
     namaFreelance: string;
     project: Project | null;
+    workStatus: WorkStatus | null;
     majorRole: MajorRole;
     minorRole: MinorRole;
     tanggalMulai: string;
     tanggalSelesai: string;
     password: string; // Secara default adalah 12345678, nanti si orangnya ngubah sendiri dari forgot password
 
-    metodePembayaran: "Bulanan" | "Termin" | "Full";
+    metodePembayaran: "Bulanan" | "DP+Final" | "Per_Project";
+    dpPercentage?: number;
+    finalPercentage?: number;
     totalBayaran: number;
     absensiBulanan: number;
     cutiBulanan: number;
@@ -107,6 +110,7 @@ export type KontrakKerja = {
     pembayaran: Gaji[];
     status: KontrakKerjaStatus;
     catatan?: string;
+    kontrakKerjaPDF?: string;
 }
 
 export type KontrakKerjaForm = {
@@ -129,4 +133,5 @@ export type KontrakKerjaForm = {
     pembayaran: Gaji[];
     status: KontrakKerjaStatus; 
     catatan?: string;
+    kontrakKerjaPDF?: string;
 }

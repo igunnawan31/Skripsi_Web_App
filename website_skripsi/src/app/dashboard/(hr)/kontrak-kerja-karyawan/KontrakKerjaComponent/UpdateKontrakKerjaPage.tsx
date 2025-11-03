@@ -6,17 +6,18 @@ import Image from "next/image";
 import { icons } from "@/app/lib/assets/assets";
 import { 
     KontrakKerjaForm,
-    Gaji,
-    MajorRole,
-    MinorRole,
-    KontrakKerjaStatus,
-    Project,
     WorkStatus,
+    KontrakKerjaStatus,
+    KontrakKerja,
 } from "@/app/lib/types/types";
 import dummyProject from "@/app/lib/dummyData/ProjectData";
+import { dummyKontrakKerja } from "@/app/lib/dummyData/KontrakKerjaData";
 
-const CreateKontrakKerjaPage = () => {
+export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
     const router = useRouter();
+    const [data, setData] = useState<KontrakKerja | null>(null);
+    const [loading, setLoading] = useState(true);
+
     const [formData, setFormData] = useState<KontrakKerjaForm>({
         namaFreelance: "",
         project: null,
@@ -37,10 +38,43 @@ const CreateKontrakKerjaPage = () => {
         finalPercentage: 100,
         kontrakKerjaPDF: "",
     });
+
     const [monthlyPercentages, setMonthlyPercentages] = useState<number[]>([]);
     const [monthlyPresence, setMonthlyPresence] = useState<{ bulan: string; absensi: number; cuti: number }[]>([]);
 
-    // Menghitung Perbedaan Bulan
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            const found = dummyKontrakKerja.find((item) => item.id === id);
+            setData(found || null);
+            if (found) {
+                setFormData({
+                    namaFreelance: found.namaFreelance,
+                    project: found.project,
+                    workStatus: found.workStatus,
+                    majorRole: found.majorRole,
+                    minorRole: found.minorRole,
+                    tanggalMulai: found.tanggalMulai,
+                    tanggalSelesai: found.tanggalSelesai,
+                    password: found.password || "12345678",
+                    metodePembayaran: found.metodePembayaran,
+                    totalBayaran: found.totalBayaran,
+                    absensiBulanan: found.absensiBulanan,
+                    cutiBulanan: found.cutiBulanan,
+                    pembayaran: found.pembayaran,
+                    status: found.status,
+                    catatan: found.catatan,
+                    dpPercentage: found.dpPercentage,
+                    finalPercentage: found.finalPercentage,
+                    kontrakKerjaPDF: found.kontrakKerjaPDF,
+                });
+            }
+            setLoading(false);
+            console.log("ID yang diterima:", found?.project?.projectId);
+        }, 400);
+
+        return () => clearTimeout(timer);
+    }, [id]);
+
     const getMonthDifference = (startDate: string, endDate: string): number => {
         if (!startDate || !endDate) return 0;
         const start = new Date(startDate);
@@ -50,7 +84,6 @@ const CreateKontrakKerjaPage = () => {
         return years * 12 + months + 1;
     };
 
-    // Client State untuk Payment dan Absensi
     useEffect(() => {
         if (formData.metodePembayaran === "Bulanan" && formData.tanggalMulai && formData.tanggalSelesai) {
             const totalMonths = getMonthDifference(formData.tanggalMulai, formData.tanggalSelesai);
@@ -68,7 +101,6 @@ const CreateKontrakKerjaPage = () => {
         const cuti = Number(formData.cutiBulanan ?? 0);
 
         const months: { bulan: string; absensi: number; cuti: number }[] = [];
-
         let current = new Date(start);
 
         while (current <= end) {
@@ -82,18 +114,13 @@ const CreateKontrakKerjaPage = () => {
             const absensi = Math.max(totalDays - cuti, 0);
 
             const bulanNama = current.toLocaleString("id-ID", { month: "long", year: "numeric" });
-            months.push({
-                bulan: bulanNama,
-                absensi,
-                cuti
-            });
+            months.push({ bulan: bulanNama, absensi, cuti });
 
             current = new Date(year, month + 1, 1);
         }
 
         setMonthlyPresence(months);
     }, [formData.tanggalMulai, formData.tanggalSelesai, formData.cutiBulanan]);
-
 
     const handleMonthPercentageChange = (index: number, value: string) => {
         const newPercentages = [...monthlyPercentages];
@@ -103,43 +130,32 @@ const CreateKontrakKerjaPage = () => {
 
     const totalPercentage = monthlyPercentages.reduce((a, b) => a + b, 0);
 
-    const handleChange = ( 
-        e: React.ChangeEvent< HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement 
-        > 
-    ) => { 
-        const { name, value } = e.target; 
-        setFormData((prev) => ({ 
-            ...prev, 
-            [name]: name === "totalBayaran" 
-                ? Number(value) : (value as string), 
-        })); 
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: name === "totalBayaran" ? Number(value) : (value as string),
+        }));
     };
 
     const handleNominalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const rawValue = e.target.value.replace(/[^\d]/g, "");
-        setFormData({
-            ...formData,
-            totalBayaran: Number(rawValue),
-        });
+        setFormData({ ...formData, totalBayaran: Number(rawValue) });
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-
         if (formData.metodePembayaran === "Bulanan" && totalPercentage !== 100) {
             alert("Total persentase bulanan harus 100%");
             return;
         }
-
-        const payload = {
-            ...formData,
-            monthlyPercentages,
-        };
-
+        const payload = { ...formData, monthlyPercentages };
         console.log("Submitted Kontrak:", payload);
         alert("Kontrak berhasil dibuat!");
         router.push("/dashboard/kontrak-kerja-karyawan");
     };
+
+    if (loading) return <div>Loading...</div>;
 
     const renderHtml = (
         <div className="w-full bg-white border border-gray-200 rounded-2xl shadow-sm p-6 md:p-8 mt-6">
@@ -165,12 +181,11 @@ const CreateKontrakKerjaPage = () => {
                     <label className="text-sm font-medium text-gray-600 mb-1">Nama Project</label>
                     <select
                         name="project"
-                        value={formData.project?.projectId ?? ""}
+                        value={formData.project?.projectId}
                         onChange={(e) => {
                             const selectedProject = dummyProject.find(
-                                (p) => p.projectId === e.target.value
+                                (p) => String(p.projectId) === e.target.value
                             );
-
                             if (selectedProject) {
                                 setFormData({
                                     ...formData,
@@ -417,14 +432,11 @@ const CreateKontrakKerjaPage = () => {
                         className="flex items-center gap-2 px-5 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 active:scale-[0.98] transition"
                     >
                         <Image src={icons.saveLogo} alt="Save Logo" width={18} height={18} />
-                        Simpan Kontrak
+                        Perbarui Kontrak
                     </button>
                 </div>
             </form>
-        </div>
+        </div>  
     );
-
     return renderHtml;
-};
-
-export default CreateKontrakKerjaPage;
+}
