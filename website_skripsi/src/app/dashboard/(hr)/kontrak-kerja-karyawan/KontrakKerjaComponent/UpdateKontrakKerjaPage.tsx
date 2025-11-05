@@ -10,7 +10,7 @@ import {
     KontrakKerjaStatus,
     KontrakKerja,
 } from "@/app/lib/types/types";
-import dummyProject from "@/app/lib/dummyData/ProjectData";
+import { dummyProject } from "@/app/lib/dummyData/ProjectData";
 import { dummyKontrakKerja } from "@/app/lib/dummyData/KontrakKerjaData";
 
 export default function UpdateKontrakKerjaPage({ id }: { id: string }) {

@@ -13,7 +13,7 @@ import {
     Project,
     WorkStatus,
 } from "@/app/lib/types/types";
-import dummyProject from "@/app/lib/dummyData/ProjectData";
+import { dummyProject } from "@/app/lib/dummyData/ProjectData";
 
 const CreateKontrakKerjaPage = () => {
     const router = useRouter();
@@ -142,7 +142,7 @@ const CreateKontrakKerjaPage = () => {
     };
 
     const renderHtml = (
-        <div className="w-full bg-white border border-gray-200 rounded-2xl shadow-sm p-6 md:p-8 mt-6">
+        <div className="w-full bg-white border border-gray-200 rounded-2xl shadow-sm p-6 md:p-8 mt-6 mb-8">
             <h1 className="text-xl font-semibold text-gray-800 mb-6">
                 Buat Kontrak Kerja Freelancer
             </h1>
@@ -168,7 +168,7 @@ const CreateKontrakKerjaPage = () => {
                         value={formData.project?.projectId ?? ""}
                         onChange={(e) => {
                             const selectedProject = dummyProject.find(
-                                (p) => p.projectId === e.target.value
+                                (p: any) => p.projectId === e.target.value
                             );
 
                             if (selectedProject) {
@@ -182,7 +182,7 @@ const CreateKontrakKerjaPage = () => {
                         required
                     >
                         <option value="">-- Pilih Project --</option>
-                        {dummyProject.map((project) => (
+                        {dummyProject.map((project: any) => (
                             <option key={project.projectId} value={project.projectId}>
                                 {project.projectName}
                             </option>
