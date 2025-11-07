@@ -1,4 +1,4 @@
-import { cutiStyles } from "@/assets/styles/rootstyles/cuti.styles";
+import { cutiStyles } from "@/assets/styles/rootstyles/cuti/cuti.styles";
 import COLORS from "@/constants/colors";
 import { CutiStatus, dummyCuti } from "@/data/dummyCuti";
 import { useState } from "react";
@@ -88,7 +88,7 @@ const CutiPage = () => {
                     </Text>
                     <TouchableOpacity 
                         style={cutiStyles.ajukanCutiButton}
-                        onPress={() => router.push('/(cuti)/pengajuancuti')}
+                        onPress={() => router.push('/(cuti)/create')}
                     >
                         <Image
                             source={require("../../../assets/icons/add.png")}

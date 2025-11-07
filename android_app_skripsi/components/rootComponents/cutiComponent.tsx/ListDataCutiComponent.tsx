@@ -1,4 +1,4 @@
-import { cutiStyles } from "@/assets/styles/rootstyles/cuti.styles";
+import { cutiStyles } from "@/assets/styles/rootstyles/cuti/cuti.styles";
 import COLORS from "@/constants/colors";
 import { useRouter } from "expo-router";
 import { useState } from "react";
