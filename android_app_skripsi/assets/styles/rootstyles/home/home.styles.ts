@@ -151,9 +151,51 @@ export const homeStyles = StyleSheet.create({
     },
 
     // Feature Styles
+    titleSection: { 
+        fontWeight: "bold", 
+        fontSize: 18,
+    },
+    descriptionSection: {
+        color: COLORS.textMuted,
+        fontSize: 14, 
+    },
     featureContainer: {
-        width: "90%",
+        width: "95%",
         justifyContent: "center",
         marginTop: 130,
     },
+    featureTouchContainer: {
+        alignItems: "center",
+    },
+    featureButtonContainer: {
+        backgroundColor: COLORS.white,
+        borderRadius: 20,
+        padding: 16,
+        marginBottom: 8,
+        shadowColor: COLORS.shadow,
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 1,
+        elevation: 5,
+        gap: 6,
+    },
+    featureButtonImage: { 
+        width: 40, 
+        height: 40, 
+        resizeMode: "contain",
+    },
+    featureButtonTitle: {
+        fontWeight: "600",
+        color: COLORS.primary,
+        textAlign: "center",
+        fontSize: 13,
+    },
+    featureButtonDescription: {
+        fontSize: 11,
+        color: COLORS.textMuted,
+        textAlign: "center",
+    }
 });
