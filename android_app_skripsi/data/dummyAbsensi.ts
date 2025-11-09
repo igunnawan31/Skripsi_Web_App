@@ -19,4 +19,14 @@ export const dummyAbsensi = [
         checkIn: "08:10",
         checkOut: "16:55",
     },
+    {
+        id: "Abs-003-BudiSantoso",
+        name: "Budi Santoso",
+        workStatus: "WFO",
+        majorRole: "KARYAWAN",
+        minorRole: "BACKEND",
+        date: "22-10-2025",
+        checkIn: "08:40",
+        checkOut: "",
+    },
 ];

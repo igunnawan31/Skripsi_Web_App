@@ -8,7 +8,14 @@ import { COLORS } from "@/constants/colors";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { GestureResponderEvent, Image, Text, TouchableOpacity, View } from "react-native";
 
-const Tab = createBottomTabNavigator();
+export type RootTabParamList = {
+    "Home Page": undefined;
+    "History Absensi Page": undefined;
+    "Cuti Page": undefined;
+    "Profile Page": undefined;
+}
+
+const Tab = createBottomTabNavigator<RootTabParamList>();
 
 const Tabs = () => {
     return (

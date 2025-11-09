@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { dummyCuti } from "@/data/dummyCuti";
 import { cutiDetailStyles } from "@/assets/styles/rootstyles/cuti/cutidetail.styles";
 import COLORS from "@/constants/colors";
-import CutiFormComponent from "@/components/rootComponents/cutiComponent.tsx/CutiFormComponent";
+import CutiFormComponent from "@/components/rootComponents/cutiComponent/CutiFormComponent";
 
 export default function DetailCuti() {
     const { id } = useLocalSearchParams();
@@ -32,14 +32,16 @@ export default function DetailCuti() {
             <View style={cutiDetailStyles.header}>
                 <TouchableOpacity 
                     style={{ flexDirection: "row", alignItems: "center" }}
-                    onPress={() => router.push("/(tabs)/cuti")}
+                    onPress={() => router.back()}
                 >
-                    <Image
-                        style={cutiDetailStyles.iconBack}
-                        source={require('../../../assets/icons/arrow-left.png')}
-                    />
+                    <View style={cutiDetailStyles.iconPlace}>
+                        <Image
+                            style={cutiDetailStyles.iconBack}
+                            source={require('../../../assets/icons/arrow-left.png')}
+                        />
+                    </View>
                     <Text style={cutiDetailStyles.headerTitle}>
-                        Kembali ke Home
+                        Kembali
                     </Text>
                 </TouchableOpacity>
             </View>

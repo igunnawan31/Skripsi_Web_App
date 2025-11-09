@@ -6,7 +6,7 @@ import { Image, Platform, ScrollView, Text, TouchableOpacity, View } from "react
 import Modal from "react-native-modal";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
-import ListDataCutiComponent from "@/components/rootComponents/cutiComponent.tsx/ListDataCutiComponent";
+import ListDataCutiComponent from "@/components/rootComponents/cutiComponent/ListDataCutiComponent";
 
 const CutiPage = () => {
     const [data, setData] = useState(dummyCuti);

@@ -4,7 +4,7 @@ import COLORS from "@/constants/colors";
 import { router } from "expo-router";
 import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { dummyUsers } from "@/data/dummyUsers";
-import CutiCreateFormComponent from "@/components/rootComponents/cutiComponent.tsx/CutiCreateFormComponent";
+import CutiCreateFormComponent from "@/components/rootComponents/cutiComponent/CutiCreateFormComponent";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { cutiStyles } from "@/assets/styles/rootstyles/cuti/cuti.styles";
 
@@ -28,7 +28,7 @@ const PengajuanCuti = () => {
             <View style={cutiDetailStyles.header}>
                 <TouchableOpacity
                     style={{ flexDirection: "row", alignItems: "center" }}
-                    onPress={() => router.push("/(tabs)/cuti")}
+                    onPress={() => router.back()}
                 >
                     <View style={cutiDetailStyles.iconPlace}>
                         <Image
@@ -36,7 +36,7 @@ const PengajuanCuti = () => {
                             source={require("../../../assets/icons/arrow-left.png")}
                         />
                     </View>
-                    <Text style={cutiDetailStyles.headerTitle}>Kembali ke Home</Text>
+                    <Text style={cutiDetailStyles.headerTitle}>Kembali</Text>
                 </TouchableOpacity>
             </View>
             <KeyboardAwareScrollView
