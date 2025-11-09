@@ -7,10 +7,12 @@ import { tabStyles } from "@/assets/styles/rootstyles/tab.styles";
 import { COLORS } from "@/constants/colors";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { GestureResponderEvent, Image, Text, TouchableOpacity, View } from "react-native";
+import CalendarPage from "@/app/(tabs)/calendar";
 
 export type RootTabParamList = {
     "Home Page": undefined;
     "History Absensi Page": undefined;
+    "Calendar Page": undefined;
     "Cuti Page": undefined;
     "Profile Page": undefined;
 }
@@ -80,6 +82,27 @@ const Tabs = () => {
                     </View>
                 )
             }}/>
+            <Tab.Screen name="Calendar Page" component={CalendarPage} options={{ 
+                tabBarIcon: ({focused}) => (
+                    <View style={tabStyles.tabIcons}>
+                        <Image
+                            source={require('../../assets/icons/calendar.png')}
+                            resizeMode="contain"
+                            style={{ 
+                                width: 25,
+                                height: 25,
+                                tintColor: focused ? COLORS.primary : COLORS.primaryOpacity80
+                            }}
+                        />
+                        <Text style={{ 
+                            color: focused ? COLORS.primary : COLORS.primaryOpacity80,
+                            ...tabStyles.textTabs 
+                        }}>
+                            Calendar
+                        </Text>
+                    </View>
+                )
+            }} />
             <Tab.Screen name="Cuti Page" component={CutiPage} options={{ 
                 tabBarIcon: ({focused}) => (
                     <View style={tabStyles.tabIcons}>

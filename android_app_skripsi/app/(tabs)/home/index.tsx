@@ -10,6 +10,7 @@ import { dummyUsers } from "@/data/dummyUsers";
 import ModalNotification from "@/components/rootComponents/homeComponent/modalNotification";
 import AbsenseComponent from "@/components/rootComponents/homeComponent/AbsenseComponent";
 import FeatureComponent from "@/components/rootComponents/homeComponent/FeatureComponent";
+import ReimburseComponent from "@/components/rootComponents/homeComponent/ReimburseComponent";
 
 type HomeNavigation = NativeStackNavigationProp<RootTabParamList, "Home Page">;
 
@@ -77,6 +78,7 @@ const HomePage = () => {
                 </View>
                 <AbsenseComponent />
                 <FeatureComponent />
+                <ReimburseComponent />
             </View>
         </ScrollView>
     );
