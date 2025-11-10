@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  branchId  String
+  majorRole MajorRole
+  minorRole MinorRole?
+  photo     Json?
+
+  branch Branch @relation("BranchUser", fields: [branchId], references: [id], onDelete: Cascade)
+
+  absensi       Absensi[]      @relation("UserAbsen")
+  cutiDiajukan  Cuti[]         @relation("UserCuti")
+  cutiDisetujui Cuti[]         @relation("ApproverCuti")
+  gaji          Gaji[]         @relation("UserGaji")
+  kontrak       KontrakKerja[] @relation("UserKontrak")
+  projectTeams  ProjectTeam[]  @relation("ProjectMember")
+}
+
+model Absensi {
+  userId     String
+  date       DateTime
+  workStatus WorkStatus
+  checkIn    DateTime   @default(now())
+  checkOut   DateTime?
+
+  user User @relation("UserAbsen", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, date])
+}
+
+model Cuti {
+  id         String     @id @default(uuid())
+  userId     String
+  approverId String?
+  branchId   String
+  startDate  DateTime
+  endDate    DateTime
+  reason     String
+  status     StatusCuti @default(MENUNGGU)
+  createdAt  DateTime   @default(now())
+
+  user     User   @relation("UserCuti", fields: [userId], references: [id], onDelete: Cascade)
+  approver User?  @relation("ApproverCuti", fields: [approverId], references: [id], onDelete: Cascade)
+  branch   Branch @relation("BranchCuti", fields: [branchId], references: [id], onDelete: Cascade)
+}
+
+model Gaji {
+  id          String     @id @default(uuid())
+  userId      String
+  dueDate     String
+  status      GajiStatus
+  amount      Int
+  paymentDate DateTime?  @updatedAt
+
+  user User @relation("UserGaji", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model KontrakKerja {
+  id               String             @id @default(uuid())
+  projectId        String
+  userId           String
+  metodePembayaran MetodePembayaran
+  totalBayaran     Int
+  absensiBulanan   Int
+  cutiBulanan      Int
+  status           KontrakKerjaStatus
+  catatan          String?
+  dokumen          Json?
+
+  user    User    @relation("UserKontrak", fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation("KontrakProject", fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id   String @id @default(uuid())
+  name String
+
+  projectTeams ProjectTeam[]  @relation("ProjectTeam")
+  kontrak      KontrakKerja[] @relation("KontrakProject")
+}
+
+model ProjectTeam {
+  projectId String
+  userId    String
+
+  project Project @relation("ProjectTeam", fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation("ProjectMember", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, userId])
+}
+
+model Branch {
+  id    String @id @default(uuid())
+  name  String
+  users User[] @relation("BranchUser")
+  cutis Cuti[] @relation("BranchCuti")
+}
+
+enum MajorRole {
+  OWNER
+  KARYAWAN
+}
+
+enum MinorRole {
+  HR
+  ADMIN
+  PROJECT_MANAGER
+  UI_UX
+  FRONTEND
+  BACKEND
+}
+
+enum WorkStatus {
+  WFH
+  WFO
+  HYBRID
+}
+
+enum StatusCuti {
+  MENUNGGU
+  DITERIMA
+  DITOLAK
+}
+
+enum GajiStatus {
+  BELUM_DIBAYAR
+  DIBAYAR
+  TERLAMBAT
+}
+
+enum KontrakKerjaStatus {
+  AKTIF
+  SELESAI
+}
+
+enum MetodePembayaran {
+  BULANAN
+  TERMIN
+  FULL
+}

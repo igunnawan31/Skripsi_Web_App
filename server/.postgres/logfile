@@ -1,0 +1,953 @@
+2025-10-29 18:03:13.805 WIB [17359] LOG:  starting PostgreSQL 16.6 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 13.2.0, 64-bit
+2025-10-29 18:03:13.805 WIB [17359] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-10-29 18:03:13.807 WIB [17359] LOG:  listening on Unix socket "/home/alcendol/Codes/Skripsi_Web_App/server/.postgres/.s.PGSQL.5432"
+2025-10-29 18:03:13.810 WIB [17362] LOG:  database system was shut down at 2025-10-29 17:57:08 WIB
+2025-10-29 18:03:13.814 WIB [17359] LOG:  database system is ready to accept connections
+2025-10-29 18:05:43.934 WIB [18422] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:06:13.934 WIB [18509] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:06:43.965 WIB [18514] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:07:13.950 WIB [18578] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:07:43.994 WIB [18736] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:08:13.910 WIB [17360] LOG:  checkpoint starting: time
+2025-10-29 18:08:13.963 WIB [18740] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:08:44.025 WIB [18763] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:09:13.991 WIB [18817] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:09:44.055 WIB [18838] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:09:53.850 WIB [17360] LOG:  checkpoint complete: wrote 1002 buffers (6.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=99.896 s, sync=0.029 s, total=99.941 s; sync files=310, longest=0.011 s, average=0.001 s; distance=4772 kB, estimate=4772 kB; lsn=0/19F0D40, redo lsn=0/19F0D08
+2025-10-29 18:10:14.018 WIB [18957] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:10:44.084 WIB [18976] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:11:14.046 WIB [19001] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:11:44.113 WIB [19049] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:12:14.068 WIB [19344] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:12:44.145 WIB [19385] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:13:14.097 WIB [19392] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:13:44.175 WIB [19435] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:14:14.124 WIB [19506] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:14:44.204 WIB [19514] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:15:14.153 WIB [19554] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:15:44.235 WIB [19569] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:16:14.183 WIB [19663] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:16:44.264 WIB [19694] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:17:14.186 WIB [19818] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:17:44.294 WIB [19887] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:18:14.214 WIB [19903] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:18:44.322 WIB [20076] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:19:14.238 WIB [20326] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:19:44.353 WIB [20343] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:20:14.267 WIB [20346] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:20:44.381 WIB [20347] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:21:14.297 WIB [20348] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:21:44.412 WIB [20399] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:22:14.326 WIB [20401] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:22:44.441 WIB [20406] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:23:14.354 WIB [20407] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:23:44.472 WIB [20409] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:24:14.384 WIB [20411] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:24:44.502 WIB [20412] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:25:14.413 WIB [20414] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:25:44.532 WIB [20416] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:26:14.443 WIB [20419] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:26:44.561 WIB [20481] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:27:14.472 WIB [20483] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:27:44.591 WIB [20487] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:28:14.498 WIB [20496] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:28:44.620 WIB [20497] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:29:14.528 WIB [20500] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:29:44.620 WIB [20502] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:30:14.530 WIB [20504] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:30:44.624 WIB [20505] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:31:14.559 WIB [20507] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:31:44.629 WIB [20513] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:32:14.588 WIB [20515] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:32:44.659 WIB [20519] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:33:14.608 WIB [20524] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:33:44.688 WIB [20525] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:34:14.637 WIB [20527] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:34:44.704 WIB [20531] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:35:14.667 WIB [20535] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:35:44.733 WIB [20536] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 18:36:14.697 WIB [20538] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 20:55:35.207 WIB [21407] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 20:56:05.223 WIB [21414] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 20:56:35.234 WIB [21445] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 20:57:05.251 WIB [21523] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 20:57:35.263 WIB [21639] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 20:58:05.280 WIB [21717] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 20:58:35.281 WIB [21899] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 20:59:05.309 WIB [21943] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 20:59:35.311 WIB [21980] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:00:05.338 WIB [21982] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:00:35.340 WIB [22005] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:01:05.368 WIB [22109] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:01:35.371 WIB [22357] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:02:05.397 WIB [22496] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:02:35.400 WIB [22590] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:03:05.428 WIB [22667] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:03:35.430 WIB [22740] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:04:05.456 WIB [22955] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:04:35.460 WIB [23165] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:05:05.485 WIB [23294] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:05:35.484 WIB [23438] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:06:05.515 WIB [23615] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:06:35.513 WIB [23772] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:07:05.544 WIB [23995] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:07:35.543 WIB [24080] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:08:05.573 WIB [24275] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:08:35.572 WIB [24387] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:09:05.592 WIB [24393] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:09:35.599 WIB [24395] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:10:05.619 WIB [24397] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:10:35.627 WIB [24458] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:11:05.627 WIB [24644] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:11:35.657 WIB [24743] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:12:05.634 WIB [24787] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:12:35.687 WIB [24868] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:13:05.664 WIB [25045] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:13:35.717 WIB [25100] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:14:05.693 WIB [25294] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:14:35.725 WIB [25519] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:15:05.718 WIB [25700] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:15:35.737 WIB [25930] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:16:05.747 WIB [25985] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:16:35.765 WIB [26025] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:17:05.776 WIB [26128] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:17:35.795 WIB [26429] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:18:05.805 WIB [26530] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:18:35.820 WIB [26800] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:19:05.835 WIB [26949] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:19:35.826 WIB [27194] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:20:05.864 WIB [27283] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:20:35.854 WIB [27322] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:21:05.894 WIB [27359] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:21:35.883 WIB [27360] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:22:05.922 WIB [27379] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:22:35.913 WIB [27382] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:23:05.923 WIB [27384] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:23:35.942 WIB [27432] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:24:05.925 WIB [27449] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:24:35.970 WIB [27600] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:25:05.933 WIB [27622] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:25:36.001 WIB [27625] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:26:05.963 WIB [27626] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:26:36.029 WIB [27627] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:27:05.993 WIB [27631] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:27:36.059 WIB [27728] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:28:06.021 WIB [27765] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:28:36.072 WIB [27783] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:29:06.049 WIB [27926] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:29:36.092 WIB [28231] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:30:06.067 WIB [28273] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:30:36.121 WIB [28392] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:31:06.085 WIB [28482] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:31:36.144 WIB [28662] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:32:06.185 WIB [29018] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:32:36.174 WIB [29151] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:33:06.215 WIB [29233] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:33:36.195 WIB [29560] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:34:06.244 WIB [29611] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:34:36.223 WIB [29639] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:35:06.272 WIB [29676] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:35:36.254 WIB [29761] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:36:06.301 WIB [29976] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:36:36.284 WIB [30014] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:37:06.330 WIB [30019] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:37:36.312 WIB [30165] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:38:06.335 WIB [30254] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:38:36.343 WIB [30421] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:39:06.363 WIB [30602] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:39:36.373 WIB [30750] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:40:06.393 WIB [30755] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:40:36.402 WIB [30835] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:41:06.395 WIB [30873] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:41:36.431 WIB [30989] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:42:06.410 WIB [30993] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:42:36.460 WIB [30997] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:43:06.439 WIB [31012] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:43:36.489 WIB [31088] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:44:06.468 WIB [31169] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:44:36.518 WIB [31170] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:45:06.497 WIB [31173] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:45:36.547 WIB [31195] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:46:06.527 WIB [31201] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:46:36.576 WIB [31202] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:47:06.556 WIB [31221] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:47:36.605 WIB [31311] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:48:06.584 WIB [31420] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:48:36.634 WIB [31425] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:49:06.613 WIB [31426] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:49:36.663 WIB [31428] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:50:06.642 WIB [31430] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:50:36.692 WIB [31432] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:51:06.671 WIB [31433] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:51:36.721 WIB [31437] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:52:06.699 WIB [31440] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:52:36.750 WIB [31444] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:53:06.728 WIB [31727] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:53:36.778 WIB [31772] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:54:06.757 WIB [32154] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:54:36.799 WIB [32177] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:55:06.786 WIB [32403] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:55:36.810 WIB [32406] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:56:06.815 WIB [32549] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:56:36.838 WIB [32590] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:57:06.844 WIB [32667] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:57:36.859 WIB [32750] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:58:06.873 WIB [32781] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:58:36.888 WIB [32875] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:59:06.903 WIB [32999] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 21:59:36.916 WIB [33020] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:00:06.932 WIB [33041] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:00:36.946 WIB [33044] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:01:06.961 WIB [33156] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:01:36.974 WIB [33235] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:02:06.991 WIB [33254] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:02:37.005 WIB [33267] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:03:07.016 WIB [33293] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:03:37.033 WIB [33573] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:04:07.046 WIB [33633] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:04:37.062 WIB [33687] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:05:07.076 WIB [33689] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:05:37.091 WIB [34023] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:06:07.103 WIB [34037] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:06:37.122 WIB [34135] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:07:07.129 WIB [34178] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:07:37.148 WIB [34309] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:08:07.159 WIB [34310] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:08:37.177 WIB [34415] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:09:07.188 WIB [34416] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:09:37.204 WIB [34417] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:10:07.195 WIB [34418] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:10:37.226 WIB [34423] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:11:07.225 WIB [34424] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:11:37.256 WIB [34425] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:12:07.254 WIB [34426] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:12:37.263 WIB [34433] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:13:07.284 WIB [34439] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:13:37.292 WIB [34441] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:14:07.312 WIB [34443] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:14:37.303 WIB [34445] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:15:07.314 WIB [34446] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:15:37.332 WIB [34448] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:16:07.337 WIB [34451] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:16:37.357 WIB [34453] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:17:07.367 WIB [34454] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:17:37.366 WIB [34457] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:18:07.371 WIB [34458] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:18:37.393 WIB [34461] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:19:07.401 WIB [34462] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:19:37.401 WIB [34463] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:20:07.430 WIB [34465] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:20:37.410 WIB [34468] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:21:07.460 WIB [34487] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:39:46.531 WIB [35211] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:40:16.547 WIB [35217] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:40:46.560 WIB [35394] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:41:16.575 WIB [35395] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:41:46.589 WIB [35398] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:42:16.604 WIB [35399] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:42:46.618 WIB [35400] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:43:16.634 WIB [35401] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:43:46.648 WIB [35404] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:44:16.663 WIB [35405] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:44:46.679 WIB [35409] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:45:16.678 WIB [35410] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:45:46.707 WIB [35414] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:46:16.691 WIB [35415] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:46:46.737 WIB [35417] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:47:16.719 WIB [35418] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:47:46.766 WIB [35431] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:48:16.740 WIB [35433] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:48:46.795 WIB [35434] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:49:16.769 WIB [35436] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:49:46.823 WIB [35442] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:50:16.797 WIB [35449] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:50:46.853 WIB [35452] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:51:16.828 WIB [35453] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:51:46.883 WIB [35456] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:52:16.857 WIB [35457] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:52:46.912 WIB [35458] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:53:16.886 WIB [35460] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:53:46.941 WIB [35462] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:54:16.907 WIB [35463] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:54:46.971 WIB [35465] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:55:16.938 WIB [35466] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:55:46.975 WIB [35468] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:56:16.967 WIB [35471] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:56:47.447 WIB [35473] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:57:16.996 WIB [35475] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:57:47.475 WIB [35478] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:58:17.024 WIB [35556] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:58:47.506 WIB [35707] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:59:17.043 WIB [35821] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 22:59:47.536 WIB [35825] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 23:00:17.074 WIB [36105] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 23:00:47.565 WIB [36206] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 23:01:17.101 WIB [36317] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 23:01:47.596 WIB [36397] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 23:02:17.131 WIB [36398] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 23:02:47.596 WIB [36400] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 23:03:17.148 WIB [36737] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 23:03:47.626 WIB [36858] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 23:04:17.177 WIB [36863] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 23:04:47.655 WIB [36866] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 23:05:17.206 WIB [37038] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 23:05:47.684 WIB [37096] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 23:06:17.215 WIB [37169] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 23:06:47.713 WIB [38076] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-10-29 23:07:17.244 WIB [38298] ERROR:  could not open shared memory segment "/PostgreSQL.4284386026": No such file or directory
+2025-11-04 03:33:25.065 WIB [22628] LOG:  starting PostgreSQL 16.6 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 13.2.0, 64-bit
+2025-11-04 03:33:25.066 WIB [22628] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-11-04 03:33:25.068 WIB [22628] LOG:  listening on Unix socket "/home/alcendol/Codes/Skripsi_Web_App/server/.postgres/.s.PGSQL.5432"
+2025-11-04 03:33:25.070 WIB [22631] LOG:  database system was interrupted; last known up at 2025-10-29 18:09:53 WIB
+2025-11-04 03:33:25.142 WIB [22631] LOG:  database system was not properly shut down; automatic recovery in progress
+2025-11-04 03:33:25.144 WIB [22631] LOG:  redo starts at 0/19F0D08
+2025-11-04 03:33:25.144 WIB [22631] LOG:  invalid record length at 0/19F0DF0: expected at least 24, got 0
+2025-11-04 03:33:25.144 WIB [22631] LOG:  redo done at 0/19F0DB8 system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s
+2025-11-04 03:33:25.147 WIB [22629] LOG:  checkpoint starting: end-of-recovery immediate wait
+2025-11-04 03:33:25.152 WIB [22629] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.001 s, total=0.006 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB; lsn=0/19F0DF0, redo lsn=0/19F0DF0
+2025-11-04 03:33:25.154 WIB [22628] LOG:  database system is ready to accept connections
+2025-11-04 03:33:38.429 WIB [22725] FATAL:  role "postgres" does not exist
+2025-11-04 03:33:59.261 WIB [22831] FATAL:  lock file "postmaster.pid" already exists
+2025-11-04 03:33:59.261 WIB [22831] HINT:  Is another postmaster (PID 22628) running in data directory "/home/alcendol/Codes/Skripsi_Web_App/server/.postgres"?
+2025-11-04 03:33:59.394 WIB [22835] ERROR:  database "nestjs_gateway" already exists
+2025-11-04 03:33:59.394 WIB [22835] STATEMENT:  CREATE DATABASE nestjs_gateway;
+2025-11-04 03:34:06.540 WIB [22921] FATAL:  role "postgres" does not exist
+2025-11-04 03:34:25.759 WIB [23000] FATAL:  role "postgres" does not exist
+2025-11-04 03:34:51.648 WIB [23202] FATAL:  role "postgres" does not exist
+2025-11-04 03:34:58.388 WIB [23327] FATAL:  role "postgres" does not exist
+2025-11-04 03:36:29.128 WIB [23662] FATAL:  lock file "postmaster.pid" already exists
+2025-11-04 03:36:29.128 WIB [23662] HINT:  Is another postmaster (PID 22628) running in data directory "/home/alcendol/Codes/Skripsi_Web_App/server/.postgres"?
+2025-11-04 03:36:29.245 WIB [23666] ERROR:  database "nestjs_gateway" already exists
+2025-11-04 03:36:29.245 WIB [23666] STATEMENT:  CREATE DATABASE nestjs_gateway;
+2025-11-04 03:36:35.754 WIB [23750] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 03:36:41.711 WIB [23753] FATAL:  lock file "postmaster.pid" already exists
+2025-11-04 03:36:41.711 WIB [23753] HINT:  Is another postmaster (PID 22628) running in data directory "/home/alcendol/Codes/Skripsi_Web_App/server/.postgres"?
+2025-11-04 03:36:41.825 WIB [23757] ERROR:  database "nestjs_gateway" already exists
+2025-11-04 03:36:41.825 WIB [23757] STATEMENT:  CREATE DATABASE nestjs_gateway;
+2025-11-04 03:37:05.833 WIB [23979] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 03:38:08.471 WIB [24447] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 03:39:27.999 WIB [25088] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 03:41:47.932 WIB [25575] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 03:42:40.063 WIB [25780] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 03:42:57.170 WIB [25866] FATAL:  role "postgres" does not exist
+2025-11-04 03:43:35.058 WIB [26047] FATAL:  role "postgres" does not exist
+2025-11-04 03:43:39.290 WIB [26081] FATAL:  role "postgres" does not exist
+2025-11-04 03:44:24.388 WIB [26473] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 03:45:40.613 WIB [26699] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 03:49:25.366 WIB [27307] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 03:51:50.055 WIB [27606] FATAL:  role "postgres" does not exist
+2025-11-04 03:59:27.382 WIB [28761] FATAL:  lock file "postmaster.pid" already exists
+2025-11-04 03:59:27.382 WIB [28761] HINT:  Is another postmaster (PID 22628) running in data directory "/home/alcendol/Codes/Skripsi_Web_App/server/.postgres"?
+2025-11-04 03:59:27.492 WIB [28765] ERROR:  database "nestjs_gateway" already exists
+2025-11-04 03:59:27.492 WIB [28765] STATEMENT:  CREATE DATABASE nestjs_gateway;
+2025-11-04 03:59:46.106 WIB [28968] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 04:04:59.713 WIB [29686] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 04:05:46.388 WIB [30139] FATAL:  role "postgres" does not exist
+2025-11-04 04:08:30.872 WIB [31128] FATAL:  role "postgres" does not exist
+2025-11-04 04:10:10.526 WIB [32180] FATAL:  role "postgres" does not exist
+2025-11-04 04:11:41.017 WIB [32625] FATAL:  role "postgres" does not exist
+2025-11-04 04:11:41.020 WIB [32626] FATAL:  role "postgres" does not exist
+2025-11-04 04:12:04.079 WIB [32748] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 04:12:10.429 WIB [32828] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 04:12:14.568 WIB [32830] ERROR:  database "hris-server" already exists
+2025-11-04 04:12:14.568 WIB [32830] STATEMENT:  CREATE DATABASE "hris-server";
+2025-11-04 04:13:19.813 WIB [33377] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 04:13:23.255 WIB [33455] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 04:13:25.862 WIB [22629] LOG:  checkpoint starting: time
+2025-11-04 04:15:01.551 WIB [22629] LOG:  checkpoint complete: wrote 958 buffers (5.8%); 1 WAL file(s) added, 0 removed, 0 recycled; write=95.644 s, sync=0.017 s, total=95.689 s; sync files=300, longest=0.001 s, average=0.001 s; distance=4514 kB, estimate=4514 kB; lsn=0/1E59990, redo lsn=0/1E59958
+2025-11-04 04:15:17.612 WIB [34184] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 04:16:14.017 WIB [34564] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 04:16:33.108 WIB [34880] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 04:17:43.133 WIB [35156] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 04:18:43.984 WIB [35706] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:19:58.776 WIB [38119] FATAL:  lock file "postmaster.pid" already exists
+2025-11-04 05:19:58.776 WIB [38119] HINT:  Is another postmaster (PID 22628) running in data directory "/home/alcendol/Codes/Skripsi_Web_App/server/.postgres"?
+2025-11-04 05:19:58.884 WIB [38123] ERROR:  database "nestjs_gateway" already exists
+2025-11-04 05:19:58.884 WIB [38123] STATEMENT:  CREATE DATABASE nestjs_gateway;
+2025-11-04 05:20:17.078 WIB [38287] FATAL:  lock file "postmaster.pid" already exists
+2025-11-04 05:20:17.078 WIB [38287] HINT:  Is another postmaster (PID 22628) running in data directory "/home/alcendol/Codes/Skripsi_Web_App/server/.postgres"?
+2025-11-04 05:20:17.189 WIB [38291] ERROR:  database "nestjs_gateway" already exists
+2025-11-04 05:20:17.189 WIB [38291] STATEMENT:  CREATE DATABASE nestjs_gateway;
+2025-11-04 05:21:40.892 WIB [38695] FATAL:  lock file "postmaster.pid" already exists
+2025-11-04 05:21:40.892 WIB [38695] HINT:  Is another postmaster (PID 22628) running in data directory "/home/alcendol/Codes/Skripsi_Web_App/server/.postgres"?
+2025-11-04 05:21:41.002 WIB [38699] ERROR:  database "nestjs_gateway" already exists
+2025-11-04 05:21:41.002 WIB [38699] STATEMENT:  CREATE DATABASE nestjs_gateway;
+2025-11-04 05:22:37.250 WIB [22628] LOG:  received fast shutdown request
+2025-11-04 05:22:37.263 WIB [22628] LOG:  aborting any active transactions
+2025-11-04 05:22:37.265 WIB [22628] LOG:  background worker "logical replication launcher" (PID 22634) exited with exit code 1
+2025-11-04 05:22:37.265 WIB [22629] LOG:  shutting down
+2025-11-04 05:22:37.266 WIB [22629] LOG:  checkpoint starting: shutdown immediate
+2025-11-04 05:22:37.271 WIB [22629] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.006 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=4063 kB; lsn=0/1E59A40, redo lsn=0/1E59A40
+2025-11-04 05:22:37.274 WIB [22628] LOG:  database system is shut down
+2025-11-04 05:22:39.754 WIB [38811] LOG:  starting PostgreSQL 16.6 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 13.2.0, 64-bit
+2025-11-04 05:22:39.755 WIB [38811] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2025-11-04 05:22:39.755 WIB [38811] LOG:  listening on IPv6 address "::", port 5432
+2025-11-04 05:22:39.756 WIB [38811] LOG:  listening on Unix socket "/home/alcendol/Codes/Skripsi_Web_App/server/.postgres/.s.PGSQL.5432"
+2025-11-04 05:22:39.759 WIB [38814] LOG:  database system was shut down at 2025-11-04 05:22:37 WIB
+2025-11-04 05:22:39.762 WIB [38811] LOG:  database system is ready to accept connections
+2025-11-04 05:22:39.836 WIB [38826] ERROR:  database "nestjs_gateway" already exists
+2025-11-04 05:22:39.836 WIB [38826] STATEMENT:  CREATE DATABASE nestjs_gateway;
+2025-11-04 05:22:55.868 WIB [39030] ERROR:  relation "_prisma_migrations" does not exist at character 126
+2025-11-04 05:22:55.868 WIB [39030] STATEMENT:  SELECT "id", "checksum", "finished_at", "migration_name", "logs", "rolled_back_at", "started_at", "applied_steps_count" FROM "_prisma_migrations" ORDER BY "started_at" ASC
+2025-11-04 05:22:55.917 WIB [38812] LOG:  checkpoint starting: immediate force wait
+2025-11-04 05:22:55.924 WIB [38812] LOG:  checkpoint complete: wrote 7 buffers (0.0%); 0 WAL file(s) added, 0 removed, 1 recycled; write=0.002 s, sync=0.002 s, total=0.008 s; sync files=6, longest=0.001 s, average=0.001 s; distance=4523 kB, estimate=4523 kB; lsn=0/22C4980, redo lsn=0/22C4948
+2025-11-04 05:22:55.985 WIB [38812] LOG:  checkpoint starting: immediate force wait
+2025-11-04 05:22:55.993 WIB [38812] LOG:  checkpoint complete: wrote 23 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.002 s, total=0.008 s; sync files=7, longest=0.001 s, average=0.001 s; distance=4558 kB, estimate=4558 kB; lsn=0/2738568, redo lsn=0/2738530
+2025-11-04 05:27:54.311 WIB [39231] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:27:54.312 WIB [39232] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:27:56.093 WIB [38812] LOG:  checkpoint starting: time
+2025-11-04 05:28:04.851 WIB [38812] LOG:  checkpoint complete: wrote 88 buffers (0.5%); 0 WAL file(s) added, 0 removed, 0 recycled; write=8.727 s, sync=0.017 s, total=8.759 s; sync files=82, longest=0.011 s, average=0.001 s; distance=393 kB, estimate=4142 kB; lsn=0/279AD50, redo lsn=0/279ACE0
+2025-11-04 05:29:35.762 WIB [39973] FATAL:  lock file "postmaster.pid" already exists
+2025-11-04 05:29:35.762 WIB [39973] HINT:  Is another postmaster (PID 38811) running in data directory "/home/alcendol/Codes/Skripsi_Web_App/server/.postgres"?
+2025-11-04 05:30:04.914 WIB [40313] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:30:04.914 WIB [40314] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:30:16.906 WIB [40495] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:30:16.906 WIB [40496] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:30:31.879 WIB [40729] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:30:31.880 WIB [40730] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:30:37.660 WIB [38811] LOG:  received fast shutdown request
+2025-11-04 05:30:37.672 WIB [38811] LOG:  aborting any active transactions
+2025-11-04 05:30:37.674 WIB [38811] LOG:  background worker "logical replication launcher" (PID 38817) exited with exit code 1
+2025-11-04 05:30:37.674 WIB [38812] LOG:  shutting down
+2025-11-04 05:30:37.676 WIB [38812] LOG:  checkpoint starting: shutdown immediate
+2025-11-04 05:30:37.681 WIB [38812] LOG:  checkpoint complete: wrote 2 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.007 s; sync files=1, longest=0.001 s, average=0.001 s; distance=5 kB, estimate=3728 kB; lsn=0/279C378, redo lsn=0/279C378
+2025-11-04 05:30:37.685 WIB [38811] LOG:  database system is shut down
+2025-11-04 05:30:41.348 WIB [40735] LOG:  starting PostgreSQL 16.6 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 13.2.0, 64-bit
+2025-11-04 05:30:41.348 WIB [40735] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2025-11-04 05:30:41.348 WIB [40735] LOG:  listening on IPv6 address "::", port 5432
+2025-11-04 05:30:41.350 WIB [40735] LOG:  listening on Unix socket "/home/alcendol/Codes/Skripsi_Web_App/server/.postgres/.s.PGSQL.5432"
+2025-11-04 05:30:41.353 WIB [40738] LOG:  database system was shut down at 2025-11-04 05:30:37 WIB
+2025-11-04 05:30:41.355 WIB [40735] LOG:  database system is ready to accept connections
+2025-11-04 05:30:50.420 WIB [40873] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:30:50.421 WIB [40874] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:31:49.035 WIB [41274] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:31:49.036 WIB [41275] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:33:20.472 WIB [40735] LOG:  received fast shutdown request
+2025-11-04 05:33:20.483 WIB [40735] LOG:  aborting any active transactions
+2025-11-04 05:33:20.484 WIB [40735] LOG:  background worker "logical replication launcher" (PID 40741) exited with exit code 1
+2025-11-04 05:33:20.484 WIB [40736] LOG:  shutting down
+2025-11-04 05:33:20.485 WIB [40736] LOG:  checkpoint starting: shutdown immediate
+2025-11-04 05:33:20.490 WIB [40736] LOG:  checkpoint complete: wrote 7 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.002 s, total=0.006 s; sync files=3, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB; lsn=0/279C428, redo lsn=0/279C428
+2025-11-04 05:33:20.492 WIB [40735] LOG:  database system is shut down
+2025-11-04 05:34:19.089 WIB [41904] LOG:  starting PostgreSQL 16.6 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 13.2.0, 64-bit
+2025-11-04 05:34:19.089 WIB [41904] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2025-11-04 05:34:19.089 WIB [41904] LOG:  listening on IPv6 address "::", port 5432
+2025-11-04 05:34:19.091 WIB [41904] LOG:  listening on Unix socket "/home/alcendol/Codes/Skripsi_Web_App/server/.postgres/.s.PGSQL.5432"
+2025-11-04 05:34:19.094 WIB [41907] LOG:  database system was shut down at 2025-11-04 05:33:20 WIB
+2025-11-04 05:34:19.097 WIB [41904] LOG:  database system is ready to accept connections
+2025-11-04 05:34:26.338 WIB [41995] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:34:26.338 WIB [41996] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:35:49.323 WIB [41904] LOG:  received fast shutdown request
+2025-11-04 05:35:49.335 WIB [41904] LOG:  aborting any active transactions
+2025-11-04 05:35:49.337 WIB [41904] LOG:  background worker "logical replication launcher" (PID 41910) exited with exit code 1
+2025-11-04 05:35:49.337 WIB [41905] LOG:  shutting down
+2025-11-04 05:35:49.338 WIB [41905] LOG:  checkpoint starting: shutdown immediate
+2025-11-04 05:35:49.345 WIB [41905] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.001 s, total=0.008 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB; lsn=0/279C4D8, redo lsn=0/279C4D8
+2025-11-04 05:35:49.347 WIB [41904] LOG:  database system is shut down
+2025-11-04 05:35:55.563 WIB [42469] LOG:  starting PostgreSQL 16.6 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 13.2.0, 64-bit
+2025-11-04 05:35:55.563 WIB [42469] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2025-11-04 05:35:55.563 WIB [42469] LOG:  listening on IPv6 address "::", port 5432
+2025-11-04 05:35:55.564 WIB [42469] LOG:  listening on Unix socket "/home/alcendol/Codes/Skripsi_Web_App/server/.postgres/.s.PGSQL.5432"
+2025-11-04 05:35:55.567 WIB [42472] LOG:  database system was shut down at 2025-11-04 05:35:49 WIB
+2025-11-04 05:35:55.570 WIB [42469] LOG:  database system is ready to accept connections
+2025-11-04 05:36:03.419 WIB [42485] ERROR:  database "nestjs_gateway" already exists
+2025-11-04 05:36:03.419 WIB [42485] STATEMENT:  CREATE DATABASE nestjs_gateway;
+2025-11-04 05:36:11.175 WIB [42566] FATAL:  role "postgres" does not exist
+2025-11-04 05:37:13.046 WIB [42470] LOG:  checkpoint starting: immediate force wait
+2025-11-04 05:37:13.057 WIB [42470] LOG:  checkpoint complete: wrote 8 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.003 s, total=0.011 s; sync files=7, longest=0.002 s, average=0.001 s; distance=4719 kB, estimate=4719 kB; lsn=0/2C384B0, redo lsn=0/2C38478
+2025-11-04 05:37:13.156 WIB [42470] LOG:  checkpoint starting: immediate force wait
+2025-11-04 05:37:13.163 WIB [42470] LOG:  checkpoint complete: wrote 22 buffers (0.1%); 0 WAL file(s) added, 0 removed, 1 recycled; write=0.002 s, sync=0.002 s, total=0.008 s; sync files=16, longest=0.001 s, average=0.001 s; distance=4724 kB, estimate=4724 kB; lsn=0/30D5510, redo lsn=0/30D54D8
+2025-11-04 05:37:24.146 WIB [43134] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:37:24.147 WIB [43135] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:40:08.059 WIB [43828] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:40:08.060 WIB [43829] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:40:12.668 WIB [43919] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:40:12.669 WIB [43920] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:40:27.286 WIB [44053] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:40:27.287 WIB [44054] FATAL:  no PostgreSQL user name specified in startup packet
+2025-11-04 05:42:13.188 WIB [42470] LOG:  checkpoint starting: time
+2025-11-04 05:42:13.310 WIB [42470] LOG:  checkpoint complete: wrote 2 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.102 s, sync=0.003 s, total=0.122 s; sync files=2, longest=0.002 s, average=0.002 s; distance=0 kB, estimate=4251 kB; lsn=0/30D5688, redo lsn=0/30D5650
+2025-11-04 05:42:17.234 WIB [42470] LOG:  checkpoint starting: immediate force wait
+2025-11-04 05:42:17.240 WIB [42470] LOG:  checkpoint complete: wrote 4 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.001 s, total=0.006 s; sync files=4, longest=0.001 s, average=0.001 s; distance=4712 kB, estimate=4712 kB; lsn=0/356F870, redo lsn=0/356F838
+2025-11-04 05:42:17.333 WIB [42470] LOG:  checkpoint starting: immediate force wait
+2025-11-04 05:42:17.338 WIB [42470] LOG:  checkpoint complete: wrote 4 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.002 s, total=0.006 s; sync files=4, longest=0.001 s, average=0.001 s; distance=4712 kB, estimate=4712 kB; lsn=0/3A09BA8, redo lsn=0/3A09B70
+2025-11-04 05:47:17.438 WIB [42470] LOG:  checkpoint starting: time
+2025-11-04 05:47:17.558 WIB [42470] LOG:  checkpoint complete: wrote 2 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.102 s, sync=0.003 s, total=0.121 s; sync files=2, longest=0.002 s, average=0.002 s; distance=0 kB, estimate=4241 kB; lsn=0/3A09D20, redo lsn=0/3A09CE8
+2025-11-04 19:06:39.738 WIB [42469] LOG:  received fast shutdown request
+2025-11-04 19:06:39.750 WIB [42469] LOG:  aborting any active transactions
+2025-11-04 19:06:39.752 WIB [42469] LOG:  background worker "logical replication launcher" (PID 42475) exited with exit code 1
+2025-11-04 19:06:39.753 WIB [42470] LOG:  shutting down
+2025-11-04 19:06:39.754 WIB [42470] LOG:  checkpoint starting: shutdown immediate
+2025-11-04 19:06:39.757 WIB [42470] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.005 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=3817 kB; lsn=0/3A09DD0, redo lsn=0/3A09DD0
+2025-11-04 19:06:39.760 WIB [42469] LOG:  database system is shut down
+2025-11-04 19:06:45.428 WIB [61275] LOG:  starting PostgreSQL 16.6 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 13.2.0, 64-bit
+2025-11-04 19:06:45.428 WIB [61275] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2025-11-04 19:06:45.428 WIB [61275] LOG:  listening on IPv6 address "::", port 5432
+2025-11-04 19:06:45.429 WIB [61275] LOG:  listening on Unix socket "/home/alcendol/Codes/Skripsi_Web_App/server/.postgres/.s.PGSQL.5432"
+2025-11-04 19:06:45.432 WIB [61278] LOG:  database system was shut down at 2025-11-04 19:06:39 WIB
+2025-11-04 19:06:45.434 WIB [61275] LOG:  database system is ready to accept connections
+2025-11-04 19:11:45.532 WIB [61276] LOG:  checkpoint starting: time
+2025-11-04 19:11:45.551 WIB [61276] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.001 s, total=0.020 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB; lsn=0/3A09EB8, redo lsn=0/3A09E80
+2025-11-05 01:51:56.006 WIB [92733] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 01:52:26.204 WIB [92761] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 01:52:56.014 WIB [92768] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 01:53:26.234 WIB [92774] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 01:53:56.042 WIB [92876] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 01:54:26.263 WIB [92887] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 01:54:56.071 WIB [92898] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 01:55:26.292 WIB [92922] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 01:55:56.100 WIB [93033] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 01:56:04.592 WIB [93121] FATAL:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 01:56:26.320 WIB [93138] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 01:56:56.128 WIB [93415] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 01:57:26.349 WIB [93443] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 01:57:56.156 WIB [93474] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 01:58:26.378 WIB [93529] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 01:58:56.184 WIB [93539] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 01:59:26.407 WIB [93657] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 01:59:56.186 WIB [93719] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:00:26.438 WIB [93728] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:00:56.217 WIB [93731] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:01:26.467 WIB [93801] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:01:56.247 WIB [93848] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:02:26.496 WIB [94000] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:02:56.249 WIB [94258] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:03:26.523 WIB [94519] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:03:56.278 WIB [94642] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:04:26.524 WIB [94732] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:04:56.281 WIB [94745] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:05:26.554 WIB [94769] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:05:56.310 WIB [94775] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:06:26.565 WIB [94850] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:06:56.339 WIB [94871] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:07:26.594 WIB [94960] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:07:56.369 WIB [95067] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:08:26.624 WIB [95121] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:08:56.392 WIB [95179] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:09:26.636 WIB [95287] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:09:56.423 WIB [95301] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:10:26.664 WIB [95374] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:10:56.436 WIB [95478] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 02:11:26.681 WIB [95584] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:37:00.288 WIB [96273] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:37:30.289 WIB [96725] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:38:00.299 WIB [96828] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:38:30.318 WIB [96930] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:39:00.329 WIB [97197] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:39:30.348 WIB [97386] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:40:00.334 WIB [97607] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:40:30.376 WIB [97828] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:41:00.363 WIB [97930] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:41:30.398 WIB [97931] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:42:00.392 WIB [97935] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:42:30.413 WIB [97937] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:43:00.421 WIB [97938] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:43:30.442 WIB [97939] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:44:00.450 WIB [97941] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:44:30.451 WIB [97942] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:45:00.480 WIB [97947] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:45:30.460 WIB [97948] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:46:00.495 WIB [97997] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:46:30.473 WIB [97998] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:47:00.517 WIB [98000] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:47:30.476 WIB [98002] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:48:00.547 WIB [98005] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:48:30.505 WIB [98008] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:49:00.576 WIB [98011] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:49:30.518 WIB [98012] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:50:00.605 WIB [98017] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:50:30.547 WIB [98018] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:51:00.626 WIB [98031] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:51:30.576 WIB [98033] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:52:00.655 WIB [98035] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:52:30.606 WIB [98037] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:53:00.683 WIB [98038] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:53:30.635 WIB [98040] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:54:00.714 WIB [98041] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:54:30.665 WIB [98043] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:55:00.743 WIB [98047] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:55:30.668 WIB [98055] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:56:00.773 WIB [98060] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:56:30.698 WIB [98085] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:57:00.803 WIB [98095] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:57:30.699 WIB [98097] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:58:00.822 WIB [98100] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:58:30.729 WIB [98101] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:59:00.923 WIB [98103] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 09:59:30.757 WIB [98104] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:00:00.951 WIB [98109] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:00:30.758 WIB [98110] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:33:22.967 WIB [98752] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:33:52.997 WIB [98822] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:34:22.997 WIB [98824] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:34:53.009 WIB [98827] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:35:23.027 WIB [98842] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:35:53.019 WIB [98844] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:36:23.054 WIB [98845] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:36:53.048 WIB [98846] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:37:23.083 WIB [98847] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:37:53.049 WIB [98853] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:38:23.113 WIB [98856] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:38:53.061 WIB [98914] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:39:23.143 WIB [98917] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:39:53.091 WIB [98920] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:40:23.143 WIB [98923] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:40:53.120 WIB [98924] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:41:23.173 WIB [98926] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:41:53.150 WIB [98928] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:42:23.180 WIB [98929] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:42:53.162 WIB [98933] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:43:23.210 WIB [98935] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:43:53.191 WIB [98977] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:44:23.240 WIB [98980] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:44:53.212 WIB [98981] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:45:23.269 WIB [98982] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:45:53.241 WIB [98983] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:46:23.299 WIB [98985] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:46:53.271 WIB [98987] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:47:23.328 WIB [98996] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:47:53.300 WIB [99000] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:48:23.337 WIB [99003] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:48:53.314 WIB [99007] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:49:23.338 WIB [99011] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:49:53.322 WIB [99014] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:50:23.352 WIB [99017] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:50:53.332 WIB [99019] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:51:23.372 WIB [99023] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:51:53.333 WIB [99026] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:52:23.401 WIB [99028] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:52:53.363 WIB [99035] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 10:53:23.410 WIB [99038] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:01:58.197 WIB [99645] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:02:28.227 WIB [99653] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:02:58.227 WIB [99656] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:03:28.228 WIB [99670] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:03:58.231 WIB [99673] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:04:28.233 WIB [99675] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:04:58.244 WIB [99678] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:05:28.262 WIB [99679] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:05:58.273 WIB [99681] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:06:28.271 WIB [99686] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:06:58.302 WIB [99691] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:07:29.094 WIB [99706] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:07:58.332 WIB [99707] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:08:29.097 WIB [99710] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:08:58.361 WIB [99711] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:09:29.128 WIB [99713] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:09:58.389 WIB [99714] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:10:29.158 WIB [99717] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:10:58.418 WIB [99718] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:11:29.188 WIB [99723] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:11:58.446 WIB [99725] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:12:29.219 WIB [99843] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:12:58.476 WIB [100389] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:13:29.228 WIB [101311] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:13:58.505 WIB [101312] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:14:29.233 WIB [101313] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:14:58.533 WIB [101314] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:15:29.262 WIB [101373] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:15:58.562 WIB [101376] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:16:29.291 WIB [101381] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:16:58.590 WIB [101383] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:17:29.322 WIB [101384] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:17:58.620 WIB [101387] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:18:29.353 WIB [101396] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:18:58.648 WIB [101398] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:19:29.379 WIB [101400] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:19:58.664 WIB [101401] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:20:29.408 WIB [101415] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:20:58.693 WIB [101422] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:21:29.438 WIB [101427] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:21:58.722 WIB [101429] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:22:29.468 WIB [101430] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:22:58.750 WIB [101431] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:23:29.488 WIB [101432] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:23:58.760 WIB [101625] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:24:29.506 WIB [101629] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:24:58.788 WIB [101631] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:25:29.536 WIB [101633] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:25:58.802 WIB [101634] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:26:29.566 WIB [101650] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:26:58.831 WIB [101653] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:27:29.573 WIB [101655] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:27:58.859 WIB [101656] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:28:29.673 WIB [101658] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:28:58.887 WIB [101659] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:29:29.702 WIB [101661] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:29:58.916 WIB [101674] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:30:29.733 WIB [101677] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:30:58.944 WIB [101678] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:31:29.736 WIB [101683] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:31:58.950 WIB [101685] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:32:29.766 WIB [101688] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:32:58.978 WIB [101701] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:33:29.796 WIB [101702] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:33:58.998 WIB [101703] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:34:29.826 WIB [101705] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:34:59.026 WIB [101706] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:35:29.856 WIB [101708] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:35:59.034 WIB [101711] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:36:29.887 WIB [101715] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:36:59.049 WIB [101717] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:37:29.916 WIB [101732] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:37:59.077 WIB [101743] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:38:29.946 WIB [101757] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:38:59.107 WIB [101762] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:39:29.976 WIB [101771] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:39:59.111 WIB [101773] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:40:29.985 WIB [101775] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:40:59.139 WIB [101776] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:41:30.014 WIB [101781] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:41:59.168 WIB [101783] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:42:30.022 WIB [101798] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:42:59.196 WIB [101799] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:43:30.051 WIB [101800] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:43:59.225 WIB [101801] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:44:30.076 WIB [101802] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:44:59.253 WIB [101803] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:45:30.105 WIB [101806] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:45:59.282 WIB [101865] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:46:30.133 WIB [101870] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:46:59.312 WIB [101872] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:47:30.157 WIB [101873] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:47:59.313 WIB [101874] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:48:30.187 WIB [101877] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:48:59.325 WIB [101878] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:49:30.207 WIB [101880] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:49:59.354 WIB [101881] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:50:30.224 WIB [101943] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:50:59.362 WIB [101945] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:51:30.233 WIB [101949] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:51:59.390 WIB [101951] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:52:30.262 WIB [101952] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:52:59.420 WIB [102031] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:53:30.292 WIB [102033] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:53:59.448 WIB [102034] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:54:30.323 WIB [102036] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:54:59.453 WIB [102037] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:55:30.353 WIB [102039] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:55:59.464 WIB [102041] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:56:30.361 WIB [102043] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:56:59.493 WIB [102066] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:57:30.391 WIB [102088] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:57:59.522 WIB [102091] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:58:30.399 WIB [102093] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:58:59.550 WIB [102094] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:59:30.430 WIB [102095] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 11:59:59.578 WIB [102096] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:00:30.460 WIB [102119] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:00:59.587 WIB [102120] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:01:30.476 WIB [102122] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:01:59.616 WIB [102127] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:02:30.505 WIB [102149] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:02:59.645 WIB [102152] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:03:30.536 WIB [102153] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:03:59.673 WIB [102155] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:04:30.546 WIB [102157] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:04:59.702 WIB [102158] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:05:30.575 WIB [102180] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:05:59.725 WIB [102184] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:06:30.580 WIB [102185] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:06:59.744 WIB [102262] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:07:30.611 WIB [102268] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:07:59.772 WIB [102331] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:08:30.642 WIB [102333] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:08:59.800 WIB [102335] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:09:30.658 WIB [102336] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:09:59.828 WIB [102337] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:10:30.675 WIB [102339] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:10:59.857 WIB [102342] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:11:30.683 WIB [102343] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:11:59.871 WIB [102348] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:12:30.713 WIB [102350] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:12:59.900 WIB [102392] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:13:30.734 WIB [102395] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:13:59.928 WIB [102396] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:14:30.757 WIB [102397] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:14:59.932 WIB [102398] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:15:30.788 WIB [102403] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:15:59.961 WIB [102405] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:16:30.819 WIB [102407] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:16:59.967 WIB [102412] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:17:30.849 WIB [102414] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:17:59.996 WIB [102418] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:18:30.853 WIB [102422] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:19:00.024 WIB [102423] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:19:30.952 WIB [102426] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:20:00.053 WIB [102428] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:20:30.957 WIB [102431] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:21:00.082 WIB [102433] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:21:30.958 WIB [102436] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:22:00.110 WIB [102442] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:22:30.988 WIB [102444] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:53:26.178 WIB [103186] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:53:56.208 WIB [103194] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:54:26.187 WIB [103197] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:54:56.237 WIB [103210] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:55:26.218 WIB [103212] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:55:56.248 WIB [103214] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:56:26.248 WIB [103216] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:56:56.276 WIB [103218] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:57:26.277 WIB [103237] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:57:56.305 WIB [103238] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:58:26.306 WIB [103243] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:58:56.335 WIB [103247] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:59:26.308 WIB [103248] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 12:59:56.348 WIB [103267] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:00:26.317 WIB [103277] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:00:56.364 WIB [103279] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:01:26.340 WIB [103280] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:01:56.394 WIB [103282] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:02:26.368 WIB [103297] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:02:56.420 WIB [103300] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:03:26.380 WIB [103303] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:03:56.449 WIB [103305] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:04:26.392 WIB [103306] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:04:56.478 WIB [103309] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:05:26.412 WIB [103310] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:05:56.507 WIB [103317] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:06:26.442 WIB [103318] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:06:56.512 WIB [103320] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:07:26.457 WIB [103330] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:07:56.612 WIB [103332] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:08:26.487 WIB [103334] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:08:56.613 WIB [103337] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:09:26.509 WIB [103342] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:09:56.619 WIB [103344] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:10:26.538 WIB [103346] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:10:56.631 WIB [103348] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:11:26.541 WIB [103350] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-05 13:11:56.660 WIB [103353] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:09:27.468 WIB [105192] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:09:57.498 WIB [106035] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:10:27.497 WIB [106057] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:10:57.516 WIB [106069] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:11:27.527 WIB [106071] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:11:57.545 WIB [106100] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:12:27.557 WIB [106152] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:12:57.575 WIB [106154] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:13:27.585 WIB [106366] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:13:57.578 WIB [106368] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:14:27.588 WIB [106414] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:14:57.604 WIB [106472] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:15:27.608 WIB [106511] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:15:57.633 WIB [106669] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:16:27.617 WIB [106709] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:16:57.664 WIB [106727] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:17:27.647 WIB [106730] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:17:57.692 WIB [106731] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:18:27.655 WIB [106738] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:18:57.702 WIB [106739] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:19:27.657 WIB [106743] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:19:57.730 WIB [106746] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:20:27.686 WIB [106753] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:20:57.744 WIB [106766] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:21:27.716 WIB [106876] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:21:57.772 WIB [108581] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:22:27.731 WIB [110382] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:22:57.779 WIB [110661] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:23:27.736 WIB [110667] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:23:57.781 WIB [110767] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:24:27.766 WIB [110770] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:24:57.810 WIB [110773] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:25:27.795 WIB [110781] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:25:57.839 WIB [110784] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:26:27.824 WIB [110788] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:26:57.866 WIB [110895] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:27:27.853 WIB [110916] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:27:57.894 WIB [110918] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:28:27.882 WIB [110922] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:28:57.924 WIB [110923] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:29:27.886 WIB [110941] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:29:57.948 WIB [110961] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:30:27.890 WIB [110984] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:30:57.977 WIB [110985] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:31:27.918 WIB [111040] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:31:57.988 WIB [111064] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:32:27.948 WIB [111104] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:32:57.996 WIB [111110] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:33:27.977 WIB [111114] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:33:58.025 WIB [111116] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:34:28.006 WIB [111119] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:34:58.037 WIB [111122] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:35:28.022 WIB [111245] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:35:58.066 WIB [111262] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:36:28.051 WIB [111266] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:36:58.068 WIB [111268] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:37:28.081 WIB [111271] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:37:58.098 WIB [111272] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:38:28.085 WIB [111278] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:38:58.128 WIB [111279] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:39:28.090 WIB [111282] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:39:58.156 WIB [111308] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:40:28.116 WIB [111460] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:40:58.166 WIB [111463] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:41:28.131 WIB [111466] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:41:58.194 WIB [111468] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:42:28.161 WIB [111472] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:42:58.224 WIB [111475] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:43:28.167 WIB [111479] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:43:58.249 WIB [111495] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:44:28.197 WIB [111498] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:44:58.280 WIB [111503] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:45:28.226 WIB [111646] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:45:58.309 WIB [111651] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:46:28.227 WIB [111654] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:46:58.327 WIB [111656] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:47:28.238 WIB [111659] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:47:58.344 WIB [111660] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:48:28.267 WIB [111664] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:48:58.373 WIB [111666] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:49:28.290 WIB [111669] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:49:58.403 WIB [111671] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:50:28.320 WIB [111686] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:50:58.433 WIB [111728] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:51:28.325 WIB [111745] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:51:58.461 WIB [111746] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:52:28.355 WIB [111749] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:52:58.485 WIB [111750] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:53:28.384 WIB [111755] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:53:58.487 WIB [111756] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:54:28.484 WIB [111759] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:54:58.492 WIB [111884] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:55:28.509 WIB [111888] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:55:58.521 WIB [111895] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:56:28.509 WIB [111900] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:56:58.541 WIB [111903] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:57:28.539 WIB [111909] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:57:58.571 WIB [111911] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:58:28.543 WIB [111916] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:58:58.591 WIB [111919] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:59:28.544 WIB [112078] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 08:59:58.619 WIB [112097] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:00:28.572 WIB [112115] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:00:58.649 WIB [112132] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:01:28.602 WIB [112154] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:01:58.658 WIB [112272] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:02:28.624 WIB [112334] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:02:58.688 WIB [112335] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:03:28.653 WIB [112339] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:03:58.697 WIB [112341] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:04:28.680 WIB [112344] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:04:58.727 WIB [112356] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:05:28.703 WIB [112359] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:05:58.756 WIB [112362] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:06:28.729 WIB [112369] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:06:58.769 WIB [112370] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:07:28.753 WIB [112373] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:07:58.798 WIB [112414] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:08:28.783 WIB [112419] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-06 09:08:58.827 WIB [112475] ERROR:  could not open shared memory segment "/PostgreSQL.1844516734": No such file or directory
+2025-11-10 18:00:30.520 WIB [14828] LOG:  starting PostgreSQL 16.6 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 13.2.0, 64-bit
+2025-11-10 18:00:30.521 WIB [14828] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2025-11-10 18:00:30.521 WIB [14828] LOG:  listening on IPv6 address "::", port 5432
+2025-11-10 18:00:30.523 WIB [14828] LOG:  listening on Unix socket "/home/alcendol/Codes/Skripsi_Web_App/server/.postgres/.s.PGSQL.5432"
+2025-11-10 18:00:30.526 WIB [14831] LOG:  database system was interrupted; last known up at 2025-11-04 19:11:45 WIB
+2025-11-10 18:00:30.618 WIB [14831] LOG:  database system was not properly shut down; automatic recovery in progress
+2025-11-10 18:00:30.620 WIB [14831] LOG:  redo starts at 0/3A09E80
+2025-11-10 18:00:30.620 WIB [14831] LOG:  invalid record length at 0/3A09F68: expected at least 24, got 0
+2025-11-10 18:00:30.620 WIB [14831] LOG:  redo done at 0/3A09F30 system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s
+2025-11-10 18:00:30.623 WIB [14829] LOG:  checkpoint starting: end-of-recovery immediate wait
+2025-11-10 18:00:30.629 WIB [14829] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.001 s, total=0.007 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB; lsn=0/3A09F68, redo lsn=0/3A09F68
+2025-11-10 18:00:30.631 WIB [14828] LOG:  database system is ready to accept connections
+2025-11-10 18:19:21.361 WIB [19200] FATAL:  could not open shared memory segment "/PostgreSQL.1125641370": No such file or directory

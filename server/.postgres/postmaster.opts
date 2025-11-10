@@ -1,0 +1,1 @@
+/nix/store/nv1g8lg756g71ncvyi7hpd0l56qmg9zg-postgresql-16.6/bin/postgres "-D" "/home/alcendol/Codes/Skripsi_Web_App/server/.postgres" "-i" "-p" "5432"
