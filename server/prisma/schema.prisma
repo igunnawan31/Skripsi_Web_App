@@ -1,0 +1,365 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== USER & BRANCH ====================
+model User {
+  id        String     @id @default(uuid())
+  name      String
+  email     String     @unique
+  password  String
+  majorRole MajorRole
+  minorRole MinorRole?
+  photo     Json?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relasi Absensi & Cuti
+  absensi       Absensi[] @relation("UserAbsen")
+  cutiDiajukan  Cuti[]    @relation("UserCuti")
+  cutiDisetujui Cuti[]    @relation("ApproverCuti")
+
+  // Relasi Gaji & Kontrak
+  gaji    Gaji[]         @relation("UserGaji")
+  kontrak KontrakKerja[] @relation("UserKontrak")
+
+  // Relasi Project
+  projectTeams ProjectTeam[] @relation("ProjectMember")
+
+  // Relasi KPI
+  indikatorDibuat     IndikatorKPI[]         @relation("PembuatIndikator")
+  penilaiKPI          JawabanKPI[]           @relation("PenilaiKPI")
+  dinilaiKPI          JawabanKPI[]           @relation("DinilaiKPI")
+  rekapKPI            RekapKPI[]             @relation("RekapUserKPI")
+  indikatorPenilai    IndikatorKPIPenilai[]  @relation("UserPenilai")
+  indikatorTerdinilai IndikatorKPIDinilai[]  @relation("UserDinilai")
+
+  @@index([email])
+}
+
+// ==================== ABSENSI & CUTI ====================
+model Absensi {
+  userId     String
+  date       DateTime   @db.Date
+  workStatus WorkStatus
+  checkIn    DateTime
+  checkOut   DateTime?
+  notes      String?
+  createdAt  DateTime   @default(now())
+
+  user User @relation("UserAbsen", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, date])
+  @@index([date])
+  @@index([userId, date])
+}
+
+model Cuti {
+  id         String     @id @default(uuid())
+  userId     String
+  approverId String?
+  startDate  DateTime   @db.Date
+  endDate    DateTime   @db.Date
+  reason     String
+  status     StatusCuti @default(MENUNGGU)
+  catatan    String? // Catatan dari approver
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  user     User    @relation("UserCuti", fields: [userId], references: [id], onDelete: Cascade)
+  approver User?   @relation("ApproverCuti", fields: [approverId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([approverId])
+  @@index([status])
+  @@index([startDate, endDate])
+}
+
+// ==================== GAJI & KONTRAK ====================
+model KontrakKerja {
+  id               String             @id @default(uuid())
+  userId           String
+  projectId        String
+  metodePembayaran MetodePembayaran
+  dpPercentage     Int?
+  finalPercentage  Int?
+  totalBayaran     Int // Dalam rupiah
+  absensiBulanan   Int // Quota absensi per bulan
+  cutiBulanan      Int // Quota cuti per bulan
+  status           KontrakKerjaStatus @default(AKTIF)
+  catatan          String?
+  dokumen          Json? // Path/URL dokumen kontrak
+  tanggalMulai     DateTime           @db.Date
+  tanggalSelesai   DateTime?          @db.Date
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  user    User    @relation("UserKontrak", fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation("KontrakProject", fields: [projectId], references: [id], onDelete: Cascade)
+  gaji    Gaji[]  @relation("KontrakGaji")
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([status])
+  @@index([tanggalMulai, tanggalSelesai])
+}
+
+model Gaji {
+  id          String     @id @default(uuid())
+  userId      String
+  kontrakId   String
+  periode     String // Format: "YYYY-MM" contoh: "2025-01"
+  dueDate     DateTime   @db.Date
+  status      GajiStatus @default(BELUM_DIBAYAR)
+  amount      Int // Jumlah gaji dalam rupiah
+  paymentDate DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  user    User         @relation("UserGaji", fields: [userId], references: [id], onDelete: Cascade)
+  kontrak KontrakKerja @relation("KontrakGaji", fields: [kontrakId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, periode]) // Satu user hanya bisa punya 1 gaji per periode
+  @@index([userId])
+  @@index([kontrakId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([periode])
+}
+
+// ==================== PROJECT ====================
+model Project {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  startDate   DateTime? @db.Date
+  endDate     DateTime? @db.Date
+  status      String    @default("ACTIVE") // ACTIVE, COMPLETED, ON_HOLD
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  projectTeams ProjectTeam[]  @relation("ProjectTeam")
+  kontrak      KontrakKerja[] @relation("KontrakProject")
+
+  @@index([name])
+  @@index([status])
+}
+
+model ProjectTeam {
+  projectId String
+  userId    String
+  role      ProjectRole
+  joinedAt  DateTime @default(now())
+
+  project Project @relation("ProjectTeam", fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation("ProjectMember", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+}
+
+// ==================== KPI SYSTEM ====================
+model SkalaNilaiKPI {
+  id         Int      @id @default(autoincrement())
+  name       String // Contoh: "Skala 1-5", "Skala Sangat Buruk - Sangat Baik"
+  valueType  String // "NUMERIC", "TEXT"
+  valueRange String[] // Untuk NUMERIC: ["1","2","3","4","5"], untuk TEXT: ["Sangat Buruk","Buruk","Cukup","Baik","Sangat Baik"]
+  deskripsi  String? // Deskripsi skala
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  pertanyaan PertanyaanKPI[] @relation("SkalaPertanyaan")
+
+  @@index([name])
+}
+
+model IndikatorKPI {
+  id           String             @id @default(uuid())
+  name         String
+  description  String
+  category     String
+  startDate    DateTime           @db.Date
+  endDate      DateTime           @db.Date
+  statusPublic Boolean            @default(false)
+  status       StatusIndikatorKPI @default(DRAFT)
+  createdById  String
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  createdBy User @relation("PembuatIndikator", fields: [createdById], references: [id], onDelete: Cascade)
+
+  // Relasi ke pertanyaan
+  pertanyaan PertanyaanKPI[] @relation("IndikatorPertanyaan")
+
+  // Relasi many-to-many: Siapa yang menilai & siapa yang dinilai
+  penilai  IndikatorKPIPenilai[] @relation("IndikatorPenilai")
+  dinilai  IndikatorKPIDinilai[] @relation("IndikatorDinilai")
+
+  // Hasil penilaian
+  jawaban JawabanKPI[] @relation("IndikatorJawaban")
+  rekap   RekapKPI[]   @relation("IndikatorRekap")
+
+  @@index([createdById])
+  @@index([status])
+  @@index([startDate, endDate])
+}
+
+// Tabel pivot: User mana saja yang bisa jadi PENILAI di indikator ini
+model IndikatorKPIPenilai {
+  indikatorId String
+  userId      String
+  createdAt   DateTime @default(now())
+
+  indikator IndikatorKPI @relation("IndikatorPenilai", fields: [indikatorId], references: [id], onDelete: Cascade)
+  user      User         @relation("UserPenilai", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([indikatorId, userId])
+  @@index([indikatorId])
+  @@index([userId])
+}
+
+// Tabel pivot: User mana saja yang akan DINILAI di indikator ini
+model IndikatorKPIDinilai {
+  indikatorId String
+  userId      String
+  createdAt   DateTime @default(now())
+
+  indikator IndikatorKPI @relation("IndikatorDinilai", fields: [indikatorId], references: [id], onDelete: Cascade)
+  user      User         @relation("UserDinilai", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([indikatorId, userId])
+  @@index([indikatorId])
+  @@index([userId])
+}
+
+model PertanyaanKPI {
+  id           String             @id @default(uuid())
+  indikatorId  String
+  kategori     KategoriPertanyaan
+  pertanyaan   String             @db.Text
+  bobot        Float 
+  aktif        Boolean            @default(true)
+  skalaId      Int
+  urutanSoal   Int                @default(0) // buat sorting
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  indikator IndikatorKPI  @relation("IndikatorPertanyaan", fields: [indikatorId], references: [id], onDelete: Cascade)
+  skala     SkalaNilaiKPI @relation("SkalaPertanyaan", fields: [skalaId], references: [id], onDelete: Restrict)
+  jawaban   JawabanKPI[]  @relation("JawabanPertanyaan")
+
+  @@index([indikatorId])
+  @@index([skalaId])
+  @@index([aktif])
+}
+
+model JawabanKPI {
+  id           String   @id @default(uuid())
+  indikatorId  String
+  pertanyaanId String
+  penilaiId    String
+  dinilaiId    String
+  nilai        String // Nilai sesuai dengan skala (bisa "1", "2", atau "Sangat Baik", dll)
+  notes        String?  @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  indikator  IndikatorKPI  @relation("IndikatorJawaban", fields: [indikatorId], references: [id], onDelete: Cascade)
+  pertanyaan PertanyaanKPI @relation("JawabanPertanyaan", fields: [pertanyaanId], references: [id], onDelete: Restrict)
+  penilai    User          @relation("PenilaiKPI", fields: [penilaiId], references: [id], onDelete: Cascade)
+  dinilai    User          @relation("DinilaiKPI", fields: [dinilaiId], references: [id], onDelete: Cascade)
+
+  @@unique([pertanyaanId, penilaiId, dinilaiId]) // Satu penilai hanya bisa jawab 1x per pertanyaan per dinilai
+  @@index([indikatorId])
+  @@index([pertanyaanId])
+  @@index([penilaiId])
+  @@index([dinilaiId])
+  @@index([penilaiId, dinilaiId])
+}
+
+model RekapKPI {
+  id          String   @id @default(uuid())
+  indikatorId String
+  userId      String // User yang dinilai
+  totalNilai  Float // Total nilai dari semua pertanyaan
+  rataRata    Float // Rata-rata nilai
+  jumlahPenilai Int  // Berapa banyak orang yang menilai
+  keterangan  String? @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  indikator IndikatorKPI @relation("IndikatorRekap", fields: [indikatorId], references: [id], onDelete: Cascade)
+  user      User         @relation("RekapUserKPI", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([indikatorId, userId]) // Satu user hanya punya 1 rekap per indikator
+  @@index([indikatorId])
+  @@index([userId])
+}
+
+// ==================== ENUMS ====================
+enum MajorRole {
+  OWNER
+  KARYAWAN
+}
+
+enum MinorRole {
+  HR
+  ADMIN
+  PROJECT_MANAGER
+  UI_UX
+  FRONTEND
+  BACKEND
+}
+
+enum WorkStatus {
+  WFH
+  WFO
+  HYBRID
+}
+
+enum StatusCuti {
+  MENUNGGU
+  DITERIMA
+  DITOLAK
+}
+
+enum GajiStatus {
+  BELUM_DIBAYAR
+  DIBAYAR
+  TERLAMBAT
+}
+
+enum KontrakKerjaStatus {
+  AKTIF
+  SELESAI
+  DITANGGUHKAN // Kontrak sempat berhenti sementara
+}
+
+enum MetodePembayaran {
+  BULANAN // Dibayar per bulan
+  TERMIN  // Dibayar per termin/milestone
+  FULL    // Dibayar di awal (freelance)
+}
+
+enum KategoriPertanyaan {
+  KINERJA // Kinerja Karyawan
+  SIFAT   // Sifat Karyawan
+}
+
+enum StatusIndikatorKPI {
+  DRAFT   // Masih draft
+  AKTIF   // Sedang berjalan
+  SELESAI // Sudah selesai
+  ARSIP   // Diarsipkan
+}
+
+enum ProjectRole {
+  KETUA
+  ANGGOTA
+}
