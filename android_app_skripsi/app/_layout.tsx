@@ -12,6 +12,7 @@ export default function RootLayout() {
         <Stack.Screen name="(kpi)" />
         <Stack.Screen name="(reimburse)" />
         <Stack.Screen name="(absensi)" />
+        <Stack.Screen name="(calendar)" />
       </Stack>
     </SafeScreen>
   );
