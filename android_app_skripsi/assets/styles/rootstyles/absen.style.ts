@@ -1,5 +1,7 @@
 import COLORS from "@/constants/colors";
-import { StyleSheet } from "react-native";
+import { Dimensions, StyleSheet } from "react-native";
+
+const { width } = Dimensions.get("window");
 
 const absenStyles = StyleSheet.create({
     container: {
@@ -88,7 +90,46 @@ const absenStyles = StyleSheet.create({
         borderRadius: 8,
         borderColor: COLORS.border,
         borderWidth: 1,
-    }
+    },
+    bottomCard: {
+        position: "absolute",
+        bottom: 0,
+        width: width,
+        backgroundColor: "white",
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        padding: 20,
+        elevation: 5,
+    },
+    label: {
+        fontSize: 14,
+        color: "#888",
+        marginBottom: 4,
+    },
+    address: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#333",
+        marginBottom: 20,
+    },
+    button: {
+        backgroundColor: "#FFA500",
+        paddingVertical: 14,
+        borderRadius: 10,
+        alignItems: "center",
+    },
+    buttonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "700",
+    },
+    marker: {
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    markerText: {
+        fontSize: 24,
+    },
 })
 
 export default absenStyles;

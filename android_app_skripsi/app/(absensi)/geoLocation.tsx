@@ -8,8 +8,6 @@ import COLORS from "@/constants/colors";
 import absenStyles from "@/assets/styles/rootstyles/absen.style";
 import AbsenPopModal from "@/components/rootComponents/absenComponent/AbsenPopUpModal";
 
-const { width } = Dimensions.get("window");
-
 const GeoLocationPage = () => {
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
     const [region, setRegion] = useState<Region | null>(null);
@@ -122,7 +120,7 @@ const GeoLocationPage = () => {
                     <MapView style={absenStyles.map} region={region!} showsUserLocation>
                         {region && (
                             <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }}>
-                                <View style={styles.marker}>
+                                <View style={absenStyles.marker}>
                                     <Image 
                                         source={require("../../assets/icons/location.png")}
                                         style={{ width: 32, height: 32, tintColor:COLORS.tertiary }}
@@ -132,12 +130,12 @@ const GeoLocationPage = () => {
                         )}
                     </MapView>
 
-                    <View style={styles.bottomCard}>
-                        <Text style={styles.label}>Lokasi Anda Saat Ini</Text>
-                        <Text style={styles.address}>{address}</Text>
+                    <View style={absenStyles.bottomCard}>
+                        <Text style={absenStyles.label}>Lokasi Anda Saat Ini</Text>
+                        <Text style={absenStyles.address}>{address}</Text>
 
-                        <TouchableOpacity style={styles.button} onPress={handleNext}>
-                            <Text style={styles.buttonText}>Lanjutkan</Text>
+                        <TouchableOpacity style={absenStyles.button} onPress={handleNext}>
+                            <Text style={absenStyles.buttonText}>Lanjutkan</Text>
                         </TouchableOpacity>
                     </View>
                 </>
@@ -166,45 +164,3 @@ const GeoLocationPage = () => {
 }
 
 export default GeoLocationPage;
-
-const styles = StyleSheet.create({
-  bottomCard: {
-    position: "absolute",
-    bottom: 0,
-    width: width,
-    backgroundColor: "white",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    elevation: 5,
-  },
-  label: {
-    fontSize: 14,
-    color: "#888",
-    marginBottom: 4,
-  },
-  address: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 20,
-  },
-  button: {
-    backgroundColor: "#FFA500",
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  marker: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  markerText: {
-    fontSize: 24,
-  },
-});
