@@ -135,7 +135,7 @@ const AbsenseComponent = () => {
             <View style={homeStyles.buttonContainer}>
                 <TouchableOpacity 
                     style={homeStyles.buttonPrimary}
-                    onPress={() => router.push("/(absensi)/")}
+                    onPress={() => router.push("/(absensi)/geoLocation")}
                 >
                     <Text style={homeStyles.buttonText}>Absen Sekarang</Text>
                 </TouchableOpacity>

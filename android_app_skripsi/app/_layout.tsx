@@ -7,6 +7,7 @@ export default function RootLayout() {
     <SafeScreen>
       {/* <StatusBar backgroundColor="#000000"/> */}
       <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="(cuti)" />
         <Stack.Screen name="(kpi)" />
