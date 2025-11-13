@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Image, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import Modal from "react-native-modal";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useRouter } from "expo-router";
 
 const HistoryAbsensiPage = () => {
     const [data, setData] = useState(dummyAbsensi);
@@ -14,6 +15,7 @@ const HistoryAbsensiPage = () => {
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [showPicker, setShowPicker] = useState(false);
     const [pickerTarget, setPickerTarget] = useState<"start" | "end" | "month">("start");
+    const router = useRouter();
 
     const showHandlePopUpFilter = () => setModalVisible(true);
     const closeHandlePopUpFilter = () => setModalVisible(false);
@@ -230,6 +232,24 @@ const HistoryAbsensiPage = () => {
                                 <Text style={historyStyles.timeText}>Pulang: {item.checkOut}</Text>
                             </View>
                         </View>
+                        <View style={{ height: 1, backgroundColor: COLORS.border, marginTop: 12 }} />
+                        <TouchableOpacity
+                            key={item.id}
+                            onPress={() => router.push(`/(absensi)/${item.id}`)}
+                            style={{
+                                marginTop: 12,
+                                alignItems: 'center',
+                                flexDirection: 'row',
+                                justifyContent: 'flex-end',
+                                gap: 5,
+                            }}
+                        >
+                            <Text>Lebih Lanjut</Text>
+                            <Image
+                                style={historyStyles.iconCalendar}
+                                source={require('../../../assets/icons/arrow-right.png')}
+                            />
+                        </TouchableOpacity>
                     </View>
                 ))}
             </View>

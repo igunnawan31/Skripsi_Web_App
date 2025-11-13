@@ -5,11 +5,12 @@ import * as Location from "expo-location";
 import { router, useRouter } from "expo-router";
 import MapView from "react-native-maps";
 import COLORS from "@/constants/colors";
-import absenStyles from "@/assets/styles/rootstyles/absen.style";
+import absenStyles from "@/assets/styles/rootstyles/absen/absen.style";
 import AbsenPopModal from "@/components/rootComponents/absenComponent/AbsenPopUpModal";
+import { useAbsen } from "@/context/AbsenContext";
 
 const GeoLocationPage = () => {
-    const [location, setLocation] = useState<Location.LocationObject | null>(null);
+    const {location, setLocationData} = useAbsen();
     const [region, setRegion] = useState<Region | null>(null);
     const [address, setAddress] = useState<string>("");
     const [latitude, setLatitude] = useState<number | null>(null);
@@ -71,7 +72,14 @@ const GeoLocationPage = () => {
     }, [fetchLocation]);
 
     const handleNext = () => {
-        return router.push('/(absensi)/fotoabsensi');
+        if (latitude !== null && longitude !== null) {
+            setLocationData(latitude, longitude, address);
+            console.log("Location saved: ", {latitude, longitude, address});
+            return router.push('/(absensi)/fotoabsensi');
+        } else {
+            setErrorMessage("Lokasi belum terdeteksi sepenuhnya");
+            setShowErrorModal(true);
+        }
     };
 
     const handleRetry = () => {

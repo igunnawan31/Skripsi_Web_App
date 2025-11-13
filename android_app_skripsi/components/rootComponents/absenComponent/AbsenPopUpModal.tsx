@@ -1,4 +1,4 @@
-import absenStyles from "@/assets/styles/rootstyles/absen.style";
+import absenStyles from "@/assets/styles/rootstyles/absen/absen.style";
 import COLORS from "@/constants/colors";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
 
