@@ -10,6 +10,7 @@ export default function RootLayout() {
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="(cuti)" />
+        <Stack.Screen name="(gaji)" />
         <Stack.Screen name="(kpi)" />
         <Stack.Screen name="(reimburse)" />
         <Stack.Screen name="(absensi)" />

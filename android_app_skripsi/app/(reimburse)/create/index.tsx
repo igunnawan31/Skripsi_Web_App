@@ -1,30 +1,27 @@
-import { useState } from "react";
-import { cutiDetailStyles } from "@/assets/styles/rootstyles/cuti/cutidetail.styles";
+import reimburseStyles from "@/assets/styles/rootstyles/reimburse/reimburse.styles";
+import ReimburseCreateFormComponent from "@/components/rootComponents/reimburseComponent/ReimburseCreateFormComponent";
 import COLORS from "@/constants/colors";
 import { useRouter } from "expo-router";
-import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { dummyUsers } from "@/data/dummyUsers";
-import CutiCreateFormComponent from "@/components/rootComponents/cutiComponent/CutiCreateFormComponent";
+import { Image, Text, TouchableOpacity, View } from "react-native"
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { cutiStyles } from "@/assets/styles/rootstyles/cuti/cuti.styles";
 
-const PengajuanCuti = () => {
+const CreateReimbursePage = () => {
     const router = useRouter();
-        
+
     return (
         <View style={{ flex: 1, backgroundColor: COLORS.background }}>
-            <View style={cutiDetailStyles.header}>
+            <View style={reimburseStyles.header}>
                 <TouchableOpacity
                     style={{ flexDirection: "row", alignItems: "center" }}
                     onPress={() => router.back()}
                 >
-                    <View style={cutiDetailStyles.iconPlace}>
+                    <View style={reimburseStyles.iconPlace}>
                         <Image
-                            style={cutiDetailStyles.iconBack}
+                            style={reimburseStyles.iconBack}
                             source={require("../../../assets/icons/arrow-left.png")}
                         />
                     </View>
-                    <Text style={cutiDetailStyles.headerTitle}>Kembali</Text>
+                    <Text style={reimburseStyles.headerTitle}>Kembali</Text>
                 </TouchableOpacity>
             </View>
             <KeyboardAwareScrollView
@@ -37,26 +34,26 @@ const PengajuanCuti = () => {
                 extraScrollHeight={150}
                 keyboardShouldPersistTaps="handled"
             >
-                <View style={cutiDetailStyles.subHeaderContainer}>
+                <View style={reimburseStyles.subHeaderContainer}>
                     <View>
-                        <Text style={cutiDetailStyles.subHeaderTitle}>
-                            Ajukan Cuti Kamu
+                        <Text style={reimburseStyles.subHeaderTitle}>
+                            Ajukan Reimburse Kamu
                         </Text>
-                        <Text style={cutiDetailStyles.subHeaderDescription}>
-                            Buat pengajuan cuti kamu
+                        <Text style={reimburseStyles.subHeaderDescription}>
+                            Buat pengajuan reimburse kamu
                         </Text>
                     </View>
-                    <View style={cutiDetailStyles.logoSubHeaderContainer}>
+                    <View style={reimburseStyles.logoSubHeaderContainer}>
                         <Image
-                            style={cutiDetailStyles.logoSubHeader}
+                            style={reimburseStyles.logoSubHeader}
                             source={require("../../../assets/icons/cuti.png")}
                         />
                     </View>
                 </View>
-                <CutiCreateFormComponent />
+                <ReimburseCreateFormComponent />
             </KeyboardAwareScrollView>
         </View>
-    );
-};
+    )
+}
 
-export default PengajuanCuti;
+export default CreateReimbursePage;

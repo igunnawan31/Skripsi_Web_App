@@ -24,7 +24,7 @@ const featureNames = [
         label: "Gaji",
         value: "Cek Gaji Kamu",
         image: require("../../../assets/icons/payment.png"),
-        linkTo: "/(gaji)/",
+        linkTo: "/(gaji)/gaji",
         accessedBy: [
             {
                 majorRole:"Karyawan", 
@@ -72,7 +72,7 @@ const featureNames = [
         label: "Reimburse",
         value: "Reimburse Pengeluaran",
         image: require("../../../assets/icons/reimburse.png"),
-        linkTo: "/(reimburse)/",
+        linkTo: "/(reimburse)/reimburse",
         accessedBy: [
             {
                 majorRole:"Karyawan", 

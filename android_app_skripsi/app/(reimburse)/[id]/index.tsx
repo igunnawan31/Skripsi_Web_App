@@ -4,10 +4,12 @@ import { dummyCuti } from "@/data/dummyCuti";
 import { cutiDetailStyles } from "@/assets/styles/rootstyles/cuti/cutidetail.styles";
 import COLORS from "@/constants/colors";
 import CutiFormComponent from "@/components/rootComponents/cutiComponent/CutiFormComponent";
+import { dummyReimburse } from "@/data/dummyReimburse";
+import reimburseStyles from "@/assets/styles/rootstyles/reimburse/reimburse.styles";
 
-export default function DetailCuti() {
+export default function DetailReimburse() {
     const { id } = useLocalSearchParams();
-    const data = dummyCuti.find((item) => item.id === id);
+    const data = dummyReimburse.find((item) => item.id === id);
     const router = useRouter();
 
     if (!data) {
@@ -26,6 +28,20 @@ export default function DetailCuti() {
                 return COLORS.muted;
         }
     };
+
+    const fieldsToShow = [
+        { label: "Nama Lengkap", value: data.name },
+        { label: "Tanggal Pengajuan", value: data.submissionDate },
+        { 
+            label: "Total Pengeluaran", 
+            value: data.totalPengeluaran.toLocaleString("id-ID", { 
+                style: "currency", currency: "IDR" 
+            }) 
+        },
+        { label: "Major Role", value: data.majorRole },
+        { label: "Minor Role", value: data.minorRole },
+        { label: "Bukti Pendukung", value: data.file || "Tidak ada file" },
+    ];
 
     return (
         <View style={{ flex: 1, backgroundColor: COLORS.background }}>
@@ -51,37 +67,47 @@ export default function DetailCuti() {
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
-                <View style={cutiDetailStyles.cutiContainer}>
-                    <View>
-                        <Text style={cutiDetailStyles.label}>Status: </Text>
-                        <Text
-                            style={[
-                                cutiDetailStyles.cutiStatus,
-                                { backgroundColor: getStatusColor(data.cutiStatus) },
-                            ]}
-                        >
-                            {data.cutiStatus}
-                        </Text>
+                <View style={reimburseStyles.statusContainer}>
+                    <View style={{ width: "100%", flexDirection: "row", justifyContent: "space-between"}}>
+                        <View>
+                            <Text style={cutiDetailStyles.label}>Status: </Text>
+                            <Text
+                                style={[
+                                    cutiDetailStyles.cutiStatus,
+                                    { backgroundColor: getStatusColor(data.reimburseStatus) },
+                                ]}
+                            >
+                                {data.reimburseStatus}
+                            </Text>
+                        </View>
+                        <View>
+                            <Text style={cutiDetailStyles.label}>Penilai: </Text>
+                            <Text style={cutiDetailStyles.cutiApprover}>{data.approver}</Text>
+                        </View>
                     </View>
-                    <View>
-                        <Text style={cutiDetailStyles.label}>Penilai: </Text>
-                        <Text style={cutiDetailStyles.cutiApprover}>{data.approver}</Text>
+                    <View style={{ alignItems: "flex-start", width: "100%", marginTop: 10 }}>
+                        <Text style={cutiDetailStyles.label}>Alasan Penolakan</Text>
+                        <Text style={cutiDetailStyles.value}>{data.alasanPenolakan}</Text>
                     </View>
                 </View>
 
-                <View style={cutiDetailStyles.penolakanContainer}>
-                    <Text style={cutiDetailStyles.label}>Alasan Penolakan</Text>
-                    <Text style={cutiDetailStyles.value}>{data.reason} {data.reason} {data.reason} {data.reason} {data.reason} {data.reason} {data.reason} {data.reason}</Text>
+                <View style={{ width: "100%", paddingHorizontal: 20, marginTop: 20 }}>
+                    {fieldsToShow.map((item, index) => (
+                        <View key={index} style={reimburseStyles.labelContainer}>
+                            <Text style={reimburseStyles.labelInput}>{item.label}</Text>
+                            <Text style={[reimburseStyles.input, { opacity: 0.5 }]}>
+                                {item.value}
+                            </Text>
+                        </View>
+                    ))}
                 </View>
-
-                <CutiFormComponent data={data} />
 
                 <TouchableOpacity
                     style={{ flexDirection: "row", alignItems: "center", marginTop: 20 }}
                     onPress={() => router.push('/create')}
                 >
                     <Text style={{ color: COLORS.primary, fontWeight: "600", marginRight: 6 }}>
-                        Ajukan Cuti lain
+                        Ajukan Reimburse lain
                     </Text>
                     <Image
                         style={[cutiDetailStyles.iconBack, { tintColor: COLORS.primary }]}
