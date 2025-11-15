@@ -72,7 +72,23 @@ const featureNames = [
         label: "Reimburse",
         value: "Reimburse Pengeluaran",
         image: require("../../../assets/icons/reimburse.png"),
-        linkTo: "/(reimburse)/reimburse",
+        linkTo: "/(reimburse)/reimburse/reimburse",
+        accessedBy: [
+            {
+                majorRole:"Karyawan", 
+                minorRole:"",
+            },
+            {
+                majorRole:"Karyawan", 
+                minorRole:"",
+            },
+        ]
+    },
+    {
+        label: "Reimburse",
+        value: "Setujui Reimburse",
+        image: require("../../../assets/icons/approved.png"),
+        linkTo: "/(reimburse)/setujui-reimburse/setujui-reimburse",
         accessedBy: [
             {
                 majorRole:"Karyawan", 

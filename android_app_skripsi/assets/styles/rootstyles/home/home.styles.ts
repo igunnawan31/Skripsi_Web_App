@@ -6,7 +6,7 @@ export const homeStyles = StyleSheet.create({
         flex: 1,
         width: "100%",
         backgroundColor: COLORS.background,
-        paddingBottom: 96,
+        paddingBottom: 50,
         alignItems: "center"
     },
     header: {

@@ -53,7 +53,7 @@ export default function DetailReimburse() {
                     <View style={cutiDetailStyles.iconPlace}>
                         <Image
                             style={cutiDetailStyles.iconBack}
-                            source={require('../../../assets/icons/arrow-left.png')}
+                            source={require('../../../../assets/icons/arrow-left.png')}
                         />
                     </View>
                     <Text style={cutiDetailStyles.headerTitle}>
@@ -111,7 +111,7 @@ export default function DetailReimburse() {
                     </Text>
                     <Image
                         style={[cutiDetailStyles.iconBack, { tintColor: COLORS.primary }]}
-                        source={require('../../../assets/icons/arrow-right.png')}
+                        source={require('../../../../assets/icons/arrow-right.png')}
                     />
                 </TouchableOpacity>
             </ScrollView>

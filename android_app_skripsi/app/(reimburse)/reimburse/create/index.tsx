@@ -18,7 +18,7 @@ const CreateReimbursePage = () => {
                     <View style={reimburseStyles.iconPlace}>
                         <Image
                             style={reimburseStyles.iconBack}
-                            source={require("../../../assets/icons/arrow-left.png")}
+                            source={require("../../../../assets/icons/arrow-left.png")}
                         />
                     </View>
                     <Text style={reimburseStyles.headerTitle}>Kembali</Text>
@@ -46,7 +46,7 @@ const CreateReimbursePage = () => {
                     <View style={reimburseStyles.logoSubHeaderContainer}>
                         <Image
                             style={reimburseStyles.logoSubHeader}
-                            source={require("../../../assets/icons/cuti.png")}
+                            source={require("../../../../assets/icons/cuti.png")}
                         />
                     </View>
                 </View>

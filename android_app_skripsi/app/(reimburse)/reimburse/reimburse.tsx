@@ -71,7 +71,7 @@ const ReimbursePage = () => {
                     <View style={reimburseStyles.iconPlace}>
                         <Image
                             style={reimburseStyles.iconBack}
-                            source={require("../../assets/icons/arrow-left.png")}
+                            source={require("../../../assets/icons/arrow-left.png")}
                         />
                     </View>
                     <Text style={reimburseStyles.headerTitle}>Kembali</Text>
@@ -99,7 +99,7 @@ const ReimbursePage = () => {
                     <View style={reimburseStyles.logoSubHeaderContainer}>
                         <Image
                             style={reimburseStyles.logoSubHeader}
-                            source={require("../../assets/icons/reimburse.png")}
+                            source={require("../../../assets/icons/reimburse.png")}
                         />
                     </View>
                 </View>
@@ -112,7 +112,7 @@ const ReimbursePage = () => {
                         onPress={() => router.push('/(reimburse)/create')}
                     >
                         <Image
-                            source={require("../../assets/icons/add.png")}
+                            source={require("../../../assets/icons/add.png")}
                             style={reimburseStyles.icons}
                         />
                         <Text style={reimburseStyles.textAjukanCuti}>Ajukan Reimburse</Text>
