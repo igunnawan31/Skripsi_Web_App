@@ -1,6 +1,6 @@
 import { cutiDetailStyles } from "@/assets/styles/rootstyles/cuti/cutidetail.styles";
 import COLORS from "@/constants/colors";
-import { dummyUsers } from "@/data/dummyUsers";
+import { dummyUsers } from "@/data/dummyUser";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Image, Platform, Text, TextInput, TouchableOpacity, View } from "react-native";

@@ -28,7 +28,7 @@ const ReimburseComponent = () => {
                     </View>
                     <TouchableOpacity 
                         style={{ width: "auto", backgroundColor: COLORS.tertiary, paddingVertical: 5, paddingHorizontal: 5, borderRadius: 8 }}
-                        onPress={() => router.push('/(reimburse)/reimburse')}
+                        onPress={() => router.push('/(reimburse)/reimburse/reimburse')}
                     >
                         <Text style={homeStyles.buttonText}>Lihat Semua Status</Text>
                     </TouchableOpacity>

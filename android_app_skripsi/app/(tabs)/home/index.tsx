@@ -6,7 +6,7 @@ import { homeStyles } from "@/assets/styles/rootstyles/home/home.styles";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { RootTabParamList } from "@/components/rootComponents/Tabs";
-import { dummyUsers } from "@/data/dummyUsers";
+import { dummyUsers } from "@/data/dummyUser";
 import ModalNotification from "@/components/rootComponents/homeComponent/modalNotification";
 import AbsenseComponent from "@/components/rootComponents/homeComponent/AbsenseComponent";
 import FeatureComponent from "@/components/rootComponents/homeComponent/FeatureComponent";

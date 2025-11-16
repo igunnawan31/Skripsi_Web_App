@@ -3,7 +3,7 @@ import { cutiDetailStyles } from "@/assets/styles/rootstyles/cuti/cutidetail.sty
 import COLORS from "@/constants/colors";
 import { useRouter } from "expo-router";
 import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { dummyUsers } from "@/data/dummyUsers";
+import { dummyUsers } from "@/data/dummyUser";
 import CutiCreateFormComponent from "@/components/rootComponents/cutiComponent/CutiCreateFormComponent";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { cutiStyles } from "@/assets/styles/rootstyles/cuti/cuti.styles";

@@ -1,7 +1,7 @@
 import { profileStyles } from "@/assets/styles/rootstyles/profiles/profile.styles"
 import ListDataComponent from "@/components/rootComponents/profileComponent/ListDataComponent";
 import COLORS from "@/constants/colors";
-import { dummyUsers } from "@/data/dummyUsers";
+import { dummyUsers } from "@/data/dummyUser";
 import { useState } from "react";
 import { Image, Text, TouchableOpacity, View, Modal } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";

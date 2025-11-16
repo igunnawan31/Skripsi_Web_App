@@ -109,7 +109,7 @@ const ReimbursePage = () => {
                     </Text>
                     <TouchableOpacity 
                         style={reimburseStyles.ajukanCutiButton}
-                        onPress={() => router.push('/(reimburse)/create')}
+                        onPress={() => router.push('/(reimburse)/reimburse/create')}
                     >
                         <Image
                             source={require("../../../assets/icons/add.png")}

@@ -40,7 +40,7 @@ const featureNames = [
         label: "Penilaian KPI",
         value: "Nilai KPI Karyawan",
         image: require("../../../assets/icons/penilaian-kpi.png"),
-        linkTo: "/(kpi)/penilaian-kpi",
+        linkTo: "/(kpi)/penilaian-kpi/penilaian-kpi",
         accessedBy: [
             {
                 majorRole:"Karyawan", 
@@ -56,7 +56,7 @@ const featureNames = [
         label: "Hasil KPI",
         value: "Hasil KPI",
         image: require("../../../assets/icons/hasil-kpi.png"),
-        linkTo: "/(kpi)/hasil-kpi",
+        linkTo: "/(kpi)/hasil-kpi/hasil-kpi",
         accessedBy: [
             {
                 majorRole:"Karyawan", 

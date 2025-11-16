@@ -89,7 +89,7 @@ const ListDataReimburseComponent = ({ data }: ListDataReimburseComponentProps) =
                         <View style={{ height: 1, backgroundColor: COLORS.border, marginTop: 12 }} />
                         <TouchableOpacity
                             key={item.id}
-                            onPress={() => router.push(`/(reimburse)/${item.id}`)}
+                            onPress={() => router.push(`/(reimburse)/reimburse/${item.id}`)}
                             style={{
                                 marginTop: 12,
                                 alignItems: 'center',
