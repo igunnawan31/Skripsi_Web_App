@@ -128,6 +128,177 @@ const penilaianKpiStyles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 15,
     },
+    filterText: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: COLORS.white,
+    },
+    bulanContainer: {
+        width: "100%",
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+    },
+    bulanText: { 
+        color: COLORS.textPrimary, 
+        fontWeight: "bold", 
+        fontSize: 18 
+    },
+    KPIStatusContainer: {
+        width: "100%",
+        paddingHorizontal: 20,
+        flexDirection: "row",
+        justifyContent: "space-between",
+    },
+    KPIStatus: {
+        height: "auto",
+        width: "48%",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: COLORS.white,
+        paddingVertical: 20,
+        marginVertical: 10,
+        borderRadius: 15,
+        shadowColor: COLORS.shadow,
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 1,
+        elevation: 11,
+        gap: 5,
+    },
+    titleKPIStatus: {
+        color: COLORS.tertiary,
+        fontSize: 18,
+        fontWeight: "600",
+    },
+    logoKPI: {
+        width: 30,
+        height: 30,
+        tintColor: COLORS.tertiary,
+    },
+    textKPIStatus: {
+        fontSize: 14,
+        color: COLORS.textPrimary
+    },
+    inputSearch: {
+        backgroundColor: COLORS.white,
+        borderRadius: 20,
+        paddingHorizontal: 14,
+        paddingVertical: 5,
+        marginTop: 10,
+        fontSize: 15,
+        color: "#0f172a",
+        borderWidth: 1,
+        borderColor: "#e2e8f0",
+        width: "90%",
+        flexDirection: "row", 
+        alignItems: "center",
+        gap: 10
+    },
+    noData: { 
+        fontSize: 16, 
+        color: COLORS.textMuted, 
+        marginTop: 16, 
+        textAlign: 'center' 
+    },
+
+    // detail
+    headerDetailContainer: { 
+        alignItems: "center", 
+        paddingHorizontal: 20, 
+        paddingTop: 72,
+        paddingBottom: 10,
+        flexDirection: "row", 
+        justifyContent: "space-between" 
+    },
+    headerDetailTitle: { 
+        color: COLORS.textPrimary, 
+        fontSize: 18, 
+        fontWeight: "600",
+    },
+    headerPageContainer: { 
+        backgroundColor: COLORS.tertiary, 
+        borderRadius: 10, 
+        paddingHorizontal: 10, 
+        paddingVertical: 5 
+    },
+    headerPageText: { 
+        fontSize: 16, 
+        fontWeight: "600", 
+        color: COLORS.white 
+    },
+    categoryContainer: { 
+        backgroundColor: COLORS.secondary, 
+        borderRadius: 10,
+        width: "90%",
+    },
+    categoryTitle: { 
+        fontSize: 16, 
+        fontWeight: "700", 
+        color: COLORS.white, 
+        paddingHorizontal: 10, 
+        paddingVertical: 5
+    },
+    cardContainer: {
+        width: "90%",
+        marginTop: 15,
+        padding: 15,
+        backgroundColor: COLORS.white,
+        borderRadius: 10,
+        gap: 5,
+        shadowColor: COLORS.shadow,
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 1,
+        elevation: 11
+    },
+    titleCard: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: COLORS.textPrimary
+    },
+    textCard: {
+        fontSize: 14,
+        color: COLORS.textPrimary
+    },
+    noteCard: {
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        borderRadius: 8,
+        padding: 10,
+        height: 80,
+    },
+    rowPenanda: { 
+        flexDirection: "row", 
+        justifyContent: "space-between", 
+        marginTop: 5 
+    },
+    radioButton: {
+        width: 30,
+        height: 30,
+        borderRadius: 20,
+        borderWidth: 2,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    errorText: { 
+        color: COLORS.primary, 
+        fontSize: 12 
+    },
+    buttonSubmit: {
+        backgroundColor: COLORS.primary,
+        paddingVertical: 14,
+        borderRadius: 8,
+        alignItems: "center"
+    }
 });
 
 export default penilaianKpiStyles

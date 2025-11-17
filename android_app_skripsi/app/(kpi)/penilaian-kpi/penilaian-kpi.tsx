@@ -1,15 +1,12 @@
-import { cutiStyles } from "@/assets/styles/rootstyles/cuti/cuti.styles";
-import { GajiStyles } from "@/assets/styles/rootstyles/gaji/gaji.styles";
 import penilaianKpiStyles from "@/assets/styles/rootstyles/kpi/penilaiankpi.styles";
 import FilterModalKPIComponent from "@/components/rootComponents/kpiComponent/FilterModalKPIComponent.";
-import FilterModalReimburseComponent from "@/components/rootComponents/reimburseComponent/FilterModalReimburseComponent";
 import COLORS from "@/constants/colors";
 import { dummyIndikatorKPI } from "@/data/dummyIndikatorKPI";
 import { dummyJawabanKPI } from "@/data/dummyJawabanKPI";
-import { dummyUsers, MinorRole } from "@/data/dummyUsers";
+import { dummyUsers } from "@/data/dummyUsers";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 const PenilaianKPI = () => {
     const [modalVisible, setModalVisible] = useState(false);
@@ -17,6 +14,7 @@ const PenilaianKPI = () => {
     const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
     const [startDate, setStartDate] = useState<Date | null>(new Date());
     const [showPicker, setShowPicker] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
     const [pickerTarget, setPickerTarget] = useState("month");
     const router = useRouter();
 
@@ -81,23 +79,32 @@ const PenilaianKPI = () => {
             result = isSamePeriod ? result : [];
         }
 
+        if (searchQuery.trim() !== "") {
+            result = result.filter(item =>
+                item.user.nama.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+        }
         setFilteredList(result);
         closeHandlePopUpFilter();
     };
 
     const resetFilter = () => {
+        setSearchQuery("");
         setSelectedStatus(null);
         setStartDate(new Date());
         setFilteredList(listKPIPerUser);
         closeHandlePopUpFilter();
     };
 
+    const jumlahSudahDinilai = filteredList.filter(item => item.sudahDinilai).length;
+    const jumlahBelumDinilai = filteredList.filter(item => !item.sudahDinilai).length;
+
     return (
         <View style={penilaianKpiStyles.container}>
             <View style={penilaianKpiStyles.header}>
                 <TouchableOpacity
                     style={{ flexDirection: "row", alignItems: "center" }}
-                    onPress={() => router.back()}
+                    onPress={() => router.push("/(tabs)/home")}
                 >
                     <View style={penilaianKpiStyles.iconPlace}>
                         <Image
@@ -111,7 +118,7 @@ const PenilaianKPI = () => {
                 </TouchableOpacity>
             </View>
             <ScrollView
-                contentContainerStyle={{ flexGrow: 1 }}
+                contentContainerStyle={{ flexGrow: 1, paddingBottom: 44, }}
                 keyboardShouldPersistTaps="handled"
             >
                 <View style={penilaianKpiStyles.subHeaderContainer}>
@@ -130,12 +137,63 @@ const PenilaianKPI = () => {
                         />
                     </View>
                 </View>
+                <View style={penilaianKpiStyles.bulanContainer}>
+                    <Text style={penilaianKpiStyles.bulanText}>
+                        Bulan {startDate ? startDate.toLocaleString("default", { month: "long" }): "All"}
+                    </Text>
+                </View>
+                <View style={penilaianKpiStyles.KPIStatusContainer}>
+                    <View style={penilaianKpiStyles.KPIStatus}>
+                        <Text style={penilaianKpiStyles.titleKPIStatus}>
+                            KPI Belum Dinilai
+                        </Text>
+                        <Image 
+                            style={penilaianKpiStyles.logoKPI}
+                            source={require("../../../assets/icons/cuti.png")}
+                        />
+                        <Text style={penilaianKpiStyles.textKPIStatus}>
+                            {jumlahBelumDinilai}
+                        </Text>
+                    </View>
+                    <View style={penilaianKpiStyles.KPIStatus}>
+                        <Text style={penilaianKpiStyles.titleKPIStatus}>
+                            KPI Sudah Dinilai
+                        </Text>
+                        <Image 
+                            style={penilaianKpiStyles.logoKPI}
+                            source={require("../../../assets/icons/cuti.png")}
+                        />
+                        <Text style={penilaianKpiStyles.textKPIStatus}>
+                            {jumlahSudahDinilai}
+                        </Text>
+                    </View>
+                </View>
                 <View style={{ alignItems: "center", justifyContent: "center" }}>
+                    <View
+                        style={penilaianKpiStyles.inputSearch}
+                    >
+                        <Image 
+                            source={require("../../../assets/icons/search.png")}
+                            style={{ tintColor: COLORS.border, height: 20, width: 20 }}
+                        />
+                        <TextInput
+                            placeholder="Cari nama karyawan..."
+                            value={searchQuery}
+                            onChangeText={(text) => {
+                                setSearchQuery(text);
+                                const result = listKPIPerUser.filter(item =>
+                                    item.user.nama.toLowerCase().includes(text.toLowerCase())
+                                );
+                                setFilteredList(result);
+                            }}
+                            style={{ width: "100%" }}
+                        />
+                    </View>
                     <TouchableOpacity
                         style={penilaianKpiStyles.filterContainer}
                         onPress={showHandlePopUpFilter}
                     >
-                        <Text style={cutiStyles.filterText}>Terapkan Filter</Text>
+                        <Text style={penilaianKpiStyles.filterText}>Terapkan Filter</Text>
                     </TouchableOpacity>
                     {filteredList.length > 0 ? (
                         filteredList.map((item, index) => (
@@ -175,14 +233,14 @@ const PenilaianKPI = () => {
                                 >
                                     <Text>Lebih Lanjut</Text>
                                     <Image
-                                        style={cutiStyles.iconCalendar}
+                                        style={{ tintColor: COLORS.primary, width: 12, height: 12 }}
                                         source={require('../../../assets/icons/arrow-right.png')}
                                     />
                                 </TouchableOpacity>
                             </View>
                         ))
                     ) : (
-                        <Text style={GajiStyles.noData}>Belum ada data</Text>
+                        <Text style={penilaianKpiStyles.noData}>Belum ada data</Text>
                     )}
                 </View>
                 <FilterModalKPIComponent

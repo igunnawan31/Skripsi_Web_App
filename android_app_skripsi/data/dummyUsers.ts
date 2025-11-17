@@ -90,4 +90,15 @@ export const dummyUsers = [
         tanggalSelesai: "",
         projectList: ["Project-002-011025"],
     },
+    {
+        userId: "24060122120023",
+        email: "lulu@gmail.com",
+        password: "12345678",
+        nama: "Lulu Saputra",
+        majorRole: MajorRole.KARYAWAN,
+        minorRole: MinorRole.BACKEND,
+        tanggalMulai: "2025-10-01",
+        tanggalSelesai: "",
+        projectList: ["Project-001-011025"],
+    },
 ]

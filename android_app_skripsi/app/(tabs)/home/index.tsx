@@ -1,13 +1,12 @@
 import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
 import { Svg, Path } from "react-native-svg";
-import { COLORS } from "@/constants/colors";
 import { homeStyles } from "@/assets/styles/rootstyles/home/home.styles";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { RootTabParamList } from "@/components/rootComponents/Tabs";
 import { dummyUsers } from "@/data/dummyUser";
-import ModalNotification from "@/components/rootComponents/homeComponent/modalNotification";
+import ModalNotification from "@/components/rootComponents/homeComponent/ModalNotification";
 import AbsenseComponent from "@/components/rootComponents/homeComponent/AbsenseComponent";
 import FeatureComponent from "@/components/rootComponents/homeComponent/FeatureComponent";
 import ReimburseComponent from "@/components/rootComponents/homeComponent/ReimburseComponent";

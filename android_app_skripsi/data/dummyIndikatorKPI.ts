@@ -1,3 +1,4 @@
+import { dummyJawabanKPI } from "./dummyJawabanKPI";
 import { dummyPertanyaanKPI } from "./dummyPertanyaanKPI";
 import { dummyUsers } from "./dummyUsers";
 
@@ -17,13 +18,14 @@ export const dummyIndikatorKPI = {
     periodeMulai: "2025-11-01",
     periodeBerakhir: "2025-11-30",
 
-    pertanyaan: dummyPertanyaanKPI,
-    hasilPenilaian: ["J1","J2"],
+    pertanyaan: dummyPertanyaanKPI.filter((item) => item.IndikatorKPIId === "I1"),
+    hasilPenilaian: dummyJawabanKPI.filter((item) => item.indikatorKPIId === "I1"),
 
     diisiOleh: [dummyUsers[0], dummyUsers[4]],
     pertanyaanUntuk: [
         dummyUsers[1],
         dummyUsers[2],
+        dummyUsers[7],
         dummyUsers[5],
         dummyUsers[6],
     ],
