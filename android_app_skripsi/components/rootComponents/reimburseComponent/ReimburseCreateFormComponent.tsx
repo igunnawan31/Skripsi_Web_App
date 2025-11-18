@@ -24,14 +24,9 @@ type ReimburseForm = {
 const ReimburseCreateFormComponent = () => {
     const [data, setData] = useState(dummyUsers);
     const [showModal, setShowModal] = useState(false);
-    const [showStartPicker, setShowStartPicker] = useState(false);
-    const [showEndPicker, setShowEndPicker] = useState(false);
     const [error, setError] = useState<{ [key: string]: string}>({});
     const dataDummy = data[0];
     const today = new Date().toISOString().split("T")[0];
-    
-    const MaxCutiDay = 2;
-    const [errorMsg, setErrorMsg] = useState("");
     
     const [formData, setFormData] = useState<ReimburseForm>({
         name: dataDummy.dataPersonal[0].value,

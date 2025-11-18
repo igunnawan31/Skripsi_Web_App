@@ -22,7 +22,7 @@ const HasilKPIPage = () => {
             <View style={reimburseStyles.header}>
                 <TouchableOpacity
                     style={{ flexDirection: "row", alignItems: "center" }}
-                    onPress={() => router.back()}
+                    onPress={() => router.push("/(tabs)/home")}
                 >
                     <View style={reimburseStyles.iconPlace}>
                         <Image
