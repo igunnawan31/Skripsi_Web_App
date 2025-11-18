@@ -1,19 +1,35 @@
+import { dummyProjects } from "./dummyProject";
+import { dummyUsers } from "./dummyUsers";
+
 export const dummyCalendar = [
     {
         id: '1',
         title: 'Team Meeting',
+        createdBy: dummyUsers[0],
+        eventFor: [
+            dummyProjects[0]  
+        ],
         start: new Date(2025, 10, 10, 9, 0),
         end: new Date(2025, 10, 10, 10, 0),
     },
     {
         id: '2',
         title: 'Lunch with Client',
+        createdBy: dummyUsers[0],
+        eventFor: [
+            "All Users"  
+        ],
         start: new Date(2025, 10, 10, 12, 30),
         end: new Date(2025, 10, 10, 13, 30),
     },
     {
         id: '3',
         title: 'Design Review',
+        createdBy: dummyUsers[0],
+        eventFor: [
+            dummyProjects[1],
+            dummyProjects[2],  
+        ],
         start: new Date(2025, 10, 10, 14, 0),
         end: new Date(2025, 10, 10, 15, 30),
     },
