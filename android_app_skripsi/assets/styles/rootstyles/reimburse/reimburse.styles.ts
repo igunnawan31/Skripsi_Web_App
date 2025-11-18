@@ -245,6 +245,22 @@ const reimburseStyles = StyleSheet.create({
         shadowRadius: 1,
         elevation: 11,
     },
+    listContainerNotAvailable: {
+        justifyContent: "center",
+        backgroundColor: COLORS.border,
+        paddingHorizontal: 20,
+        paddingVertical: 20,
+        marginVertical: 10,
+        borderRadius: 15,
+        shadowColor: COLORS.shadow,
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 1,
+        elevation: 11,
+    },
     listHeader: {
         flexDirection: "row",
         justifyContent: "space-between",

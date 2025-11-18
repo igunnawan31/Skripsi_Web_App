@@ -49,7 +49,7 @@ export const historyStyles = StyleSheet.create({
         width: "90%",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: COLORS.primary,
+        backgroundColor: COLORS.tertiary,
         paddingVertical: 10,
         marginVertical: 10,
         borderRadius: 15,
