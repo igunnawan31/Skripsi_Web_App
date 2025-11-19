@@ -179,5 +179,59 @@ export const calendarStyles = StyleSheet.create({
         shadowRadius: 1,
         elevation: 2,
         zIndex: 10,
+    },
+
+    // Filter Modal
+    modalFilterContainer: {
+        justifyContent: "flex-end",
+        margin: 0,
+    },
+    filterModal: {
+        height: "60%",
+        width: "100%",
+        backgroundColor: COLORS.white,
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        padding: 20,
+        justifyContent: "flex-start",
+        alignItems: "center",
+    },
+    inputSearch: {
+        backgroundColor: COLORS.white,
+        borderRadius: 20,
+        paddingHorizontal: 14,
+        paddingVertical: 5,
+        marginTop: 10,
+        fontSize: 15,
+        color: "#0f172a",
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        width: "100%",
+        flexDirection: "row", 
+        alignItems: "center",
+        gap: 10
+    },
+    selectAll: {
+        padding: 15,
+        borderWidth: 1,
+        borderColor: COLORS.primary,
+        backgroundColor: COLORS.primary,
+        borderRadius: 20,
+    },
+    buttonSelectAll: {
+        color: COLORS.white,
+        textAlign: "center",
+        fontWeight: "600",
+    },
+    projectSelect: {
+        padding: 15,
+        borderRadius: 20,
+        borderWidth: 1,
+    },
+    submitButton: {
+        marginTop: 20,
+        padding: 15,
+        backgroundColor: COLORS.primary,
+        borderRadius: 10,
     }
 });

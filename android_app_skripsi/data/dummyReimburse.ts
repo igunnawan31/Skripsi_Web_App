@@ -1,4 +1,4 @@
-export enum CutiStatus {
+export enum ReimburseStatus {
     DITERIMA = "Reimburse Diterima",
     DITOLAK = "Reimburse Ditolak",
     MENUNGGU = "Menunggu Jawaban",
@@ -12,8 +12,10 @@ export const dummyReimburse = [
         totalPengeluaran: 100000,
         majorRole: "Karyawan",
         minorRole: "Backend Developer",
-        cutiStatus: CutiStatus.DITOLAK,
+        reimburseStatus: ReimburseStatus.DITOLAK,
         approver: "Admin - Aldisar Gibran",
+        approvalDate: "22-11-2025",
+        alasanPenolakan: "Ditolak karena tidak ada buktinya",
         file: "",
     },
     {
@@ -23,8 +25,23 @@ export const dummyReimburse = [
         totalPengeluaran: 200000,
         majorRole: "Karyawan",
         minorRole: "Backend Developer",
-        cutiStatus: CutiStatus.DITOLAK,
+        reimburseStatus: ReimburseStatus.DITOLAK,
         approver: "Admin - Aldisar Gibran",
+        approvalDate: "23-11-2025",
+        alasanPenolakan: "Ditolak karena bon tidak sesuai dengan jumlah pengajuannya",
+        file: "../../../../assets/images/foto2.jpeg",
+    },
+    {
+        id: "Reimburse-003-Muhamad_Gunawan",
+        name: "Muhamad Gunawan",
+        submissionDate: "22-11-2025",
+        totalPengeluaran: 200000,
+        majorRole: "Karyawan",
+        minorRole: "Backend Developer",
+        reimburseStatus: ReimburseStatus.MENUNGGU,
+        approver: "",
+        approvalDate: "",
+        alasanPenolakan: "",
         file: "",
     },
 ];

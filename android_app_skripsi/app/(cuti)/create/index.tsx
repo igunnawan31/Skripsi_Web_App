@@ -1,28 +1,16 @@
 import { useState } from "react";
 import { cutiDetailStyles } from "@/assets/styles/rootstyles/cuti/cutidetail.styles";
 import COLORS from "@/constants/colors";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { dummyUsers } from "@/data/dummyUsers";
+import { dummyUsers } from "@/data/dummyUser";
 import CutiCreateFormComponent from "@/components/rootComponents/cutiComponent/CutiCreateFormComponent";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { cutiStyles } from "@/assets/styles/rootstyles/cuti/cuti.styles";
 
-type Cuti = {
-    id: string;
-    name: string;
-    startDate: string;
-    endDate: string;
-    submissionDate: string;
-    totalDays: number;
-    reason: string;
-    majorRole: string;
-    minorRole: string;
-    cutiStatus: string;
-    approver: string;
-};
-
 const PengajuanCuti = () => {
+    const router = useRouter();
+        
     return (
         <View style={{ flex: 1, backgroundColor: COLORS.background }}>
             <View style={cutiDetailStyles.header}>
@@ -55,7 +43,7 @@ const PengajuanCuti = () => {
                             Ajukan Cuti Kamu
                         </Text>
                         <Text style={cutiDetailStyles.subHeaderDescription}>
-                            Lihat status pengajuan cuti yang kamu buat
+                            Buat pengajuan cuti kamu
                         </Text>
                     </View>
                     <View style={cutiDetailStyles.logoSubHeaderContainer}>

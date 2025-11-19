@@ -6,7 +6,7 @@ export const homeStyles = StyleSheet.create({
         flex: 1,
         width: "100%",
         backgroundColor: COLORS.background,
-        paddingBottom: 96,
+        paddingBottom: 50,
         alignItems: "center"
     },
     header: {
@@ -210,78 +210,5 @@ export const homeStyles = StyleSheet.create({
         justifyContent: "space-between",
         marginBottom: 10
     },
-    listContainer: {
-        justifyContent: "center",
-        backgroundColor: COLORS.white,
-        paddingHorizontal: 20,
-        paddingVertical: 20,
-        marginVertical: 10,
-        borderRadius: 15,
-        shadowColor: COLORS.shadow,
-        shadowOffset: {
-            width: 0,
-            height: 10,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 1,
-        elevation: 11,
-    },
-    listHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 8,
-    },
-    name: {
-        fontSize: 16,
-        fontWeight: "bold",
-        color: COLORS.textPrimary,
-    },
-    date: {
-        fontSize: 13,
-        color: COLORS.textSecondary,
-    },
-    roleContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 10,
-    },
-    roleText: {
-        fontSize: 13,
-        color: COLORS.textSecondary,
-    },
-    statusBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
-    },
-    statusText: {
-        color: COLORS.white,
-        fontSize: 12,
-        fontWeight: "600",
-    },
-    timeContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-    },
-    timeBox: {
-        flexDirection: "row",
-        alignItems: "center",
-    },
-    icon: {
-        width: 16,
-        height: 16,
-        marginRight: 6,
-        tintColor: COLORS.primary,
-    },
-    iconCalendar: {
-        width: 12,
-        height: 12,
-        tintColor: COLORS.primary,
-    },
-    timeText: {
-        fontSize: 13,
-        color: COLORS.textPrimary,
-    },
+
 });

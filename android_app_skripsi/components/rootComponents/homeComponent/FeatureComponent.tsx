@@ -24,7 +24,7 @@ const featureNames = [
         label: "Gaji",
         value: "Cek Gaji Kamu",
         image: require("../../../assets/icons/payment.png"),
-        linkTo: "/(gaji)/",
+        linkTo: "/(gaji)/gaji",
         accessedBy: [
             {
                 majorRole:"Karyawan", 
@@ -40,7 +40,7 @@ const featureNames = [
         label: "Penilaian KPI",
         value: "Nilai KPI Karyawan",
         image: require("../../../assets/icons/penilaian-kpi.png"),
-        linkTo: "/(kpi)/penilaian-kpi",
+        linkTo: "/(kpi)/penilaian-kpi/penilaian-kpi",
         accessedBy: [
             {
                 majorRole:"Karyawan", 
@@ -56,7 +56,7 @@ const featureNames = [
         label: "Hasil KPI",
         value: "Hasil KPI",
         image: require("../../../assets/icons/hasil-kpi.png"),
-        linkTo: "/(kpi)/hasil-kpi",
+        linkTo: "/(kpi)/hasil-kpi/hasil-kpi",
         accessedBy: [
             {
                 majorRole:"Karyawan", 
@@ -72,7 +72,23 @@ const featureNames = [
         label: "Reimburse",
         value: "Reimburse Pengeluaran",
         image: require("../../../assets/icons/reimburse.png"),
-        linkTo: "/(reimburse)/",
+        linkTo: "/(reimburse)/reimburse/reimburse",
+        accessedBy: [
+            {
+                majorRole:"Karyawan", 
+                minorRole:"",
+            },
+            {
+                majorRole:"Karyawan", 
+                minorRole:"",
+            },
+        ]
+    },
+    {
+        label: "Reimburse",
+        value: "Setujui Reimburse",
+        image: require("../../../assets/icons/approved.png"),
+        linkTo: "/(reimburse)/setujui-reimburse/setujui-reimburse",
         accessedBy: [
             {
                 majorRole:"Karyawan", 
