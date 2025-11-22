@@ -48,6 +48,11 @@ export enum StatusIndikatorKPI {
     ARSIP = "arsip",
 }
 
+export enum StatusPublicKPI {
+    PUBLIC = "Public",
+    PRIVATE = "Private"
+}
+
 export type Absensi = {
     id: string;
     name: string;
@@ -174,10 +179,10 @@ export type IndikatorKPI = {
     diisiOleh: User[];
     pertanyaanUntuk: User[];
 
-    statusPublic: boolean; // apakah bisa diakses oleh penilai
+    statusPublic: StatusPublicKPI; // apakah bisa diakses oleh penilai
     status: StatusIndikatorKPI;
 
-    dibuatOleh?: string; // pembuat template KPI
+    dibuatOleh?: User; // pembuat template KPI
     dibuatTanggal?: string;
 }
 
@@ -251,10 +256,10 @@ export type IndikatorKPIForm = {
     diisiOleh: User[];
     pertanyaanUntuk: User[];
 
-    statusPublic: boolean; // apakah bisa diakses oleh penilai
+    statusPublic: StatusPublicKPI; // apakah bisa diakses oleh penilai
     status: StatusIndikatorKPI;
 
-    dibuatOleh?: string; // pembuat template KPI
+    dibuatOleh?: User; // pembuat template KPI
     dibuatTanggal?: string;
 }
 

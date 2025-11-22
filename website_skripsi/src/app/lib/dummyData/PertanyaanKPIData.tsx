@@ -1,0 +1,72 @@
+import { KategoriPertanyaanKPI, pertanyaanKPI } from "../types/types";
+
+export const dummySkalaNilai = [
+    { nilai: 1, label: "Sangat Buruk" },
+    { nilai: 2, label: "Buruk" },
+    { nilai: 3, label: "Cukup" },
+    { nilai: 4, label: "Baik" },
+    { nilai: 5, label: "Sangat Baik" },
+];
+
+export const PertanyaanKPIData: pertanyaanKPI[] = [
+    {
+        id: "Q1",
+        kategoriPertanyaan: KategoriPertanyaanKPI.KINERJA,
+        pertanyaan: "Bagaimana kualitas hasil kerja karyawan?",
+        bobot: 1,
+        aktif: true,
+        skalaNilai: dummySkalaNilai,
+        defaultRange: [1, 5],
+        IndikatorKPIId: "I1",
+    },
+    {
+        id: "Q2",
+        kategoriPertanyaan: KategoriPertanyaanKPI.SIFAT,
+        pertanyaan: "Apakah karyawan dapat bekerja sama dalam tim project anda?",
+        bobot: 1,
+        aktif: true,
+        skalaNilai: dummySkalaNilai,
+        defaultRange: [1, 5],
+        IndikatorKPIId: "I1",
+    },
+    {
+        id: "Q3",
+        kategoriPertanyaan: KategoriPertanyaanKPI.SIFAT,
+        pertanyaan: "Bagaimana?",
+        bobot: 1,
+        aktif: true,
+        skalaNilai: dummySkalaNilai,
+        defaultRange: [1, 5],
+        IndikatorKPIId: "I1",
+    },
+    {
+        id: "Q4",
+        kategoriPertanyaan: KategoriPertanyaanKPI.KINERJA,
+        pertanyaan: "Bagaimana kualitas hasil kerja karyawan?",
+        bobot: 1,
+        aktif: true,
+        skalaNilai: dummySkalaNilai,
+        defaultRange: [1, 5],
+        IndikatorKPIId: "I2",
+    },
+    {
+        id: "Q5",
+        kategoriPertanyaan: KategoriPertanyaanKPI.SIFAT,
+        pertanyaan: "Apakah karyawan dapat bekerja sama dalam tim project anda?",
+        bobot: 1,
+        aktif: true,
+        skalaNilai: dummySkalaNilai,
+        defaultRange: [1, 5],
+        IndikatorKPIId: "I2",
+    },
+    {
+        id: "Q6",
+        kategoriPertanyaan: KategoriPertanyaanKPI.SIFAT,
+        pertanyaan: "Bagaimana?",
+        bobot: 1,
+        aktif: true,
+        skalaNilai: dummySkalaNilai,
+        defaultRange: [1, 5],
+        IndikatorKPIId: "I2",
+    },
+]

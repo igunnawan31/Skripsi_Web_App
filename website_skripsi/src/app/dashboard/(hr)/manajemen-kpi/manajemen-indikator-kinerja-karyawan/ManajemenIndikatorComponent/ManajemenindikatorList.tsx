@@ -7,26 +7,29 @@ import FilterBar from "@/app/dashboard/dashboardComponents/allComponents/FilterB
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { icons } from "@/app/lib/assets/assets";
-import { KontrakKerja } from "@/app/lib/types/types";
+import { IndikatorKPI, KontrakKerja, StatusIndikatorKPI } from "@/app/lib/types/types";
 import { fetchKontrakKerja } from "@/app/lib/hooks/dummyHooks/fetchKontrakKerja";
+import { fetchIndikatorKPI } from "@/app/lib/hooks/dummyHooks/fetchIndikatorKPI";
 
 const ManajemenIndikatorList = () => {
     const searchParams = useSearchParams();
     const [loading, setLoading] = useState(true);
-    const [kontrakKerja, setKontrakKerja] = useState<KontrakKerja[]>([]);
+    const [indikatorKpi, setIndikatorKpi] = useState<IndikatorKPI[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
-    const [selectedStatus, setSelectedStatus] = useState<string>(searchParams.get("status") || "All");
+    const [selectedStatus, setSelectedStatus] = useState<string>(searchParams.get("statusPublic") || "All");
+    const [selectedStatusIndikator, setSelectedStatusIndikator] = useState<string>(searchParams.get("status") || "All");
 
     const fetchData = async () => {
         setLoading(true);
-        const result = await fetchKontrakKerja(
+        const result = await fetchIndikatorKPI(
             currentPage,
             itemsPerPage,
             selectedStatus,
+            selectedStatusIndikator,
         );
-        setKontrakKerja(result.data);
+        setIndikatorKpi(result.data);
         setTotalItems(result.total);
         setLoading(false);
     };
@@ -42,14 +45,25 @@ const ManajemenIndikatorList = () => {
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full">
                             <FilterBar
-                                label="Filter by Status:"
+                                label="Filter by Status Publish:"
                                 value={selectedStatus}
                                 onChange={setSelectedStatus}
                                 options={[
                                     { value: "All", label: "All Status" },
-                                    { value: "Aktif", label: "Aktif" },
-                                    { value: "Selesai", label: "Selesai" },
+                                    { value: "true", label: "Publish" },
+                                    { value: "false", label: "Tidak di Publish" },
                                 ]}
+                            />
+                            <FilterBar
+                                label="Filter by Status Indikator:"
+                                value={selectedStatusIndikator}
+                                onChange={setSelectedStatusIndikator}
+                                options={[
+                                    {value: "All", label: "All Status Indikator"},
+                                    ...Object.values(StatusIndikatorKPI).map(item => ({
+                                    value: item,
+                                    label: item.charAt(0).toUpperCase() + item.slice(1)
+                                }))]}
                             />
                         </div>
 
@@ -81,40 +95,37 @@ const ManajemenIndikatorList = () => {
                         ></div>
                     ))}
                 </div>
-            ) : kontrakKerja.length > 0 ? (
+            ) : indikatorKpi.length > 0 ? (
                 <>
-                    {kontrakKerja.map((kk) => (
+                    {indikatorKpi.map((ikk) => (
                         <div
-                            key={kk.id}
+                            key={ikk.id}
                             className="flex flex-col p-4 group bg-(--color-surface) border border-(--color-border) rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200"
                         >
                             <div className="flex justify-between items-center text-sm text-(--color-textPrimary) border-b border-(--color-border) py-2">
                                 <div className="flex items-center gap-2">
-                                    <span className="font-semibold">Kontrak Kerja</span>
-                                    <span className="text-(--color-muted)">{kk.id}</span>
+                                    <span className="font-semibold">Indikator Kinerja Karyawan</span>
+                                    <span className="text-(--color-muted)">{ikk.id}</span>
                                     <p className="text-xs text-(--color-muted)">
-                                        {kk.tanggalMulai} s.d {kk.tanggalSelesai}
+                                        {ikk.periodeMulai} s.d {ikk.periodeBerakhir}
                                     </p>
                                 </div>
                                 <div className="text-blue-900">
-                                    {kk.status}
+                                    {ikk.status}
                                 </div>
                             </div>
                             <div className="flex justify-between items-center py-2">
                                 <div className="flex flex-col gap-2 items-start">
                                     <p className="font-medium text-(--color-text-primary)">
-                                        {kk.namaFreelance} — {kk.minorRole}
+                                        {ikk.namaIndikator} — {ikk.kategori}
                                     </p>
                                     <p className="text-sm text-(--color-muted)">
-                                        Project: {kk.project?.projectName}
-                                    </p>
-                                    <p className="text-sm font-medium px-4 py-2 bg-(--color-primary) rounded-lg text-(--color-surface)">
-                                        Total: Rp {kk.totalBayaran.toLocaleString("id-ID")}
+                                        Status Public: {ikk.statusPublic}
                                     </p>
                                 </div>
                                 <div className="flex flex-col md:flex-row md:items-center gap-2">
                                     <Link
-                                        href={`/dashboard/kontrak-kerja-karyawan/${kk.id}`}
+                                        href={`/dashboard/manajemen-kpi/manajemen-indikator-kinerja-karyawan/${ikk.id}`}
                                         className="flex items-center justify-center gap-2 p-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 cursor-pointer"
                                     >
                                         <Image
@@ -126,7 +137,7 @@ const ManajemenIndikatorList = () => {
                                     </Link>
 
                                     <Link
-                                        href={`/dashboard/kontrak-kerja-karyawan/${kk.id}/update`}
+                                        href={`/dashboard/manajemen-kpi/manajemen-indikator-kinerja-karyawan/${ikk.id}/update`}
                                         className="flex items-center gap-2 p-2 bg-(--color-secondary) text-white rounded-lg cursor-pointer"
                                     >
                                         <Image
@@ -137,7 +148,7 @@ const ManajemenIndikatorList = () => {
                                         />
                                     </Link>
                                     <button
-                                        // onClick={() => handleDelete(kk.id)}
+                                        // onClick={() => handleDelete(ikk.id)}
                                         className="flex items-center justify-center gap-2 p-2 bg-(--color-primary) text-white rounded-lg hover:bg-(--color-primary)/80 cursor-pointer"
                                     >
                                         <Image
@@ -158,7 +169,7 @@ const ManajemenIndikatorList = () => {
                 </p>
             )}
 
-            {kontrakKerja.length > 0 && !loading && (
+            {indikatorKpi.length > 0 && !loading && (
                 <div className="mt-6">
                     <PaginationBar
                         totalItems={totalItems}

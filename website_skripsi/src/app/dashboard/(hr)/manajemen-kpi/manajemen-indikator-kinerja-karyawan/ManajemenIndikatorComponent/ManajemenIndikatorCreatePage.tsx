@@ -9,6 +9,7 @@ import {
   layerPenilaian,
   pertanyaanKPI,
   StatusIndikatorKPI,
+  StatusPublicKPI,
   User,
 } from "@/app/lib/types/types";
 import Image from "next/image";
@@ -32,10 +33,10 @@ const ManajemenIndikatorCreatePage = () => {
         diisiOleh: [],
         pertanyaanUntuk: [],
 
-        statusPublic: false,
+        statusPublic: StatusPublicKPI.PUBLIC,
         status: StatusIndikatorKPI.DRAFT,
 
-        dibuatOleh: "",
+        dibuatOleh: dummyUsers[0],
         dibuatTanggal: "",
     });
 
@@ -376,14 +377,16 @@ const ManajemenIndikatorCreatePage = () => {
                                 onChange={(e) =>
                                     setFormData({
                                         ...formData,
-                                        statusPublic: e.target.value === "true",
+                                        statusPublic: e.target.value as StatusPublicKPI,
                                     })
                                 }
                                 className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500"
                             >
-                                <option value="">-- Pilih Status --</option>
-                                <option value="true">Publish</option>
-                                <option value="false">Tidak di Publish</option>
+                                {Object.values(StatusPublicKPI).map((status) => (
+                                    <option key={status} value={status}>
+                                        {status}
+                                    </option>
+                                ))}
                             </select>
                             <p className="text-xs text-gray-500 mt-1">
                                 Tentukan apakah indikator ini dapat dilihat publik.

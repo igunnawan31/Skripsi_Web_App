@@ -1,9 +1,6 @@
-const UpdateManajemenIndikatorPage = () => {
-    return (
-        <div>
-            Update
-        </div>
-    )
-}
+import UpdateManajemenIndikatorComponent from "../../ManajemenIndikatorComponent/UpdateManajemenIndikatorComponent";
 
-export default UpdateManajemenIndikatorPage;
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    return <UpdateManajemenIndikatorComponent id={id} />;
+}
