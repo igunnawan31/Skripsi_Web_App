@@ -57,11 +57,13 @@ export const KinerjaData: IndikatorKPI[] = [
 
         diisiOleh: [
             dummyUsers[2],
+            dummyUsers[1],
         ],
         pertanyaanUntuk: [
             dummyUsers[6],
             dummyUsers[7],
             dummyUsers[8],
+            dummyUsers[9],
         ],
 
         statusPublic: StatusPublicKPI.PRIVATE,

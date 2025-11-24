@@ -111,4 +111,15 @@ export const dummyUsers: User[] = [
     tanggalSelesai: "9999-12-31",
     projectList: [{ projectId: "PRJ002", projectName: "Aplikasi Penilaian Kinerja" }],
   },
+  {
+    id: "USR010",
+    email: "slala.alsda@company.com",
+    password: "123456",
+    nama: "slala alsda",
+    majorRole: MajorRole.KARYAWAN,
+    minorRole: MinorRole.ADMIN,
+    tanggalMulai: "2023-05-20",
+    tanggalSelesai: "9999-12-31",
+    projectList: [],
+  },
 ];

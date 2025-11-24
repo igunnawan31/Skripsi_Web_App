@@ -160,7 +160,8 @@ export type JawabanKPI = {
     notes?: string;
     tanggalIsi: string;
 
-    PertanyaanId: string; // Relasi dengan PertanyaanKPI
+    pertanyaanId: string; // Relasi dengan PertanyaanKPI
+    indikatorKPIId: string;
 };
 
 export type IndikatorKPI = {

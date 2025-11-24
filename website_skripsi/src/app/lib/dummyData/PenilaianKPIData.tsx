@@ -9,7 +9,8 @@ export const PenilaianKPIData: JawabanKPI[] = [
         nilai: 4,
         notes: "Kerja bagus, cepat tanggap",
         tanggalIsi: "2025-11-05",
-        PertanyaanId: "Q1",
+        pertanyaanId: "Q1",
+        indikatorKPIId: "I1",
     },
     {
         id: "J2",
@@ -18,7 +19,8 @@ export const PenilaianKPIData: JawabanKPI[] = [
         nilai: 5,
         notes: "Sangat kooperatif",
         tanggalIsi: "2025-11-05",
-        PertanyaanId: "Q2",
+        pertanyaanId: "Q2",
+        indikatorKPIId: "I1",
     },
     {
         id: "J3",
@@ -27,6 +29,7 @@ export const PenilaianKPIData: JawabanKPI[] = [
         nilai: 5,
         notes: "Sangat kooperatif",
         tanggalIsi: "2025-11-05",
-        PertanyaanId: "Q3",
+        pertanyaanId: "Q3",
+        indikatorKPIId: "I1",
     },
 ]
