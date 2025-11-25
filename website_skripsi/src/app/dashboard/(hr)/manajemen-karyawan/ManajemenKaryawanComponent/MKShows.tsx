@@ -55,22 +55,6 @@ const MKShows = () => {
                                 ]}
                             />
                         </div>
-
-                        <div className="flex justify-start lg:justify-end w-full">
-                            <Link
-                                href="/dashboard/kontrak-kerja-karyawan/create"
-                                className="w-full lg:w-auto flex items-center justify-center gap-2 px-4 py-4 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 active:scale-[0.98] transition-all text-sm font-medium shadow-sm"
-                            >
-                                <Image
-                                    src={icons.addLogo}
-                                    width={18}
-                                    height={18}
-                                    alt="Add Logo"
-                                    className="opacity-90"
-                                />
-                                Buat Akun User Baru
-                            </Link>
-                        </div>
                     </div>
                 </div>
             </div>
