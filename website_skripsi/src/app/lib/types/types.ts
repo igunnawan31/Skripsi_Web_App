@@ -240,8 +240,8 @@ export const layerPenilaian: LayerPenilaian[] = [
         hanyaDalamProject: true,
     },
 ];
-// FORM
 
+// FORM
 export type IndikatorKPIForm = {
     namaIndikator: string;
     deskripsi?: string;
@@ -285,4 +285,15 @@ export type KontrakKerjaForm = {
     status: KontrakKerjaStatus; 
     catatan?: string;
     kontrakKerjaPDF?: string;
+}
+
+export type UserForm = {
+    email: string;
+    password: string;
+    nama: string;
+    majorRole: MajorRole;
+    minorRole?: MinorRole;
+    tanggalMulai: string;
+    tanggalSelesai: string;
+    projectList: Project[];
 }

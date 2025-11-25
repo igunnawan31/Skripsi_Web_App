@@ -109,4 +109,31 @@ export const dummyKontrakKerja: KontrakKerja[] = [
     ],
     status: KontrakKerjaStatus.SELESAI,
   },
+    {
+        id: "KK004",
+        namaFreelance: "Andi Saputra",
+        project: { projectId: "PRJ001", projectName: "Redesign Website Marketing", anggotaProject: [] },
+        workStatus: WorkStatus.WFH,
+        majorRole: MajorRole.KARYAWAN,
+        minorRole: MinorRole.BACKEND,
+        tanggalMulai: "2025-01-10",
+        tanggalSelesai: "2025-03-30",
+        password: "12345678",
+        metodePembayaran: "Per_Project",
+        totalBayaran: 12000000,
+        absensiBulanan: 0,
+        cutiBulanan: 0,
+        pembayaran: [
+            { 
+                id: "PAY006", 
+                name: "Full Payment", 
+                month: "Desember", 
+                dueDate: "2024-12-01", 
+                paymentDate: "2024-12-01", 
+                amount: 12000000, 
+                status: GajiStatus.DIBAYAR 
+            },
+        ],
+        status: KontrakKerjaStatus.SELESAI,
+    },
 ];

@@ -107,7 +107,7 @@ export const MenuProps = [
                 alt: "Manajemen Karyawan",
                 label: "Manajemen Karyawan",
                 description: "Kelola profil, jabatan, status kerja, dan riwayat data karyawan secara terpusat dan efisien.",
-                href: "/dashboard/manejemen-karyawan",
+                href: "/dashboard/manajemen-karyawan",
             },
         ],
     },

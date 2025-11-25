@@ -27,6 +27,8 @@ export const icons = {
     deleteLogo: "/assets/icons/delete.svg",
     addLogo: "/assets/icons/add.svg",
     saveLogo: "/assets/icons/save.svg",
+    openEye: "/assets/icons/eye-open.svg",
+    closeEye: "/assets/icons/eye-off.svg",
 
     // HR Management Icons
     absensiLogo: "/assets/icons/absen.svg",
