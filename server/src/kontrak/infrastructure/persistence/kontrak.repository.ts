@@ -315,7 +315,7 @@ export class KontrakRepository implements IKontrakRepository {
   async remove(id: string): Promise<DeleteKontrakResponseDTO> {
     try {
       const target = this.findById(id);
-      if (!target) throw new NotFoundException('User data not found');
+      if (!target) throw new NotFoundException('Kontrak data not found');
 
       const query = await this.prisma.kontrakKerja.delete({
         where: { id },
