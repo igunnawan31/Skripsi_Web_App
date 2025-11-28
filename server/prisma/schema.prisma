@@ -118,6 +118,7 @@ model Gaji {
   status      GajiStatus @default(BELUM_DIBAYAR)
   amount      Int // Jumlah gaji dalam rupiah
   paymentDate DateTime?
+  buktiPembayaran Json? // Nambah Schema, ketika HR membayar dan butuh bukti pembayaran
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
