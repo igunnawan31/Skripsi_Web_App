@@ -18,9 +18,8 @@ import { DeleteUserUseCase } from '../application/use-cases/delete-user.use-case
 import { UpdateUserUseCase } from '../application/use-cases/update-user.use-case';
 import { CreateUserDTO } from '../application/dtos/request/create-user.dto';
 import { UserRequest } from 'src/shared/dtos/UserRequest.dto';
-import { RolesMajor } from 'src/common/decorators/major-roles.decorator';
 import { RolesMinor } from 'src/common/decorators/minor-role.decorator';
-import { MajorRole, MinorRole } from '@prisma/client';
+import { MinorRole } from '@prisma/client';
 import { UserFilterDTO } from '../application/dtos/request/user-filter.dto';
 import { UpdateUserDTO } from '../application/dtos/request/update-user.dto';
 

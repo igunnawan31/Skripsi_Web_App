@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { KontrakKerjaStatus, Prisma } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { handlePrismaError } from 'src/common/errors/prisma-exception';
 import { PrismaService } from 'src/database/prisma/prisma.service';
@@ -20,7 +20,7 @@ import { UserBaseDTO } from 'src/users/application/dtos/base.dto';
 
 @Injectable()
 export class KontrakRepository implements IKontrakRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(dto: CreateKontrakDTO): Promise<CreateKontrakResponseDTO> {
     try {
@@ -77,10 +77,10 @@ export class KontrakRepository implements IKontrakRepository {
           gte: minCuti ?? undefined,
           lte: maxCuti ?? undefined,
         },
-        tanggalMulai: {
+        startDate: {
           gte: minTanggalMulai ? new Date(minTanggalMulai) : undefined,
         },
-        tanggalSelesai: {
+        endDate: {
           lte: maxTanggalSelesai ? new Date(maxTanggalSelesai) : undefined,
         },
       };
@@ -90,8 +90,8 @@ export class KontrakRepository implements IKontrakRepository {
         sortBy &&
         [
           'createdAt',
-          'tanggalMulai',
-          'tanggalSelesai',
+          'startDate',
+          'endDate',
           'cutiBulanan',
           'absensiBulanan',
           'totalBayaran',
@@ -169,8 +169,8 @@ export class KontrakRepository implements IKontrakRepository {
   ): Promise<RetrieveAllKontrakResponseDTO> {
     try {
       const {
-        // metodePembayaran,
-        // status,
+        metodePembayaran,
+        status,
         // minBayaran,
         // minAbsensi,
         // minCuti,
@@ -187,8 +187,8 @@ export class KontrakRepository implements IKontrakRepository {
 
       const where: Prisma.KontrakKerjaWhereInput = {
         userId,
-        // metodePembayaran: metodePembayaran ?? undefined,
-        // status: status ?? undefined,
+        metodePembayaran: metodePembayaran ?? undefined,
+        status: status ?? undefined,
         // totalBayaran: {
         //   gte: minBayaran ?? undefined,
         //   lte: maxBayaran ?? undefined,
@@ -201,10 +201,10 @@ export class KontrakRepository implements IKontrakRepository {
         //   gte: minCuti ?? undefined,
         //   lte: maxCuti ?? undefined,
         // },
-        // tanggalMulai: {
+        // startDate: {
         //   gte: minTanggalMulai ? new Date(minTanggalMulai) : undefined,
         // },
-        // tanggalSelesai: {
+        // endDate: {
         //   lte: maxTanggalSelesai ? new Date(maxTanggalSelesai) : undefined,
         // },
       };
@@ -214,8 +214,8 @@ export class KontrakRepository implements IKontrakRepository {
         sortBy &&
         [
           'createdAt',
-          'tanggalMulai',
-          'tanggalSelesai',
+          'startDate',
+          'endDate',
           'cutiBulanan',
           'absensiBulanan',
           'totalBayaran',
@@ -265,16 +265,31 @@ export class KontrakRepository implements IKontrakRepository {
   }
 
   async getTotalCutiQuota(userId: string): Promise<number> {
-    try {
-    } catch (err) {
-      handlePrismaError(err, 'Kontrak');
-    }
+    const result = await this.prisma.kontrakKerja.aggregate({
+      where: {
+        userId,
+        status: KontrakKerjaStatus.AKTIF,
+      },
+      _sum: {
+        cutiBulanan: true,
+      },
+    });
+
+    return result._sum.cutiBulanan || 0;
   }
+
   async getTotalAbsensiQuota(userId: string): Promise<number> {
-    try {
-    } catch (err) {
-      handlePrismaError(err, 'Kontrak');
-    }
+    const result = await this.prisma.kontrakKerja.aggregate({
+      where: {
+        userId,
+        status: KontrakKerjaStatus.AKTIF,
+      },
+      _sum: {
+        absensiBulanan: true,
+      },
+    });
+
+    return result._sum.absensiBulanan || 0;
   }
 
   async update(
@@ -303,7 +318,7 @@ export class KontrakRepository implements IKontrakRepository {
       const query = await this.prisma.kontrakKerja.update({
         where: { id },
         data: {
-          tanggalSelesai: new Date(),
+          endDate: new Date(),
         },
       });
       return plainToInstance(UpdateKontrakResponseDTO, query);

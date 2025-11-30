@@ -1,34 +1,56 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { KontrakService } from './kontrak.service';
-import { CreateKontrakDto } from './dto/create-kontrak.dto';
-import { UpdateKontrakDto } from './dto/update-kontrak.dto';
-
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Req,
+  Query,
+} from '@nestjs/common';
+import { IKontrakRepository } from '../domain/repositories/kontrak.repository.interface';
+import { CreateKontrakUseCase } from '../application/use-cases/create-kontrak.use-case';
+import { GetUserQuotaUseCase } from '../application/use-cases/get-user-quota.use-cases';
+import { MajorRole, MinorRole } from '@prisma/client';
+import { RolesMajor } from 'src/common/decorators/major-roles.decorator';
+import { RolesMinor } from 'src/common/decorators/minor-role.decorator';
+import { CreateKontrakDTO } from '../application/dtos/request/create-kontrak.dto';
+import { UserRequest } from 'src/shared/dtos/UserRequest.dto';
+import { KontrakFilterDTO } from '../application/dtos/request/kontrak-filter.dto';
 @Controller('kontrak')
 export class KontrakController {
-  constructor(private readonly kontrakService: KontrakService) {}
+  constructor(
+    private readonly kontrakRepo: IKontrakRepository,
+    private readonly createKontrakUseCase: CreateKontrakUseCase,
+    private readonly getUserQuotaUseCase: GetUserQuotaUseCase,
+  ) { }
 
   @Post()
-  create(@Body() createKontrakDto: CreateKontrakDto) {
-    return this.kontrakService.create(createKontrakDto);
+  @RolesMajor(MajorRole.OWNER)
+  @RolesMinor(MinorRole.HR)
+  async createKontrak(
+    @Body() dto: CreateKontrakDTO,
+    @Req() req: Request & { user: UserRequest },
+  ) {
+    return this.createKontrakUseCase.execute(dto, req.user.id);
   }
 
-  @Get()
-  findAll() {
-    return this.kontrakService.findAll();
+  @Get('user/:userId')
+  async getUserKontraks(@Param('userId') userId: string, @Query() filters: KontrakFilterDTO) {
+    return this.kontrakRepo.findByUserId(userId, filters);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.kontrakService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateKontrakDto: UpdateKontrakDto) {
-    return this.kontrakService.update(+id, updateKontrakDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.kontrakService.remove(+id);
+  @Get('user/:userId/quota')
+  async getUserQuota(
+    @Param('userId') userId: string,
+    @Query('year') year?: number,
+    @Query('month') month?: number,
+  ) {
+    return this.getUserQuotaUseCase.execute(
+      userId,
+      year ? parseInt(year.toString()) : undefined,
+      month ? parseInt(month.toString()) : undefined,
+    );
   }
 }

@@ -10,6 +10,7 @@ import { plainToClass } from 'class-transformer';
 import { UserBaseDTO } from 'src/users/application/dtos/base.dto';
 import { ProjectBaseDTO } from 'src/project/application/dtos/base.dto';
 import { KontrakCreatedEvent } from '../events/kontrak.events';
+import { IProjectRepository } from 'src/project/domain/repositories/project.repository.interface';
 
 @Injectable()
 export class CreateKontrakUseCase {
@@ -29,8 +30,8 @@ export class CreateKontrakUseCase {
     createdBy: string,
   ): Promise<CreateKontrakResponseDTO> {
     const dateValidation = this.validationService.validateDates(
-      new Date(dto.tanggalMulai),
-      new Date(dto.tanggalSelesai),
+      new Date(dto.startDate),
+      new Date(dto.endDate),
     );
     if (!dateValidation.valid) {
       throw new BadRequestException(dateValidation.message);
@@ -69,8 +70,8 @@ export class CreateKontrakUseCase {
       totalBayaran: dto.totalBayaran,
       absensiBulanan: dto.absensiBulanan,
       cutiBulanan: dto.cutiBulanan,
-      tanggalMulai: dto.tanggalMulai,
-      tanggalSelesai: dto.tanggalSelesai,
+      startDate: dto.startDate,
+      endDate: dto.endDate,
       catatan: dto.catatan,
       status: KontrakKerjaStatus.AKTIF,
     });
@@ -86,8 +87,8 @@ export class CreateKontrakUseCase {
         dto.cutiBulanan,
         dto.absensiBulanan,
         dto.totalBayaran,
-        dto.tanggalMulai,
-        dto.tanggalSelesai,
+        dto.startDate,
+        dto.endDate,
         createdBy,
         dto.dpPercentage,
         dto.finalPercentage

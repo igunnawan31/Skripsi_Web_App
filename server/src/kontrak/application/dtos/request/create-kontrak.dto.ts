@@ -50,9 +50,9 @@ export class CreateKontrakDTO {
   catatan?: string;
 
   @IsDateString()
-  tanggalMulai: string;
+  startDate: string;
 
   @IsDateString()
   @IsOptional()
-  tanggalSelesai: string;
+  endDate: string;
 }

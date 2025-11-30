@@ -57,8 +57,8 @@ export class KontrakFilterDTO extends FilterDTO {
 
 export type SortByOptions =
   | 'createdAt'
-  | 'tanggalMulai'
-  | 'tanggalSelesai'
+  | 'startDate'
+  | 'endDate'
   | 'cutiBulanan'
   | 'absensiBulanan'
   | 'totalBayaran'

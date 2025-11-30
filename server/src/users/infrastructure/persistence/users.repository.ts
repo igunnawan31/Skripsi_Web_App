@@ -14,10 +14,6 @@ import { UpdateUserDTO } from 'src/users/application/dtos/request/update-user.dt
 import { UpdateUserResponseDTO } from 'src/users/application/dtos/response/update-response.dto';
 import { DeleteUserResponseDTO } from 'src/users/application/dtos/response/delete-response.dto';
 import { Prisma } from '@prisma/client';
-import { AbsensiBaseDTO } from 'src/absensi/dto/base.dto';
-import { CutiBaseDTO } from 'src/cuti/dto/base.dto';
-import { KontrakBaseDTO } from 'src/kontrak/dto/base.dto';
-import { ProjectBaseDTO } from 'src/project/dto/base.dto';
 import {
   IndikatorKPIBaseDTO,
   IndikatorKPIPivotBaseDTO,
@@ -25,6 +21,10 @@ import {
 import { JawabanKPIBaseDTO } from 'src/kpi/entities/jawabanKPI.dto';
 import { RekapKPIBaseDTO } from 'src/kpi/entities/rekapKPI.dto';
 import { GajiBaseDTO } from 'src/gaji/application/dtos/base.dto';
+import { AbsensiBaseDTO } from 'src/absensi/application/dtos/base.dto';
+import { CutiBaseDTO } from 'src/cuti/application/dtos/base.dto';
+import { KontrakBaseDTO } from 'src/kontrak/application/dtos/base.dto';
+import { ProjectBaseDTO } from 'src/project/application/dtos/base.dto';
 
 @Injectable()
 export class UserRepository implements IUserRepository {

@@ -4,11 +4,11 @@ import { RetrieveKontrakResponseDTO } from 'src/kontrak/application/dtos/respons
 
 @Injectable()
 export class KontrakValidationService {
-  validateDates(tanggalMulai: Date, tanggalSelesai?: Date): {
+  validateDates(startDate: Date, endDate?: Date): {
     valid: boolean;
     message: string;
   } {
-    if (tanggalSelesai && tanggalSelesai < tanggalMulai) {
+    if (endDate && endDate < startDate) {
       return {
         valid: false,
         message: 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai',

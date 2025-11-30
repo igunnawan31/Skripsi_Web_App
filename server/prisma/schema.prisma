@@ -94,8 +94,8 @@ model KontrakKerja {
   status           KontrakKerjaStatus @default(AKTIF)
   catatan          String?
   dokumen          Json? // Path/URL dokumen kontrak
-  tanggalMulai     DateTime           @db.Date
-  tanggalSelesai   DateTime?          @db.Date
+  startDate DateTime           @db.Date
+  endDate DateTime?          @db.Date
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
 
@@ -106,7 +106,7 @@ model KontrakKerja {
   @@index([userId])
   @@index([projectId])
   @@index([status])
-  @@index([tanggalMulai, tanggalSelesai])
+  @@index([startDate, endDate])
 }
 
 model Gaji {
@@ -138,8 +138,8 @@ model Project {
   id          String    @id @default(uuid())
   name        String
   description String?
-  startDate   DateTime? @db.Date
-  endDate     DateTime? @db.Date
+  startDate   DateTime @db.Date
+  endDate     DateTime @db.Date
   status      ProjectStatus    @default(ACTIVE)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt

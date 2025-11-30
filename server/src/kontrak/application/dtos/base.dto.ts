@@ -40,7 +40,7 @@ export class KontrakBaseDTO {
   dokumen?: FileMetaData[];
 
   @Expose()
-  tanggalMulai: string;
+  startDate: string;
 
   @Expose()
   tanggalSelesai?: string;
