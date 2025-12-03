@@ -17,11 +17,11 @@ import { CreateUserUseCase } from '../application/use-cases/create-user.use-case
 import { DeleteUserUseCase } from '../application/use-cases/delete-user.use-case';
 import { UpdateUserUseCase } from '../application/use-cases/update-user.use-case';
 import { CreateUserDTO } from '../application/dtos/request/create-user.dto';
-import { UserRequest } from 'src/shared/dtos/UserRequest.dto';
 import { RolesMinor } from 'src/common/decorators/minor-role.decorator';
 import { MinorRole } from '@prisma/client';
 import { UserFilterDTO } from '../application/dtos/request/user-filter.dto';
 import { UpdateUserDTO } from '../application/dtos/request/update-user.dto';
+import { UserRequest } from 'src/common/types/UserRequest.dto';
 
 @Controller('users')
 @UseGuards(AuthGuard('jwt'), RolesGuard)

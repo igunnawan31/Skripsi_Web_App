@@ -1,34 +1,53 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { GajiService } from './gaji.service';
-import { CreateGajiDto } from './dto/create-gaji.dto';
-import { UpdateGajiDto } from './dto/update-gaji.dto';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { IGajiRepository } from '../domain/repositories/gaji.repository.interface';
+import { GajiFilterDTO } from '../application/dtos/request/gaji-filter.dto';
+import { UpdateGajiDTO } from '../application/dtos/request/update-gaji.dto';
+import { MinorRole } from '@prisma/client';
+import { RolesMinor } from 'src/common/decorators/minor-role.decorator';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('gaji')
+@UseGuards(AuthGuard('jwt'), RolesGuard)
 export class GajiController {
-  constructor(private readonly gajiService: GajiService) {}
+  constructor(private readonly gajiRepo: IGajiRepository) {}
 
-  @Post()
-  create(@Body() createGajiDto: CreateGajiDto) {
-    return this.gajiService.create(createGajiDto);
-  }
+  // implement nanti kalau ada case gaji untuk non kontrak
+  // @Post()
+  // create(@Body() createGajiDto: CreateGajiDto) {
+  //   return this.gajiService.create(createGajiDto);
+  // }
 
   @Get()
-  findAll() {
-    return this.gajiService.findAll();
+  findAll(@Query() filters: GajiFilterDTO) {
+    return this.gajiRepo.findAll(filters);
+  }
+
+  @Get('by-userId/:id')
+  findByUserId(@Param('id') id: string, @Query() filters: GajiFilterDTO) {
+    return this.gajiRepo.findByUserId(id, filters);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.gajiService.findOne(+id);
+    return this.gajiRepo.findById(id);
+  }
+
+  @Patch('/pay/:id')
+  @RolesMinor(MinorRole.HR)
+  paySalary(@Param('id') id: string){
+    return this.gajiRepo.paySalary(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGajiDto: UpdateGajiDto) {
-    return this.gajiService.update(+id, updateGajiDto);
+  @RolesMinor(MinorRole.HR)
+  update(@Param('id') id: string, @Body() updateGajiDto: UpdateGajiDTO) {
+    return this.gajiRepo.update(id, updateGajiDto);
   }
 
   @Delete(':id')
+  @RolesMinor(MinorRole.HR)
   remove(@Param('id') id: string) {
-    return this.gajiService.remove(+id);
+    return this.gajiRepo.remove(id);
   }
 }

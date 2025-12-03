@@ -87,6 +87,7 @@ export class CreateKontrakUseCase {
         dto.cutiBulanan,
         dto.absensiBulanan,
         dto.totalBayaran,
+        dto.metodePembayaran,
         dto.startDate,
         dto.endDate,
         createdBy,

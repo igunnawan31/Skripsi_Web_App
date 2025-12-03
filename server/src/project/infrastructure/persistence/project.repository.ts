@@ -60,7 +60,7 @@ export class ProjectRepository implements IProjectRepository {
       if (sortBy && ['createdAt', 'startDate', 'endDate'].includes(sortBy)) {
         orderBy[sortBy] = sortOrder === 'desc' ? 'desc' : 'asc';
       } else {
-        orderBy.createdAt = 'asc';
+        orderBy.createdAt = 'desc';
       }
 
       const [projects, total] = await this.prisma.$transaction([

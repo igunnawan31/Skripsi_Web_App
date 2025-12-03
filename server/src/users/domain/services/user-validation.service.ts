@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { MajorRole, MinorRole } from '@prisma/client';
-import { UserRequest } from 'src/shared/dtos/UserRequest.dto';
+import { UserRequest } from 'src/common/types/UserRequest.dto';
 import { RetrieveUserResponseDTO } from 'src/users/application/dtos/response/read-response.dto';
 
 @Injectable()

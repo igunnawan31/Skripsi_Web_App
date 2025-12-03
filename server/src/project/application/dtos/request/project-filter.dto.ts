@@ -1,6 +1,6 @@
 import { ProjectStatus } from "@prisma/client";
 import { IsDateString, IsEnum, IsOptional } from "class-validator";
-import { FilterDTO } from "src/shared/dtos/Filter.dto";
+import { FilterDTO } from "src/common/types/Filter.dto";
 
 export class ProjectFilterDTO extends FilterDTO {
   @IsOptional()

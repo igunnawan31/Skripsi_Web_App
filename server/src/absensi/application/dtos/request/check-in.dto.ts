@@ -1,7 +1,7 @@
 import { WorkStatus } from "@prisma/client";
 import { IsDateString, IsEnum, IsOptional, IsString } from "class-validator";
 
-export class CreateAbsensiDTO {
+export class CheckInDTO {
   @IsString()
   userId: string;
 
@@ -14,10 +14,19 @@ export class CreateAbsensiDTO {
   @IsDateString()
   checkIn: string;
 
-  @IsDateString()
-  checkOut: string;
-
   @IsString()
   @IsOptional()
   notes?: string;
+
+  @IsString()
+  @IsOptional()
+  address: string;
+
+  @IsString()
+  @IsOptional()
+  latitude: string;
+
+  @IsString()
+  @IsOptional()
+  longitude: string;
 }

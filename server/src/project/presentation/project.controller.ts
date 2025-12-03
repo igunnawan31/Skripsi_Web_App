@@ -6,13 +6,17 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { IProjectRepository } from '../domain/repositories/project.repository.interface';
 import { ProjectFilterDTO } from '../application/dtos/request/project-filter.dto';
 import { CreateProjectDTO } from '../application/dtos/request/create-project.dto';
 import { UpdateProjectDTO } from '../application/dtos/request/update-project.dto';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('project')
+@UseGuards(AuthGuard('jwt'), RolesGuard)
 export class ProjectController {
   constructor(private readonly projectRepo: IProjectRepository) { }
 

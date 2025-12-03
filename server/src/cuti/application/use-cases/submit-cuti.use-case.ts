@@ -5,13 +5,13 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { StatusCuti } from '@prisma/client';
+import { MinorRole, StatusCuti } from '@prisma/client';
 import { ICutiRepository } from 'src/cuti/domain/repositories/cuti.repository.interface';
 import { IUserRepository } from 'src/users/domain/repositories/users.repository.interface';
 import { CreateCutiResponseDTO } from '../dtos/response/create-response.dto';
 import { CreateCutiDTO } from '../dtos/request/create-cuti.dto';
-import { CutiSubmittedEvent } from '../events/cuti.kontrak';
 import { CutiQuotaService } from 'src/cuti/domain/services/cuti-quota.service';
+import { CutiSubmittedEvent } from '../events/cuti.events';
 
 @Injectable()
 export class SubmitCutiUseCase {
@@ -107,13 +107,19 @@ export class SubmitCutiUseCase {
         throw new BadRequestException(validation.message);
       }
     }
+  
+    // let approver;
+    // if (user.minorRole === MinorRole.HR){
+    //   approver = await this.userRepo.
+    // } else {
+    //
+    // }
 
     const cuti = await this.cutiRepo.create({
       userId,
       startDate: dto.startDate,
       endDate: dto.endDate,
       reason: dto.reason,
-      status: StatusCuti.MENUNGGU,
     });
 
     this.eventEmitter.emit(
@@ -122,8 +128,8 @@ export class SubmitCutiUseCase {
         cuti.id,
         userId,
         user.name,
-        dto.startDate,
-        dto.endDate,
+        formattedStartDate,
+        formattedEndDate,
       ),
     );
 

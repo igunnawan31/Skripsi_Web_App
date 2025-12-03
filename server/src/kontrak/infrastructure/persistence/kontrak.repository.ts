@@ -54,8 +54,8 @@ export class KontrakRepository implements IKontrakRepository {
         maxBayaran,
         maxAbsensi,
         maxCuti,
-        minTanggalMulai,
-        maxTanggalSelesai,
+        minStartDate,
+        maxEndDate,
         page = 1,
         limit = 10,
         sortBy = 'createdAt',
@@ -78,10 +78,10 @@ export class KontrakRepository implements IKontrakRepository {
           lte: maxCuti ?? undefined,
         },
         startDate: {
-          gte: minTanggalMulai ? new Date(minTanggalMulai) : undefined,
+          gte: minStartDate ? new Date(minStartDate) : undefined,
         },
         endDate: {
-          lte: maxTanggalSelesai ? new Date(maxTanggalSelesai) : undefined,
+          lte: maxEndDate? new Date(maxEndDate) : undefined,
         },
       };
 
@@ -171,14 +171,14 @@ export class KontrakRepository implements IKontrakRepository {
       const {
         metodePembayaran,
         status,
-        // minBayaran,
-        // minAbsensi,
-        // minCuti,
-        // maxBayaran,
-        // maxAbsensi,
-        // maxCuti,
-        // minTanggalMulai,
-        // maxTanggalSelesai,
+        minBayaran,
+        minAbsensi,
+        minCuti,
+        maxBayaran,
+        maxAbsensi,
+        maxCuti,
+        minStartDate,
+        maxEndDate,
         page = 1,
         limit = 10,
         sortBy = 'createdAt',
@@ -189,24 +189,24 @@ export class KontrakRepository implements IKontrakRepository {
         userId,
         metodePembayaran: metodePembayaran ?? undefined,
         status: status ?? undefined,
-        // totalBayaran: {
-        //   gte: minBayaran ?? undefined,
-        //   lte: maxBayaran ?? undefined,
-        // },
-        // absensiBulanan: {
-        //   gte: minAbsensi ?? undefined,
-        //   lte: maxAbsensi ?? undefined,
-        // },
-        // cutiBulanan: {
-        //   gte: minCuti ?? undefined,
-        //   lte: maxCuti ?? undefined,
-        // },
-        // startDate: {
-        //   gte: minTanggalMulai ? new Date(minTanggalMulai) : undefined,
-        // },
-        // endDate: {
-        //   lte: maxTanggalSelesai ? new Date(maxTanggalSelesai) : undefined,
-        // },
+        totalBayaran: {
+          gte: minBayaran ?? undefined,
+          lte: maxBayaran ?? undefined,
+        },
+        absensiBulanan: {
+          gte: minAbsensi ?? undefined,
+          lte: maxAbsensi ?? undefined,
+        },
+        cutiBulanan: {
+          gte: minCuti ?? undefined,
+          lte: maxCuti ?? undefined,
+        },
+        startDate: {
+          gte: minStartDate ? new Date(minStartDate) : undefined,
+        },
+        endDate: {
+          lte: maxEndDate ? new Date(maxEndDate) : undefined,
+        },
       };
 
       const orderBy: Prisma.KontrakKerjaOrderByWithRelationInput = {};

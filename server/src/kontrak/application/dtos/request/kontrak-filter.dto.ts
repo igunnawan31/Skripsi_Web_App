@@ -7,7 +7,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { FilterDTO } from 'src/shared/dtos/Filter.dto';
+import { FilterDTO } from 'src/common/types/Filter.dto';
 
 export class KontrakFilterDTO extends FilterDTO {
   @IsEnum(MetodePembayaran)
@@ -44,11 +44,11 @@ export class KontrakFilterDTO extends FilterDTO {
 
   @IsDateString()
   @IsOptional()
-  minTanggalMulai?: string;
+  minStartDate?: string;
 
   @IsDateString()
   @IsOptional()
-  maxTanggalSelesai?: string;
+  maxEndDate?: string;
 
   @IsOptional()
   @IsString()

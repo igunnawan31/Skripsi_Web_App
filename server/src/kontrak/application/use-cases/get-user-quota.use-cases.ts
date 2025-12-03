@@ -1,22 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
 import { IAbsensiRepository } from 'src/absensi/domain/repositories/absensi.repository.interface';
 import { ICutiRepository } from 'src/cuti/domain/repositories/cuti.repository.interface';
 import { IKontrakRepository } from 'src/kontrak/domain/repositories/kontrak.repository.interface';
-
-export interface UserQuotaResponse {
-  userId: string;
-  periode: { year: number; month: number };
-  cuti: {
-    totalQuota: number;
-    used: number;
-    remaining: number;
-  };
-  absensi: {
-    totalQuota: number;
-    used: number;
-    remaining: number;
-  };
-}
+import { UserQuotaResponseDTO } from '../dtos/response/kontrak-summary-response.dto';
 
 @Injectable()
 export class GetUserQuotaUseCase {
@@ -27,9 +14,13 @@ export class GetUserQuotaUseCase {
     private readonly cutiRepo: ICutiRepository,
     @Inject(IAbsensiRepository)
     private readonly absensiRepo: IAbsensiRepository,
-  ) {}
+  ) { }
 
-  async execute(userId: string, year?: number, month?: number): Promise<UserQuotaResponse> {
+  async execute(
+    userId: string,
+    year?: number,
+    month?: number,
+  ): Promise<UserQuotaResponseDTO> {
     const now = new Date();
     const targetYear = year || now.getFullYear();
     const targetMonth = month || now.getMonth() + 1;
@@ -40,11 +31,11 @@ export class GetUserQuotaUseCase {
     ]);
 
     const [usedCuti, usedAbsensi] = await Promise.all([
-      this.cutiRepo.countUsedCuti(userId, targetYear, targetMonth),
+      this.cutiRepo.countUsedCutiDays(userId, targetYear, targetMonth),
       this.absensiRepo.countAbsensiInMonth(userId, targetYear, targetMonth),
     ]);
 
-    return {
+    return plainToInstance(UserQuotaResponseDTO, {
       userId,
       periode: { year: targetYear, month: targetMonth },
       cuti: {
@@ -57,6 +48,6 @@ export class GetUserQuotaUseCase {
         used: usedAbsensi,
         remaining: absensiQuota - usedAbsensi,
       },
-    };
+    });
   }
 }

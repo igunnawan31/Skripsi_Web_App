@@ -8,9 +8,9 @@ import {
 import { IUserRepository } from 'src/users/domain/repositories/users.repository.interface';
 import { UserValidationService } from 'src/users/domain/services/user-validation.service';
 import { UpdateUserDTO } from '../dtos/request/update-user.dto';
-import { UserRequest } from 'src/shared/dtos/UserRequest.dto';
 import { UpdateUserResponseDTO } from '../dtos/response/update-response.dto';
 import * as bcrypt from 'bcryptjs';
+import { UserRequest } from 'src/common/types/UserRequest.dto';
 
 @Injectable()
 export class UpdateUserUseCase {
@@ -25,7 +25,6 @@ export class UpdateUserUseCase {
     dto: UpdateUserDTO,
     currentUser: UserRequest,
   ): Promise<UpdateUserResponseDTO> {
-    // STEP 1: Load target user
     const targetUser = await this.userRepo.findById(userId);
     if (!targetUser) {
       throw new NotFoundException('User tidak ditemukan');

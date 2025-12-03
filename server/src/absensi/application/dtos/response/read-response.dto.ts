@@ -1,9 +1,9 @@
 import { Expose } from "class-transformer";
-import { CreateAbsensiResponseDTO } from "./create-response.dto";
 import { meta } from "src/common/types/QueryMeta.dto";
 import { UserBaseDTO } from "src/users/application/dtos/base.dto";
+import { CheckInResponseDTO } from "./create-response.dto";
 
-export class RetrieveAbsensiResponseDTO extends CreateAbsensiResponseDTO {
+export class RetrieveAbsensiResponseDTO extends CheckInResponseDTO {
   @Expose()
   user: UserBaseDTO;
 }

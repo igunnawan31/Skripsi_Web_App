@@ -1,3 +1,3 @@
-import { RetrieveAbsensiResponseDTO } from "./read-response.dto";
+import { RetrieveAbsensiResponseDTO } from './read-response.dto';
 
-export class UpdateAbsensiResponseDTO extends RetrieveAbsensiResponseDTO {}
+export class CheckOutResponseDTO extends RetrieveAbsensiResponseDTO { }

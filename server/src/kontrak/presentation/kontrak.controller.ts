@@ -8,6 +8,7 @@ import {
   Delete,
   Req,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { IKontrakRepository } from '../domain/repositories/kontrak.repository.interface';
 import { CreateKontrakUseCase } from '../application/use-cases/create-kontrak.use-case';
@@ -16,9 +17,12 @@ import { MajorRole, MinorRole } from '@prisma/client';
 import { RolesMajor } from 'src/common/decorators/major-roles.decorator';
 import { RolesMinor } from 'src/common/decorators/minor-role.decorator';
 import { CreateKontrakDTO } from '../application/dtos/request/create-kontrak.dto';
-import { UserRequest } from 'src/shared/dtos/UserRequest.dto';
 import { KontrakFilterDTO } from '../application/dtos/request/kontrak-filter.dto';
+import { UserRequest } from 'src/common/types/UserRequest.dto';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { AuthGuard } from '@nestjs/passport';
 @Controller('kontrak')
+@UseGuards(AuthGuard('jwt'), RolesGuard)
 export class KontrakController {
   constructor(
     private readonly kontrakRepo: IKontrakRepository,

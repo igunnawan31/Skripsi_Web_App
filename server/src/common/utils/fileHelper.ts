@@ -1,6 +1,6 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { FileMetaData } from '../types/FileMetaData';
+import { FileMetaData } from '../types/FileMetaData.dto';
 
 const deleteFile = async (filePath: string): Promise<void> => {
   const finalPath = path.join(process.cwd(), filePath);

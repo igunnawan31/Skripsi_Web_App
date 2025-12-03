@@ -14,9 +14,6 @@ export class CreateCutiDTO {
   @IsString()
   reason: string;
 
-  @IsEnum(StatusCuti)
-  status: StatusCuti;
-
   @IsString()
   @IsOptional()
   catatan?: string;

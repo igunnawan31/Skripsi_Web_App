@@ -1,34 +1,43 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { AbsensiService } from './absensi.service';
-import { CreateAbsensiDto } from './dto/create-absensi.dto';
-import { UpdateAbsensiDto } from './dto/update-absensi.dto';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { IAbsensiRepository } from '../domain/repositories/absensi.repository.interface';
+import { CheckInDTO } from '../application/dtos/request/check-in.dto';
+import { CheckInUseCase } from '../application/use-cases/check-in.use-case';
+import { CheckOutUseCase } from '../application/use-cases/check-out.use-case.dto';
+import { AbsensiFilterDTO } from '../application/dtos/request/absensi-filter.dto';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('absensi')
+@UseGuards(AuthGuard('jwt'), RolesGuard)
 export class AbsensiController {
-  constructor(private readonly absensiService: AbsensiService) {}
+  constructor(
+    private readonly absensiRepo: IAbsensiRepository,
+    private readonly checkInUseCase: CheckInUseCase,
+    private readonly checkOutUseCase: CheckOutUseCase,
+  ) { }
 
   @Post()
-  create(@Body() createAbsensiDto: CreateAbsensiDto) {
-    return this.absensiService.create(createAbsensiDto);
+  checkIn(@Body() data: CheckInDTO) {
+    return this.checkInUseCase.execute(data.userId, data);
   }
 
-  @Get()
-  findAll() {
-    return this.absensiService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.absensiService.findOne(+id);
+  @Get('/:id')
+  findByUserId(@Param('id') id: string, @Query() filters: AbsensiFilterDTO ) {
+    return this.absensiRepo.findByMonth(id, filters.year, filters.month, filters);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAbsensiDto: UpdateAbsensiDto) {
-    return this.absensiService.update(+id, updateAbsensiDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.absensiService.remove(+id);
+  checkOut(@Param('id') id: string) {
+    return this.checkOutUseCase.execute(id);
   }
 }
