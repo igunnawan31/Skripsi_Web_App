@@ -62,6 +62,18 @@ export const MenuProps = [
         ],
     },
     {
+        title: "Manage Reimburse",
+        items: [
+            {
+                icon: icons.reimburseLogo,
+                alt: "Reimburse",
+                label: "Reimburse Karyawan",
+                description: "Kelola data pengajuan reimburse karyawan (petty cash).",
+                href: "/dashboard/reimburse-karyawan",
+            },
+        ],
+    },
+    {
         title: "Manajemen Kinerja Karyawan",
         items: [
             {
@@ -84,6 +96,25 @@ export const MenuProps = [
                 label: "Hasil Kinerja Karyawan",
                 description: "Lihat hasil evaluasi kinerja karyawan dalam bentuk laporan dan grafik perkembangan performa.",
                 href: "/dashboard/manajemen-kpi/hasil-kinerja-karyawan",
+            },
+        ],
+    },
+    {
+        title: "Manajemen Kinerja Karyawan For Owner",
+        items: [
+            {
+                icon: icons.penilaianKPILogo,
+                alt: "Penilaian Kinerja Karyawan",
+                label: "Penilaian Kinerja Karyawan",
+                description: "Lakukan penilaian kinerja berdasarkan indikator yang telah ditetapkan untuk setiap karyawan.",
+                href: "/dashboard/manajemen-kpi/penilaian-kinerja-karyawan-owner",
+            },
+            {
+                icon: icons.hasilKPILogo,
+                alt: "Hasil Kinerja Karyawan",
+                label: "Hasil Kinerja Karyawan",
+                description: "Lihat hasil evaluasi kinerja karyawan dalam bentuk laporan dan grafik perkembangan performa.",
+                href: "/dashboard/manajemen-kpi/hasil-kinerja-karyawan-owner",
             },
         ],
     },

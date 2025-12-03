@@ -7,7 +7,7 @@ import FilterBar from "@/app/dashboard/dashboardComponents/allComponents/FilterB
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { icons } from "@/app/lib/assets/assets";
-import { IndikatorKPI, KontrakKerja, StatusIndikatorKPI } from "@/app/lib/types/types";
+import { IndikatorKPI, KontrakKerja, StatusIndikatorKPI, StatusPublicKPI } from "@/app/lib/types/types";
 import { fetchKontrakKerja } from "@/app/lib/hooks/dummyHooks/fetchKontrakKerja";
 import { fetchIndikatorKPI } from "@/app/lib/hooks/dummyHooks/fetchIndikatorKPI";
 
@@ -36,7 +36,7 @@ const ManajemenIndikatorList = () => {
 
     useEffect(() => {
         fetchData();
-    }, [currentPage, itemsPerPage, selectedStatus]);
+    }, [currentPage, itemsPerPage, selectedStatus, selectedStatusIndikator]);
 
     const renderHtml = (
         <div className="flex flex-col gap-4 w-full">
@@ -49,10 +49,11 @@ const ManajemenIndikatorList = () => {
                                 value={selectedStatus}
                                 onChange={setSelectedStatus}
                                 options={[
-                                    { value: "All", label: "All Status" },
-                                    { value: "true", label: "Publish" },
-                                    { value: "false", label: "Tidak di Publish" },
-                                ]}
+                                    {value: "All", label: "All Status Publish"},
+                                    ...Object.values(StatusPublicKPI).map(item => ({
+                                    value: item,
+                                    label: item.charAt(0).toUpperCase() + item.slice(1)
+                                }))]}
                             />
                             <FilterBar
                                 label="Filter by Status Indikator:"
@@ -165,7 +166,7 @@ const ManajemenIndikatorList = () => {
                 </>
             ) : (
                 <p className="text-center text-gray-500 py-6">
-                    Tidak ada data cuti sesuai filter.
+                    Tidak ada data manajemen indikator sesuai filter.
                 </p>
             )}
 

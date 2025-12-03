@@ -47,37 +47,54 @@ export const fetchPenilaianKPI = async (
             mulai.getMonth() === selectedMonthIndex &&
             mulai.getFullYear() === selectedYear
         );
-    });
-
-    indikatorDalamPeriode = indikatorDalamPeriode.filter(item =>
+    }).filter(item =>
         item.diisiOleh.some(u => u.id === currentUser.id)
     );
 
-    if (indikatorDalamPeriode.length === 0) {
+    const semuaIndikatorRelevan = indikatorDalamPeriode.filter(ind =>
+        ind.pertanyaanUntuk.some(u => allowedUsers.includes(u.id))
+    );
+
+    if (semuaIndikatorRelevan.length === 0) {
         return { data: [], total: 0 };
     }
 
-    const indikator = indikatorDalamPeriode[0];
-
-    let usersToEvaluate = indikator.pertanyaanUntuk
-        .filter(u => allowedUsers.includes(u.id));
+    const usersToEvaluate = dummyUsers.filter(u => allowedUsers.includes(u.id));
 
     let listKPIPerUser = usersToEvaluate.map(user => {
-        const totalPertanyaan = indikator.pertanyaan.length;
 
-        const jawabanUser = PenilaianKPIData.filter(
-            j => j.indikatorKPIId === indikator.id && j.dinilai.id === user.id
-        );
+        const indikatorUser = semuaIndikatorRelevan.map(ind => {
+            const jawabanInd = PenilaianKPIData.filter(j =>
+                j.indikatorKPIId === ind.id && j.dinilai.id === user.id
+            );
+
+            const totalQ = ind.pertanyaan.length;
+            const answered = jawabanInd.length;
+
+            return {
+                id: ind.id,
+                nama: ind.namaIndikator,
+                description: ind.deskripsi,
+                jumlahPertanyaan: totalQ,
+                jumlahJawaban: answered,
+                status: answered === totalQ ? "Sudah Diisi" : "Belum Diisi",
+                periodeMulai: ind.periodeMulai,
+                periodeBerakhir: ind.periodeBerakhir
+            };
+        });
+
+        const totalPertanyaan = indikatorUser.reduce((a, b) => a + b.jumlahPertanyaan, 0);
+        const totalJawaban = indikatorUser.reduce((a, b) => a + b.jumlahJawaban, 0);
 
         return {
             dinilai: user,
             jumlahPertanyaan: totalPertanyaan,
-            jumlahJawaban: jawabanUser.length,
-            sudahDinilai: jawabanUser.length === totalPertanyaan,
-            penilai: jawabanUser[0]?.penilai.nama ?? null,
-            tanggalIsi: jawabanUser[0]?.tanggalIsi ?? null
+            jumlahJawaban: totalJawaban,
+            sudahDinilai: totalPertanyaan > 0 && totalJawaban === totalPertanyaan,
+            indikatorKPIBerlaku: indikatorUser,
         };
     });
+
 
     if (selectedStatus === "Sudah Dinilai") {
         listKPIPerUser = listKPIPerUser.filter(x => x.sudahDinilai);
