@@ -6,7 +6,6 @@ import { GajiSchedulingService } from './domain/services/gaji-scheduling.service
 import { GajiRepository } from './infrastructure/persistence/gaji.repository';
 
 @Module({
-  imports: [GajiModule],
   controllers: [GajiController],
   providers: [
     GajiValidationService,

@@ -1,21 +1,25 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { WorkStatus } from '@prisma/client';
-import { IKontrakRepository } from 'src/kontrak/domain/repositories/kontrak.repository.interface';
+import type { IAbsensiQuotaProvider } from './absensi-quota-provide.interface';
 
 @Injectable()
 export class AbsensiValidationService {
   constructor(
-    @Inject(IKontrakRepository)
-    private readonly kontrakRepo: IKontrakRepository,
-  ) {}
+    @Inject('IAbsensiQuotaProvider') 
+    private readonly quotaProvider: IAbsensiQuotaProvider,
+  ) { }
 
-  async validateMonthlyQuota(userId: string, date: Date, usedAbsensi: number): Promise<{
+  async validateMonthlyQuota(
+    userId: string,
+    date: Date,
+    usedAbsensi: number,
+  ): Promise<{
     valid: boolean;
     message: string;
     remainingQuota: number;
   }> {
     // Get monthly quota from active contracts
-    const monthlyQuota = await this.kontrakRepo.getTotalAbsensiQuota(userId);
+    const monthlyQuota = await this.quotaProvider.getMonthlyAbsensiQuota(userId);
 
     if (monthlyQuota === 0) {
       return {
@@ -42,7 +46,12 @@ export class AbsensiValidationService {
     };
   }
 
-  validateWorkStatus(workStatus: WorkStatus, address?: string, latitude?: string, longitude?: string): {
+  validateWorkStatus(
+    workStatus: WorkStatus,
+    address?: string,
+    latitude?: string,
+    longitude?: string,
+  ): {
     valid: boolean;
     message: string;
   } {
@@ -58,7 +67,11 @@ export class AbsensiValidationService {
     return { valid: true, message: 'Work status valid' };
   }
 
-  validateCheckInTime(date: Date): { valid: boolean; message: string; isLate: boolean } {
+  validateCheckInTime(date: Date): {
+    valid: boolean;
+    message: string;
+    isLate: boolean;
+  } {
     const hour = date.getHours();
     const minute = date.getMinutes();
 

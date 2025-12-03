@@ -8,7 +8,6 @@ import { IUserRepository } from './domain/repositories/users.repository.interfac
 import { UserRepository } from './infrastructure/persistence/users.repository';
 
 @Module({
-  imports: [UsersModule],
   controllers: [UsersController],
   providers: [
     CreateUserUseCase,

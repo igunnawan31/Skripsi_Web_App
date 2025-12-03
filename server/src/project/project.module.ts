@@ -5,7 +5,6 @@ import { IProjectRepository } from './domain/repositories/project.repository.int
 import { ProjectRepository } from './infrastructure/persistence/project.repository';
 
 @Module({
-  imports: [ProjectModule],
   controllers: [ProjectController],
   providers: [
     ProjectValidationService,
