@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { icons } from "@/app/lib/assets/assets";
 
 interface PaginationBarProps {
     totalItems: number;
@@ -27,7 +28,7 @@ const PaginationBar: React.FC<PaginationBarProps> = ({
 
     return (
         <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow-md">
-            <div className="flex items-center space-x-2">
+            <div className="hidden sm:flex items-center space-x-2">
                 <span className="text-gray-500 text-sm hidden sm:block">Items per Page</span>
                 <select
                     className="border px-2 py-1 rounded-md bg-(--color-primary) text-white border-(--color-primary) hover:bg-(--color-primary) cursor-pointer"
@@ -41,7 +42,7 @@ const PaginationBar: React.FC<PaginationBarProps> = ({
                 </select>
             </div>
 
-            <div className="text-gray-500 text-sm">
+            <div className="hidden sm:block text-gray-500 text-sm">
                 {itemsPerPage * (currentPage - 1) + 1} -{" "}
                 {Math.min(itemsPerPage * currentPage, totalItems)} of {totalItems} items
             </div>
@@ -54,8 +55,14 @@ const PaginationBar: React.FC<PaginationBarProps> = ({
                         currentPage === 1 ? "text-gray-300" : "bg-(--color-primary) text-white border-(--color-primary) hover:bg-(--color-primary) cursor-pointer"
                     }`}
                 >
-                    {/* <IoArrowBackCircle /> */}
-                    <div className="hidden sm:block"> Previous</div>
+                    <Image 
+                        src={icons.arrowLeftPagination} 
+                        width={20} 
+                        height={20} 
+                        alt={"Arrow Left Pagination"}
+                        className={"transition-transform duration-300"} 
+                    />
+                    <div className="hidden md:block"> Previous</div>
                 </button>
                 <input
                     type="text"
@@ -78,9 +85,16 @@ const PaginationBar: React.FC<PaginationBarProps> = ({
                         currentPage === totalPages ? "text-gray-300" : "bg-(--color-primary) text-white border-(--color-primary) hover:bg-(--color-primary) cursor-pointer"
                     }`}
                 >
-                    <div className="hidden sm:block">
+                    <div className="hidden md:block">
                         Next
                     </div>
+                    <Image 
+                        src={icons.arrowRightPagination} 
+                        width={20} 
+                        height={20} 
+                        alt={"Arrow Left Pagination"}
+                        className={"transition-transform duration-300"} 
+                    />
                     {/* <IoArrowForwardCircle /> */}
                 </button>
             </div>

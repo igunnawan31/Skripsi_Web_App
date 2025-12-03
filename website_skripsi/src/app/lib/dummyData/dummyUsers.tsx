@@ -122,4 +122,15 @@ export const dummyUsers: User[] = [
     tanggalSelesai: "9999-12-31",
     projectList: [],
   },
+  {
+    id: "USR011",
+    email: "slalaas.alsda@company.com",
+    password: "123456",
+    nama: "slalaas alsda",
+    majorRole: MajorRole.KARYAWAN,
+    minorRole: MinorRole.ADMIN,
+    tanggalMulai: "2023-05-20",
+    tanggalSelesai: "9999-12-31",
+    projectList: [],
+  },
 ];

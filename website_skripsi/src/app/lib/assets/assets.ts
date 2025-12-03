@@ -20,6 +20,8 @@ export const icons = {
     hamburgerMenu: "/assets/icons/hamburger-white.svg",
     closeMenu: "/assets/icons/close.svg",
     arrowMenu: "/assets/icons/arrow-right.svg",
+    arrowRightPagination: "/assets/icons/arrow-red-right.svg",
+    arrowLeftPagination: "/assets/icons/arrow-red-left.svg",
     arrowDownMenu: "/assets/icons/arrow-down.svg",
     homeLogo: "/assets/icons/home.svg",
     viewLogo: "/assets/icons/view.svg",
@@ -42,6 +44,7 @@ export const icons = {
     manajemenKaryawanLogo: "/assets/icons/manajemen-user.svg",
 
     // Owner Management Icons
+    reimburseLogo: "/assets/icons/reimburse.svg",
     rekapAbsensiKaryawanLogo : "/assets/icons/absen.svg",
     rekapCutiKaryawanLogo : "/assets/icons/cuti.svg",
     rekapGajiKaryawanLogo : "/assets/icons/gaji.svg",
