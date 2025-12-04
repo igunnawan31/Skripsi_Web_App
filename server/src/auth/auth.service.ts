@@ -15,16 +15,11 @@ export class AuthService {
 
   async validateUser(email: string, password: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+    if (!user) throw new UnauthorizedException('Email atau password salah');
     if (password) {
-      if (!user.password) {
-        throw new UnauthorizedException(
-          'This account uses social login. Please log in with Google.',
-        );
-      }
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
-        throw new UnauthorizedException('Invalid credentials');
+        throw new UnauthorizedException('Email atau password salah');
       }
     }
     return user;

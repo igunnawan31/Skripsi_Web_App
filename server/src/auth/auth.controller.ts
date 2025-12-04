@@ -25,17 +25,20 @@ export class AuthController {
   ) {}
   private readonly logger: LoggerService;
 
+  // auth/login
   @Post('login')
   async login(@Body() dto: LoginDto) {
     const user = await this.authService.validateUser(dto.email, dto.password);
     return this.authService.login(user);
   }
 
+  // auth/register
   @Post('register')
   async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 
+  // auth/refresh
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(@Body() body: { refreshToken: string }) {
