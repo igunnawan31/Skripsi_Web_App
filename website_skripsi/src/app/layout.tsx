@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { poppins } from "./ui/fonts";
+import ReactQueryProvider from "@/providers/ReactQueryProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,7 +18,9 @@ export default function RootLayout({
       <body
         className={`${poppins.className} antialiased`}
       >
-        {children}
+        <ReactQueryProvider>
+          {children}
+        </ReactQueryProvider>
       </body>
     </html>
   );
