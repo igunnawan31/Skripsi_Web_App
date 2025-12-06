@@ -17,7 +17,7 @@ const MobileMenu = ({
     isSidebarOpen,
 }: any) => {
     const renderHtml = (
-        <>
+        <div className="pt-6 lg:pt-0">
             <div className="flex lg:hidden items-center mb-4 justify-center">
                 <button
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -185,7 +185,7 @@ const MobileMenu = ({
                     />
                 </button>
             </div>
-        </>
+        </div>
     );
 
     return renderHtml;

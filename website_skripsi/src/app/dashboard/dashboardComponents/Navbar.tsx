@@ -5,33 +5,19 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { usePathname } from "next/navigation";
 import { MenuProps } from "../props/MenuProps";
+import Image from "next/image";
+import { photo } from "@/app/lib/assets/assets";
+import { User } from "@/app/lib/types/types";
 
 
-const Navbar = () => {
+export default function Navbar({ user }: { user: User }) {
     const [isDropdownMenuOpen, setIsDropdownMenuOpen] = useState(false);
     const pathname = usePathname();
     const currentItem = MenuProps.flatMap((menu) => menu.items || []).find(
         (item) => item.href === pathname
     );
-    const [user, setUser] = useState<any>(null);
     const dropdownRef = useRef(null);
     const router = useRouter();
-
-    const handleLogout = () => {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        localStorage.removeItem("user");
-        
-        router.push("/sign-in");
-        toast.success("Logout berhasil");
-    };
-
-    useEffect(() => {
-        const userStr = localStorage.getItem("user");
-        if (userStr) {
-            setUser(JSON.parse(userStr));
-        }
-    }, []);
     
     const renderHtml = (
         <div className="w-full z-10 flex justify-between py-10">
@@ -50,17 +36,30 @@ const Navbar = () => {
                             className="flex items-center gap-2 cursor-pointer"
                             onClick={() => setIsDropdownMenuOpen(!isDropdownMenuOpen)}
                         >
-                            <span className="text-blue-900">
-                                {user ? `${user.name} (${user.role} - ${user.subRole})` : "Loading..."}
-                            </span>
+                            <div className="flex lg:hidden items-center justify-center border-b border-(--color-surface)">
+                                <div className="flex items-center gap-3">
+                                    <div className="rounded-full bg-gray-400 overflow-hidden w-16 h-16 border-2 border-(--color-surface)">
+                                        <Image
+                                            src={photo.profilePlaceholder}
+                                            alt="Profile Picture"
+                                            width={64}
+                                            height={64}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                    <span className="text-(--color-textPrimary)">
+                                        {user ? `${user.name} (${user.majorRole} - ${user?.minorRole})` : "Loading..."}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                         {isDropdownMenuOpen && (
                             <div className="absolute right-0 mt-2 w-48 z-10">
                                 <ul className="py-2 text-sm text-black">
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Profile</li>
-                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={handleLogout}>
+                                    {/* <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={handleLogout}>
                                         Logout
-                                    </li>
+                                    </li> */}
                                 </ul>
                             </div>
                         )}
@@ -72,5 +71,3 @@ const Navbar = () => {
 
     return renderHtml
 }
-
-export default Navbar;

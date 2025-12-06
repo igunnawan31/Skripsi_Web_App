@@ -8,8 +8,9 @@ import { icons, photo } from "@/app/lib/assets/assets";
 import { usePathname } from "next/navigation";
 import MobileMenu from "./menuComponents/MobileMenu";
 import DesktopMenu from "./menuComponents/DesktopMenu";
+import { User } from "@/app/lib/types/types";
 
-const SidebarMenu = () => {
+export default function SidebarMenu({ user }: { user: User }) {
     const [openSidebarMenus, setOpenSidebarMenus] = useState<{ [key: string]: boolean }>(
         Object.fromEntries(MenuProps.map((menu) => [menu.title, false]))
     );
@@ -71,7 +72,7 @@ const SidebarMenu = () => {
     const renderHtml = (
         <div className="w-full bg-(--color-primary) text-(--color-text-primary) min-h-screen flex flex-col h-full justify-between">
             <div className="flex flex-col flex-1 overflow-y-auto">
-                <div className="flex items-center justify-center pt-6 pb-2 border-b border-(--color-surface) mb-4">
+                <div className="lg:flex hidden items-center justify-center pt-6 pb-2 border-b border-(--color-surface) mb-4">
                     <div className="flex flex-col items-center gap-3">
                         <div className="rounded-full bg-gray-400 overflow-hidden w-16 h-16 border-2 border-(--color-surface)">
                             <Image
@@ -83,8 +84,12 @@ const SidebarMenu = () => {
                             />
                         </div>
                         <div className="text-center">
-                            <h2 className="hidden md:block text-sm font-semibold text-(--color-surface)">Muhamad Gunawan</h2>
-                            <p className="hidden md:block text-xs rounded-full text-(--color-surface) px-3 py-1">HR</p>
+                            <h2 className="hidden md:block text-sm font-semibold text-(--color-surface)">
+                                {user ? `${user.name}`: "Loading..."}
+                            </h2>
+                            <p className="hidden md:block text-xs rounded-full text-(--color-surface) px-3 py-1">
+                                {user ? `(${user.majorRole} - ${user?.minorRole})` : "Loading..."}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -116,5 +121,3 @@ const SidebarMenu = () => {
     
     return renderHtml;
 }
-
-export default SidebarMenu;

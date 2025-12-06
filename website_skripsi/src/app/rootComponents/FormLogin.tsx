@@ -4,12 +4,31 @@ import Link from "next/link";
 import Image from "next/image";
 import { FormProps } from "../props/formProps";
 import React from "react";
+import { useAuth } from "../lib/hooks/auth/useAuth";
 
 const FormLogin: React.FC<FormProps> = ({
     loginAccount = false, 
     textButton,
     textTitle,
 }) => {
+    const { login, isLoggingIn, loginError } = useAuth();
+    const handleSubmitLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const form = e.currentTarget;
+        const formData = new FormData(form);
+        const email = formData.get("email") as string;
+        const password = formData.get("password") as string;
+
+        if (!email || !password) {
+            return;
+        }
+        try {
+            await login(email,  password);
+        } catch (error) {
+            console.error("Login failed:", error);
+        }
+    };
+
     const renderHtml = (
         <section className="min-h-screen flex flex-col justify-center items-center px-4 bg-(--color-background)">
             <div className="flex flex-col items-center mb-10">
@@ -31,31 +50,7 @@ const FormLogin: React.FC<FormProps> = ({
                 </h1>
                 {loginAccount ? (
                     <>
-                        <div className="flex justify-between gap-4 mb-6">
-                            <button className="flex-1 border border-(--color-border) rounded-lg py-2 hover:border-(--color-primary) transition-all duration-200 cursor-pointer">
-                                <span className="text-(--color-text-secondary) font-medium">
-                                    Google
-                                </span>
-                            </button>
-                            <button className="flex-1 border border-(--color-border) rounded-lg py-2 hover:border-(--color-primary) transition-all duration-200 cursor-pointer">
-                                <span className="text-(--color-text-secondary) font-medium">
-                                    Microsoft
-                                </span>
-                            </button>
-                        </div>
-
-                        <div className="relative mb-6">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-(--color-border)" />
-                            </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="px-2 bg-(--color-surface) text-(--color-muted)">
-                                    or continue with email
-                                </span>
-                            </div>
-                        </div>
-
-                        <form className="space-y-5">
+                        <form className="space-y-5" onSubmit={handleSubmitLogin}>
                             <div>
                                 <label
                                     htmlFor="email"
@@ -66,6 +61,7 @@ const FormLogin: React.FC<FormProps> = ({
                                 <input
                                     type="email"
                                     id="email"
+                                    name="email"
                                     className="w-full p-2.5 border border-(--color-border) rounded-lg bg-(--color-background) text-(--color-text-primary) focus:ring-2 focus:ring-(--color-primary) focus:outline-none transition-all"
                                     placeholder="name@company.com"
                                     required
@@ -81,11 +77,13 @@ const FormLogin: React.FC<FormProps> = ({
                                 <input
                                     type="password"
                                     id="password"
+                                    name="password"
                                     placeholder="••••••••"
                                     className="w-full p-2.5 border border-(--color-border) rounded-lg bg-(--color-background) text-(--color-text-primary) focus:ring-2 focus:ring-(--color-primary) focus:outline-none transition-all"
                                     required
                                 />
                             </div>
+                            {loginError && <p className="text-red-600 text-sm">{(loginError as Error).message ?? "Login gagal, cek kredensial."}</p>}
                             <div className="flex items-center justify-between text-sm">
                                 <label className="flex items-center gap-2 text-(--color-text-secondary)">
                                 <input
@@ -104,9 +102,10 @@ const FormLogin: React.FC<FormProps> = ({
 
                             <button
                                 type="submit"
+                                disabled={isLoggingIn}
                                 className="w-full py-2.5 bg-(--color-primary) text-white font-semibold rounded-lg hover:bg-(--color-primary)/80 transition-all cursor-pointer"
                             >
-                                Sign in
+                                {isLoggingIn ? "Logging in..." : textButton}
                             </button>
                         </form>
                     </>

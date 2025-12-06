@@ -90,7 +90,7 @@ export type User = {
     id: string;
     email: string;
     password: string;
-    nama: string;
+    name: string;
     majorRole: MajorRole;
     minorRole?: MinorRole;
     tanggalMulai: string;

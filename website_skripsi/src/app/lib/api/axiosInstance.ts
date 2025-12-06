@@ -1,34 +1,66 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
+import axios, { Axios, AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import { useAuthStore } from "../stores/authStores";
+import Cookies from "js-cookie";
 
 const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-const axiosInstance = axios.create({
-    baseURL: NEXT_PUBLIC_API_URL,
+export const axiosInstance = axios.create({
+    baseURL: "/",
+    withCredentials: true,
 });
 
-axiosInstance.interceptors.request.use((config) => {
-    const token = useAuthStore.getState().accessToken;
-    if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+let isRefreshing = false;
+let queue: Array<(ok: boolean) => void> = [];
 
-axiosInstance.interceptors.request.use(
+function subscribeTokenRefresh(cb: (ok: boolean) => void) {
+    queue.push(cb);
+};
+
+function notifyAllSubscribers(ok: boolean) {
+    queue.forEach((cb) => cb(ok));
+    queue = [];
+}
+
+axiosInstance.interceptors.response.use(
     (res) => res,
-    (error) => {
-        if (error.response?.status === 401) {
-            const { clearAuth } = useAuthStore.getState();
-            clearAuth();
-            window.location.href = "/login";
+    async (errror: AxiosError) => {
+        const status = errror.response?.status;
+        const originalRequest = errror.config as AxiosRequestConfig & { _retry?: boolean };
+
+        if (status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    subscribeTokenRefresh((ok: boolean) => {
+                        if (ok) {
+                            resolve(axiosInstance(originalRequest));
+                        } else {
+                            reject(errror);
+                        }
+                    });
+                });
+            }
+
+            isRefreshing = true;
+
+            const ok = await fetch("/api/auth/refresh", {
+                method: "POST",
+                credentials: "include",
+            })
+            .then((res) => res.ok)
+            .catch(() => false);
+
+            isRefreshing = false;
+            notifyAllSubscribers(ok);
+
+            if (ok) return axiosInstance(originalRequest);
+            if (typeof window !== "undefined") window.location.href = "/";
         }
 
-        return Promise.reject(error);
+        return Promise.reject(errror);
     }
 );
-
-export default axiosInstance;
 
 
 // Ide : Kalo nanti mau ada refresh token
