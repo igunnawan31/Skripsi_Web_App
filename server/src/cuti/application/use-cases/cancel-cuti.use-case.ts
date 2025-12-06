@@ -12,8 +12,7 @@ import { IUserRepository } from 'src/users/domain/repositories/users.repository.
 import { CutiAuthorizationService } from 'src/cuti/domain/services/cuti-approval-authorization.service';
 import { MajorRole, MinorRole, StatusCuti } from '@prisma/client';
 import { DeleteCutiResponseDTO } from '../dtos/response/delete-response.dto';
-import { UpdateCutiResponseDTO } from '../dtos/response/update-response.dto';
-import { UpdateCutiDTO } from '../dtos/request/update-cuti.dto';
+import { ApprovalCutiDTO, ApprovalCutiInput } from '../dtos/request/approval.dto';
 
 @Injectable()
 export class CancelCutiUseCase {
@@ -29,7 +28,7 @@ export class CancelCutiUseCase {
   async execute(
     cutiId: string,
     userId: string,
-    dto: UpdateCutiDTO,
+    dto: ApprovalCutiDTO,
   ): Promise<DeleteCutiResponseDTO> {
     const cuti = await this.cutiRepo.findById(cutiId);
     const formattedStartDate = new Date(cuti.startDate);
@@ -84,10 +83,12 @@ export class CancelCutiUseCase {
       ? `Dibatalkan oleh ${user.name}: ${dto.reason}`
       : `Dibatalkan oleh ${user.name}`;
 
-    const updatedCuti = await this.cutiRepo.cutiApproval(cutiId, {
+
+    const payload: ApprovalCutiInput = {
       status: StatusCuti.BATAL,
       catatan: cancelReason,
-    });
+    };
+    const updatedCuti = await this.cutiRepo.cutiApproval(cutiId, payload);
 
     this.eventEmitter.emit(
       'cuti.cancelled',

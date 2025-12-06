@@ -10,9 +10,9 @@ import { CutiRejectedEvent } from '../events/cuti.events';
 import { ICutiRepository } from 'src/cuti/domain/repositories/cuti.repository.interface';
 import { IUserRepository } from 'src/users/domain/repositories/users.repository.interface';
 import { CutiAuthorizationService } from 'src/cuti/domain/services/cuti-approval-authorization.service';
-import { UpdateCutiDTO } from '../dtos/request/update-cuti.dto';
 import { UpdateCutiResponseDTO } from '../dtos/response/update-response.dto';
 import { StatusCuti } from '@prisma/client';
+import { ApprovalCutiDTO, ApprovalCutiInput } from '../dtos/request/approval.dto';
 
 @Injectable()
 export class RejectCutiUseCase {
@@ -28,7 +28,7 @@ export class RejectCutiUseCase {
   async execute(
     cutiId: string,
     approverId: string,
-    dto: UpdateCutiDTO,
+    dto: ApprovalCutiDTO,
   ): Promise<UpdateCutiResponseDTO> {
     const cuti = await this.cutiRepo.findById(cutiId);
     if (!cuti) {
@@ -74,12 +74,13 @@ export class RejectCutiUseCase {
       throw new BadRequestException('Tidak dapat reject cuti sendiri');
     }
 
+    const payload: ApprovalCutiInput = {
+      status: StatusCuti.BATAL,
+      catatan: `Ditolak oleh ${approver.name}: ${dto.catatan}`,
+    };
     const updatedCuti = await this.cutiRepo.cutiApproval(
       cutiId,
-      {
-        status: StatusCuti.DITOLAK,
-        catatan: `Ditolak oleh ${approver.name}: ${dto.catatan}`,
-      },
+      payload,
       approverId,
     );
 

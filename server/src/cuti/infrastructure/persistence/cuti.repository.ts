@@ -3,6 +3,7 @@ import { MinorRole, Prisma, StatusCuti } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { handlePrismaError } from 'src/common/errors/prisma-exception';
 import { UserRequest } from 'src/common/types/UserRequest.dto';
+import { ApprovalCutiInput } from 'src/cuti/application/dtos/request/approval.dto';
 import { CreateCutiDTO } from 'src/cuti/application/dtos/request/create-cuti.dto';
 import { CutiFilterDTO } from 'src/cuti/application/dtos/request/filter-cuti.dto';
 import { UpdateCutiDTO } from 'src/cuti/application/dtos/request/update-cuti.dto';
@@ -52,6 +53,131 @@ export class CutiRepository implements ICutiRepository {
     try {
       const where: Prisma.CutiWhereInput = {
         userId,
+      };
+      const orderBy: Prisma.CutiOrderByWithRelationInput = {};
+      if (sortBy && ['createdAt', 'startDate', 'endDate'].includes(sortBy)) {
+        orderBy[sortBy] = sortOrder === 'desc' ? 'desc' : 'asc';
+      } else {
+        orderBy.createdAt = 'desc';
+      }
+      const [cutis, total] = await this.prisma.$transaction([
+        this.prisma.cuti.findMany({
+          where,
+          orderBy,
+          take: limit,
+          skip: (page - 1) * limit,
+          include: {
+            user: true,
+            approver: true,
+          },
+        }),
+        this.prisma.cuti.count({ where }),
+      ]);
+      return plainToInstance(RetrieveAllCutiResponseDTO, {
+        data: cutis.map((c) =>
+          plainToInstance(RetrieveCutiResponseDTO, {
+            ...c,
+            user: plainToInstance(UserBaseDTO, c.user),
+            approver: plainToInstance(UserBaseDTO, c.user),
+          }),
+        ),
+        meta: {
+          total,
+          page,
+          limit,
+          totalPage: Math.ceil(total / limit),
+        },
+      });
+    } catch (err) {
+      handlePrismaError(err, 'Cuti');
+    }
+  }
+  async findAll(
+    user: UserRequest,
+    filters: CutiFilterDTO,
+  ): Promise<RetrieveAllCutiResponseDTO> {
+    const {
+      page = 1,
+      limit = 10,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = filters;
+    try {
+      const where: Prisma.CutiWhereInput = {
+        userId:
+          user.majorRole === 'KARYAWAN'
+            ? user.minorRole === 'HR'
+              ? undefined
+              : user.id
+            : undefined,
+      };
+      const orderBy: Prisma.CutiOrderByWithRelationInput = {};
+      if (sortBy && ['createdAt', 'startDate', 'endDate'].includes(sortBy)) {
+        orderBy[sortBy] = sortOrder === 'desc' ? 'desc' : 'asc';
+      } else {
+        orderBy.createdAt = 'desc';
+      }
+      const [cutis, total] = await this.prisma.$transaction([
+        this.prisma.cuti.findMany({
+          where,
+          orderBy,
+          take: limit,
+          skip: (page - 1) * limit,
+          include: {
+            user: true,
+            approver: true,
+          },
+        }),
+        this.prisma.cuti.count({ where }),
+      ]);
+      return plainToInstance(RetrieveAllCutiResponseDTO, {
+        data: cutis.map((c) =>
+          plainToInstance(RetrieveCutiResponseDTO, {
+            ...c,
+            user: plainToInstance(UserBaseDTO, c.user),
+            approver: plainToInstance(UserBaseDTO, c.user),
+          }),
+        ),
+        meta: {
+          total,
+          page,
+          limit,
+          totalPage: Math.ceil(total / limit),
+        },
+      });
+    } catch (err) {
+      handlePrismaError(err, 'Cuti');
+    }
+  }
+  async findTeamCuti(
+    user: UserRequest,
+    filters: CutiFilterDTO,
+  ): Promise<RetrieveAllCutiResponseDTO> {
+    const {
+      page = 1,
+      limit = 10,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = filters;
+    try {
+      const where: Prisma.CutiWhereInput = {
+        status: 'DITERIMA',
+        user: {
+          majorRole: 'KARYAWAN', // exlude owner
+          minorRole: { not: 'HR' }, // exclude HR
+          projectTeams: {
+            some: {
+              project: {
+                projectTeams: {
+                  some: {
+                    userId: user.id,
+                    role: 'KETUA',
+                  },
+                },
+              },
+            },
+          },
+        },
       };
       const orderBy: Prisma.CutiOrderByWithRelationInput = {};
       if (sortBy && ['createdAt', 'startDate', 'endDate'].includes(sortBy)) {
@@ -303,7 +429,7 @@ export class CutiRepository implements ICutiRepository {
     data: CreateCutiDTO,
     /* approverId: string, */
   ): Promise<CreateCutiResponseDTO> {
-    const { userId, startDate, endDate, reason, catatan } = data;
+    const { userId, startDate, endDate, reason } = data;
     try {
       const query = await this.prisma.cuti.create({
         data: {
@@ -312,7 +438,6 @@ export class CutiRepository implements ICutiRepository {
           startDate: new Date(startDate),
           endDate: new Date(endDate),
           reason,
-          catatan,
         },
       });
       return plainToInstance(CreateCutiResponseDTO, query);
@@ -342,7 +467,7 @@ export class CutiRepository implements ICutiRepository {
   }
   async cutiApproval(
     id: string,
-    data: UpdateCutiDTO,
+    data: ApprovalCutiInput,
     approverId?: string,
   ): Promise<UpdateCutiResponseDTO> {
     try {

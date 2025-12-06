@@ -10,6 +10,9 @@ import { CutiFilterDTO } from '../application/dtos/request/filter-cuti.dto';
 import { UserRequest } from 'src/common/types/UserRequest.dto';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
+import { MinorRole } from '@prisma/client';
+import { RolesMinor } from 'src/common/decorators/minor-role.decorator';
+import { ApprovalCutiDTO } from '../application/dtos/request/approval.dto';
 
 @Controller('cuti')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -27,7 +30,19 @@ export class CutiController {
     return this.submitCutiUseCase.execute(req.user.id, data);
   }
 
+  @Get()
+  findAll(@Req() req: Request & { user: UserRequest }, @Query() filters: CutiFilterDTO) {
+    return this.cutiRepo.findAll(req.user, filters);
+  }
+
+  @Get('team')
+  @RolesMinor(MinorRole.PROJECT_MANAGER)
+  findTeamCuti(@Req() req: Request & { user: UserRequest }, @Query() filters: CutiFilterDTO) {
+    return this.cutiRepo.findTeamCuti(req.user, filters);
+  }
+
   @Get('pending')
+  @RolesMinor(MinorRole.HR)
   findAllPendingForApprover(@Req() req: Request & { user: UserRequest }, @Query() filters: CutiFilterDTO) {
     return this.cutiRepo.findPendingForApprover(req.user, filters);
   }
@@ -37,21 +52,24 @@ export class CutiController {
     return this.cutiRepo.findById(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCutiDto: UpdateCutiDTO) {
-    return this.cutiRepo.update(id, updateCutiDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateCutiDto: UpdateCutiDTO) {
+  //   return this.cutiRepo.update(id, updateCutiDto);
+  // }
 
   @Patch('approve/:id')
-  approval(@Param('id') id: string, @Body() data: UpdateCutiDTO, @Req() req: Request & { user: UserRequest }) {
+  @RolesMinor(MinorRole.HR)
+  approval(@Param('id') id: string, @Body() data: ApprovalCutiDTO, @Req() req: Request & { user: UserRequest }) {
     return this.ApproveCutiUseCase.execute(id, req.user.id, data)
   }
   @Patch('reject/:id')
-  reject(@Param('id') id: string, @Body() data: UpdateCutiDTO, @Req() req: Request & { user: UserRequest }) {
+  @RolesMinor(MinorRole.HR)
+  reject(@Param('id') id: string, @Body() data: ApprovalCutiDTO, @Req() req: Request & { user: UserRequest }) {
     return this.RejectCutiUseCase.execute(id, req.user.id, data)
   }
   @Patch('cancel/:id')
-  cancel(@Param('id') id: string, @Body() data: UpdateCutiDTO, @Req() req: Request & { user: UserRequest }) {
+  @RolesMinor(MinorRole.HR)
+  cancel(@Param('id') id: string, @Body() data: ApprovalCutiDTO, @Req() req: Request & { user: UserRequest }) {
     return this.CancelCutiUseCase.execute(id, req.user.id, data)
   }
 

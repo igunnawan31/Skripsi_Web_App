@@ -10,12 +10,10 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ICutiRepository } from 'src/cuti/domain/repositories/cuti.repository.interface';
 import { IUserRepository } from 'src/users/domain/repositories/users.repository.interface';
 import { UpdateCutiResponseDTO } from '../dtos/response/update-response.dto';
-import { MajorRole, MinorRole, StatusCuti } from '@prisma/client';
-import { UserBaseDTO } from 'src/users/application/dtos/base.dto';
-import { RetrieveUserResponseDTO } from 'src/users/application/dtos/response/read-response.dto';
+import { StatusCuti } from '@prisma/client';
 import { CutiAuthorizationService } from 'src/cuti/domain/services/cuti-approval-authorization.service';
 import { CutiApprovedEvent } from '../events/cuti.events';
-import { UpdateCutiDTO } from '../dtos/request/update-cuti.dto';
+import { ApprovalCutiDTO, ApprovalCutiInput } from '../dtos/request/approval.dto';
 
 @Injectable()
 export class ApproveCutiUseCase {
@@ -31,7 +29,7 @@ export class ApproveCutiUseCase {
   async execute(
     cutiId: string,
     approverId: string,
-    dto: UpdateCutiDTO,
+    dto: ApprovalCutiDTO,
   ): Promise<UpdateCutiResponseDTO> {
     const cuti = await this.cutiRepo.findById(cutiId);
     const formattedStartDate = new Date(cuti.startDate);
@@ -77,10 +75,17 @@ export class ApproveCutiUseCase {
       );
     }
 
-    const updatedCuti = await this.cutiRepo.cutiApproval(cutiId, {
+    const payload: ApprovalCutiInput = {
+      ...dto,
       status: StatusCuti.DITERIMA,
       catatan: dto.catatan || `Disetujui oleh ${approver.name}`,
-    }, approverId);
+    };
+
+    const updatedCuti = await this.cutiRepo.cutiApproval(
+      cutiId,
+      payload,
+      approverId,
+    );
 
     this.eventEmitter.emit(
       'cuti.approved',

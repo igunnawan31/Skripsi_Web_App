@@ -13,8 +13,4 @@ export class CreateCutiDTO {
 
   @IsString()
   reason: string;
-
-  @IsString()
-  @IsOptional()
-  catatan?: string;
 }
