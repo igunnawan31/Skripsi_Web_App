@@ -21,7 +21,23 @@ interface RequestWithUser extends Request {
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(private reflector: Reflector) { }
+
+  roleMapping(role: MajorRole | MinorRole): string {
+    const map: Record<MajorRole | MinorRole, string> = {
+      [MajorRole.OWNER]: 'Owner',
+      [MajorRole.KARYAWAN]: 'Karyawan',
+
+      [MinorRole.HR]: 'Human Resource',
+      [MinorRole.ADMIN]: 'Admin',
+      [MinorRole.PROJECT_MANAGER]: 'Project Manager',
+      [MinorRole.UI_UX]: 'UI/UX Designer',
+      [MinorRole.FRONTEND]: 'Frontend Developer',
+      [MinorRole.BACKEND]: 'Backend Developer',
+    };
+
+    return map[role] ?? role;
+  }
 
   canActivate(ctx: ExecutionContext): boolean {
     const requiredMajorRoles = this.reflector.getAllAndOverride<MajorRole[]>(
@@ -50,7 +66,7 @@ export class RolesGuard implements CanActivate {
       }
       if (!requiredMajorRoles.includes(user.majorRole)) {
         throw new ForbiddenException(
-          `User major role ${user.majorRole} not permitted for this action`,
+          `User major role ${this.roleMapping(user.majorRole)} not permitted for this action`,
         );
       }
     }
@@ -65,7 +81,7 @@ export class RolesGuard implements CanActivate {
       }
       if (!requiredMinorRoles.includes(user.minorRole)) {
         throw new ForbiddenException(
-          `User minor role ${user.minorRole} not permitted for this action`,
+          `User minor role ${this.roleMapping(user.minorRole)} not permitted for this action`,
         );
       }
     }

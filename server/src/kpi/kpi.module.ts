@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { KpiService } from './kpi.service';
-import { KpiController } from './kpi.controller';
+import { KpiController } from './presentation/kpi.controller';
+import { IKPIRepository } from './domain/repositories/kpi.repository.interface';
+import { KPIRepository } from './infrastructure/persistence/kpi.repository';
 
 @Module({
   controllers: [KpiController],
-  providers: [KpiService],
+  providers: [{ provide: IKPIRepository, useClass: KPIRepository }],
 })
-export class KpiModule {}
+export class KpiModule { }
