@@ -20,6 +20,7 @@ export const icons = {
     hamburgerMenu: "/assets/icons/hamburger-white.svg",
     closeMenu: "/assets/icons/close.svg",
     arrowMenu: "/assets/icons/arrow-right.svg",
+    arrowDropdown: "/assets/icons/arrow-down-black.svg",
     arrowRightPagination: "/assets/icons/arrow-red-right.svg",
     arrowLeftPagination: "/assets/icons/arrow-red-left.svg",
     arrowDownMenu: "/assets/icons/arrow-down.svg",
@@ -50,4 +51,8 @@ export const icons = {
     rekapGajiKaryawanLogo : "/assets/icons/gaji.svg",
     rekapKPIKaryawanLogo : "/assets/icons/indikator-kpi.svg",
     rekapReimbursePengeluaranLogo : "/assets/icons/reimburse-pengeluaran.svg",
+
+    successIcon: "/assets/icons/success.svg",
+    errorIcon: "/assets/icons/error.svg",
+    infoIcon: "/assets/icons/info.svg",
 }

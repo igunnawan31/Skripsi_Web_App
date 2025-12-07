@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MenuProps } from "../props/MenuProps";
+import { HRMenuProps } from "../props/MenuProps";
 import Link from "next/link";
 import Image from "next/image";
 import { icons, photo } from "@/app/lib/assets/assets";
@@ -12,13 +12,13 @@ import { User } from "@/app/lib/types/types";
 
 export default function SidebarMenu({ user }: { user: User }) {
     const [openSidebarMenus, setOpenSidebarMenus] = useState<{ [key: string]: boolean }>(
-        Object.fromEntries(MenuProps.map((menu) => [menu.title, false]))
+        Object.fromEntries(HRMenuProps.map((menu) => [menu.title, false]))
     );
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [hasParentId, setHasParentId] = useState<boolean | null>(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const mobileMenuRef = useRef<HTMLDivElement>(null);
-    const [menusToRender, setMenusToRender] = useState(MenuProps);
+    const [menusToRender, setMenusToRender] = useState(HRMenuProps);
     const pathname = usePathname();
 
 

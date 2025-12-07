@@ -1,3 +1,5 @@
+"use client";
+
 import FormLogin from "./FormLogin";
 import BannerLogin from "./BannerLogin";
 
