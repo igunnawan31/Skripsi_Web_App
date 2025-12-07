@@ -69,7 +69,7 @@ export class AuthController {
           minorRole: user.minorRole,
         },
         {
-          expiresIn: '1m',
+          expiresIn: '7d',
         },
       );
 
