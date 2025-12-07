@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class ProjectValidationService {
-  validateDates(startDate: Date, endDate?: Date): {
+  validateDates(
+    startDate: Date,
+    endDate?: Date,
+  ): {
     valid: boolean;
     message: string;
   } {
@@ -10,6 +13,16 @@ export class ProjectValidationService {
       return {
         valid: false,
         message: 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai',
+      };
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (startDate < today) {
+      return {
+        valid: false,
+        message:
+          'Tidak dapat membuat project baru untuk tanggal yang sudah lewat',
       };
     }
 

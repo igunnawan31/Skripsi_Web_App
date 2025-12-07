@@ -5,7 +5,6 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { MinorRole, StatusCuti } from '@prisma/client';
 import { ICutiRepository } from 'src/cuti/domain/repositories/cuti.repository.interface';
 import { IUserRepository } from 'src/users/domain/repositories/users.repository.interface';
 import { CreateCutiResponseDTO } from '../dtos/response/create-response.dto';

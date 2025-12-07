@@ -31,7 +31,6 @@ export class KontrakController {
   ) { }
 
   @Post()
-  @RolesMajor(MajorRole.OWNER)
   @RolesMinor(MinorRole.HR)
   async createKontrak(
     @Body() dto: CreateKontrakDTO,

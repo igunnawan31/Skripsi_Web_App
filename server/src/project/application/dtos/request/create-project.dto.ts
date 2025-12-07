@@ -16,7 +16,4 @@ export class CreateProjectDTO {
   @IsDateString()
   @IsOptional()
   endDate: string;
-
-  @IsEnum(ProjectStatus)
-  status: ProjectStatus;
 }
