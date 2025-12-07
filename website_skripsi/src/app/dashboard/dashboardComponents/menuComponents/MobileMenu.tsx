@@ -3,6 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { icons } from "@/app/lib/assets/assets";
+import { useAuth } from "@/app/lib/hooks/auth/useAuth";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import CustomToast from "@/app/rootComponents/CustomToast";
 
 const MobileMenu = ({
     mobileMenuRef,
@@ -16,6 +20,15 @@ const MobileMenu = ({
     hasParentId,
     isSidebarOpen,
 }: any) => {
+    const {logout} = useAuth();
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        await logout();
+        toast.custom(<CustomToast type="success" message={`Logout Successful`} />);
+        router.push("/");
+    }
+
     const renderHtml = (
         <div className="pt-6 lg:pt-0">
             <div className="flex lg:hidden items-center mb-4 justify-center">
@@ -54,7 +67,7 @@ const MobileMenu = ({
                             <Link
                                 href={item.href}
                                 key={item.label}
-                                className={`flex items-center justify-between gap-4 p-4 rounded-xl text-sm mt-4 ${
+                                className={`flex items-center justify-between gap-4 p-4 rounded-xl text-sm ${
                                 pathname === item.href
                                     ? "bg-(--color-tertiary) text-white font-semibold"
                                     : "text-white hover:bg-(--color-tertiary)/60"
@@ -175,12 +188,15 @@ const MobileMenu = ({
                 </div>
             </div>
             <div className="px-4 py-4 lg:py-0">
-                <button className="flex lg:hidden bg-(--color-surface) w-full items-center justify-between px-4 py-4 gap-2 text-white rounded-lg hover:opacity-90 transition cursor-pointer">
+                <button 
+                    className="flex lg:hidden bg-(--color-surface) w-full items-center justify-between px-4 py-4 gap-2 text-white rounded-lg hover:opacity-90 transition cursor-pointer"
+                    onClick={handleLogout}
+                >
                     <Image
                         src={icons.logoutPrimaryIcon}
                         alt="Logout Icon"
-                        width={20}
-                        height={20}
+                        width={40}
+                        height={40}
                         className="block lg:hidden mx-auto"
                     />
                 </button>

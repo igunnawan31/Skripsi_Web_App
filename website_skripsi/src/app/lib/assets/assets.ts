@@ -17,6 +17,7 @@ export const logo = {
 export const icons = {
     // General Icons
     logoutPrimaryIcon: "/assets/icons/logout-primary.svg",
+    logoutWhiteIcon: "/assets/icons/logout-white.svg",
     hamburgerMenu: "/assets/icons/hamburger-white.svg",
     closeMenu: "/assets/icons/close.svg",
     arrowMenu: "/assets/icons/arrow-right.svg",
@@ -32,6 +33,7 @@ export const icons = {
     saveLogo: "/assets/icons/save.svg",
     openEye: "/assets/icons/eye-open.svg",
     closeEye: "/assets/icons/eye-off.svg",
+    userProfile: "/assets/icons/user.svg",
 
     // HR Management Icons
     absensiLogo: "/assets/icons/absen.svg",

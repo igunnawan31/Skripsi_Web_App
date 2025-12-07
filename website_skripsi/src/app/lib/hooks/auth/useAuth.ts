@@ -7,10 +7,9 @@ import toast from "react-hot-toast";
 
 const API = "http://localhost:4000";
 
-function redirectBasedOnRole(majorRole?: MajorRole, minorRole?: MinorRole) {
-    if (majorRole === MajorRole.OWNER) return "/dashboard/(owner)";
-    if (majorRole === MajorRole.KARYAWAN && minorRole === MinorRole.HR) return "/dashboard/(hr)";
-    return "/dashboard";
+function redirectBasedOnRole(majorRole?: string, minorRole?: string) {
+    if (majorRole === "OWNER") return "/dashboard";
+    if (majorRole === "KARYAWAN" && minorRole === "HR") return "/dashboard";
 }
 
 function decodeJwtExpMs(token: string): number | null {
@@ -44,16 +43,20 @@ export const useAuth = () => {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.message || "Login failed");
             }
-
+            console.log("response", response);
             return response.json();
         },
 
         onSuccess: (data) => {
-            if (data.user.majorRole !== MajorRole.OWNER && data.user.majorRole !== MajorRole.KARYAWAN) {
-                if (data.user.minorRole !== MinorRole.HR) {
-                    throw new Error("Unauthorized role");
-                }
+            const majorRole = data.user.majorRole as string;
+            const minorRole = data.user.minorRole as string;
+
+            const allowed = (majorRole === "OWNER") || (majorRole === "KARYAWAN" && minorRole === "HR");
+            if (!allowed) {
+                throw new Error("Your account does not have access to this application.");
+                return;
             }
+
             const expMs = decodeJwtExpMs(data.access_token) ?? Date.now() + 60 * 60 * 1000;
             const expiresDate = new Date(expMs);
 
@@ -85,8 +88,7 @@ export const useAuth = () => {
                 expires: expiresDate,
             });
 
-            const target = redirectBasedOnRole(data.user.majorRole, data.user.minorRole);
-            router.push(target);
+            router.push(redirectBasedOnRole(majorRole, minorRole) || "/");
         },
     });
 

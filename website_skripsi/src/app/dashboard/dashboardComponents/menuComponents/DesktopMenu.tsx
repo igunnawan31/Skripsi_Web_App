@@ -3,6 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { icons } from "@/app/lib/assets/assets";
+import { useAuth } from "@/app/lib/hooks/auth/useAuth";
+import toast from "react-hot-toast";
+import CustomToast from "@/app/rootComponents/CustomToast";
+import { useRouter } from "next/navigation";
 
 const DesktopMenu = ({
     menusToRender,
@@ -13,6 +17,15 @@ const DesktopMenu = ({
     hasParentId,
     isSidebarOpen,
 }: any) => {
+    const {logout} = useAuth();
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        await logout();
+        toast.custom(<CustomToast type="success" message={`Logout Successful`} />);
+        router.push("/");
+    }
+
     const renderHtml = (
         <div className="hidden px-4 justify-between lg:flex lg:flex-col">
             <div>
@@ -91,7 +104,9 @@ const DesktopMenu = ({
                 )}
             </div>
             <div className="flex py-4 justify-end">
-                <button className="bg-(--color-surface) w-full flex items-center justify-between px-4 gap-2 text-white rounded-lg py-4 hover:opacity-90 transition cursor-pointer">
+                <button 
+                    className="bg-(--color-surface) w-full flex items-center justify-between px-4 gap-2 text-white rounded-lg py-4 hover:opacity-90 transition cursor-pointer"
+                    onClick={handleLogout}>
                     <span className="hidden md:block text-(--color-primary)">Keluar</span>
                     <span className="hidden md:block text-lg text-(--color-primary)">→</span>
                     <Image
