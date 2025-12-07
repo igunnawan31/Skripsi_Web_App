@@ -20,7 +20,7 @@ import { UserBaseDTO } from 'src/users/application/dtos/base.dto';
 
 @Injectable()
 export class CutiRepository implements ICutiRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
   async findById(id: string): Promise<RetrieveCutiResponseDTO> {
     try {
       const cuti = await this.prisma.cuti.findUnique({
@@ -97,6 +97,9 @@ export class CutiRepository implements ICutiRepository {
     filters: CutiFilterDTO,
   ): Promise<RetrieveAllCutiResponseDTO> {
     const {
+      maxEndDate,
+      minStartDate,
+      status,
       page = 1,
       limit = 10,
       sortBy = 'createdAt',
@@ -110,6 +113,30 @@ export class CutiRepository implements ICutiRepository {
               ? undefined
               : user.id
             : undefined,
+        user: {
+          majorRole: {
+            not: user.majorRole === 'OWNER' ? undefined : 'OWNER',
+          },
+          minorRole:
+            user.majorRole === 'OWNER'
+              ? undefined
+              : {
+                  in: [
+                    MinorRole.BACKEND,
+                    MinorRole.ADMIN,
+                    MinorRole.UI_UX,
+                    MinorRole.FRONTEND,
+                    MinorRole.PROJECT_MANAGER,
+                  ],
+                },
+        },
+        status: status ?? undefined,
+        startDate: {
+          gte: minStartDate ? new Date(minStartDate) : undefined,
+        },
+        endDate: {
+          lte: maxEndDate ? new Date(maxEndDate) : undefined,
+        },
       };
       const orderBy: Prisma.CutiOrderByWithRelationInput = {};
       if (sortBy && ['createdAt', 'startDate', 'endDate'].includes(sortBy)) {
@@ -237,14 +264,14 @@ export class CutiRepository implements ICutiRepository {
             user.majorRole === 'OWNER'
               ? undefined
               : {
-                in: [
-                  MinorRole.BACKEND,
-                  MinorRole.ADMIN,
-                  MinorRole.UI_UX,
-                  MinorRole.FRONTEND,
-                  MinorRole.PROJECT_MANAGER,
-                ],
-              },
+                  in: [
+                    MinorRole.BACKEND,
+                    MinorRole.ADMIN,
+                    MinorRole.UI_UX,
+                    MinorRole.FRONTEND,
+                    MinorRole.PROJECT_MANAGER,
+                  ],
+                },
         },
       };
       const orderBy: Prisma.CutiOrderByWithRelationInput = {};

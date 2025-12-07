@@ -122,6 +122,16 @@ async function main() {
     },
   });
 
+  await prisma.cuti.create({
+    data: {
+      userId: pm.id,
+      startDate: new Date('2025-02-14'),
+      endDate: new Date('2025-02-15'),
+      reason: 'Liburan keluarga',
+      status: 'MENUNGGU',
+    },
+  });
+
   // 9. Indikator KPI
   const indikator = await prisma.indikatorKPI.create({
     data: {
