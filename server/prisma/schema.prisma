@@ -54,8 +54,8 @@ model Absensi {
   userId     String
   date       DateTime   @db.Date
   workStatus WorkStatus
-  checkIn    DateTime
-  checkOut   DateTime?
+  checkIn    DateTime   @default(now())
+  checkOut   DateTime?  @updatedAt
   address    String?
   latitude   String?
   longitude  String?

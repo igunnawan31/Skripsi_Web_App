@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { AbsensiFilterDTO } from 'src/absensi/application/dtos/request/absensi-filter.dto';
@@ -14,6 +14,7 @@ import { handlePrismaError } from 'src/common/errors/prisma-exception';
 import { PrismaService } from 'src/database/prisma/prisma.service';
 import { UserBaseDTO } from 'src/users/application/dtos/base.dto';
 
+@Injectable()
 export class AbsensiRepository implements IAbsensiRepository {
   constructor(private readonly prisma: PrismaService) { }
   async findByUserAndDate(
@@ -102,6 +103,10 @@ export class AbsensiRepository implements IAbsensiRepository {
       sortOrder = 'desc',
     } = filters;
     try {
+      console.log(`year:${year}`);
+      console.log(`month:${month}`);
+      console.log(`gte:${new Date(year, month, 1)}`);
+      console.log(`lt:${new Date(year, month + 1, 1)}`);
       const where: Prisma.AbsensiWhereInput = {
         userId,
         workStatus: status ?? undefined,

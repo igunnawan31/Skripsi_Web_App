@@ -5,9 +5,6 @@ export class CheckInDTO {
   @IsString()
   userId: string;
 
-  @IsDateString()
-  date: string;
-
   @IsEnum(WorkStatus)
   workStatus: WorkStatus;
 
