@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { poppins } from "./ui/fonts";
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,6 +21,7 @@ export default function RootLayout({
       >
         <ReactQueryProvider>
           {children}
+          <Toaster position="bottom-right" />
         </ReactQueryProvider>
       </body>
     </html>

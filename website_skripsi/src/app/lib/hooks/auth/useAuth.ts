@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { MajorRole, MinorRole } from "../../types/types";
+import toast from "react-hot-toast";
 
 const API = "http://localhost:4000";
 
@@ -32,55 +33,60 @@ export const useAuth = () => {
         { email: string; password: string }
     >({
         mutationFn: async ({ email, password }) => {
-        const response = await fetch(`${API}/auth/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ email, password }),
-        });
+            const response = await fetch(`${API}/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ email, password }),
+            });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || "Login failed");
-        }
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || "Login failed");
+            }
 
-        return response.json();
+            return response.json();
         },
 
         onSuccess: (data) => {
-        const expMs = decodeJwtExpMs(data.access_token) ?? Date.now() + 60 * 60 * 1000;
-        const expiresDate = new Date(expMs);
+            if (data.user.majorRole !== MajorRole.OWNER && data.user.majorRole !== MajorRole.KARYAWAN) {
+                if (data.user.minorRole !== MinorRole.HR) {
+                    throw new Error("Unauthorized role");
+                }
+            }
+            const expMs = decodeJwtExpMs(data.access_token) ?? Date.now() + 60 * 60 * 1000;
+            const expiresDate = new Date(expMs);
 
-        Cookies.set("accessToken", data.access_token, {
-            secure: true,
-            sameSite: "strict",
-            path: "/",
-            expires: expiresDate,
-        });
+            Cookies.set("accessToken", data.access_token, {
+                secure: true,
+                sameSite: "strict",
+                path: "/",
+                expires: expiresDate,
+            });
 
-        Cookies.set("refreshToken", data.refresh_token, {
-            secure: true,
-            sameSite: "strict",
-            path: "/",
-            expires: 7,
-        });
+            Cookies.set("refreshToken", data.refresh_token, {
+                secure: true,
+                sameSite: "strict",
+                path: "/",
+                expires: 7,
+            });
 
-        Cookies.set("majorRole", String(data.user.majorRole), {
-            secure: true,
-            sameSite: "strict",
-            path: "/",
-            expires: expiresDate,
-        });
+            Cookies.set("majorRole", String(data.user.majorRole), {
+                secure: true,
+                sameSite: "strict",
+                path: "/",
+                expires: expiresDate,
+            });
 
-        Cookies.set("minorRole", String(data.user.minorRole), {
-            secure: true,
-            sameSite: "strict",
-            path: "/",
-            expires: expiresDate,
-        });
+            Cookies.set("minorRole", String(data.user.minorRole), {
+                secure: true,
+                sameSite: "strict",
+                path: "/",
+                expires: expiresDate,
+            });
 
-        const target = redirectBasedOnRole(data.user.majorRole, data.user.minorRole);
-        router.push(target);
+            const target = redirectBasedOnRole(data.user.majorRole, data.user.minorRole);
+            router.push(target);
         },
     });
 

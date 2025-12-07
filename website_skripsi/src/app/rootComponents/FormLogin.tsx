@@ -3,8 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { FormProps } from "../props/formProps";
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "../lib/hooks/auth/useAuth";
+import CustomToast from "./CustomToast";
+import toast from "react-hot-toast";
 
 const FormLogin: React.FC<FormProps> = ({
     loginAccount = false, 
@@ -12,6 +14,7 @@ const FormLogin: React.FC<FormProps> = ({
     textTitle,
 }) => {
     const { login, isLoggingIn, loginError } = useAuth();
+    const [ loading, setLoading ] = useState(false);
     const handleSubmitLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const form = e.currentTarget;
@@ -19,13 +22,21 @@ const FormLogin: React.FC<FormProps> = ({
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
 
-        if (!email || !password) {
-            return;
-        }
+        if (!email || !password) return;
+        
+        setLoading(true);
+        const loadingToastId = toast.loading("Logging in...");
+
         try {
             await login(email,  password);
+            toast.dismiss(loadingToastId);
+            toast.custom(<CustomToast type="success" message={`Login successful!, welcome ${email}`} />);
         } catch (error) {
+            toast.dismiss(loadingToastId);
+            toast.custom(<CustomToast type="error" message="Login failed, please check your credentials!" />);
             console.error("Login failed:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -83,7 +94,11 @@ const FormLogin: React.FC<FormProps> = ({
                                     required
                                 />
                             </div>
-                            {loginError && <p className="text-red-600 text-sm">{(loginError as Error).message ?? "Login gagal, cek kredensial."}</p>}
+                            {loginError && (
+                                <p className="text-red-600 text-sm">
+                                    {(loginError as Error).message ?? "Login gagal, cek kredensial."}
+                                </p>
+                            )}
                             <div className="flex items-center justify-between text-sm">
                                 <label className="flex items-center gap-2 text-(--color-text-secondary)">
                                 <input
