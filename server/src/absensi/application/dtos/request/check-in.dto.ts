@@ -8,9 +8,6 @@ export class CheckInDTO {
   @IsEnum(WorkStatus)
   workStatus: WorkStatus;
 
-  @IsDateString()
-  checkIn: string;
-
   @IsString()
   @IsOptional()
   notes?: string;
