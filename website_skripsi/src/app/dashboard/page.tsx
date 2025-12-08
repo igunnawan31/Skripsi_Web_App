@@ -6,6 +6,7 @@ import DashboardPage from "./dashboardComponents/DashboardPage";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 import CustomToast from "../rootComponents/CustomToast";
+import { MajorRole, MinorRole } from "../lib/types/types";
 
 const Dashboard = () => {
     const searchParams = useSearchParams();
@@ -36,11 +37,11 @@ const Dashboard = () => {
     }
 
     switch (user.majorRole) {
-        case "OWNER":
+        case MajorRole.OWNER:
             return <DashboardPage />;
 
-        case "KARYAWAN":
-            if (user.minorRole === "HR") {
+        case MajorRole.KARYAWAN:
+            if (user.minorRole === MinorRole.HR) {
                 return <DashboardPage />;
             } else {
                 redirect("/");

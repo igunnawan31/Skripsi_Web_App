@@ -7,9 +7,9 @@ import toast from "react-hot-toast";
 
 const API = "http://localhost:4000";
 
-function redirectBasedOnRole(majorRole?: string, minorRole?: string) {
-    if (majorRole === "OWNER") return "/dashboard";
-    if (majorRole === "KARYAWAN" && minorRole === "HR") return "/dashboard";
+function redirectBasedOnRole(majorRole?: MajorRole, minorRole?: MinorRole) {
+    if (majorRole === MajorRole.OWNER) return "/dashboard";
+    if (majorRole === MajorRole.KARYAWAN && minorRole === MinorRole.HR) return "/dashboard";
 }
 
 function decodeJwtExpMs(token: string): number | null {
@@ -48,10 +48,10 @@ export const useAuth = () => {
         },
 
         onSuccess: (data) => {
-            const majorRole = data.user.majorRole as string;
-            const minorRole = data.user.minorRole as string;
+            const majorRole = data.user.majorRole;
+            const minorRole = data.user.minorRole;
 
-            const allowed = (majorRole === "OWNER") || (majorRole === "KARYAWAN" && minorRole === "HR");
+            const allowed = (majorRole === MajorRole.OWNER) || (majorRole === MajorRole.KARYAWAN && minorRole === MinorRole.HR);
             if (!allowed) {
                 throw new Error("Your account does not have access to this application.");
                 return;
@@ -74,14 +74,14 @@ export const useAuth = () => {
                 expires: 7,
             });
 
-            Cookies.set("majorRole", String(data.user.majorRole), {
+            Cookies.set("majorRole", data.user.majorRole, {
                 secure: true,
                 sameSite: "strict",
                 path: "/",
                 expires: expiresDate,
             });
 
-            Cookies.set("minorRole", String(data.user.minorRole), {
+            Cookies.set("minorRole", data.user.minorRole, {
                 secure: true,
                 sameSite: "strict",
                 path: "/",
