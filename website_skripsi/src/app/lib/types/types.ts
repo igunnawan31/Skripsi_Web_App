@@ -1,16 +1,16 @@
 // Response Type
 export enum MajorRole {
-    OWNER = "Owner",
-    KARYAWAN = "Karyawan",
+    OWNER = "OWNER",
+    KARYAWAN = "KARYAWAN",
 }
 
 export enum MinorRole {
-    HR = "Human Resource",
-    ADMIN = "Admin",
-    PROJECT_MANAGER = "Project Manager",
-    UI_UX = "UI/UX Engineer",
-    FRONTEND = "Frontend Developer",
-    BACKEND = "Backend Developer",
+    HR = "HR",
+    ADMIN = "ADMIN",
+    PROJECT_MANAGER = "PROJECT_MANAGER",
+    UI_UX = "UI_UX",
+    FRONTEND = "FRONTEND",
+    BACKEND = "BACKEND",
 }
 
 export enum WorkStatus {
