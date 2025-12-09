@@ -4,12 +4,11 @@ import { useState } from "react";
 import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
 import CutiShows from "./CutiShows";
 
-const CutiPage = () => {
-    const [searchQuery, setSearchQuery] = useState("");
-    const handleSearch = (query: string) => {
-        setSearchQuery(query);
-    };
 
+const CutiPage = () => {
+    const handleSearch = () => {
+        
+    }
     const renderHtml = (
         <div className="flex flex-col gap-4 w-full">
             {/* <div className="grid grid-cols-2">
@@ -21,7 +20,7 @@ const CutiPage = () => {
                         placeholder="Cari karyawan..."
                         onSearch={handleSearch}
                     />
-                    <CutiShows showButton={true} buttonText="Detail Cuti" />
+                    <CutiShows showButton={true} buttonText="Butuh Peninjauan Cuti" />
                 </div>
             </div>
         </div>
