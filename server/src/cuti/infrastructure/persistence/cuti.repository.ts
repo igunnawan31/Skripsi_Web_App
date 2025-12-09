@@ -97,6 +97,7 @@ export class CutiRepository implements ICutiRepository {
     filters: CutiFilterDTO,
   ): Promise<RetrieveAllCutiResponseDTO> {
     const {
+      searchTerm,
       maxEndDate,
       minStartDate,
       status,
@@ -138,6 +139,23 @@ export class CutiRepository implements ICutiRepository {
           lte: maxEndDate ? new Date(maxEndDate) : undefined,
         },
       };
+      if (
+        searchTerm !== undefined &&
+        searchTerm !== null &&
+        searchTerm.trim() !== ''
+      ) {
+        const searchValue = searchTerm.trim();
+        where.OR = [
+          {
+            user: {
+              name: {
+                contains: searchValue,
+                mode: 'insensitive',
+              },
+            },
+          },
+        ];
+      }
       const orderBy: Prisma.CutiOrderByWithRelationInput = {};
       if (sortBy && ['createdAt', 'startDate', 'endDate'].includes(sortBy)) {
         orderBy[sortBy] = sortOrder === 'desc' ? 'desc' : 'asc';
