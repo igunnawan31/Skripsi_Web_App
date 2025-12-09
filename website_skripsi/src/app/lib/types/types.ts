@@ -20,9 +20,10 @@ export enum WorkStatus {
 }
 
 export enum CutiStatus {
-    MENUNGGU = "Menunggu Konfirmasi",
-    DITERIMA = "Cuti Diterima",
-    DITOLAK = "Cuti Ditolak"
+    MENUNGGU = "MENUNGGU",
+    DITERIMA = "DITERIMA",
+    DITOLAK = "DITOLAK",
+    BATAL = "BATAL",
 }
 
 export enum GajiStatus {

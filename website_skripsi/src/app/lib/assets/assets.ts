@@ -34,6 +34,10 @@ export const icons = {
     openEye: "/assets/icons/eye-open.svg",
     closeEye: "/assets/icons/eye-off.svg",
     userProfile: "/assets/icons/user.svg",
+    filterBlack: "/assets/icons/filter-black.svg",
+    filterWhite: "/assets/icons/filter-white.svg",
+    dateIn: "/assets/icons/date-in.svg",
+    dateOut: "/assets/icons/date-out.svg",
 
     // HR Management Icons
     absensiLogo: "/assets/icons/absen.svg",
