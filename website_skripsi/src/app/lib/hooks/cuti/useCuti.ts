@@ -1,6 +1,7 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { filter } from "framer-motion/client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import CustomToast from "@/app/rootComponents/CustomToast";
 import Cookies from "js-cookie";
+import toast from "react-hot-toast";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -13,6 +14,7 @@ export const useCuti = () => {
         status?: string;
         minStartDate?: string;
         maxEndDate?: string;
+        searchTerm?: string;
     }) => {
         return useQuery({
             queryKey: ["cuti", filters],
@@ -28,6 +30,7 @@ export const useCuti = () => {
                 if (filters?.status) queryParams.append("status", filters.status);
                 if (filters?.minStartDate) queryParams.append("minStartDate", filters.minStartDate);
                 if (filters?.maxEndDate) queryParams.append("maxEndDate", filters.maxEndDate);
+                if (filters?.searchTerm) queryParams.append("searchTerm", filters.searchTerm);
 
                 const response = await fetch(`${API}/cuti?${queryParams.toString()}`, {
                     method: "GET",
@@ -78,12 +81,14 @@ export const useCuti = () => {
     }    
 
     const approveCuti = () => {
+        const queryClient = useQueryClient();
+
         return useMutation<
-            void,
+            any,
             Error,
-            { id: string; reason: string }
+            { id: string; catatan?: string }
         >({
-            mutationFn: async ({ id, reason }) => {
+            mutationFn: async ({ id, catatan }) => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
@@ -94,20 +99,63 @@ export const useCuti = () => {
                         "Authorization": `Bearer ${token}`,
                     },
                     credentials: "include",
-                    body: JSON.stringify({ reason }),
+                    body: JSON.stringify({ catatan }),
                 });
 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
                     throw new Error(errorData.message || "Failed to approve cuti");
                 }
+
+                return response.json();
+            },
+
+            onSuccess: (data, variables) => {
+                queryClient.invalidateQueries({ queryKey: ["cuti", variables.id]});
             },
         });
+    }
+
+    const rejectCuti = () => {
+        const queryClient = useQueryClient();
+
+        return useMutation<
+            any,
+            Error,
+            { id: string; catatan?: string }
+        >({
+            mutationFn: async ({ id, catatan}) => {
+                const token = Cookies.get("accessToken");
+                if (!token) throw new Error("No access token found");
+
+                const response = await fetch(`${API}/cuti/reject/${id}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({ catatan }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || "Failed to reject cuti");
+                }
+
+                return response.json();
+            },
+
+            onSuccess: (data, variables) => {
+                queryClient.invalidateQueries({ queryKey: ["cuti", variables.id]});
+            }
+        })
     }
 
     return {
         fetchAllCuti,
         fetchCutiById,
         approveCuti,
+        rejectCuti,
     };
 }

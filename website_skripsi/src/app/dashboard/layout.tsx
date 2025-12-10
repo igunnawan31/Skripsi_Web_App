@@ -42,7 +42,7 @@ export default async function DashboardLayout({
                     <SidebarMenu user={user} />
                 </div>
                 <div className="w-full h-screen overflow-y-auto px-10">
-                    <Navbar user={user} />
+                    <Navbar user={user} withDropdown={true} />
                     <div className=" text-(--color-text-primary) w-full">
                         {children}
                     </div>

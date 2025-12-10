@@ -25,6 +25,12 @@ export const icons = {
     arrowRightPagination: "/assets/icons/arrow-red-right.svg",
     arrowLeftPagination: "/assets/icons/arrow-red-left.svg",
     arrowDownMenu: "/assets/icons/arrow-down.svg",
+    arrowRightActive: "/assets/icons/arrow-right.svg",
+    arrowLeftActive: "/assets/icons/arrow-left.svg",
+    arrowLeftOff: "/assets/icons/arrow-left-off.svg",
+    arrowRightOff: "/assets/icons/arrow-right-off.svg",
+    download: "/assets/icons/download.svg",
+
     homeLogo: "/assets/icons/home.svg",
     viewLogo: "/assets/icons/view.svg",
     editLogo: "/assets/icons/edit.svg",
@@ -58,6 +64,9 @@ export const icons = {
     rekapKPIKaryawanLogo : "/assets/icons/indikator-kpi.svg",
     rekapReimbursePengeluaranLogo : "/assets/icons/reimburse-pengeluaran.svg",
 
+    successPop: "/assets/icons/success-dark.svg",
+    errorPop: "/assets/icons/error-dark.svg",
+    infoPop: "/assets/icons/info-dark.svg",
     successIcon: "/assets/icons/success.svg",
     errorIcon: "/assets/icons/error.svg",
     infoIcon: "/assets/icons/info.svg",

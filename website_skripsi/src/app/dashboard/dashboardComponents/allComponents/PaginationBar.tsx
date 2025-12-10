@@ -47,55 +47,77 @@ const PaginationBar: React.FC<PaginationBarProps> = ({
                 {Math.min(itemsPerPage * currentPage, totalItems)} of {totalItems} items
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex justify-between sm:justify-center sm:items-center w-full sm:w-fit space-x-2">
                 <button
                     disabled={currentPage === 1}
                     onClick={() => onPageChange(currentPage - 1)}
-                    className={`px-2 py-1 border rounded-md flex items-center gap-2 ${
+                    className={`px-2 py-1 border border-(--color-border) rounded-md flex items-center gap-2 ${
                         currentPage === 1 ? "text-gray-300" : "bg-(--color-primary) text-white border-(--color-primary) hover:bg-(--color-primary) cursor-pointer"
                     }`}
                 >
-                    <Image 
-                        src={icons.arrowLeftPagination} 
-                        width={20} 
-                        height={20} 
-                        alt={"Arrow Left Pagination"}
-                        className={"transition-transform duration-300"} 
-                    />
+                    {currentPage === 1 ? (
+                        <Image 
+                            src={icons.arrowLeftOff} 
+                            width={20} 
+                            height={20} 
+                            alt={"Arrow Left Pagination"}
+                            className={"transition-transform duration-300"} 
+                        />
+                    ) : (
+                        <Image 
+                            src={icons.arrowLeftActive} 
+                            width={20} 
+                            height={20} 
+                            alt={"Arrow Left Pagination"}
+                            className={"transition-transform duration-300"} 
+                        />
+                    )}
                     <div className="hidden md:block"> Previous</div>
                 </button>
-                <input
-                    type="text"
-                    className="border text-center w-10"
-                    value={inputPage}
-                    onChange={(e) => setInputPage(Number(e.target.value))}
-                    onBlur={() => {
-                        if (inputPage > 0 && inputPage <= totalPages) {
-                            onPageChange(inputPage);
-                        } else {
-                            setInputPage(currentPage);
-                        }
-                    }}
-                />
-                <span className="text-gray-500 text-sm">of {totalPages}</span>
+                <div className="flex gap-2 items-center justify-center">
+                    <input
+                        type="text"
+                        className="border border-(--color-border) rounded-lg text-center w-8 h-8 active:ring-(--color-textPrimary)"
+                        value={inputPage}
+                        onChange={(e) => setInputPage(Number(e.target.value))}
+                        onBlur={() => {
+                            if (inputPage > 0 && inputPage <= totalPages) {
+                                onPageChange(inputPage);
+                            } else {
+                                setInputPage(currentPage);
+                            }
+                        }}
+                    />
+                    <span className="text-gray-500 text-sm">of {totalPages}</span>
+                </div>
                 <button
                     disabled={currentPage === totalPages}
                     onClick={() => onPageChange(currentPage + 1)}
-                    className={`px-2 py-1 border rounded-md flex items-center gap-1 ${
+                    className={`px-2 py-1 border border-(--color-border) rounded-md flex items-center gap-1 ${
                         currentPage === totalPages ? "text-gray-300" : "bg-(--color-primary) text-white border-(--color-primary) hover:bg-(--color-primary) cursor-pointer"
                     }`}
                 >
                     <div className="hidden md:block">
                         Next
                     </div>
-                    <Image 
-                        src={icons.arrowRightPagination} 
-                        width={20} 
-                        height={20} 
-                        alt={"Arrow Left Pagination"}
-                        className={"transition-transform duration-300"} 
-                    />
-                    {/* <IoArrowForwardCircle /> */}
+                    {currentPage === totalPages ? (
+                        <Image 
+                            src={icons.arrowRightOff} 
+                            width={20} 
+                            height={20} 
+                            alt={"Arrow Left Pagination"}
+                            className={"transition-transform duration-300"} 
+                        />
+                        
+                    ) : (
+                        <Image 
+                            src={icons.arrowRightActive} 
+                            width={20} 
+                            height={20} 
+                            alt={"Arrow Left Pagination"}
+                            className={"transition-transform duration-300"} 
+                        />
+                    )}
                 </button>
             </div>
         </div>

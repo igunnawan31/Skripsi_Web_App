@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface SearchBarProps {
     placeholder?: string;
     onSearch: (query: string) => void;
 }
 
-const SearchProducts: React.FC<SearchBarProps> = ({
+const SearchBar: React.FC<SearchBarProps> = ({
     placeholder = "Search...",
     onSearch,
 }) => {
@@ -16,7 +16,6 @@ const SearchProducts: React.FC<SearchBarProps> = ({
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setQuery(value);
-        onSearch(value);
     };
 
     const handleSearch = () => {
@@ -31,6 +30,11 @@ const SearchProducts: React.FC<SearchBarProps> = ({
                 placeholder={placeholder}
                 value={query}
                 onChange={handleChange}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                        handleSearch();
+                    }
+                }}
             />
             <button
                 onClick={handleSearch}
@@ -42,4 +46,4 @@ const SearchProducts: React.FC<SearchBarProps> = ({
     );
 };
 
-export default SearchProducts;
+export default SearchBar;

@@ -68,11 +68,11 @@ export default function FilterModal({
     };
 
     return (
-        <div className="absolute left-24 z-50">
+        <div className="absolute sm:left-24 sm:top-18 top-28 z-50">
             {/* <div className="fixed inset-0 bg-opacity-25"></div> */}
             <div
                 ref={ref}
-                className="relative z-50 w-full min-w-sm bg-(--color-surface) border border-(--color-border) rounded-lg shadow-lg p-4 transform transition-all"
+                className="relative z-50 w-full min-w-68 sm:min-w-sm bg-(--color-surface) border border-(--color-border) rounded-lg shadow-lg p-4 transform transition-all"
                 role="dialog"
                 aria-modal="true"
             >

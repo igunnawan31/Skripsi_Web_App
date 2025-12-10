@@ -6,11 +6,11 @@ import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/Pag
 import { CutiStatus } from "@/app/lib/types/types";
 import { useSearchParams, useRouter } from "next/navigation";
 import { CutiRequestProps } from "@/app/props/HRProps/cutiProps";
-import FilterBar from "@/app/dashboard/dashboardComponents/allComponents/FilterBar";
 import { useCuti } from "@/app/lib/hooks/cuti/useCuti";
 import FilterModal from "@/app/dashboard/dashboardComponents/allComponents/FilterModal";
 import { format, min, parseISO } from "date-fns";
 import { icons } from "@/app/lib/assets/assets";
+import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
 import Image from "next/image";
 
 const CutiShows: React.FC<CutiRequestProps> = ({
@@ -27,9 +27,13 @@ const CutiShows: React.FC<CutiRequestProps> = ({
     const [selectedStatus, setSelectedStatus] = useState<string>(searchParams.get("status") || "All");
     const [selectedMinDate, setSelectedMinDate] = useState<string>(searchParams.get("minStartDate") || "");
     const [selectedMaxDate, setSelectedMaxDate] = useState<string>(searchParams.get("maxEndDate") || "");
-    const [searchQuery, setSearchQuery] = useState<string>(searchParams.get("search") || "");
+    const [searchQuery, setSearchQuery] = useState<string>(searchParams.get("searchTerm") || "");
 
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const handleSearch = (query: string) => {
+        setSearchQuery(query);
+        setCurrentPage(1);
+    };
 
     const { data, isLoading, error } = useCuti().fetchAllCuti({
         page: currentPage,
@@ -37,7 +41,7 @@ const CutiShows: React.FC<CutiRequestProps> = ({
         status: selectedStatus !== "All" ? selectedStatus : undefined,
         minStartDate: selectedMinDate || undefined,
         maxEndDate: selectedMaxDate || undefined,
-        search: searchQuery || undefined,
+        searchTerm: searchQuery || undefined,
     });
 
     const cuti = data?.data || [];
@@ -68,7 +72,7 @@ const CutiShows: React.FC<CutiRequestProps> = ({
         if (selectedStatus && selectedStatus !== "All") params.set("status", selectedStatus);
         if (selectedMinDate) params.set("minStartDate", selectedMinDate);
         if (selectedMaxDate) params.set("maxEndDate", selectedMaxDate);
-        if (searchQuery) params.set("search", searchQuery);
+        if (searchQuery) params.set("searchTerm", searchQuery);
         router.replace(`?${params.toString()}`);
     }, [selectedStatus, selectedMinDate, selectedMaxDate, searchQuery, router]);
 
@@ -97,11 +101,15 @@ const CutiShows: React.FC<CutiRequestProps> = ({
 
     return (
         <div className="flex flex-col gap-4 w-full relative">
+            <SearchBar
+                placeholder="Cari karyawan..."
+                onSearch={handleSearch}
+            />
             <div className="flex flex-wrap md:items-center gap-3">
                 <div className="flex flex-wrap items-center gap-4">
                     <div
                         onClick={() => setIsFilterOpen((v) => !v)}
-                        className="group px-4 py-2 bg-(--color-background) border border-(--color-border) rounded-lg text-sm font-medium text-(--color-textPrimary) hover:bg-(--color-primary) hover:text-(--color-surface) transition cursor-pointer flex items-center gap-2"
+                        className="group px-4 py-2 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm font-medium text-(--color-textPrimary) hover:bg-(--color-primary) hover:text-(--color-surface) transition cursor-pointer flex items-center gap-2"
                     >
                         <Image
                             src={icons.filterBlack}
@@ -124,7 +132,7 @@ const CutiShows: React.FC<CutiRequestProps> = ({
                     <>
                         {selectedStatus !== "All" && (
                             <span
-                                className="flex items-center gap-2 bg-(--color-background) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
+                                className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
                             >
                                 Status: {selectedStatus}
                                 <button
@@ -138,7 +146,7 @@ const CutiShows: React.FC<CutiRequestProps> = ({
 
                         {selectedMinDate && (
                             <span
-                                className="flex items-center gap-2 bg-(--color-background) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
+                                className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
                             >
                                 From: {selectedMinDate}
                                 <button
@@ -152,7 +160,7 @@ const CutiShows: React.FC<CutiRequestProps> = ({
 
                         {selectedMaxDate && (
                             <span
-                                className="flex items-center gap-2 bg-(--color-background) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
+                                className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
                             >
                                 To: {selectedMaxDate}
                                 <button
@@ -168,13 +176,13 @@ const CutiShows: React.FC<CutiRequestProps> = ({
             </div>
 
             {isLoading ? (
-                <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {Array.from({ length: itemsPerPage }).map((_, i) => (
-                    <div key={i} className="animate-pulse w-full bg-slate-200 h-48 rounded-xl" />
-                ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {Array.from({ length: itemsPerPage }).map((_, i) => (
+                        <div key={i} className="animate-pulse w-full bg-slate-200 h-48 rounded-xl" />
+                    ))}
                 </div>
             ) : cuti.length > 0 ? (
-                <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                     {cuti.map((ct: any) => {
                         const days = computeTotalDays(ct.startDate, ct.endDate);
                         return (
@@ -196,7 +204,7 @@ const CutiShows: React.FC<CutiRequestProps> = ({
 
                                     <div className="flex flex-col gap-3 mt-2">
                                         <h2 className="font-semibold text-lg text-(--color-text-primary)">{ct.user?.name}</h2>
-                                        <div className="flex justify-between">
+                                        <div className="flex flex-col sm:flex-row sm:justify-between items-start">
                                             <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
                                                 <Image
                                                     src={icons.dateIn}
@@ -216,7 +224,7 @@ const CutiShows: React.FC<CutiRequestProps> = ({
                                                 {ct.endDate ? format(new Date(ct.endDate), "dd MMM yyyy") : "-"}
                                             </div>
                                         </div>
-                                        <div className="flex justify-between">
+                                        <div className="flex justify-between items-center">
                                             <p className="text-sm text-(--color-text-secondary)">Total Cuti: {days} Hari</p>
                                             <span
                                                 className={`px-3 py-1 text-xs font-semibold rounded-lg uppercase text-center w-fit 
