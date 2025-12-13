@@ -11,6 +11,10 @@ import { CutiRepository } from './infrastructure/persistence/cuti.repository';
 import { UsersModule } from 'src/users/users.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { KontrakModule } from 'src/kontrak/kontrak.module';
+import { CutiExpirationScheduler } from './infrastructure/scheduler/cuti-expiration.scheduler';
+import { CutiExpirationService } from './domain/services/cuti-expiration.service';
+import { DateUtilService } from 'src/common/utils/dateUtil';
+import { LoggerService } from 'src/logger/logger.service';
 
 @Module({
   imports: [
@@ -20,6 +24,10 @@ import { KontrakModule } from 'src/kontrak/kontrak.module';
   ],
   controllers: [CutiController],
   providers: [
+    CutiExpirationScheduler,
+    CutiExpirationService,
+    DateUtilService,
+    LoggerService,
     SubmitCutiUseCase,
     ApproveCutiUseCase,
     RejectCutiUseCase,

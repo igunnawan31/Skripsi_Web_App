@@ -11,6 +11,7 @@ import { CreateCutiResponseDTO } from '../dtos/response/create-response.dto';
 import { CreateCutiDTO } from '../dtos/request/create-cuti.dto';
 import { CutiQuotaService } from 'src/cuti/domain/services/cuti-quota.service';
 import { CutiSubmittedEvent } from '../events/cuti.events';
+import { FileMetaData } from 'src/common/types/FileMetaData.dto';
 
 @Injectable()
 export class SubmitCutiUseCase {
@@ -26,6 +27,7 @@ export class SubmitCutiUseCase {
   async execute(
     userId: string,
     dto: CreateCutiDTO,
+    dokumenCuti: FileMetaData,
   ): Promise<CreateCutiResponseDTO> {
     const user = await this.userRepo.findById(userId);
     if (!user) {
@@ -119,6 +121,7 @@ export class SubmitCutiUseCase {
       startDate: dto.startDate,
       endDate: dto.endDate,
       reason: dto.reason,
+      dokumenCuti: dokumenCuti ?? undefined, 
     });
 
     this.eventEmitter.emit(

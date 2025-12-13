@@ -39,3 +39,20 @@ export class CutiCancelledEvent {
     public readonly reason?: string,
   ) { }
 }
+
+export class CutiExpiredEvent {
+  constructor(
+    public readonly cutiId: string,
+    public readonly userId: string,
+    public readonly startDate: Date,
+    public readonly endDate: Date,
+    public readonly reason: string,
+  ) { }
+}
+
+export class CutiExpirationCompletedEvent {
+  constructor(
+    public readonly expiredCount: number,
+    public readonly processedAt: Date,
+  ) { }
+}

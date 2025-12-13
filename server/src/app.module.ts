@@ -16,6 +16,7 @@ import { KontrakModule } from './kontrak/kontrak.module';
 import { GajiModule } from './gaji/gaji.module';
 import { ProjectModule } from './project/project.module';
 import { KpiModule } from './kpi/kpi.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { KpiModule } from './kpi/kpi.module';
         };
       },
     }),
+    ScheduleModule.forRoot(),
     LoggerModule,
     PrismaModule,
     UsersModule,

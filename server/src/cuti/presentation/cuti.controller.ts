@@ -9,6 +9,8 @@ import {
   Req,
   Query,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { SubmitCutiUseCase } from '../application/use-cases/submit-cuti.use-case';
 import { ICutiRepository } from '../domain/repositories/cuti.repository.interface';
@@ -24,6 +26,11 @@ import { MajorRole, MinorRole } from '@prisma/client';
 import { RolesMinor } from 'src/common/decorators/minor-role.decorator';
 import { ApprovalCutiDTO } from '../application/dtos/request/approval.dto';
 import { RolesMajor } from 'src/common/decorators/major-roles.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import * as fs from 'fs';
+import { UpdateCutiDTO } from '../application/dtos/request/update-cuti.dto';
 
 @Controller('cuti')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -34,15 +41,37 @@ export class CutiController {
     private readonly ApproveCutiUseCase: ApproveCutiUseCase,
     private readonly CancelCutiUseCase: CancelCutiUseCase,
     private readonly RejectCutiUseCase: RejectCutiUseCase,
-  ) {}
+  ) { }
 
   // POST cuti/
   @Post()
+  @UseInterceptors(
+    FileInterceptor('dokumenCuti', {
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          const folder = './uploads/dokumenCuti';
+          if (!fs.existsSync(folder)) {
+            fs.mkdirSync(folder, { recursive: true });
+          }
+          cb(null, folder);
+        },
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(
+            null,
+            `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`,
+          );
+        },
+      }),
+    }),
+  )
   create(
     @Body() data: CreateCutiDTO,
     @Req() req: Request & { user: UserRequest },
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.submitCutiUseCase.execute(req.user.id, data);
+    return this.submitCutiUseCase.execute(req.user.id, data, file);
   }
 
   // GET cuti/
@@ -80,10 +109,35 @@ export class CutiController {
     return this.cutiRepo.findById(id);
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateCutiDto: UpdateCutiDTO) {
-  //   return this.cutiRepo.update(id, updateCutiDto);
-  // }
+  @Patch(':id')
+  @UseInterceptors(
+    FileInterceptor('dokumenCuti', {
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          const folder = './uploads/dokumenCuti';
+          if (!fs.existsSync(folder)) {
+            fs.mkdirSync(folder, { recursive: true });
+          }
+          cb(null, folder);
+        },
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(
+            null,
+            `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`,
+          );
+        },
+      }),
+    }),
+  )
+  update(
+    @Param('id') id: string,
+    @Body() updateCutiDto: UpdateCutiDTO,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.cutiRepo.update(id, updateCutiDto, file);
+  }
 
   // PATCH cuti/approve/:id
   @Patch('approve/:id')

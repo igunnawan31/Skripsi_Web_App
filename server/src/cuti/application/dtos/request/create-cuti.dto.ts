@@ -1,5 +1,5 @@
-import { StatusCuti } from "@prisma/client";
 import { IsDateString, IsEnum, IsOptional, IsString } from "class-validator";
+import { FileMetaData } from "src/common/types/FileMetaData.dto";
 
 export class CreateCutiDTO {
   @IsString()
@@ -13,4 +13,9 @@ export class CreateCutiDTO {
 
   @IsString()
   reason: string;
+}
+
+export class InternalCreateCutiDTO extends CreateCutiDTO {
+  @IsOptional()
+  dokumenCuti?: FileMetaData;
 }

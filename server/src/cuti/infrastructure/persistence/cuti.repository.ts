@@ -4,7 +4,10 @@ import { plainToInstance } from 'class-transformer';
 import { handlePrismaError } from 'src/common/errors/prisma-exception';
 import { UserRequest } from 'src/common/types/UserRequest.dto';
 import { ApprovalCutiInput } from 'src/cuti/application/dtos/request/approval.dto';
-import { CreateCutiDTO } from 'src/cuti/application/dtos/request/create-cuti.dto';
+import {
+  CreateCutiDTO,
+  InternalCreateCutiDTO,
+} from 'src/cuti/application/dtos/request/create-cuti.dto';
 import { CutiFilterDTO } from 'src/cuti/application/dtos/request/filter-cuti.dto';
 import { UpdateCutiDTO } from 'src/cuti/application/dtos/request/update-cuti.dto';
 import { CreateCutiResponseDTO } from 'src/cuti/application/dtos/response/create-response.dto';
@@ -17,10 +20,38 @@ import { UpdateCutiResponseDTO } from 'src/cuti/application/dtos/response/update
 import { ICutiRepository } from 'src/cuti/domain/repositories/cuti.repository.interface';
 import { PrismaService } from 'src/database/prisma/prisma.service';
 import { UserBaseDTO } from 'src/users/application/dtos/base.dto';
+import * as fs from 'fs/promises';
+import * as path from 'path';
+import { deleteFile } from 'src/common/utils/fileHelper';
+import { FileMetaData } from 'src/common/types/FileMetaData.dto';
 
 @Injectable()
 export class CutiRepository implements ICutiRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
+  async findExpired(todayUTC: Date): Promise<any[]> {
+    return await this.prisma.cuti.findMany({
+      where: {
+        status: StatusCuti.MENUNGGU,
+        startDate: {
+          lt: todayUTC,
+        },
+      },
+      select: {
+        id: true,
+        userId: true,
+        startDate: true,
+        endDate: true,
+        reason: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+  }
   async findById(id: string): Promise<RetrieveCutiResponseDTO> {
     try {
       const cuti = await this.prisma.cuti.findUnique({
@@ -122,14 +153,14 @@ export class CutiRepository implements ICutiRepository {
             user.majorRole === 'OWNER'
               ? undefined
               : {
-                  in: [
-                    MinorRole.BACKEND,
-                    MinorRole.ADMIN,
-                    MinorRole.UI_UX,
-                    MinorRole.FRONTEND,
-                    MinorRole.PROJECT_MANAGER,
-                  ],
-                },
+                in: [
+                  MinorRole.BACKEND,
+                  MinorRole.ADMIN,
+                  MinorRole.UI_UX,
+                  MinorRole.FRONTEND,
+                  MinorRole.PROJECT_MANAGER,
+                ],
+              },
         },
         status: status ?? undefined,
         startDate: {
@@ -282,14 +313,14 @@ export class CutiRepository implements ICutiRepository {
             user.majorRole === 'OWNER'
               ? undefined
               : {
-                  in: [
-                    MinorRole.BACKEND,
-                    MinorRole.ADMIN,
-                    MinorRole.UI_UX,
-                    MinorRole.FRONTEND,
-                    MinorRole.PROJECT_MANAGER,
-                  ],
-                },
+                in: [
+                  MinorRole.BACKEND,
+                  MinorRole.ADMIN,
+                  MinorRole.UI_UX,
+                  MinorRole.FRONTEND,
+                  MinorRole.PROJECT_MANAGER,
+                ],
+              },
         },
       };
       const orderBy: Prisma.CutiOrderByWithRelationInput = {};
@@ -471,10 +502,10 @@ export class CutiRepository implements ICutiRepository {
     }
   }
   async create(
-    data: CreateCutiDTO,
+    data: InternalCreateCutiDTO,
     /* approverId: string, */
   ): Promise<CreateCutiResponseDTO> {
-    const { userId, startDate, endDate, reason } = data;
+    const { userId, startDate, endDate, reason, dokumenCuti } = data;
     try {
       const query = await this.prisma.cuti.create({
         data: {
@@ -483,6 +514,7 @@ export class CutiRepository implements ICutiRepository {
           startDate: new Date(startDate),
           endDate: new Date(endDate),
           reason,
+          dokumen: dokumenCuti ? (dokumenCuti as any) : undefined,
         },
       });
       return plainToInstance(CreateCutiResponseDTO, query);
@@ -493,14 +525,19 @@ export class CutiRepository implements ICutiRepository {
   async update(
     id: string,
     data: UpdateCutiDTO,
+    file: FileMetaData,
   ): Promise<UpdateCutiResponseDTO> {
     try {
       const target = await this.findById(id);
       if (!target) throw new NotFoundException('Cuti data not found');
+      if (file) {
+        await deleteFile(target.dokumen.path);
+      }
       const query = await this.prisma.cuti.update({
         where: { id },
         data: {
           ...data,
+          dokumen: file ? file as any : undefined,
           status: target.status,
           approverId: target.approverId ?? undefined,
         },
@@ -509,6 +546,20 @@ export class CutiRepository implements ICutiRepository {
     } catch (err) {
       handlePrismaError(err, 'Cuti', id);
     }
+  }
+  async expirePendingCutiBefore(today: Date): Promise<number> {
+    const result = await this.prisma.cuti.updateMany({
+      where: {
+        status: StatusCuti.MENUNGGU,
+        startDate: {
+          lt: today,
+        },
+      },
+      data: {
+        status: StatusCuti.EXPIRED,
+      },
+    });
+    return result.count;
   }
   async cutiApproval(
     id: string,
@@ -534,6 +585,8 @@ export class CutiRepository implements ICutiRepository {
     try {
       const target = await this.findById(id);
       if (!target) throw new NotFoundException('Cuti data not found');
+      console.log('repository', target.dokumen);
+      await deleteFile(target.dokumen.path);
       const query = await this.prisma.cuti.delete({
         where: { id },
       });

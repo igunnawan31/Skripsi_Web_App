@@ -1,5 +1,6 @@
 import { StatusCuti } from "@prisma/client";
 import { Expose } from "class-transformer";
+import { FileMetaData } from "src/common/types/FileMetaData.dto";
 
 export class CutiBaseDTO {
   @Expose()
@@ -31,4 +32,7 @@ export class CutiBaseDTO {
   
   @Expose()
   updatedAt: string;
+
+  @Expose()
+  dokumen: FileMetaData;
 }
