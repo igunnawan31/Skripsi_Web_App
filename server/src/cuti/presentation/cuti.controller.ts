@@ -93,14 +93,15 @@ export class CutiController {
     return this.cutiRepo.findTeamCuti(req.user, filters);
   }
 
-  // GET cuti/pending
-  @Get('pending')
+  // GET cuti/user/:id
+  @Get('user/pending')
   @RolesMinor(MinorRole.HR)
-  findAllPendingForApprover(
+  findByUserId(
     @Req() req: Request & { user: UserRequest },
+    @Param() targetId: string,
     @Query() filters: CutiFilterDTO,
   ) {
-    return this.cutiRepo.findPendingForApprover(req.user, filters);
+    return this.cutiRepo.findByUserId(targetId, filters);
   }
 
   // GET cuti/:id
