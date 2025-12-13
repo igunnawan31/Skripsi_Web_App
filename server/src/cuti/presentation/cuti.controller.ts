@@ -94,11 +94,11 @@ export class CutiController {
   }
 
   // GET cuti/user/:id
-  @Get('user/pending')
+  @Get('user/:id')
   @RolesMinor(MinorRole.HR)
   findByUserId(
     @Req() req: Request & { user: UserRequest },
-    @Param() targetId: string,
+    @Param('id') targetId: string,
     @Query() filters: CutiFilterDTO,
   ) {
     return this.cutiRepo.findByUserId(targetId, filters);
