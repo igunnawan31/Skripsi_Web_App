@@ -118,15 +118,48 @@ async function main() {
       startDate: new Date('2025-02-14'),
       endDate: new Date('2025-02-15'),
       reason: 'Liburan keluarga',
-      status: 'MENUNGGU',
+      status: 'EXPIRED',
+    },
+  });
+
+  await prisma.cuti.create({
+    data: {
+      userId: frontend.id,
+      approverId: hr.id,
+      startDate: new Date('2025-11-14'),
+      endDate: new Date('2025-11-15'),
+      reason: 'Liburan keluarga',
+      status: 'DITERIMA',
+    },
+  });
+
+  await prisma.cuti.create({
+    data: {
+      userId: frontend.id,
+      approverId: hr.id,
+      startDate: new Date('2025-12-10'),
+      endDate: new Date('2025-12-11'),
+      reason: 'Liburan keluarga',
+      status: 'DITOLAK',
+    },
+  });
+
+  await prisma.cuti.create({
+    data: {
+      userId: frontend.id,
+      approverId: hr.id,
+      startDate: new Date('2025-12-07'),
+      endDate: new Date('2025-12-08'),
+      reason: 'Liburan keluarga',
+      status: 'BATAL',
     },
   });
 
   await prisma.cuti.create({
     data: {
       userId: pm.id,
-      startDate: new Date('2025-02-14'),
-      endDate: new Date('2025-02-15'),
+      startDate: new Date('2025-12-24'),
+      endDate: new Date('2025-12-25'),
       reason: 'Liburan keluarga',
       status: 'MENUNGGU',
     },

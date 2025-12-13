@@ -77,6 +77,7 @@ model Cuti {
   reason     String
   status     StatusCuti @default(MENUNGGU)
   catatan    String? // Catatan dari approver
+  dokumen    Json?
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
 
@@ -381,6 +382,7 @@ enum WorkStatus {
 }
 
 enum StatusCuti {
+  EXPIRED
   MENUNGGU
   DITERIMA
   DITOLAK
