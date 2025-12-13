@@ -92,22 +92,23 @@ export default function CutiShowsDetail({ id }: { id: string }) {
 
     return (
         <div className="flex flex-col gap-6 w-full pb-8">
+            <button
+                onClick={() => router.back()}
+                className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+            >
+                <Image 
+                    src={icons.arrowLeftActive}
+                    alt="Back Arrow"
+                    width={20}
+                    height={20}
+                />
+                <p className="text-(--color-surface)">
+                    Kembali ke halaman sebelumnya
+                </p>
+            </button>
+            
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-row gap-4 items-center">
-                    <button
-                        onClick={() => router.back()}
-                        className="px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
-                    >
-                        <Image 
-                            src={icons.arrowLeftActive}
-                            alt="Back Arrow"
-                            width={20}
-                            height={20}
-                        />
-                        <p className="text-(--color-surface)">
-                            Kembali ke halaman sebelumnya
-                        </p>
-                    </button>
                     <h1 className="text-2xl font-bold text-(--color-text-primary)">
                         Detail Cuti
                     </h1>

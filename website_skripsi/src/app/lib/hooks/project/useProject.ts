@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const API = process.env.NEXT_PUBLIC_API_URL;
 
-export const useCuti = () => {
-    const fetchAllCuti = (filters?: {
+export const useProject = () => {
+    const fetchAllProject = (filters?: {
         page?: number;
         limit?: number;
         sortBy?: string;
@@ -15,7 +15,7 @@ export const useCuti = () => {
         searchTerm?: string;
     }) => {
         return useQuery({
-            queryKey: ["cuti", filters],
+            queryKey: ["projects", filters],
             queryFn: async () => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
@@ -29,10 +29,10 @@ export const useCuti = () => {
                 if (filters?.minStartDate) queryParams.append("minStartDate", filters.minStartDate);
                 if (filters?.maxEndDate) queryParams.append("maxEndDate", filters.maxEndDate);
                 if (filters?.searchTerm) queryParams.append("searchTerm", filters.searchTerm);
-
-                const response = await fetch(`${API}/cuti?${queryParams.toString()}`, {
+                
+                const response = await fetch(`${API}/project?${queryParams.toString()}`, {
                     method: "GET",
-                    headers: { 
+                    headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`,
                     },
@@ -41,7 +41,7 @@ export const useCuti = () => {
 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || "Failed to fetch cuti");
+                    throw new Error(errorData.message || "Failed to fetch project");
                 }
 
                 return response.json();
@@ -49,15 +49,15 @@ export const useCuti = () => {
             staleTime: 5 * 60 * 1000,
         });
     }
-
-    const fetchCutiById = (id: string) => {
+    
+    const fetchProjectById = (id: string) => {
         return useQuery ({
-            queryKey: ["cuti", id],
+            queryKey: ["project", id],
             queryFn: async () => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const response = await fetch(`${API}/cuti/${id}`, {
+                const response = await fetch(`${API}/project/${id}`, {
                     method: "GET",
                     headers: { 
                         "Content-Type": "application/json",
@@ -68,7 +68,7 @@ export const useCuti = () => {
 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || "Failed to fetch cuti by ID");
+                    throw new Error(errorData.message || "Failed to fetch project by ID");
                 }
 
                 return response.json();
@@ -76,84 +76,121 @@ export const useCuti = () => {
             enabled: !!id,
             staleTime: 5 * 60 * 1000,
         });
-    }    
+    }
 
-    const approveCuti = () => {
+    const CreateProject = () => {
         const queryClient = useQueryClient();
 
         return useMutation<
             any,
             Error,
-            { id: string; catatan?: string }
+            { name: string; description?: string; startDate: string; endDate: string;}
         >({
-            mutationFn: async ({ id, catatan }) => {
+            mutationFn: async ({ name, description, startDate, endDate }) => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const response = await fetch(`${API}/cuti/approve/${id}`, {
+                const response = await fetch(`${API}/project`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({ name, description, startDate, endDate }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || "Failed to create new project");
+                }
+
+                return response.json();
+            },
+
+            onSuccess: (data) => {
+                queryClient.invalidateQueries({ queryKey: ["projects"]});
+            },
+        });
+    }
+
+    const UpdateProject = () => {
+        const queryClient = useQueryClient();
+
+        return useMutation<
+            any,
+            Error,
+            { id: string; status: string, name: string; description?: string; startDate: string; endDate: string; }
+        >({
+            mutationFn: async ({ id, status, name, description, startDate, endDate }) => {
+                const token = Cookies.get("accessToken");
+                if (!token) throw new Error("No access token found");
+
+                const response = await fetch(`${API}/project/${id}`, {
                     method: "PATCH",
                     headers: { 
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`,
                     },
                     credentials: "include",
-                    body: JSON.stringify({ catatan }),
+                    body: JSON.stringify({ status, name, description, startDate, endDate }),
                 });
 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || "Failed to approve cuti");
+                    throw new Error(errorData.message || "Failed to update project");
                 }
 
                 return response.json();
             },
 
             onSuccess: (data, variables) => {
-                queryClient.invalidateQueries({ queryKey: ["cuti", variables.id]});
+                queryClient.invalidateQueries({ queryKey: ["project", variables.id]});
+                queryClient.invalidateQueries({ queryKey: ["projects"]})
             },
         });
     }
 
-    const rejectCuti = () => {
+    const DeleteProject = () => {
         const queryClient = useQueryClient();
 
         return useMutation<
             any,
             Error,
-            { id: string; catatan?: string }
+            string
         >({
-            mutationFn: async ({ id, catatan}) => {
+            mutationFn: async (id: string) => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const response = await fetch(`${API}/cuti/reject/${id}`, {
-                    method: "PATCH",
+                const response = await fetch(`${API}/project/${id}`, {
+                    method: "DELETE",
                     headers: {
-                        "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`,
                     },
                     credentials: "include",
-                    body: JSON.stringify({ catatan }),
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || "Failed to reject cuti");
+                    const text = await response.text();
+                    throw new Error(text || "Failed to delete project");
                 }
 
-                return response.json();
+                return true;
             },
 
-            onSuccess: (data, variables) => {
-                queryClient.invalidateQueries({ queryKey: ["cuti", variables.id]});
-            }
-        })
-    }
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["projects"] });
+            },
+        });
+    };
+
 
     return {
-        fetchAllCuti,
-        fetchCutiById,
-        approveCuti,
-        rejectCuti,
-    };
+        fetchAllProject,
+        fetchProjectById,
+        CreateProject,
+        UpdateProject,
+        DeleteProject,
+    }
 }

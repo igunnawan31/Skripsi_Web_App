@@ -43,7 +43,6 @@ export const useAuth = () => {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.message || "Login failed");
             }
-            console.log("response", response);
             return response.json();
         },
 

@@ -29,6 +29,8 @@ export const icons = {
     arrowLeftActive: "/assets/icons/arrow-left.svg",
     arrowLeftOff: "/assets/icons/arrow-left-off.svg",
     arrowRightOff: "/assets/icons/arrow-right-off.svg",
+    arrowData: "/assets/icons/arrow-data.svg",
+    arrowDataRight: "/assets/icons/arrow-data-right.svg",
     download: "/assets/icons/download.svg",
 
     homeLogo: "/assets/icons/home.svg",

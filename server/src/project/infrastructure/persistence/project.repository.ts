@@ -162,7 +162,7 @@ export class ProjectRepository implements IProjectRepository {
 
   async remove(id: string): Promise<DeleteProjectResponseDTO> {
     try {
-      const target = this.findById(id);
+      const target = await this.findById(id);
       if (!target) throw new NotFoundException('Project data not found');
 
       const query = await this.prisma.project.delete({
