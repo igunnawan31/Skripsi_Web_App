@@ -151,6 +151,25 @@ export const HRMenuProps = [
             },
         ],
     },
+    {
+        title: "Lain-lainnya",
+        items: [
+            {
+                icon: icons.indikatorKPILogo,
+                alt: "Manajemen Project",
+                label: "Manajemen Project",
+                description: "Atur dan pantau pengajuan cuti karyawan berdasarkan hak cuti, tanggal, serta status persetujuan.",
+                href: "/dashboard/manajemen-project",
+            },
+            {
+                icon: icons.penilaianKPILogo,
+                alt: "My Profile",
+                label: "My Profile",
+                description: "",
+                href: "/dashboard/profile",
+            },
+        ],
+    },
 ];
 
 export const OwnerMenuProps = [

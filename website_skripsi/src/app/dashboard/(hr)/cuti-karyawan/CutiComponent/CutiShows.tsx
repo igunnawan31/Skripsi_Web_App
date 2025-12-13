@@ -128,8 +128,21 @@ const CutiShows: React.FC<CutiRequestProps> = ({
                         Filter
                     </div>
                 </div>
-                {(selectedStatus !== "All" || selectedMinDate || selectedMaxDate) && (
+                {(selectedStatus !== "All" || selectedMinDate || selectedMaxDate || searchQuery) && (
                     <>
+                        {searchQuery && (
+                            <span
+                                className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
+                            >
+                                Search: {searchQuery}
+                                <button
+                                    className="text-red-500 hover:text-red-700 cursor-pointer"
+                                    onClick={() => setSearchQuery("")}
+                                >
+                                    ✕
+                                </button>
+                            </span>
+                        )}
                         {selectedStatus !== "All" && (
                             <span
                                 className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"

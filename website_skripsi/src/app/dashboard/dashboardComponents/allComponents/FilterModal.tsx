@@ -102,7 +102,7 @@ export default function FilterModal({
                                     type="text"
                                     value={values[field.key] || ""}
                                     onChange={(e) => handleChange(field.key, e.target.value)}
-                                    className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-md bg-(--color-background) text-sm focus:outline-none focus:ring-2 focus:ring-(--color-primary) cursor-pointer"
+                                    className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-(--color-primary) cursor-pointer"
                                 />
                             )}
                             {field.type === "date" && (
@@ -110,14 +110,14 @@ export default function FilterModal({
                                     type="date"
                                     value={values[field.key] || ""}
                                     onChange={(e) => handleChange(field.key, e.target.value)}
-                                    className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-md bg-(--color-background) text-sm focus:outline-none focus:ring-2 focus:ring-(--color-primary) cursor-pointer"
+                                    className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-(--color-primary) cursor-pointer"
                                 />
                             )}
                             {field.type === "select" && (
                                 <select
                                     value={values[field.key] || "All"}
                                     onChange={(e) => handleChange(field.key, e.target.value)}
-                                    className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-md bg-(--color-background) text-sm focus:outline-none focus:ring-2 focus:ring-(--color-primary) cursor-pointer"
+                                    className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-(--color-primary) cursor-pointer"
                                 >
                                     <option value="All">All</option>
                                     {field.options?.map((option) => (
