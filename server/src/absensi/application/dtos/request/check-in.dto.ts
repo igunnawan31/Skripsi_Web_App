@@ -10,17 +10,13 @@ export class CheckInDTO {
 
   @IsString()
   @IsOptional()
-  notes?: string;
+  address?: string;
 
   @IsString()
   @IsOptional()
-  address: string;
+  latitude?: string;
 
   @IsString()
   @IsOptional()
-  latitude: string;
-
-  @IsString()
-  @IsOptional()
-  longitude: string;
+  longitude?: string;
 }

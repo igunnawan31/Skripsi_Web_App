@@ -1,4 +1,4 @@
-import { MajorRole, MinorRole } from "@prisma/client";
+import { EmployeeType, MajorRole, MinorRole } from "@prisma/client";
 import { Exclude, Expose } from "class-transformer";
 import { FileMetaData } from "src/common/types/FileMetaData.dto";
 
@@ -23,4 +23,7 @@ export class UserBaseDTO {
 
   @Expose()
   photo?: FileMetaData;
+
+  @Expose()
+  employeeType: EmployeeType;
 }

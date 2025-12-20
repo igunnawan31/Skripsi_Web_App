@@ -1,4 +1,4 @@
-import { MajorRole, MinorRole } from "@prisma/client";
+import { EmployeeType, MajorRole, MinorRole } from "@prisma/client";
 import { IsEmail, IsEnum, IsString, MinLength } from "class-validator";
 
 export class CreateUserDTO {
@@ -18,4 +18,6 @@ export class CreateUserDTO {
   @IsEnum(MinorRole)
   minorRole: MinorRole;
 
+  @IsEnum(EmployeeType)
+  employeeType: EmployeeType;
 }

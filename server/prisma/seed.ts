@@ -22,6 +22,7 @@ async function main() {
       email: 'aldigibran@example.com',
       password,
       majorRole: 'OWNER',
+      employeeType: 'PERMANENT',
     },
   });
 
@@ -32,6 +33,7 @@ async function main() {
       password,
       majorRole: 'KARYAWAN',
       minorRole: 'HR',
+      employeeType: 'PERMANENT',
     },
   });
 
@@ -42,6 +44,7 @@ async function main() {
       password,
       majorRole: 'KARYAWAN',
       minorRole: 'PROJECT_MANAGER',
+      employeeType: 'CONTRACT',
     },
   });
 
@@ -52,6 +55,7 @@ async function main() {
       password,
       majorRole: 'KARYAWAN',
       minorRole: 'FRONTEND',
+      employeeType: 'CONTRACT',
     },
   });
 
