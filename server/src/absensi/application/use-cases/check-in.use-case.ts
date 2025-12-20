@@ -11,6 +11,7 @@ import { IUserRepository } from 'src/users/domain/repositories/users.repository.
 import { CheckInResponseDTO } from '../dtos/response/create-response.dto';
 import { AbsensiCheckedInEvent } from '../events/absensi.events';
 import { CheckInDTO } from '../dtos/request/check-in.dto';
+import { EmployeeType, MinorRole } from '@prisma/client';
 
 @Injectable()
 export class CheckInUseCase {
@@ -47,24 +48,26 @@ export class CheckInUseCase {
 
     const year = today.getFullYear();
     const month = today.getMonth() + 1;
-    const usedAbsensi = await this.absensiRepo.countAbsensiInMonth(
-      userId,
-      year,
-      month,
-    );
 
-    const quotaValidation = await this.validationService.validateMonthlyQuota(
-      userId,
-      today,
-      usedAbsensi,
-    );
-    if (!quotaValidation.valid) {
-      throw new BadRequestException(quotaValidation.message);
+    if (user.employeeType === EmployeeType.CONTRACT) {
+      const usedAbsensi = await this.absensiRepo.countAbsensiInMonth(
+        userId,
+        year,
+        month,
+      );
+
+      const quotaValidation = await this.validationService.validateMonthlyQuota(
+        userId,
+        today,
+        usedAbsensi,
+      );
+      if (!quotaValidation.valid) {
+        throw new BadRequestException(quotaValidation.message);
+      }
     }
 
     const now = new Date();
     const timeValidation = this.validationService.validateCheckInTime(now);
-
     const absensi = await this.absensiRepo.checkIn({
       userId,
       date: today,
@@ -73,7 +76,6 @@ export class CheckInUseCase {
       address: dto.address,
       latitude: dto.latitude,
       longitude: dto.longitude,
-      notes: dto.notes,
     });
 
     // STEP 7: Emit event

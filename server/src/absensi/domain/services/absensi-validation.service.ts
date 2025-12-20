@@ -1,11 +1,12 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { WorkStatus } from '@prisma/client';
 import type { IAbsensiQuotaProvider } from './absensi-quota-provide.interface';
+import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
 
 @Injectable()
 export class AbsensiValidationService {
   constructor(
-    @Inject('IAbsensiQuotaProvider') 
+    @Inject('IAbsensiQuotaProvider')
     private readonly quotaProvider: IAbsensiQuotaProvider,
   ) { }
 
@@ -19,7 +20,8 @@ export class AbsensiValidationService {
     remainingQuota: number;
   }> {
     // Get monthly quota from active contracts
-    const monthlyQuota = await this.quotaProvider.getMonthlyAbsensiQuota(userId);
+    const monthlyQuota =
+      await this.quotaProvider.getMonthlyAbsensiQuota(userId);
 
     if (monthlyQuota === 0) {
       return {
@@ -72,10 +74,13 @@ export class AbsensiValidationService {
     message: string;
     isLate: boolean;
   } {
-    const hour = date.getHours();
-    const minute = date.getMinutes();
+    const localDate = toZonedTime(date, 'Asia/Jakarta');
 
-    // Business rule: Check-in before 09:00 is on-time
+    const hour = localDate.getHours();
+    const minute = localDate.getMinutes();
+
+    console.log(`UTC ${date.toISOString()} → Lokal WIB ${hour}:${minute}`);
+
     if (hour < 9 || (hour === 9 && minute === 0)) {
       return {
         valid: true,

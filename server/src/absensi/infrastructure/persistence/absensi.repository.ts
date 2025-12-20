@@ -103,10 +103,6 @@ export class AbsensiRepository implements IAbsensiRepository {
       sortOrder = 'desc',
     } = filters;
     try {
-      console.log(`year:${year}`);
-      console.log(`month:${month}`);
-      console.log(`gte:${new Date(year, month, 1)}`);
-      console.log(`lt:${new Date(year, month + 1, 1)}`);
       const where: Prisma.AbsensiWhereInput = {
         userId,
         workStatus: status ?? undefined,

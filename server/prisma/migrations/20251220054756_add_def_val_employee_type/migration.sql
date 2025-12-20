@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "employeeType" SET DEFAULT 'CONTRACT';

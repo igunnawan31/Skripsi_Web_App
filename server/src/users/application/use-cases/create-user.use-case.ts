@@ -4,6 +4,7 @@ import { CreateUserDTO } from '../dtos/request/create-user.dto';
 import { CreateUserResponseDTO } from '../dtos/response/create-response.dto';
 import * as bcrypt from 'bcryptjs';
 import { UserValidationService } from 'src/users/domain/services/user-validation.service';
+import { EmployeeType } from '@prisma/client';
 
 @Injectable()
 export class CreateUserUseCase {
@@ -33,6 +34,7 @@ export class CreateUserUseCase {
       password: hashedPassword,
       majorRole: dto.majorRole,
       minorRole: dto.minorRole,
+      employeeType: dto.employeeType ?? EmployeeType.CONTRACT,
     });
 
     // this.eventEmitter.emit(
