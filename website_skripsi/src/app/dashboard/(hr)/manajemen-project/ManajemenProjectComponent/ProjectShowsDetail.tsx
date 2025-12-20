@@ -14,7 +14,6 @@ const API = process.env.NEXT_PUBLIC_API_URL;
 export default function ProjectShowsDetail({ id }: { id: string }) {
     const { data: fetchedData, isLoading, error } = useProject().fetchProjectById(id);
     const [openHistory, setOpenHistory] = useState(false);
-    const [openAnggota, setOpenAnggota] = useState(false);
     const router = useRouter();
     const data = fetchedData;
     const teams = fetchedData?.projectTeams ?? [];

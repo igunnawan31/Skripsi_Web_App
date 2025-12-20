@@ -3,12 +3,9 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/PaginationBar";
-import FilterBar from "@/app/dashboard/dashboardComponents/allComponents/FilterBar";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { icons } from "@/app/lib/assets/assets";
-import { KontrakKerja } from "@/app/lib/types/types";
-import { fetchKontrakKerja } from "@/app/lib/hooks/dummyHooks/fetchKontrakKerja";
 import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
 import { useProject } from "@/app/lib/hooks/project/useProject";
 import FilterModal from "@/app/dashboard/dashboardComponents/allComponents/FilterModal";
@@ -77,7 +74,7 @@ const ProjectShows = () => {
     const handleOpenModal = (id: string) => {
         setSelectedProjectId(id);
         setIsModalOpen(true);
-    }
+    };
 
     const handleDelete = () => {
         if (!selectedProjectId) return;
@@ -104,7 +101,7 @@ const ProjectShows = () => {
                 setSelectedProjectId("");
             }
         })
-    }
+    };
 
     const filterFields = [
         { key: "minStartDate", label: "From", type: "date" as const },
@@ -120,7 +117,7 @@ const ProjectShows = () => {
 
     if (error) {
         return <div className="text-center text-red-500 py-6">Error: {error.message}</div>;
-    }
+    };
 
     const renderHtml = (
         <div className="flex flex-col gap-4 w-full relative">

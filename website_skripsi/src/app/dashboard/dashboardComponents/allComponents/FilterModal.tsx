@@ -15,6 +15,8 @@ type FilterModalProps = {
     initialValues: Record<string, string>;
     onClose: () => void;
     onApply: (filters: Record<string, string | undefined>) => void;
+    enableAllOption?: boolean; 
+    className?: string;
 };
 
 export default function FilterModal({
@@ -23,6 +25,8 @@ export default function FilterModal({
     initialValues,
     onClose,
     onApply,
+    enableAllOption = true,
+    className,
 }: FilterModalProps) {
     const ref = useRef<HTMLDivElement | null>(null);
     const [values, setValues] = useState<Record<string, string>>(initialValues);
@@ -48,17 +52,26 @@ export default function FilterModal({
     const handleReset = () => {
         const resetValues: Record<string, string> = {};
         filterFields.forEach((field) => {
-            resetValues[field.key] = field.type === "select" ? "All" : "";
+            resetValues[field.key] = enableAllOption && field.type === "select"
+                ? "All"
+                : "";
         });
         setValues(resetValues);
     };
 
     const handleApply = () => {
         const appliedFilters: Record<string, string | undefined> = {};
+
         filterFields.forEach((field) => {
             const value = values[field.key];
-            appliedFilters[field.key] = value && value !== "All" ? value : undefined;
+
+            if (enableAllOption && value === "All") {
+                appliedFilters[field.key] = undefined;
+            } else {
+                appliedFilters[field.key] = value || undefined;
+            }
         });
+
         onApply(appliedFilters);
         onClose();
     };
@@ -68,7 +81,7 @@ export default function FilterModal({
     };
 
     return (
-        <div className="absolute sm:left-24 sm:top-18 top-28 z-50">
+        <div className={`absolute sm:left-24 sm:top-18 top-28 z-50 ${className ?? ""}`}>
             {/* <div className="fixed inset-0 bg-opacity-25"></div> */}
             <div
                 ref={ref}
@@ -119,7 +132,7 @@ export default function FilterModal({
                                     onChange={(e) => handleChange(field.key, e.target.value)}
                                     className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-(--color-primary) cursor-pointer"
                                 >
-                                    <option value="All">All</option>
+                                    {enableAllOption && <option value="All">All</option>}
                                     {field.options?.map((option) => (
                                         <option key={option} value={option}>
                                             {option.charAt(0).toUpperCase() + option.slice(1).toLowerCase()}

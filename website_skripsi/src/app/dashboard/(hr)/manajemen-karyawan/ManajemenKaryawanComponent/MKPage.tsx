@@ -5,11 +5,6 @@ import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchB
 import MKShows from "./MKShows";
 
 const MKPage = () => {
-    const [searchQuery, setSearchQuery] = useState("");
-    const handleSearch = (query: string) => {
-        setSearchQuery(query);
-    };
-
     const renderHtml = (
         <div className="flex flex-col gap-4 w-full">
             {/* <div className="grid grid-cols-2">
@@ -17,10 +12,6 @@ const MKPage = () => {
             </div> */}
             <div className="w-full bg-white rounded-2xl shadow-sm p-4 border border-slate-200 mb-10">
                 <div className="flex flex-col gap-4">
-                    <SearchBar
-                        placeholder="Cari karyawan..."
-                        onSearch={handleSearch}
-                    />
                     <MKShows />
                 </div>
             </div>
