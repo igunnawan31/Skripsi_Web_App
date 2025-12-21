@@ -1,5 +1,6 @@
 import { WorkStatus } from "@prisma/client";
 import { Expose } from "class-transformer";
+import { FileMetaData } from "src/common/types/FileMetaData.dto";
 
 export class AbsensiBaseDTO {
   @Expose()
@@ -34,4 +35,7 @@ export class AbsensiBaseDTO {
   
   @Expose()
   updatedAt: string;
+
+  @Expose()
+  photo: FileMetaData[];
 }

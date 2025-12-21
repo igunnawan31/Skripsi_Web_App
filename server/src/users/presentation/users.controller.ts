@@ -9,6 +9,8 @@ import {
   Query,
   UseGuards,
   Req,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/common/guards/roles.guard';
@@ -22,6 +24,10 @@ import { MinorRole } from '@prisma/client';
 import { UserFilterDTO } from '../application/dtos/request/user-filter.dto';
 import { UpdateUserDTO } from '../application/dtos/request/update-user.dto';
 import { UserRequest } from 'src/common/types/UserRequest.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import * as fs from 'fs';
 
 @Controller('users')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -31,12 +37,36 @@ export class UsersController {
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly deleteUserUseCase: DeleteUserUseCase,
     private readonly updateUserUseCase: UpdateUserUseCase,
-  ) {}
+  ) { }
 
   @Post()
   @RolesMinor(MinorRole.HR)
-  create(@Body() dto: CreateUserDTO) {
-    return this.createUserUseCase.execute(dto);
+  @UseInterceptors(
+    FileInterceptor('userPhoto', {
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          const folder = './uploads/userPhoto';
+          if (!fs.existsSync(folder)) {
+            fs.mkdirSync(folder, { recursive: true });
+          }
+          cb(null, folder);
+        },
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(
+            null,
+            `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`,
+          );
+        },
+      }),
+    }),
+  )
+  create(
+    @Body() dto: CreateUserDTO,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.createUserUseCase.execute({ ...dto, photo: file });
   }
 
   @Get()
@@ -50,10 +80,32 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @UseInterceptors(
+    FileInterceptor('userPhoto', {
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          const folder = './uploads/userPhoto';
+          if (!fs.existsSync(folder)) {
+            fs.mkdirSync(folder, { recursive: true });
+          }
+          cb(null, folder);
+        },
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(
+            null,
+            `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`,
+          );
+        },
+      }),
+    }),
+  )
   update(
     @Param('id') id: string,
     @Body() dto: UpdateUserDTO,
     @Req() req: Request & { user: UserRequest },
+    @UploadedFile() file: Express.Multer.File,
   ) {
     return this.updateUserUseCase.execute(id, dto, req.user);
   }

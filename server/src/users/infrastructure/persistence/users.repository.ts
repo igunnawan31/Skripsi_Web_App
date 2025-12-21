@@ -19,7 +19,10 @@ import { AbsensiBaseDTO } from 'src/absensi/application/dtos/base.dto';
 import { CutiBaseDTO } from 'src/cuti/application/dtos/base.dto';
 import { KontrakBaseDTO } from 'src/kontrak/application/dtos/base.dto';
 import { ProjectBaseDTO } from 'src/project/application/dtos/base.dto';
-import { IndikatorKPIBaseDTO, IndikatorKPIPivotBaseDTO } from 'src/kpi/application/dtos/indikatorKPI.dto';
+import {
+  IndikatorKPIBaseDTO,
+  IndikatorKPIPivotBaseDTO,
+} from 'src/kpi/application/dtos/indikatorKPI.dto';
 import { JawabanKPIBaseDTO } from 'src/kpi/application/dtos/jawabanKPI.dto';
 import { RekapKPIBaseDTO } from 'src/kpi/application/dtos/rekapKPI.dto';
 
@@ -146,7 +149,7 @@ export class UserRepository implements IUserRepository {
 
   async findById(id: string): Promise<RetrieveUserResponseDTO> {
     try {
-      const user = this.prisma.user.findUnique({
+      const user = await this.prisma.user.findUnique({
         where: { id },
         include: {
           absensi: true,
@@ -163,6 +166,7 @@ export class UserRepository implements IUserRepository {
           indikatorDinilai: true,
         },
       });
+
       if (!user) throw new NotFoundException('User data not found');
       return plainToInstance(RetrieveUserResponseDTO, {
         ...user,
@@ -189,6 +193,9 @@ export class UserRepository implements IUserRepository {
         ),
       });
     } catch (err) {
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
       handlePrismaError(err, 'User', id);
     }
   }

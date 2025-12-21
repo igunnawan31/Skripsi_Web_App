@@ -10,8 +10,8 @@ import { AbsensiValidationService } from 'src/absensi/domain/services/absensi-va
 import { IUserRepository } from 'src/users/domain/repositories/users.repository.interface';
 import { CheckInResponseDTO } from '../dtos/response/create-response.dto';
 import { AbsensiCheckedInEvent } from '../events/absensi.events';
-import { CheckInDTO } from '../dtos/request/check-in.dto';
-import { EmployeeType, MinorRole } from '@prisma/client';
+import { InternalCheckInDTO } from '../dtos/request/check-in.dto';
+import { EmployeeType} from '@prisma/client';
 
 @Injectable()
 export class CheckInUseCase {
@@ -24,10 +24,10 @@ export class CheckInUseCase {
     private readonly eventEmitter: EventEmitter2,
   ) { }
 
-  async execute(userId: string, dto: CheckInDTO): Promise<CheckInResponseDTO> {
+  async execute(userId: string, dto: InternalCheckInDTO): Promise<CheckInResponseDTO> {
     const user = await this.userRepo.findById(userId);
     if (!user) {
-      throw new NotFoundException('User tidak ditemukan');
+      throw new NotFoundException(`User ${userId} tidak ditemukan`);
     }
 
     const today = new Date();
@@ -76,6 +76,7 @@ export class CheckInUseCase {
       address: dto.address,
       latitude: dto.latitude,
       longitude: dto.longitude,
+      photo: dto.photo,
     });
 
     // STEP 7: Emit event

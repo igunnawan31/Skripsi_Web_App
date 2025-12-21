@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { IUserRepository } from 'src/users/domain/repositories/users.repository.interface';
-import { CreateUserDTO } from '../dtos/request/create-user.dto';
+import { InternalCreateUserDTO } from '../dtos/request/create-user.dto';
 import { CreateUserResponseDTO } from '../dtos/response/create-response.dto';
 import * as bcrypt from 'bcryptjs';
 import { UserValidationService } from 'src/users/domain/services/user-validation.service';
@@ -13,7 +13,7 @@ export class CreateUserUseCase {
     private readonly validationService: UserValidationService,
   ) {}
 
-  async execute(dto: CreateUserDTO): Promise<CreateUserResponseDTO> {
+  async execute(dto: InternalCreateUserDTO): Promise<CreateUserResponseDTO> {
     const exists = await this.userRepo.findByEmail(dto.email);
     if (exists) {
       throw new BadRequestException('Email sudah terdaftar');

@@ -1,5 +1,5 @@
 import { WorkStatus } from "@prisma/client";
-import { IsEnum, IsInt, IsOptional } from "class-validator";
+import { IsDateString, IsEnum, IsInt, IsOptional } from "class-validator";
 import { FilterDTO } from "src/common/types/Filter.dto";
 
 export class AbsensiFilterDTO extends FilterDTO {
@@ -14,4 +14,8 @@ export class AbsensiFilterDTO extends FilterDTO {
   @IsInt()
   @IsOptional()
   month: number;
+
+  @IsOptional()
+  @IsDateString()
+  date: string;
 }
