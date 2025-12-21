@@ -1,41 +1,38 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { dummyAbsensi } from "@/app/lib/dummyData/AbsensiData";
 import { Absensi } from "@/app/lib/types/types";
 import Link from "next/link";
+import { useAbsensi } from "@/app/lib/hooks/absensi/useAbsensi";
+import { useRouter } from "next/navigation";
 
 export default function AbsensiShowsDetail({ id }: { id: string }) {
-    const [data, setData] = useState<Absensi | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [historyFilter, setHistoryFilter] = useState("1w");
-    const [history, setHistory] = useState<Absensi[]>([]);
+    const absensi = useAbsensi();
+    const {
+        data: detailData,
+        isLoading: isDetailLoading,
+        error: detailError,
+    } = absensi.fetchAbsensiById(id);
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            const found = dummyAbsensi.find((item) => item.id === id);
-            setData(found || null);
-            setLoading(false);
+    const {
+        data: historyData,
+        isLoading: isHistoryLoading,
+        error: historyError,
+    } = absensi.fetchAbsensiByUserId(id);
 
-            const historyData = dummyAbsensi
-                .filter((ct) => 
-                    ct.name === found?.name && 
-                    ct.date < found.date
-                )
-                .slice(0, 10);
-            setHistory(historyData);
-        }, 400);
-
-        return () => clearTimeout(timer);
-    }, [id]);
-
-    if (loading) {
+    if (isDetailLoading || isHistoryLoading) {
         return <div className="text-center text-(--color-muted)">Memuat data...</div>;
     }
 
-    if (!data) {
+    if (detailError || historyError) {
+        return <div className="text-center text-red-500">Terjadi kesalahan.</div>;
+    }
+
+    if (!detailData) {
         return <div className="text-center text-red-500">Data tidak ditemukan.</div>;
     }
+    const router = useRouter();
+    const lastShownHistory = historyData?.slice(0,7) ?? []; 
 
     return (
         <div className="flex flex-col gap-6 w-full">
@@ -43,7 +40,7 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
                 <h1 className="text-2xl font-bold text-(--color-text-primary)">
                     Detail Absensi
                 </h1>
-                <span className="text-sm text-(--color-muted)">ID: {data.id}</span>
+                <span className="text-sm text-(--color-muted)">ID: {detailData.id}</span>
             </div>
 
             <div className="w-full bg-(--color-surface) rounded-2xl shadow-md p-6 border border-(--color-border) flex flex-col gap-6">
@@ -82,29 +79,20 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
                     </div>
                 </div>
 
-                {/* === History Section === */}
                 <div className="flex flex-col gap-4 mt-6">
                     <div className="flex justify-between items-center">
                         <h2 className="font-semibold text-lg text-(--color-text-primary)">
                             History Absensi
                         </h2>
-                        <select
-                            value={historyFilter}
-                            onChange={(e) => setHistoryFilter(e.target.value)}
-                            className="text-sm border border-slate-300 rounded-md px-2 py-1 bg-white focus:outline-none"
-                        >
-                            <option value="1w">1 Week</option>
-                            <option value="1m">1 Month</option>
-                        </select>
                     </div>
 
-                    {history.length === 0 && (
+                    {lastShownHistory.length === 0 && (
                         <div className="text-center text-(--color-muted) py-6">
                             Belum ada riwayat absensi.
                         </div>
                     )}
-                    {history.length > 0 ? (
-                        history.map((abs) => (
+                    {lastShownHistory.length > 0 ? (
+                        lastShownHistory.map((abs: any) => (
                             <div
                                 key={abs.id}
                                 className="flex justify-between items-center rounded-lg p-4 border border-(--color-border) shadow-sm hover:shadow-md transition-shadow bg-white"

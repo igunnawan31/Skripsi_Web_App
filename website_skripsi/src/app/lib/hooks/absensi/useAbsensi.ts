@@ -1,21 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
+import { fetchAbsensi } from "../dummyHooks/fetchAbsensi";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-export const useCuti = () => {
-    const fetchAllCuti = (filters?: {
+export const useAbsensi = () => {
+    const fetchAllAbsensi = (filters?: {
         page?: number;
         limit?: number;
         sortBy?: string;
         sortOrder?: "asc" | "desc";
         status?: string;
-        minStartDate?: string;
-        maxEndDate?: string;
+        date?: string;
+        majorRole?: string;
+        minorRole?: string;
         searchTerm?: string;
     }) => {
         return useQuery({
-            queryKey: ["cutis", filters],
+            queryKey: ["absens", filters],
             queryFn: async () => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
@@ -26,11 +28,12 @@ export const useCuti = () => {
                 if (filters?.sortBy) queryParams.append("sortBy", filters.sortBy);
                 if (filters?.sortOrder) queryParams.append("sortOrder", filters.sortOrder);
                 if (filters?.status) queryParams.append("status", filters.status);
-                if (filters?.minStartDate) queryParams.append("minStartDate", filters.minStartDate);
-                if (filters?.maxEndDate) queryParams.append("maxEndDate", filters.maxEndDate);
+                if (filters?.majorRole) queryParams.append("majorRole", filters.majorRole);
+                if (filters?.minorRole) queryParams.append("minorRole", filters.minorRole);
+                if (filters?.date) queryParams.append("date", filters.date);
                 if (filters?.searchTerm) queryParams.append("searchTerm", filters.searchTerm);
 
-                const response = await fetch(`${API}/cuti?${queryParams.toString()}`, {
+                const response = await fetch(`${API}/absensi?${queryParams.toString()}`, {
                     method: "GET",
                     headers: { 
                         "Content-Type": "application/json",
@@ -41,7 +44,7 @@ export const useCuti = () => {
 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || "Failed to fetch cuti");
+                    throw new Error(errorData.message || "Failed to fetch absensi");
                 }
 
                 return response.json();
@@ -50,14 +53,14 @@ export const useCuti = () => {
         });
     }
 
-    const fetchCutiById = (id: string) => {
+    const fetchAbsensiById = (id: string) => {
         return useQuery ({
-            queryKey: ["cuti", id],
+            queryKey: ["absen", id],
             queryFn: async () => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const response = await fetch(`${API}/cuti/${id}`, {
+                const response = await fetch(`${API}/absensi/${id}`, {
                     method: "GET",
                     headers: { 
                         "Content-Type": "application/json",
@@ -68,7 +71,7 @@ export const useCuti = () => {
 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || "Failed to fetch cuti by ID");
+                    throw new Error(errorData.message || "Failed to fetch absensi by ID");
                 }
 
                 return response.json();
@@ -76,84 +79,39 @@ export const useCuti = () => {
             enabled: !!id,
             staleTime: 5 * 60 * 1000,
         });
-    }    
+    }
 
-    const approveCuti = () => {
-        const queryClient = useQueryClient();
-
-        return useMutation<
-            any,
-            Error,
-            { id: string; catatan?: string }
-        >({
-            mutationFn: async ({ id, catatan }) => {
+    const fetchAbsensiByUserId = (id: string) => {
+        return useQuery({
+            queryKey: ["absen", id],
+            queryFn: async () => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const response = await fetch(`${API}/cuti/approve/${id}`, {
-                    method: "PATCH",
+                const response = await fetch(`${API}/absensi/${id}`, {
+                    method: "GET",
                     headers: { 
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`,
                     },
                     credentials: "include",
-                    body: JSON.stringify({ catatan }),
                 });
 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || "Failed to approve cuti");
+                throw new Error(errorData.message || "Failed to fetch absensi by ID");
                 }
 
                 return response.json();
             },
-
-            onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: ["cutis"] });
-            },
+            enabled: !!id,
+            staleTime: 5 * 60 * 1000,
         });
     }
 
-    const rejectCuti = () => {
-        const queryClient = useQueryClient();
-
-        return useMutation<
-            any,
-            Error,
-            { id: string; catatan?: string }
-        >({
-            mutationFn: async ({ id, catatan}) => {
-                const token = Cookies.get("accessToken");
-                if (!token) throw new Error("No access token found");
-
-                const response = await fetch(`${API}/cuti/reject/${id}`, {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`,
-                    },
-                    credentials: "include",
-                    body: JSON.stringify({ catatan }),
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || "Failed to reject cuti");
-                }
-
-                return response.json();
-            },
-
-            onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: ["cutis"] });
-            },
-        })
-    }
-
     return {
-        fetchAllCuti,
-        fetchCutiById,
-        approveCuti,
-        rejectCuti,
+        fetchAllAbsensi,
+        fetchAbsensiById,
+        fetchAbsensiByUserId,
     };
 }
