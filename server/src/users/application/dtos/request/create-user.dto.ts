@@ -1,5 +1,6 @@
 import { EmployeeType, MajorRole, MinorRole } from "@prisma/client";
-import { IsEmail, IsEnum, IsString, MinLength } from "class-validator";
+import { IsEmail, IsEnum, IsOptional, IsString, MinLength } from "class-validator";
+import { FileMetaData } from "src/common/types/FileMetaData.dto";
 
 export class CreateUserDTO {
   @IsString()
@@ -20,4 +21,9 @@ export class CreateUserDTO {
 
   @IsEnum(EmployeeType)
   employeeType: EmployeeType;
+}
+
+export class InternalCreateUserDTO extends CreateUserDTO {
+  @IsOptional()
+  photo?: FileMetaData;
 }

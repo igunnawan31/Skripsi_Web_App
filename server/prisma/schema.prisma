@@ -60,6 +60,7 @@ model Absensi {
   address    String?
   latitude   String?
   longitude  String?
+  photo      Json?
   createdAt  DateTime   @default(now())
 
   user User @relation("UserAbsen", fields: [userId], references: [id], onDelete: Cascade)

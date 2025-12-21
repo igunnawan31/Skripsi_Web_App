@@ -1,5 +1,6 @@
 import { AbsensiFilterDTO } from 'src/absensi/application/dtos/request/absensi-filter.dto';
-import { CheckInDTO } from 'src/absensi/application/dtos/request/check-in.dto';
+import { CheckInDTO, InternalCheckInDTO } from 'src/absensi/application/dtos/request/check-in.dto';
+import { InternalCheckOutDTO } from 'src/absensi/application/dtos/request/check-out.dto';
 import { CheckInResponseDTO } from 'src/absensi/application/dtos/response/create-response.dto';
 import {
   RetrieveAbsensiResponseDTO,
@@ -30,7 +31,8 @@ export abstract class IAbsensiRepository {
     month: number,
   ): Promise<number>;
   abstract checkIn(
-    data: Omit<CheckInDTO, 'date' | 'checkIn'> & { date: Date; checkIn: Date },
+    data: Omit<InternalCheckInDTO, 'date' | 'checkIn'> & { date: Date; checkIn: Date },
   ): Promise<CheckInResponseDTO>;
-  abstract checkOut(userId: string, date: Date): Promise<CheckOutResponseDTO>;
+  abstract checkOut(data: InternalCheckOutDTO): Promise<CheckOutResponseDTO>;
+  abstract findAllOneDay(filters: AbsensiFilterDTO): Promise<RetrieveAllAbsensiResponseDTO>;
 }

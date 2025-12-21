@@ -1,5 +1,6 @@
 import { WorkStatus } from "@prisma/client";
-import { IsDateString, IsEnum, IsOptional, IsString } from "class-validator";
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { FileMetaData } from "src/common/types/FileMetaData.dto";
 
 export class CheckInDTO {
   @IsString()
@@ -19,4 +20,9 @@ export class CheckInDTO {
   @IsString()
   @IsOptional()
   longitude?: string;
+}
+
+export class InternalCheckInDTO extends CheckInDTO {
+  @IsNotEmpty()
+  photo: FileMetaData;
 }

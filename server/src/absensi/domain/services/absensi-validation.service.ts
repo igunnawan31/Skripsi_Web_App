@@ -80,7 +80,6 @@ export class AbsensiValidationService {
     const minute = localDate.getMinutes();
 
     console.log(`UTC ${date.toISOString()} → Lokal WIB ${hour}:${minute}`);
-
     if (hour < 9 || (hour === 9 && minute === 0)) {
       return {
         valid: true,
