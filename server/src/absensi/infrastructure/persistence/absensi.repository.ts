@@ -42,7 +42,6 @@ export class AbsensiRepository implements IAbsensiRepository {
     }
   }
 
-
   async findByUserId(
     userId: string,
     startDate: Date,
@@ -219,6 +218,7 @@ export class AbsensiRepository implements IAbsensiRepository {
     filters: AbsensiFilterDTO,
   ): Promise<RetrieveAllAbsensiResponseDTO> {
     const {
+      searchTerm,
       status,
       date,
       page = 1,
@@ -243,6 +243,23 @@ export class AbsensiRepository implements IAbsensiRepository {
           lte: endOfDay,
         },
       };
+      if (
+        searchTerm !== undefined &&
+        searchTerm !== null &&
+        searchTerm.trim() !== ''
+      ) {
+        const searchValue = searchTerm.trim();
+        where.OR = [
+          {
+            user: {
+              name: {
+                contains: searchValue,
+                mode: 'insensitive',
+              },
+            },
+          },
+        ];
+      }
       const orderBy: Prisma.AbsensiOrderByWithRelationInput = {};
       if (sortBy && ['createdAt'].includes(sortBy)) {
         orderBy[sortBy] = sortOrder === 'desc' ? 'desc' : 'asc';
