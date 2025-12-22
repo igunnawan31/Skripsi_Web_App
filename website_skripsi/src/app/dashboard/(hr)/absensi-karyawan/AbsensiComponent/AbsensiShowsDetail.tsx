@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Absensi } from "@/app/lib/types/types";
 import Link from "next/link";
 import { useAbsensi } from "@/app/lib/hooks/absensi/useAbsensi";
 import { useRouter } from "next/navigation";
@@ -51,10 +49,10 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
                         </div>
                         <div>
                             <h2 className="text-lg font-semibold text-(--color-text-primary)">
-                                {data.name}
+                                {/* {data.name} */}
                             </h2>
                             <p className="text-sm text-(--color-text-secondary)">
-                                Jabatan: {data.minorRole}
+                                {/* Jabatan: {data.minorRole} */}
                             </p>
                         </div>
                     </div>
@@ -62,19 +60,19 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
                     <div className="w-full md:w-1/2 gap-3">
                         <div className="flex flex-col gap-y-2 text-sm items-start justify-start">
                             <p className="text-(--color-muted)">ID Karyawan</p>
-                            <p className="font-medium text-(--color-text-primary)">{data.id}</p>
+                            {/* <p className="font-medium text-(--color-text-primary)">{data.id}</p> */}
 
                             <p className="text-(--color-muted)">Status Kerja</p>
-                            <p className="font-medium text-(--color-text-primary)">{data.workStatus}</p>
+                            {/* <p className="font-medium text-(--color-text-primary)">{data.workStatus}</p> */}
 
                             <p className="text-(--color-muted)">Tanggal</p>
-                            <p className="font-medium text-(--color-text-primary)">{data.date}</p>
+                            {/* <p className="font-medium text-(--color-text-primary)">{data.date}</p> */}
 
                             <p className="text-(--color-muted)">Check In</p>
-                            <p className="font-medium text-(--color-success)">{data.checkIn}</p>
+                            {/* <p className="font-medium text-(--color-success)">{data.checkIn}</p> */}
 
                             <p className="text-(--color-muted)">Check Out</p>
-                            <p className="font-medium text-(--color-error)">{data.checkOut}</p>
+                            {/* <p className="font-medium text-(--color-error)">{data.checkOut}</p> */}
                         </div>
                     </div>
                 </div>
