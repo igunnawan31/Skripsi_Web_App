@@ -21,13 +21,11 @@ export default function MKShowsDetail({ id }: { id: string }) {
     const router = useRouter();
 
     const data = fetchedData;
-    const projectTeams = data?.projectTeams ?? [];
-    const projectIds = projectTeams.map(
+    const kontrak = data?.kontrak ?? [];
+    const projectIds = kontrak.map(
         (pt: any) => pt.projectId
     );
-
-    console.log(data);
-
+    
     const projectQueries = useQueries({
         queries: projectIds.map((projectId: string) => ({
             queryKey: ["project", projectId],
@@ -35,7 +33,8 @@ export default function MKShowsDetail({ id }: { id: string }) {
                 const token = Cookies.get("accessToken");
                 const res = await fetch(`${API}/project/${projectId}`, {
                     headers: {
-                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
                     },
                 });
                 if (!res.ok) throw new Error("Failed fetch project");
@@ -54,8 +53,6 @@ export default function MKShowsDetail({ id }: { id: string }) {
         },
         {}
     );
-
-    console.log(data)
 
     if (isLoading) {
         return <div className="text-center text-(--color-muted)">Memuat data...</div>;
@@ -169,8 +166,8 @@ export default function MKShowsDetail({ id }: { id: string }) {
                             />
                         </button>
                         {openProject && (
-                            data.projectTeams.length > 0 ? (
-                                data.projectTeams.map((k: any) => {
+                            data.kontrak.length > 0 ? (
+                                data.kontrak.map((k: any) => {
                                     const project = projectMap[k.projectId];
                                     return (
                                         <div
@@ -252,7 +249,7 @@ export default function MKShowsDetail({ id }: { id: string }) {
                                     const project = projectMap[k.projectId];
                                     return (
                                         <div
-                                            key={k.id}
+                                            key={k.projectId}
                                             className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3"
                                         >
                                             <div className="flex flex-col">
