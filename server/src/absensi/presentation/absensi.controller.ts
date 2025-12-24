@@ -92,6 +92,18 @@ export class AbsensiController {
     );
   }
 
+  @Get('/single/:id')
+  findById(
+    @Req() req: Request & {user: UserRequest},
+    @Param('id') id: string,
+    @Query('date') date: string,
+  ){
+    if (req.user.id !== id && req.user.minorRole !== MinorRole.HR) {
+      throw new UnauthorizedException('User tidak memiliki akses data ini');
+    }
+    return this.absensiRepo.findByUserAndDate(id, new Date(date));
+  }
+
   // PATCH absensi/:id
   @Patch(':id')
   @UseInterceptors(
