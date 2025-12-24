@@ -36,6 +36,9 @@ export class AbsensiRepository implements IAbsensiRepository {
         where: { userId_date: { userId, date } },
         include: { user: true },
       });
+      if (!absensi) {
+        throw new NotFoundException("Data absensi tidak ditemukan");
+      }
       return plainToInstance(RetrieveAbsensiResponseDTO, absensi);
     } catch (err) {
       handlePrismaError(err, 'Absensi');

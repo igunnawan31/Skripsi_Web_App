@@ -12,6 +12,7 @@ import {
   UnauthorizedException,
   UseInterceptors,
   UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
 import { IAbsensiRepository } from '../domain/repositories/absensi.repository.interface';
 import { CheckInDTO } from '../application/dtos/request/check-in.dto';
@@ -100,6 +101,9 @@ export class AbsensiController {
   ){
     if (req.user.id !== id && req.user.minorRole !== MinorRole.HR) {
       throw new UnauthorizedException('User tidak memiliki akses data ini');
+    }
+    if (!date){
+      throw new BadRequestException('Date harus diisi');
     }
     return this.absensiRepo.findByUserAndDate(id, new Date(date));
   }
