@@ -13,8 +13,10 @@ export class FilesService {
       dbPath.replace(/^uploads[\\/]/, ''),
     );
 
-    // Ensure it stays inside uploads/
-    if (!resolvedPath.startsWith(this.uploadsRoot)) {
+    const relative = path.relative(this.uploadsRoot, resolvedPath);
+
+    // Jika keluar folder atau absolute path
+    if (relative.startsWith('..') || path.isAbsolute(relative)) {
       return null;
     }
 
@@ -26,4 +28,3 @@ export class FilesService {
     }
   }
 }
-
