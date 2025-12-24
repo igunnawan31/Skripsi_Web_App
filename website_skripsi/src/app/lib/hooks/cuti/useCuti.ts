@@ -76,7 +76,35 @@ export const useCuti = () => {
             enabled: !!id,
             staleTime: 5 * 60 * 1000,
         });
-    }    
+    }
+
+    const fetchCutiByUserId = (id: string) => {
+        return useQuery ({
+            queryKey: ["cuti", id],
+            queryFn: async () => {
+                const token = Cookies.get("accessToken");
+                if (!token) throw new Error("No access token found");
+
+                const response = await fetch(`${API}/cuti/user/${id}`, {
+                    method: "GET",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    credentials: "include",
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || "Failed to fetch cuti by User ID");
+                }
+
+                return response.json();
+            },
+            enabled: !!id,
+            staleTime: 5 * 60 * 1000,
+        });
+    }
 
     const approveCuti = () => {
         const queryClient = useQueryClient();
@@ -153,6 +181,7 @@ export const useCuti = () => {
     return {
         fetchAllCuti,
         fetchCutiById,
+        fetchCutiByUserId,
         approveCuti,
         rejectCuti,
     };

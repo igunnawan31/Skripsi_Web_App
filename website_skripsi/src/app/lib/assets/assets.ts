@@ -34,6 +34,8 @@ export const icons = {
     download: "/assets/icons/download.svg",
     clockIn: "/assets/icons/clock-in.svg",
     clockOut: "/assets/icons/clock-out.svg",
+    imageFormat: "/assets/icons/image.svg",
+    pdfFormat: "/assets/icons/pdf.svg",
 
     homeLogo: "/assets/icons/home.svg",
     viewLogo: "/assets/icons/view.svg",
