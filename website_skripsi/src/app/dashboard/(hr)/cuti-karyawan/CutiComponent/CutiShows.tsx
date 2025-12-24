@@ -248,6 +248,14 @@ const CutiShows: React.FC<CutiRequestProps> = ({
                                                 {ct.status}
                                             </span>
                                         </div>
+                                        <div className="flex justify-between items-center">
+                                            <p className="text-sm text-(--color-text-secondary)">Diajukan tanggal:</p>
+                                            <span
+                                                className={"px-3 py-1 text-xs font-semibold rounded-lg uppercase text-center w-fit"}
+                                            >
+                                                {ct.createdAt ? format(new Date(ct.createdAt), "dd MMM yyyy") : "-"}
+                                            </span>
+                                        </div>
                                     </div>
 
                                     {showButton && (
