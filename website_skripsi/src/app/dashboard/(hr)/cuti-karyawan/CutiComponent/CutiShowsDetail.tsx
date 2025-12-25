@@ -214,7 +214,7 @@ export default function CutiShowsDetail({ id }: { id: string }) {
 
                             <div className="w-full gap-2 flex flex-col">
                                 <label className="text-sm font-medium text-gray-600 mb-1">
-                                    Tanggal Mulai
+                                    Tanggal Selesai
                                 </label>
                                 <div
                                     className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
@@ -312,7 +312,7 @@ export default function CutiShowsDetail({ id }: { id: string }) {
                         ))
                     ) : (
                         <div className="text-center text-(--color-muted) py-6">
-                            Belum ada riwayat cuti lainnya.
+                            Belum ada dokumen.
                         </div>
                     )}
                 </div>

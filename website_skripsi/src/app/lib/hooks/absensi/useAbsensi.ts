@@ -53,14 +53,14 @@ export const useAbsensi = () => {
         });
     }
 
-    const fetchAbsensiById = (id: string) => {
+    const fetchAbsensiById = (id: string, date: string) => {
         return useQuery ({
-            queryKey: ["absen", id],
+            queryKey: ["absen-single", id, date],
             queryFn: async () => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const response = await fetch(`${API}/absensi/${id}`, {
+                const response = await fetch(`${API}/absensi/single/${id}?date=${date}`, {
                     method: "GET",
                     headers: { 
                         "Content-Type": "application/json",
@@ -76,19 +76,19 @@ export const useAbsensi = () => {
 
                 return response.json();
             },
-            enabled: !!id,
+            enabled: !!id && !!date,
             staleTime: 5 * 60 * 1000,
         });
     }
 
-    const fetchAbsensiByUserId = (id: string) => {
+    const fetchAbsensiByUserId = (id: string, year: number, month:number) => {
         return useQuery({
-            queryKey: ["absen", id],
+            queryKey: ["absen", id, year, month],
             queryFn: async () => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const response = await fetch(`${API}/absensi/${id}`, {
+                const response = await fetch(`${API}/absensi/${id}?year=${year}&month=${month}`, {
                     method: "GET",
                     headers: { 
                         "Content-Type": "application/json",
@@ -104,7 +104,7 @@ export const useAbsensi = () => {
 
                 return response.json();
             },
-            enabled: !!id,
+            enabled: !!id && !!year && !!month,
             staleTime: 5 * 60 * 1000,
         });
     }

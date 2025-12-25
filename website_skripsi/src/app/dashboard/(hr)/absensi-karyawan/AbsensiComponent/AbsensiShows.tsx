@@ -5,9 +5,7 @@ import React, { useEffect, useState } from "react";
 import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/PaginationBar";
 import { Absensi, MinorRole } from "@/app/lib/types/types";
 import { AbsensiRequestProps } from "@/app/props/HRProps/AbsensiProps";
-import { fetchAbsensi } from "@/app/lib/hooks/dummyHooks/fetchAbsensi";
 import { useSearchParams, useRouter } from "next/navigation";
-import FilterBar from "@/app/dashboard/dashboardComponents/allComponents/FilterBar";
 import { useAbsensi } from "@/app/lib/hooks/absensi/useAbsensi";
 import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
 import Image from "next/image";
@@ -276,8 +274,8 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
                                     <button
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            onButtonClick?.(abs.id);
-                                            router.push(`/dashboard/absensi-karyawan/${abs.user.id}`);
+                                            onButtonClick?.(abs.user.id);
+                                            router.push(`/dashboard/absensi-karyawan/${abs.user.id}?date=${abs.checkIn}`);
                                         }}
                                         className="mt-3 w-full py-2 rounded-lg text-sm font-semibold bg-(--color-primary) text-white hover:bg-(--color-tertiary) hover:text-(--color-secondary) transition cursor-pointer"
                                     >
