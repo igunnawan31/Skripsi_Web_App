@@ -22,7 +22,6 @@ async function main() {
       email: 'aldigibran@example.com',
       password,
       majorRole: 'OWNER',
-      employeeType: 'PERMANENT',
     },
   });
 
@@ -33,7 +32,6 @@ async function main() {
       password,
       majorRole: 'KARYAWAN',
       minorRole: 'HR',
-      employeeType: 'PERMANENT',
     },
   });
 
@@ -44,7 +42,6 @@ async function main() {
       password,
       majorRole: 'KARYAWAN',
       minorRole: 'PROJECT_MANAGER',
-      employeeType: 'CONTRACT',
     },
   });
 
@@ -55,7 +52,6 @@ async function main() {
       password,
       majorRole: 'KARYAWAN',
       minorRole: 'FRONTEND',
-      employeeType: 'CONTRACT',
     },
   });
 
@@ -89,6 +85,20 @@ async function main() {
       cutiBulanan: 2,
       startDate: new Date('2025-01-01'),
       endDate: new Date('2025-12-31'),
+      jenis: 'CONTRACT',
+    },
+  });
+
+  await prisma.kontrakKerja.create({
+    data: {
+      userId: hr.id,
+      metodePembayaran: 'BULANAN',
+      totalBayaran: 12000000,
+      absensiBulanan: 31,
+      cutiBulanan: 3,
+      startDate: new Date('2025-01-01'),
+      endDate: new Date('2028-12-31'),
+      jenis: 'PERMANENT',
     },
   });
 

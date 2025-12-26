@@ -35,4 +35,8 @@ export abstract class IAbsensiRepository {
   ): Promise<CheckInResponseDTO>;
   abstract checkOut(data: InternalCheckOutDTO): Promise<CheckOutResponseDTO>;
   abstract findAllOneDay(filters: AbsensiFilterDTO): Promise<RetrieveAllAbsensiResponseDTO>;
+  abstract findOne(
+    userId: string,
+    date: Date,
+  ): Promise<RetrieveAbsensiResponseDTO>;
 }

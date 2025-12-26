@@ -23,7 +23,4 @@ export class UserBaseDTO {
 
   @Expose()
   photo?: FileMetaData;
-
-  @Expose()
-  employeeType: EmployeeType;
 }

@@ -11,7 +11,7 @@ import { IUserRepository } from 'src/users/domain/repositories/users.repository.
 import { CheckInResponseDTO } from '../dtos/response/create-response.dto';
 import { AbsensiCheckedInEvent } from '../events/absensi.events';
 import { InternalCheckInDTO } from '../dtos/request/check-in.dto';
-import { EmployeeType} from '@prisma/client';
+import { EmployeeType } from '@prisma/client';
 
 @Injectable()
 export class CheckInUseCase {
@@ -24,14 +24,16 @@ export class CheckInUseCase {
     private readonly eventEmitter: EventEmitter2,
   ) { }
 
-  async execute(userId: string, dto: InternalCheckInDTO): Promise<CheckInResponseDTO> {
+  async execute(
+    userId: string,
+    dto: InternalCheckInDTO,
+  ): Promise<CheckInResponseDTO> {
     const user = await this.userRepo.findById(userId);
     if (!user) {
       throw new NotFoundException(`User ${userId} tidak ditemukan`);
     }
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
     const existing = await this.absensiRepo.findByUserAndDate(userId, today);
     if (existing) {
       throw new BadRequestException('Anda sudah check-in hari ini');
@@ -49,21 +51,19 @@ export class CheckInUseCase {
     const year = today.getFullYear();
     const month = today.getMonth() + 1;
 
-    if (user.employeeType === EmployeeType.CONTRACT) {
-      const usedAbsensi = await this.absensiRepo.countAbsensiInMonth(
-        userId,
-        year,
-        month,
-      );
+    const usedAbsensi = await this.absensiRepo.countAbsensiInMonth(
+      userId,
+      year,
+      month,
+    );
 
-      const quotaValidation = await this.validationService.validateMonthlyQuota(
-        userId,
-        today,
-        usedAbsensi,
-      );
-      if (!quotaValidation.valid) {
-        throw new BadRequestException(quotaValidation.message);
-      }
+    const quotaValidation = await this.validationService.validateMonthlyQuota(
+      userId,
+      today,
+      usedAbsensi,
+    );
+    if (!quotaValidation.valid) {
+      throw new BadRequestException(quotaValidation.message);
     }
 
     const now = new Date();

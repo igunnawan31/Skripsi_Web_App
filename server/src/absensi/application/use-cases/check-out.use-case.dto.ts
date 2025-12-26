@@ -18,7 +18,6 @@ export class CheckOutUseCase {
     checkOutPhoto: FileMetaData,
   ): Promise<CheckOutResponseDTO> {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
 
     const absensi = await this.absensiRepo.findByUserAndDate(userId, today);
     if (!absensi) {

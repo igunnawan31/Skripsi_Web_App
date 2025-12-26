@@ -15,7 +15,6 @@ model User {
   password  String
   majorRole MajorRole
   minorRole MinorRole?
-  employeeType EmployeeType @default(CONTRACT)
   photo     Json?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
@@ -96,7 +95,8 @@ model Cuti {
 model KontrakKerja {
   id               String             @id @default(uuid())
   userId           String
-  projectId        String
+  projectId        String?
+  jenis            EmployeeType @default(CONTRACT)
   metodePembayaran MetodePembayaran
   dpPercentage     Int?
   finalPercentage  Int?
@@ -112,7 +112,7 @@ model KontrakKerja {
   updatedAt        DateTime           @updatedAt
 
   user    User    @relation("UserKontrak", fields: [userId], references: [id], onDelete: Cascade)
-  project Project @relation("KontrakProject", fields: [projectId], references: [id], onDelete: Cascade)
+  project Project? @relation("KontrakProject", fields: [projectId], references: [id], onDelete: Cascade)
   gaji    Gaji[]  @relation("KontrakGaji")
 
   @@index([userId])

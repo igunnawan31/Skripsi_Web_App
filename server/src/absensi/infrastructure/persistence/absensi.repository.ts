@@ -6,7 +6,10 @@ import {
 import { Prisma } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { AbsensiFilterDTO } from 'src/absensi/application/dtos/request/absensi-filter.dto';
-import { CheckInDTO, InternalCheckInDTO } from 'src/absensi/application/dtos/request/check-in.dto';
+import {
+  CheckInDTO,
+  InternalCheckInDTO,
+} from 'src/absensi/application/dtos/request/check-in.dto';
 import { InternalCheckOutDTO } from 'src/absensi/application/dtos/request/check-out.dto';
 import { CheckInResponseDTO } from 'src/absensi/application/dtos/response/create-response.dto';
 import {
@@ -21,12 +24,11 @@ import { UserBaseDTO } from 'src/users/application/dtos/base.dto';
 
 @Injectable()
 export class AbsensiRepository implements IAbsensiRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   // Internal Function
   // Not used directly inside controller
-  
-  // Used for check out use case 
+
   async findByUserAndDate(
     userId: string,
     date: Date,
@@ -36,9 +38,6 @@ export class AbsensiRepository implements IAbsensiRepository {
         where: { userId_date: { userId, date } },
         include: { user: true },
       });
-      if (!absensi) {
-        throw new NotFoundException("Data absensi tidak ditemukan");
-      }
       return plainToInstance(RetrieveAbsensiResponseDTO, absensi);
     } catch (err) {
       handlePrismaError(err, 'Absensi');
@@ -101,7 +100,7 @@ export class AbsensiRepository implements IAbsensiRepository {
       handlePrismaError(err, 'Absensi');
     }
   }
-  
+
   // Used for validation
   async countAbsensiInMonth(
     userId: string,
@@ -126,11 +125,14 @@ export class AbsensiRepository implements IAbsensiRepository {
   }
 
   async checkIn(
-    data: Omit<InternalCheckInDTO, 'date' | 'checkIn'> & { date: Date; checkIn: Date },
+    data: Omit<InternalCheckInDTO, 'date' | 'checkIn'> & {
+      date: Date;
+      checkIn: Date;
+    },
   ): Promise<CheckInResponseDTO> {
     try {
       const query = await this.prisma.absensi.create({
-        data: { ...data, photo: [data.photo as any]},
+        data: { ...data, photo: [data.photo as any] },
       });
       return plainToInstance(CheckInResponseDTO, query);
     } catch (err) {
@@ -156,7 +158,7 @@ export class AbsensiRepository implements IAbsensiRepository {
 
   // External Function
   // Used directly inside controller
-  
+
   // Query all valid absensi of a specific user in a month
   async findByMonth(
     userId: string,
@@ -230,7 +232,7 @@ export class AbsensiRepository implements IAbsensiRepository {
       sortOrder = 'desc',
     } = filters;
     const formattedDate = new Date(date);
-    console.log(`Date: ${date}, converted: ${formattedDate}`)
+    console.log(`Date: ${date}, converted: ${formattedDate}`);
     if (isNaN(formattedDate.getTime())) {
       throw new BadRequestException('Format date invalid');
     }
@@ -293,6 +295,22 @@ export class AbsensiRepository implements IAbsensiRepository {
           totalPage: Math.ceil(total / limit),
         },
       });
+    } catch (err) {
+      handlePrismaError(err, 'Absensi');
+    }
+  }
+
+  async findOne(
+    userId: string,
+    date: Date,
+  ): Promise<RetrieveAbsensiResponseDTO> {
+    try {
+      const absensi = await this.prisma.absensi.findUnique({
+        where: { userId_date: { userId, date } },
+        include: { user: true },
+      });
+      if (!absensi) throw new NotFoundException('Data absensi tidak ditemukan');
+      return plainToInstance(RetrieveAbsensiResponseDTO, absensi);
     } catch (err) {
       handlePrismaError(err, 'Absensi');
     }
