@@ -107,7 +107,7 @@ export class UsersController {
     @Req() req: Request & { user: UserRequest },
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.updateUserUseCase.execute(id, dto, req.user);
+    return this.updateUserUseCase.execute(id, { ...dto, photo: file }, req.user);
   }
 
   @Delete(':id')

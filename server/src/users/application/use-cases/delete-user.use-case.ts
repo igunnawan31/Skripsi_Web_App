@@ -4,6 +4,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { deleteFile } from 'src/common/utils/fileHelper';
 import { IUserRepository } from 'src/users/domain/repositories/users.repository.interface';
 import { UserValidationService } from 'src/users/domain/services/user-validation.service';
 
@@ -13,7 +14,7 @@ export class DeleteUserUseCase {
     @Inject(IUserRepository)
     private readonly userRepo: IUserRepository,
     private readonly validationService: UserValidationService,
-  ) {}
+  ) { }
 
   async execute(userId: string, deletedBy: string): Promise<void> {
     const user = await this.userRepo.findById(userId);
@@ -27,12 +28,14 @@ export class DeleteUserUseCase {
         'User dengan role OWNER tidak dapat dihapus',
       );
     }
-
-    await this.userRepo.remove(userId);
-
+    if (user.photo) {
+      await deleteFile(user.photo.path);
+    }
+    const deletedUser = await this.userRepo.remove(userId);
     // this.eventEmitter.emit(
     //   'user.deleted',
     //   new UserDeletedEvent(userId, user.email, deletedBy),
     // );
+    // return deletedUser;
   }
 }
