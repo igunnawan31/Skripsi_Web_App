@@ -122,7 +122,6 @@ export class UserRepository implements IUserRepository {
         data: users.map((user) =>
           plainToInstance(RetrieveUserResponseDTO, {
             ...user,
-            photo: plainToInstance(FileMetaData, user.photo),
             absensi: plainToInstance(AbsensiBaseDTO, user.absensi),
             cutiDiajukan: plainToInstance(CutiBaseDTO, user.cutiDiajukan),
             cutiDisetujui: plainToInstance(CutiBaseDTO, user.cutiDisetujui),
@@ -181,7 +180,6 @@ export class UserRepository implements IUserRepository {
       if (!user) throw new NotFoundException('User data not found');
       return plainToInstance(RetrieveUserResponseDTO, {
         ...user,
-        photo: plainToInstance(FileMetaData, user.photo),
         absensi: plainToInstance(AbsensiBaseDTO, user.absensi),
         cutiDiajukan: plainToInstance(CutiBaseDTO, user.cutiDiajukan),
         cutiDisetujui: plainToInstance(CutiBaseDTO, user.cutiDisetujui),
