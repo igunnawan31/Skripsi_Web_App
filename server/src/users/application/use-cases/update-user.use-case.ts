@@ -64,10 +64,8 @@ export class UpdateUserUseCase {
     }
 
     if (dto.photo && targetUser.photo) {
-      console.log("Invoked");
       await deleteFile(targetUser.photo.path);
     }
-    console.log(dto.photo);
     const updatedUser = await this.userRepo.update(userId, {
       ...dto,
       photo: dto.photo,
