@@ -64,7 +64,7 @@ const CutiShows: React.FC<CutiRequestProps> = ({
         if (ct.status === CutiStatus.MENUNGGU) return "bg-yellow-100 text-yellow-800";
         if (ct.status === CutiStatus.DITERIMA) return "bg-green-100 text-green-800";
         if (ct.status === CutiStatus.DITOLAK) return "bg-red-100 text-red-800";
-        return "bg-gray-100 text-gray-700";
+        return "bg-gray-200 text-gray-700";
     };
 
     useEffect(() => {
@@ -246,6 +246,14 @@ const CutiShows: React.FC<CutiRequestProps> = ({
                                                 )}`}
                                             >
                                                 {ct.status}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <p className="text-sm text-(--color-text-secondary)">Diajukan tanggal:</p>
+                                            <span
+                                                className={"px-3 py-1 text-xs font-semibold rounded-lg uppercase text-center w-fit"}
+                                            >
+                                                {ct.createdAt ? format(new Date(ct.createdAt), "dd MMM yyyy") : "-"}
                                             </span>
                                         </div>
                                     </div>

@@ -11,15 +11,28 @@ import toast from "react-hot-toast";
 import CustomToast from "@/app/rootComponents/CustomToast";
 import ConfirmationPopUpModal from "@/app/dashboard/dashboardComponents/allComponents/ConfirmationPopUpModal";
 import { useRouter } from "next/navigation";
+import { fetchFileBlob } from "@/app/lib/path";
 
 export default function CutiShowsDetail({ id }: { id: string }) {
-    const { data: fetchedData, isLoading, error } = useCuti().fetchCutiById(id);
+    const cuti = useCuti();
+    const {
+        data: detailData,
+        isLoading: isDetailLoading,
+        error: detailError,
+    } = cuti.fetchCutiById(id);
+
+    const {
+        data: historyData,
+        isLoading: isHistoryLoading,
+        error: historyError,
+    } = cuti.fetchCutiByUserId(detailData?.userId ?? "");
+
     const approveCuti = useCuti().approveCuti();
     const rejectCuti = useCuti().rejectCuti();
     const [catatan, setCatatan] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [actionType, setActionType] = useState<"approve" | "reject" | null>(null);
-    const [history, setHistory] = useState<Cuti[]>([]);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const router = useRouter();
 
     const computeTotalDays = (startStr?: string, endStr?: string) => {
@@ -39,18 +52,33 @@ export default function CutiShowsDetail({ id }: { id: string }) {
         if (ct.status === CutiStatus.MENUNGGU) return "bg-yellow-100 text-yellow-800";
         if (ct.status === CutiStatus.DITERIMA) return "bg-green-100 text-green-800";
         if (ct.status === CutiStatus.DITOLAK) return "bg-red-100 text-red-800";
-        return "bg-gray-100 text-gray-700";
+        return "bg-gray-200 text-gray-700";
     };
 
-    if (isLoading) {
+    const getFileIcon = (doc: any) => {
+        const type = doc?.mimetype;
+        if (!type) return icons.pdfFormat;
+        if (type === "application/pdf") return icons.pdfFormat;
+        if (type.startsWith("image/")) return icons.imageFormat;
+
+        return icons.pdfFormat;
+    };
+
+    if (isDetailLoading || isHistoryLoading) {
         return <div className="text-center text-(--color-muted)">Memuat data...</div>;
     }
 
-    if (!fetchedData) {
+    if (detailError || historyError) {
+        return <div className="text-center text-red-500">Terjadi kesalahan.</div>;
+    }
+
+    if (!detailData) {
         return <div className="text-center text-red-500">Data tidak ditemukan.</div>;
     }
 
-    const data = fetchedData;
+    const data = detailData;
+    const history = (historyData?.data ?? []).filter((ct: any) => ct.id !== data.id).slice(0,7);
+    const documents = data.dokumen ? [data.dokumen] : [];
     const days = computeTotalDays(data.startDate, data.endDate);
 
     const handleOpenModal = (type: "approve" | "reject") => {
@@ -89,6 +117,30 @@ export default function CutiShowsDetail({ id }: { id: string }) {
             }
         )
     }
+
+    const handleDownload = async (path: string, filename: string) => {
+        try {
+            const blob = await fetchFileBlob(path);
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch {
+            toast.custom(<CustomToast type="error" message="Gagal download file" />);
+        }
+    };
+
+    const handlePreview = async (path: string) => {
+        try {
+            const blob = await fetchFileBlob(path);
+            const url = URL.createObjectURL(blob);
+            setPreviewUrl(url);
+        } catch {
+            toast.custom(<CustomToast type="error" message="Gagal memuat file" />);
+        }
+    };
 
     return (
         <div className="flex flex-col gap-6 w-full pb-8">
@@ -162,7 +214,7 @@ export default function CutiShowsDetail({ id }: { id: string }) {
 
                             <div className="w-full gap-2 flex flex-col">
                                 <label className="text-sm font-medium text-gray-600 mb-1">
-                                    Tanggal Mulai
+                                    Tanggal Selesai
                                 </label>
                                 <div
                                     className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
@@ -201,31 +253,68 @@ export default function CutiShowsDetail({ id }: { id: string }) {
                             Lampiran
                         </h2>
                     </div>
-                    <div
-                        className="flex justify-between items-center rounded-lg p-4 border border-(--color-border) shadow-sm hover:shadow-md transition-shadow bg-white"
-                    >
-                        <div className="flex flex-row gap-4">
-                            <div className="w-20 h-20 bg-(--color-secondary) rounded-lg">
-
+                    {documents.length > 0 ? (
+                        documents.map((dk: any) => (
+                            <div
+                                key={dk.path}
+                                className="flex justify-between items-center rounded-lg p-4 border border-(--color-border) shadow-sm hover:shadow-md transition-shadow bg-white"
+                            >
+                                <div className="flex flex-row gap-4">
+                                    <div className="w-20 h-20 bg-(--color-secondary) rounded-lg items-center justify-center relative">
+                                        <Image
+                                            src={getFileIcon(dk)}
+                                            fill
+                                            alt="PDF Format"
+                                            className="object-cover p-4"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col justify-center gap-1">
+                                        <p className="text-md font-bold">{dk.originalname}</p>
+                                        <p className="text-sm font-medium text-(--color-text-secondary)">{dk.filename}</p>
+                                        <span
+                                            onClick={() => handlePreview(dk.path)}
+                                            className="text-xs cursor-pointer hover:underline text-(--color-muted)"
+                                        >
+                                            See File
+                                        </span>
+                                    </div>
+                                    {previewUrl && (
+                                        <div className="fixed inset-0 bg-black/60 flex justify-center items-center">
+                                            <div className="bg-white w-3/4 h-3/4 rounded-xl p-4 relative">
+                                                <div className="items-center justify-between flex mb-5">
+                                                    <p className="text-md font-bold">{dk.originalname}</p>
+                                                    <button onClick={() => setPreviewUrl(null)} className="bg-(--color-primary) rounded-lg p-2 hover: hover:bg-red-800 cursor-pointer">
+                                                        <Image 
+                                                            src={icons.closeMenu}
+                                                            alt="Close Preview PDF"
+                                                            width={24}
+                                                            height={24}
+                                                        />
+                                                    </button>
+                                                </div>
+                                                <iframe src={previewUrl} className="w-full h-[90%]" />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                                <button
+                                    onClick={() => handleDownload(dk.path, dk.filename)}
+                                    className="p-4 bg-(--color-primary) rounded-lg justify-center items-center cursor-pointer hover:bg-red-800"
+                                >
+                                    <Image
+                                        src={icons.download}
+                                        alt="Download Button"
+                                        height={24}
+                                        width={24}
+                                    />
+                                </button>
                             </div>
-                            <div className="flex flex-col justify-center">
-                                <p>Judul Lampiran</p>
-                                <p>Nama File</p>
-                                <span className="hover:underline text-(--color-muted) text-sm cursor-pointer">See File</span>
-                            </div>
+                        ))
+                    ) : (
+                        <div className="text-center text-(--color-muted) py-6">
+                            Belum ada dokumen.
                         </div>
-                        <button
-                            onClick={() => console.log("Download")}
-                            className="p-4 bg-(--color-primary) rounded-lg justify-center items-center cursor-pointer hover:bg-red-800"
-                        >
-                            <Image
-                                src={icons.download}
-                                alt="Download Button"
-                                height={24}
-                                width={24}
-                            />
-                        </button>
-                    </div>
+                    )}
                 </div>
                 <div className="mt-6 border-t border-(--color-border) pt-6">
                     <h2 className="text-lg font-semibold text-(--color-text-primary) mb-4">
@@ -277,39 +366,71 @@ export default function CutiShowsDetail({ id }: { id: string }) {
                         </h2>
                     </div>
                     {history.length > 0 ? (
-                        history.map((ct) => (
+                        history.map((ct: any) => (
                             <div
                                 key={ct.id}
-                                className="flex justify-between items-center rounded-lg p-4 border border-(--color-border) shadow-sm hover:shadow-md transition-shadow bg-white"
+                                className="flex flex-col p-4 sm:p-5 lg:p-6
+                                        group bg-(--color-surface) border border-(--color-border)
+                                        rounded-2xl shadow-sm hover:shadow-md
+                                        hover:-translate-y-1 transition-all duration-200"
                             >
-                                <div className="flex flex-col gap-0 items-start">
-                                    <p className="font-medium text-(--color-text-primary)">
-                                        {ct.reason}
-                                    </p>
-                                    <p className="text-sm text-gray-500">
-                                        {ct.totalDays} hari
-                                    </p>
-                                    <p className="text-xs text-gray-400">
-                                        {ct.startDate} s.d {ct.endDate}
-                                    </p>
-                                </div>
-                                <div className="flex flex-col md:flex-row md:items-center gap-2">
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center
+                                                gap-1 text-xs sm:text-sm
+                                                text-(--color-textPrimary)
+                                                border-b border-(--color-border)
+                                                pb-2">
+                                    <span className="text-(--color-muted) break-all">
+                                        {ct.id}
+                                    </span>
                                     <span
-                                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                            ct.status === CutiStatus.DITERIMA
-                                            ? "bg-green-100 text-green-700"
-                                            : ct.status === CutiStatus.DITOLAK
-                                            ? "bg-red-100 text-red-700"
-                                            : "bg-yellow-100 text-yellow-700"
-                                        }`}
+                                        className={`px-3 py-1 text-xs font-semibold rounded-lg uppercase text-center w-fit 
+                                        ${getStatusColor(
+                                            ct
+                                        )}`}
                                     >
                                         {ct.status}
                                     </span>
-                                    <Link
-                                        href={`/dashboard/cuti-karyawan/${ct.id}`}
-                                        className="flex items-center gap-2 p-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 cursor-pointer"
-                                    />
-                                    
+                                </div>
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 py-3">
+                                    <div className="flex flex-col gap-2">
+                                        <p className="text-sm sm:text-base font-semibold text-(--color-textPrimary) truncate max-w-[220px] sm:max-w-none">
+                                            {ct.reason}
+                                        </p>
+                                        <p className="text-sm text-(--color-text-secondary)">Total Cuti: {days} Hari</p>
+                                        <div className="flex flex-col sm:flex-row sm:justify-between items-start gap-5">
+                                            <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
+                                                <Image
+                                                    src={icons.dateIn}
+                                                    alt="Tanggal Mulai Cuti"
+                                                    width={24}
+                                                    height={24}
+                                                />
+                                                {ct.startDate ? format(new Date(ct.startDate), "dd MMM yyyy") : "-"}
+                                            </div>
+                                            <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
+                                                <Image
+                                                    src={icons.dateOut}
+                                                    alt="Tanggal Berakhir Cuti"
+                                                    width={24}
+                                                    height={24}
+                                                />
+                                                {ct.endDate ? format(new Date(ct.endDate), "dd MMM yyyy") : "-"}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col md:flex-row md:items-center gap-2">
+                                        <Link
+                                            href={`/dashboard/cuti-karyawan/${ct.id}`}
+                                            className="flex items-center justify-center gap-2 p-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 cursor-pointer"
+                                        >
+                                            <Image
+                                                src={icons.viewLogo}
+                                                alt="View Logo"
+                                                width={20}
+                                                height={20}
+                                            />
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         ))

@@ -24,6 +24,7 @@ export enum CutiStatus {
     DITERIMA = "DITERIMA",
     DITOLAK = "DITOLAK",
     BATAL = "BATAL",
+    EXPIRED = "EXPIRED",
 }
 
 export enum GajiStatus {
