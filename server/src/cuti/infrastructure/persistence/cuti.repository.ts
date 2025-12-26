@@ -530,9 +530,6 @@ export class CutiRepository implements ICutiRepository {
     try {
       const target = await this.findById(id);
       if (!target) throw new NotFoundException('Cuti data not found');
-      if (file) {
-        await deleteFile(target.dokumen.path);
-      }
       const query = await this.prisma.cuti.update({
         where: { id },
         data: {

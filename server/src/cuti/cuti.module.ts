@@ -15,6 +15,7 @@ import { CutiExpirationScheduler } from './infrastructure/scheduler/cuti-expirat
 import { CutiExpirationService } from './domain/services/cuti-expiration.service';
 import { DateUtilService } from 'src/common/utils/dateUtil';
 import { LoggerService } from 'src/logger/logger.service';
+import { UpdateCutiUseCase } from './application/use-cases/update-cuti.use-case';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { LoggerService } from 'src/logger/logger.service';
     ApproveCutiUseCase,
     RejectCutiUseCase,
     CancelCutiUseCase,
+    UpdateCutiUseCase,
     CutiAuthorizationService,
     CutiQuotaService,
     { provide: ICutiRepository, useClass: CutiRepository },

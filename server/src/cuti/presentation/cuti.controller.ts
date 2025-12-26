@@ -31,6 +31,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import * as fs from 'fs';
 import { UpdateCutiDTO } from '../application/dtos/request/update-cuti.dto';
+import { UpdateCutiUseCase } from '../application/use-cases/update-cuti.use-case';
 
 @Controller('cuti')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -41,6 +42,7 @@ export class CutiController {
     private readonly ApproveCutiUseCase: ApproveCutiUseCase,
     private readonly CancelCutiUseCase: CancelCutiUseCase,
     private readonly RejectCutiUseCase: RejectCutiUseCase,
+    private readonly UpdateCutiUseCase: UpdateCutiUseCase,
   ) { }
 
   // POST cuti/
@@ -136,8 +138,9 @@ export class CutiController {
     @Param('id') id: string,
     @Body() updateCutiDto: UpdateCutiDTO,
     @UploadedFile() file: Express.Multer.File,
+    @Req() req: Request & {user: UserRequest},
   ) {
-    return this.cutiRepo.update(id, updateCutiDto, file);
+    return this.UpdateCutiUseCase.execute(id, req.user.id, updateCutiDto, file);
   }
 
   // PATCH cuti/approve/:id
