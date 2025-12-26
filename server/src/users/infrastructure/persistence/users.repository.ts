@@ -3,14 +3,20 @@ import { PrismaService } from 'src/database/prisma/prisma.service';
 import { handlePrismaError } from 'src/common/errors/prisma-exception';
 import { plainToInstance } from 'class-transformer';
 import { IUserRepository } from 'src/users/domain/repositories/users.repository.interface';
-import { CreateUserDTO } from 'src/users/application/dtos/request/create-user.dto';
+import {
+  CreateUserDTO,
+  InternalCreateUserDTO,
+} from 'src/users/application/dtos/request/create-user.dto';
 import { CreateUserResponseDTO } from 'src/users/application/dtos/response/create-response.dto';
 import {
   RetrieveAllUserResponseDTO,
   RetrieveUserResponseDTO,
 } from 'src/users/application/dtos/response/read-response.dto';
 import { UserFilterDTO } from 'src/users/application/dtos/request/user-filter.dto';
-import { UpdateUserDTO } from 'src/users/application/dtos/request/update-user.dto';
+import {
+  InternalUpdateUserDTO,
+  UpdateUserDTO,
+} from 'src/users/application/dtos/request/update-user.dto';
 import { UpdateUserResponseDTO } from 'src/users/application/dtos/response/update-response.dto';
 import { DeleteUserResponseDTO } from 'src/users/application/dtos/response/delete-response.dto';
 import { Prisma } from '@prisma/client';
@@ -25,14 +31,18 @@ import {
 } from 'src/kpi/application/dtos/indikatorKPI.dto';
 import { JawabanKPIBaseDTO } from 'src/kpi/application/dtos/jawabanKPI.dto';
 import { RekapKPIBaseDTO } from 'src/kpi/application/dtos/rekapKPI.dto';
+import { FileMetaData } from 'src/common/types/FileMetaData.dto';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaService) { }
-  async create(dto: CreateUserDTO): Promise<CreateUserResponseDTO> {
+  async create(dto: InternalCreateUserDTO): Promise<CreateUserResponseDTO> {
     try {
       const query = await this.prisma.user.create({
-        data: dto,
+        data: {
+          ...dto,
+          photo: dto.photo ? (dto.photo as any) : null,
+        },
       });
       return plainToInstance(CreateUserResponseDTO, query);
     } catch (err) {
@@ -112,6 +122,7 @@ export class UserRepository implements IUserRepository {
         data: users.map((user) =>
           plainToInstance(RetrieveUserResponseDTO, {
             ...user,
+            photo: plainToInstance(FileMetaData, user.photo),
             absensi: plainToInstance(AbsensiBaseDTO, user.absensi),
             cutiDiajukan: plainToInstance(CutiBaseDTO, user.cutiDiajukan),
             cutiDisetujui: plainToInstance(CutiBaseDTO, user.cutiDisetujui),
@@ -170,6 +181,7 @@ export class UserRepository implements IUserRepository {
       if (!user) throw new NotFoundException('User data not found');
       return plainToInstance(RetrieveUserResponseDTO, {
         ...user,
+        photo: plainToInstance(FileMetaData, user.photo),
         absensi: plainToInstance(AbsensiBaseDTO, user.absensi),
         cutiDiajukan: plainToInstance(CutiBaseDTO, user.cutiDiajukan),
         cutiDisetujui: plainToInstance(CutiBaseDTO, user.cutiDisetujui),
@@ -202,22 +214,27 @@ export class UserRepository implements IUserRepository {
 
   async findByEmail(email: string): Promise<RetrieveUserResponseDTO> {
     try {
-      const user = this.prisma.user.findUnique({ where: { email } });
-      if (!user) throw new NotFoundException('User data not found');
+      const user = await this.prisma.user.findUnique({ where: { email } });
       return plainToInstance(RetrieveUserResponseDTO, user);
     } catch (err) {
       handlePrismaError(err, 'User', email);
     }
   }
 
-  async update(id: string, dto: UpdateUserDTO): Promise<UpdateUserResponseDTO> {
+  async update(
+    id: string,
+    dto: InternalUpdateUserDTO,
+  ): Promise<UpdateUserResponseDTO> {
     try {
-      const target = this.findById(id);
+      const target = await this.findById(id);
       if (!target) throw new NotFoundException('User data not found');
 
       const query = await this.prisma.user.update({
         where: { id },
-        data: dto,
+        data: {
+          ...dto,
+          photo: dto.photo ? dto.photo as any : target.photo,
+        },
       });
       return plainToInstance(UpdateUserResponseDTO, query);
     } catch (err) {
@@ -227,7 +244,7 @@ export class UserRepository implements IUserRepository {
 
   async remove(id: string): Promise<DeleteUserResponseDTO> {
     try {
-      const target = this.findById(id);
+      const target = await this.findById(id);
       if (!target) throw new NotFoundException('User data not found');
 
       const query = await this.prisma.user.delete({
