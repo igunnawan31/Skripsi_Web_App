@@ -6,10 +6,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { AbsensiFilterDTO } from 'src/absensi/application/dtos/request/absensi-filter.dto';
-import {
-  CheckInDTO,
-  InternalCheckInDTO,
-} from 'src/absensi/application/dtos/request/check-in.dto';
+import { InternalCheckInDTO } from 'src/absensi/application/dtos/request/check-in.dto';
 import { InternalCheckOutDTO } from 'src/absensi/application/dtos/request/check-out.dto';
 import { CheckInResponseDTO } from 'src/absensi/application/dtos/response/create-response.dto';
 import {
