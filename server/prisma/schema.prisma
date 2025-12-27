@@ -155,6 +155,7 @@ model Project {
   status      ProjectStatus @default(ACTIVE)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  dokumen     Json?
 
   projectTeams ProjectTeam[]  @relation("ProjectTeam")
   kontrak      KontrakKerja[] @relation("KontrakProject")
