@@ -1,5 +1,6 @@
 import { ProjectRole, ProjectStatus } from "@prisma/client";
 import { Expose } from "class-transformer";
+import { FileMetaData } from "src/common/types/FileMetaData.dto";
 
 export class ProjectBaseDTO {
   @Expose()
@@ -19,6 +20,9 @@ export class ProjectBaseDTO {
   
   @Expose()
   status:ProjectStatus;
+
+  @Expose()
+  dokumen: FileMetaData[];
   
   @Expose()
   createdAt: string;

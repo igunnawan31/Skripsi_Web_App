@@ -5,9 +5,9 @@ import { handlePrismaError } from 'src/common/errors/prisma-exception';
 import { PrismaService } from 'src/database/prisma/prisma.service';
 import { KontrakBaseDTO } from 'src/kontrak/application/dtos/base.dto';
 import { ProjectTeamBaseDTO } from 'src/project/application/dtos/base.dto';
-import { CreateProjectDTO } from 'src/project/application/dtos/request/create-project.dto';
+import { CreateProjectDTO, InternalCreateProjectDTO } from 'src/project/application/dtos/request/create-project.dto';
 import { ProjectFilterDTO } from 'src/project/application/dtos/request/project-filter.dto';
-import { UpdateProjectDTO } from 'src/project/application/dtos/request/update-project.dto';
+import { InternalUpdateProjectDTO, UpdateProjectDTO } from 'src/project/application/dtos/request/update-project.dto';
 import { CreateProjectResponseDTO } from 'src/project/application/dtos/response/create-response.dto';
 import { DeleteProjectResponseDTO } from 'src/project/application/dtos/response/delete-response.dto';
 import {
@@ -126,14 +126,12 @@ export class ProjectRepository implements IProjectRepository {
       handlePrismaError(err, 'Project');
     }
   }
-  async create(data: CreateProjectDTO): Promise<CreateProjectResponseDTO> {
+  async create(data: InternalCreateProjectDTO): Promise<CreateProjectResponseDTO> {
     try {
       const query = await this.prisma.project.create({
         data: {
-          name: data.name,
-          description: data.name,
-          startDate: new Date(data.startDate),
-          endDate: new Date(data.endDate),
+          ...data,
+          dokumen: data.dokumen ? data.dokumen as any[] : undefined,
         },
       });
       return plainToInstance(CreateProjectResponseDTO, query);
@@ -144,15 +142,18 @@ export class ProjectRepository implements IProjectRepository {
 
   async update(
     id: string,
-    data: UpdateProjectDTO,
+    data: InternalUpdateProjectDTO,
   ): Promise<UpdateProjectResponseDTO> {
     try {
-      const target = this.findById(id);
+      const target = await this.findById(id);
       if (!target) throw new NotFoundException('Project data not found');
 
       const query = await this.prisma.project.update({
         where: { id },
-        data: data,
+        data: {
+          ...data,
+          dokumen: data.dokumen ? data.dokumen as any[] : target.dokumen,
+        },
       });
       return plainToInstance(UpdateProjectResponseDTO, query);
     } catch (err) {
