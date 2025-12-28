@@ -11,6 +11,11 @@ import { KontrakValidationService } from './domain/services/kontrak-validation.s
 import { CutiModule } from 'src/cuti/cuti.module';
 import { AbsensiModule } from 'src/absensi/absensi.module';
 import { KontrakBasedAbsensiQuotaAdapter } from './infrastructure/adapter/absensi-quota-adapter';
+import { UpdateKontrakUseCase } from './application/use-cases/update-kontrak.use-case';
+import { GetKontrakUseCase } from './application/use-cases/get-kontrak.use-case';
+import { GetUserKontrakUseCase } from './application/use-cases/get-user-kontrak.use-case';
+import { GetAllKontrakUseCase } from './application/use-cases/getAll-kontrak.use-case';
+import { DeleteKontrakUseCase } from './application/use-cases/delete-kontrak.use-case';
 
 @Module({
   imports: [
@@ -23,6 +28,11 @@ import { KontrakBasedAbsensiQuotaAdapter } from './infrastructure/adapter/absens
   controllers: [KontrakController],
   providers: [
     CreateKontrakUseCase,
+    UpdateKontrakUseCase,
+    GetKontrakUseCase,
+    GetUserKontrakUseCase,
+    GetAllKontrakUseCase,
+    DeleteKontrakUseCase,
     GetUserQuotaUseCase,
     KontrakValidationService,
     KontrakBasedAbsensiQuotaAdapter,

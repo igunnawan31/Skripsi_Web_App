@@ -79,7 +79,7 @@ async function main() {
     data: {
       userId: frontend.id,
       projectId: project.id,
-      metodePembayaran: 'BULANAN',
+      metodePembayaran: 'MONTHLY',
       totalBayaran: 8000000,
       absensiBulanan: 22,
       cutiBulanan: 2,
@@ -92,7 +92,7 @@ async function main() {
   await prisma.kontrakKerja.create({
     data: {
       userId: hr.id,
-      metodePembayaran: 'BULANAN',
+      metodePembayaran: 'MONTHLY',
       totalBayaran: 12000000,
       absensiBulanan: 31,
       cutiBulanan: 3,
@@ -187,7 +187,7 @@ async function main() {
       category: 'TEKNIS',
       startDate: new Date('2025-01-01'),
       endDate: new Date('2025-01-31'),
-      status: 'AKTIF',
+      status: 'ACTIVE',
       createdById: pm.id,
       penilai: {
         create: [{ userId: pm.id }],
