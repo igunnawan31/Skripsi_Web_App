@@ -22,5 +22,5 @@ export class UserBaseDTO {
   minorRole: MinorRole;
 
   @Expose()
-  photo?: FileMetaData;
+  photo: FileMetaData;
 }

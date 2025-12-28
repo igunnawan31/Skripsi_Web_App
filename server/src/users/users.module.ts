@@ -6,6 +6,7 @@ import { DeleteUserUseCase } from './application/use-cases/delete-user.use-case'
 import { UserValidationService } from './domain/services/user-validation.service';
 import { IUserRepository } from './domain/repositories/users.repository.interface';
 import { UserRepository } from './infrastructure/persistence/users.repository';
+import { UserProvisionService } from './application/services/user-provisioning.service';
 
 @Module({
   controllers: [UsersController],
@@ -14,8 +15,9 @@ import { UserRepository } from './infrastructure/persistence/users.repository';
     UpdateUserUseCase,
     DeleteUserUseCase,
     UserValidationService,
+    UserProvisionService,
     { provide: IUserRepository, useClass: UserRepository },
   ],
-  exports: [IUserRepository],
+  exports: [IUserRepository, UserProvisionService],
 })
 export class UsersModule {}

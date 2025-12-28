@@ -50,7 +50,7 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async findAll(filters: UserFilterDTO): Promise<RetrieveAllUserResponseDTO> {
+  async findAll(filters: UserFilterDTO): Promise<RetrieveAllUserResponseDTO | null> {
     try {
       const {
         searchTerm,
@@ -118,6 +118,9 @@ export class UserRepository implements IUserRepository {
         }),
         this.prisma.user.count({ where }),
       ]);
+
+      if (!users) return null;
+
       return plainToInstance(RetrieveAllUserResponseDTO, {
         data: users.map((user) =>
           plainToInstance(RetrieveUserResponseDTO, {
@@ -157,7 +160,7 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async findById(id: string): Promise<RetrieveUserResponseDTO> {
+  async findById(id: string): Promise<RetrieveUserResponseDTO | null> {
     try {
       const user = await this.prisma.user.findUnique({
         where: { id },
@@ -177,42 +180,46 @@ export class UserRepository implements IUserRepository {
         },
       });
 
-      if (!user) throw new NotFoundException('User data not found');
-      return plainToInstance(RetrieveUserResponseDTO, {
-        ...user,
-        absensi: plainToInstance(AbsensiBaseDTO, user.absensi),
-        cutiDiajukan: plainToInstance(CutiBaseDTO, user.cutiDiajukan),
-        cutiDisetujui: plainToInstance(CutiBaseDTO, user.cutiDisetujui),
-        gaji: plainToInstance(GajiBaseDTO, user.gaji),
-        kontrak: plainToInstance(KontrakBaseDTO, user.kontrak),
-        projectTeams: plainToInstance(ProjectBaseDTO, user.projectTeams),
-        indikatorDibuat: plainToInstance(
-          IndikatorKPIBaseDTO,
-          user.indikatorDibuat,
-        ),
-        penilaiKPI: plainToInstance(JawabanKPIBaseDTO, user.penilaiKPI),
-        dinilaiKPI: plainToInstance(JawabanKPIBaseDTO, user.dinilaiKPI),
-        rekapKPI: plainToInstance(RekapKPIBaseDTO, user.rekapKPI),
-        indikatorPenilai: plainToInstance(
-          IndikatorKPIPivotBaseDTO,
-          user.indikatorPenilai,
-        ),
-        indikatorDinilai: plainToInstance(
-          IndikatorKPIPivotBaseDTO,
-          user.indikatorDinilai,
-        ),
-      });
+      if (!user) return null;
+
+      return plainToInstance(
+        RetrieveUserResponseDTO,
+        user
+          ? {
+            ...user,
+            absensi: plainToInstance(AbsensiBaseDTO, user.absensi),
+            cutiDiajukan: plainToInstance(CutiBaseDTO, user.cutiDiajukan),
+            cutiDisetujui: plainToInstance(CutiBaseDTO, user.cutiDisetujui),
+            gaji: plainToInstance(GajiBaseDTO, user.gaji),
+            kontrak: plainToInstance(KontrakBaseDTO, user.kontrak),
+            projectTeams: plainToInstance(ProjectBaseDTO, user.projectTeams),
+            indikatorDibuat: plainToInstance(
+              IndikatorKPIBaseDTO,
+              user.indikatorDibuat,
+            ),
+            penilaiKPI: plainToInstance(JawabanKPIBaseDTO, user.penilaiKPI),
+            dinilaiKPI: plainToInstance(JawabanKPIBaseDTO, user.dinilaiKPI),
+            rekapKPI: plainToInstance(RekapKPIBaseDTO, user.rekapKPI),
+            indikatorPenilai: plainToInstance(
+              IndikatorKPIPivotBaseDTO,
+              user.indikatorPenilai,
+            ),
+            indikatorDinilai: plainToInstance(
+              IndikatorKPIPivotBaseDTO,
+              user.indikatorDinilai,
+            ),
+          }
+          : {},
+      );
     } catch (err) {
-      if (err instanceof NotFoundException) {
-        throw err;
-      }
       handlePrismaError(err, 'User', id);
     }
   }
 
-  async findByEmail(email: string): Promise<RetrieveUserResponseDTO> {
+  async findByEmail(email: string): Promise<RetrieveUserResponseDTO | null> {
     try {
       const user = await this.prisma.user.findUnique({ where: { email } });
+      if (!user) return null;
       return plainToInstance(RetrieveUserResponseDTO, user);
     } catch (err) {
       handlePrismaError(err, 'User', email);
@@ -224,14 +231,11 @@ export class UserRepository implements IUserRepository {
     dto: InternalUpdateUserDTO,
   ): Promise<UpdateUserResponseDTO> {
     try {
-      const target = await this.findById(id);
-      if (!target) throw new NotFoundException('User data not found');
-
       const query = await this.prisma.user.update({
         where: { id },
         data: {
           ...dto,
-          photo: dto.photo ? dto.photo as any : target.photo,
+          photo: dto.photo as any,
         },
       });
       return plainToInstance(UpdateUserResponseDTO, query);
@@ -240,15 +244,11 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async remove(id: string): Promise<DeleteUserResponseDTO> {
+  async remove(id: string): Promise<void> {
     try {
-      const target = await this.findById(id);
-      if (!target) throw new NotFoundException('User data not found');
-
-      const query = await this.prisma.user.delete({
+      await this.prisma.user.delete({
         where: { id },
       });
-      return plainToInstance(DeleteUserResponseDTO, query);
     } catch (err) {
       handlePrismaError(err, 'User', id);
     }

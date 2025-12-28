@@ -10,13 +10,13 @@ import {
 import { UpdateUserResponseDTO } from 'src/users/application/dtos/response/update-response.dto';
 
 export abstract class IUserRepository {
-  abstract findAll(filters: UserFilterDTO): Promise<RetrieveAllUserResponseDTO>;
-  abstract findById(id: string): Promise<RetrieveUserResponseDTO>;
+  abstract findAll(filters: UserFilterDTO): Promise<RetrieveAllUserResponseDTO | null>;
+  abstract findById(id: string): Promise<RetrieveUserResponseDTO | null>;
   abstract create(data: InternalCreateUserDTO): Promise<CreateUserResponseDTO>;
   abstract update(
     id: string,
     data: InternalUpdateUserDTO,
   ): Promise<UpdateUserResponseDTO>;
-  abstract remove(id: string): Promise<DeleteUserResponseDTO>;
-  abstract findByEmail(email: string): Promise<RetrieveUserResponseDTO>;
+  abstract remove(id: string): Promise<void>;
+  abstract findByEmail(email: string): Promise<RetrieveUserResponseDTO | null>;
 }
