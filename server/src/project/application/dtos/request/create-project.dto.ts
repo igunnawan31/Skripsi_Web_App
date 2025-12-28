@@ -1,6 +1,6 @@
 import { OmitType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
-import { IsDate, IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsDate, IsDateString, IsDefined, IsEnum, IsOptional, IsString, ValidateIf } from 'class-validator';
 import { FileMetaData } from 'src/common/types/FileMetaData.dto';
 
 export class CreateProjectDTO {
@@ -18,6 +18,35 @@ export class CreateProjectDTO {
   endDate: string;
 }
 
+export class ProjectProvisionInputDTO {
+  @IsOptional()
+  @IsString()
+  id?: string; // in case bikin project dulu baru bikin kontrak
+  
+  @ValidateIf(o => !o.id)
+  @IsString()
+  @IsDefined()
+  name: string;
+
+  @ValidateIf(o => !o.id)
+  @IsString()
+  @IsDefined()
+  description: string;
+
+  @ValidateIf(o => !o.id)
+  @IsDefined()
+  @IsDate()
+  startDate: Date;
+
+  @ValidateIf(o => !o.id)
+  @IsDefined()
+  @IsDate()
+  endDate: Date;
+
+  @IsOptional()
+  documents?: FileMetaData[];
+}
+
 export class InternalCreateProjectDTO extends OmitType(CreateProjectDTO, [
   'startDate',
   'endDate',
@@ -31,5 +60,5 @@ export class InternalCreateProjectDTO extends OmitType(CreateProjectDTO, [
   endDate: Date;
 
   @IsOptional()
-  dokumen?: FileMetaData[];
+  documents?: FileMetaData[];
 }

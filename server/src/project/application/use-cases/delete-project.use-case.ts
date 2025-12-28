@@ -17,8 +17,8 @@ export class DeleteProjectUseCase {
       throw new NotFoundException('User tidak ditemukan');
     }
 
-    if (project.dokumen.length > 0) {
-      await deleteFileArray(project.dokumen, 'projectDocument');
+    if (project.documents.length > 0) {
+      await deleteFileArray(project.documents, 'projectDocument');
     }
     try {
       const deletedProject = await this.projectRepo.remove(projectId);

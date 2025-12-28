@@ -12,14 +12,14 @@ export class CreateProjectUseCase {
   constructor(
     @Inject(IProjectRepository)
     private readonly projectRepo: IProjectRepository,
-    private readonly projectValidationService: ProjectValidationService,
+    private readonly validationService: ProjectValidationService,
     private readonly eventEmitter: EventEmitter2,
   ) { }
 
   async execute(
     dto: InternalCreateProjectDTO,
   ): Promise<CreateProjectResponseDTO> {
-    const validation = this.projectValidationService.validateDates(
+    const validation = this.validationService.validateDates(
       new Date(dto.startDate),
       new Date(dto.endDate),
     );
@@ -31,21 +31,20 @@ export class CreateProjectUseCase {
     let projectDocument: FileMetaData[] = [];
 
     try {
-      projectDocument = dto.dokumen ?? [];
-      console.log(projectDocument);
+      projectDocument = dto.documents ?? [];
       const project = await this.projectRepo.create({
         name: dto.name,
         description: dto.description,
         startDate: dto.startDate,
         endDate: dto.endDate,
-        dokumen: projectDocument,
+        documents: projectDocument,
       });
 
       this.eventEmitter.emit('project.created', project);
       return project;
     } catch (err) {
-      if (dto.dokumen && dto.dokumen.length > 0) {
-        await deleteFileArray(dto.dokumen, 'projectDocument');
+      if (dto.documents && dto.documents.length > 0) {
+        await deleteFileArray(dto.documents, 'projectDocument');
       }
       throw err;
     }

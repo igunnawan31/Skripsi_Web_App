@@ -2,7 +2,6 @@ import { InternalCreateProjectDTO } from 'src/project/application/dtos/request/c
 import { ProjectFilterDTO } from 'src/project/application/dtos/request/project-filter.dto';
 import { InternalUpdateProjectDTO } from 'src/project/application/dtos/request/update-project.dto';
 import { CreateProjectResponseDTO } from 'src/project/application/dtos/response/create-response.dto';
-import { DeleteProjectResponseDTO } from 'src/project/application/dtos/response/delete-response.dto';
 import {
   RetrieveAllProjectResponseDTO,
   RetrieveProjectResponseDTO,
@@ -13,9 +12,9 @@ import { UpdateProjectResponseDTO } from 'src/project/application/dtos/response/
 export abstract class IProjectRepository {
   abstract findAll(
     filters: ProjectFilterDTO,
-  ): Promise<RetrieveAllProjectResponseDTO>;
-  abstract findById(id: string): Promise<RetrieveProjectResponseDTO>;
-  abstract findTeamById(id: string): Promise<RetrieveTeamResponseDTO[]>;
+  ): Promise<RetrieveAllProjectResponseDTO | null>;
+  abstract findById(id: string): Promise<RetrieveProjectResponseDTO | null>;
+  abstract findTeamById(id: string): Promise<RetrieveTeamResponseDTO[] | null>;
   abstract create(
     data: InternalCreateProjectDTO,
   ): Promise<CreateProjectResponseDTO>;
@@ -23,9 +22,9 @@ export abstract class IProjectRepository {
     id: string,
     data: InternalUpdateProjectDTO,
   ): Promise<UpdateProjectResponseDTO>;
-  abstract remove(id: string): Promise<DeleteProjectResponseDTO>;
+  abstract remove(id: string): Promise<void>;
   abstract removePersonel(
     projectId: string,
     userId: string,
-  ): Promise<RetrieveTeamResponseDTO[]>;
+  ): Promise<void>;
 }

@@ -32,14 +32,14 @@ export class UpdateProjectUseCase {
   ): Promise<UpdateProjectResponseDTO> {
     const project = await this.projectRepo.findById(projectId);
     if (!project) {
-      if (dto.dokumen?.length) {
-        await deleteFileArray(dto.dokumen, 'newProjectDocument');
+      if (dto.documents?.length) {
+        await deleteFileArray(dto.documents, 'newProjectDocument');
       }
       throw new NotFoundException('Project tidak ditemukan');
     }
-    const oldDocs = project.dokumen ?? [];
-    const newDocs = dto.dokumen ?? [];
-    const removeDocs = dto.removeDokumen ?? [];
+    const oldDocs = project.documents ?? [];
+    const newDocs = dto.documents ?? [];
+    const removeDocs = dto.removeDocuments ?? [];
 
     const validRemoveDocs = oldDocs
       .filter((d) => removeDocs.includes(d.path))
@@ -49,11 +49,6 @@ export class UpdateProjectUseCase {
       (d) => !validRemoveDocs.includes(d.path),
     );
     remainingDocs = [...remainingDocs, ...newDocs];
-    console.log("Old: ", oldDocs);
-    console.log("New: ", newDocs);
-    console.log("Remove: ", removeDocs);
-    console.log("Valid Remove: ", validRemoveDocs);
-    console.log("Remaining: ", remainingDocs);
 
     try {
       const updated = await this.projectRepo.update(projectId, {
@@ -61,7 +56,7 @@ export class UpdateProjectUseCase {
         description: dto.description,
         startDate: dto.startDate,
         endDate: dto.endDate,
-        dokumen: remainingDocs,
+        documents: remainingDocs,
       });
 
       if (validRemoveDocs.length > 0) {

@@ -12,7 +12,7 @@ export class UpdateProjectDTO extends PartialType(CreateProjectDTO) {
 
   @IsArray()
   @IsOptional()
-  removeDokumen?: string[];
+  removeDocuments?: string[];
 }
 export class InternalUpdateProjectDTO extends OmitType(UpdateProjectDTO, [
   'startDate',
@@ -29,5 +29,5 @@ export class InternalUpdateProjectDTO extends OmitType(UpdateProjectDTO, [
   endDate?: Date;
 
   @IsOptional()
-  dokumen?: FileMetaData[];
+  documents?: FileMetaData[];
 }

@@ -72,7 +72,7 @@ export class ProjectController {
       description: dto.description ?? undefined,
       startDate: new Date(dto.startDate),
       endDate: new Date(dto.endDate),
-      dokumen: files.projectDocument,
+      documents: files.projectDocument,
     }
     return this.createProjectUseCase.execute(payload);
   }
@@ -130,7 +130,7 @@ export class ProjectController {
       ...dto,
       startDate: dto.startDate ? new Date(dto.startDate) : undefined,
       endDate: dto.endDate ? new Date(dto.endDate) : undefined,
-      dokumen: files.projectDocument,
+      documents: files.projectDocument,
     }
     return this.updateProjectUseCase.execute(
       id,
@@ -152,27 +152,6 @@ export class ProjectController {
   // DELETE project/:id
   @Delete(':id')
   @RolesMinor(MinorRole.HR)
-  @UseInterceptors(
-    FileFieldsInterceptor([{ name: 'dokumen', maxCount: 5 }], {
-      storage: diskStorage({
-        destination: (req, file, cb) => {
-          const folder = `./uploads/${file.fieldname}s`;
-          if (!fs.existsSync(folder)) {
-            fs.mkdirSync(folder, { recursive: true });
-          }
-          cb(null, folder);
-        },
-        filename: (req, file, cb) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(
-            null,
-            `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`,
-          );
-        },
-      }),
-    }),
-  )
   remove(@Param('id') id: string, @Req() req: Request & { user: UserRequest }) {
     return this.deleteProjectUseCase.execute(id, req.user.id);
   }

@@ -22,7 +22,7 @@ export class ProjectBaseDTO {
   status:ProjectStatus;
 
   @Expose()
-  dokumen: FileMetaData[];
+  documents: FileMetaData[];
   
   @Expose()
   createdAt: string;

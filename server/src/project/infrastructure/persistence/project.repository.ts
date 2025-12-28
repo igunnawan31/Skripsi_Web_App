@@ -5,9 +5,15 @@ import { handlePrismaError } from 'src/common/errors/prisma-exception';
 import { PrismaService } from 'src/database/prisma/prisma.service';
 import { KontrakBaseDTO } from 'src/kontrak/application/dtos/base.dto';
 import { ProjectTeamBaseDTO } from 'src/project/application/dtos/base.dto';
-import { CreateProjectDTO, InternalCreateProjectDTO } from 'src/project/application/dtos/request/create-project.dto';
+import {
+  CreateProjectDTO,
+  InternalCreateProjectDTO,
+} from 'src/project/application/dtos/request/create-project.dto';
 import { ProjectFilterDTO } from 'src/project/application/dtos/request/project-filter.dto';
-import { InternalUpdateProjectDTO, UpdateProjectDTO } from 'src/project/application/dtos/request/update-project.dto';
+import {
+  InternalUpdateProjectDTO,
+  UpdateProjectDTO,
+} from 'src/project/application/dtos/request/update-project.dto';
 import { CreateProjectResponseDTO } from 'src/project/application/dtos/response/create-response.dto';
 import { DeleteProjectResponseDTO } from 'src/project/application/dtos/response/delete-response.dto';
 import {
@@ -23,7 +29,7 @@ export class ProjectRepository implements IProjectRepository {
   constructor(private readonly prisma: PrismaService) { }
   async findAll(
     filters: ProjectFilterDTO,
-  ): Promise<RetrieveAllProjectResponseDTO> {
+  ): Promise<RetrieveAllProjectResponseDTO | null> {
     try {
       const {
         searchTerm,
@@ -77,6 +83,8 @@ export class ProjectRepository implements IProjectRepository {
         this.prisma.project.count({ where }),
       ]);
 
+      if (!projects) return null;
+
       return plainToInstance(RetrieveAllProjectResponseDTO, {
         data: projects.map((p) =>
           plainToInstance(RetrieveProjectResponseDTO, {
@@ -96,7 +104,7 @@ export class ProjectRepository implements IProjectRepository {
       handlePrismaError(err, 'Project');
     }
   }
-  async findById(id: string): Promise<RetrieveProjectResponseDTO> {
+  async findById(id: string): Promise<RetrieveProjectResponseDTO | null> {
     try {
       const project = await this.prisma.project.findUnique({
         where: { id },
@@ -105,33 +113,41 @@ export class ProjectRepository implements IProjectRepository {
           kontrak: true,
         },
       });
-      if (!project) throw new NotFoundException('Project data not found');
+      if (!project) return null;
       return plainToInstance(RetrieveProjectResponseDTO, {
         ...project,
-        projectTeams: plainToInstance(ProjectTeamBaseDTO, project.projectTeams),
-        kontrak: plainToInstance(KontrakBaseDTO, project.kontrak),
+        projectTeams: plainToInstance(
+          ProjectTeamBaseDTO,
+          project ? project.projectTeams : {},
+        ),
+        kontrak: plainToInstance(
+          KontrakBaseDTO,
+          project ? project.kontrak : {},
+        ),
       });
     } catch (err) {
       handlePrismaError(err, 'Project', id);
     }
   }
-  async findTeamById(id: string): Promise<RetrieveTeamResponseDTO[]> {
+  async findTeamById(id: string): Promise<RetrieveTeamResponseDTO[] | null> {
     try {
       const personel = await this.prisma.projectTeam.findMany({
         where: { projectId: id },
       });
-      if (!personel) throw new NotFoundException('Project data not found');
+      if (!personel) return null;
       return personel.map((p) => plainToInstance(RetrieveTeamResponseDTO, p));
     } catch (err) {
       handlePrismaError(err, 'Project');
     }
   }
-  async create(data: InternalCreateProjectDTO): Promise<CreateProjectResponseDTO> {
+  async create(
+    data: InternalCreateProjectDTO,
+  ): Promise<CreateProjectResponseDTO> {
     try {
       const query = await this.prisma.project.create({
         data: {
           ...data,
-          dokumen: data.dokumen ? data.dokumen as any[] : undefined,
+          documents: data.documents ? (data.documents as any[]) : undefined,
         },
       });
       return plainToInstance(CreateProjectResponseDTO, query);
@@ -145,14 +161,11 @@ export class ProjectRepository implements IProjectRepository {
     data: InternalUpdateProjectDTO,
   ): Promise<UpdateProjectResponseDTO> {
     try {
-      const target = await this.findById(id);
-      if (!target) throw new NotFoundException('Project data not found');
-
       const query = await this.prisma.project.update({
         where: { id },
         data: {
           ...data,
-          dokumen: data.dokumen ? data.dokumen as any[] : target.dokumen,
+          documents: data.documents as any[],
         },
       });
       return plainToInstance(UpdateProjectResponseDTO, query);
@@ -161,32 +174,22 @@ export class ProjectRepository implements IProjectRepository {
     }
   }
 
-  async remove(id: string): Promise<DeleteProjectResponseDTO> {
+  async remove(id: string): Promise<void> {
     try {
-      const target = await this.findById(id);
-      if (!target) throw new NotFoundException('Project data not found');
-
-      const query = await this.prisma.project.delete({
+      await this.prisma.project.delete({
         where: { id },
       });
-      return plainToInstance(DeleteProjectResponseDTO, query);
     } catch (err) {
       handlePrismaError(err, 'Project');
     }
   }
 
-  async removePersonel(projectId: string, userId: string) {
-    const target = this.findById(projectId);
-    if (!target) throw new NotFoundException('Project data not found');
-
+  async removePersonel(
+    projectId: string,
+    userId: string,
+  ): Promise<void> {
     await this.prisma.projectTeam.delete({
       where: { projectId_userId: { projectId, userId } },
     });
-
-    const personel = await this.prisma.projectTeam.findMany({
-      where: { projectId: projectId },
-    });
-    if (!personel) throw new NotFoundException('Project data not found');
-    return personel.map((p) => plainToInstance(RetrieveTeamResponseDTO, p));
   }
 }
