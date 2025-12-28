@@ -42,7 +42,7 @@ export class GajiSchedulingService {
     }
 
     switch (metodePembayaran) {
-      case MetodePembayaran.BULANAN:
+      case MetodePembayaran.MONTHLY:
         if (!end) throw new Error('endDate required for BULANAN');
         await this.generateMonthlyGaji(
           kontrakId,
