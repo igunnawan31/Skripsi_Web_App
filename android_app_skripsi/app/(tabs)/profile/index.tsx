@@ -7,8 +7,10 @@ import { Image, Text, TouchableOpacity, View, Modal } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import * as ImagePicker from "expo-image-picker";
 import ChangeImageModal from "@/components/rootComponents/profileComponent/ChangeImageModal";
+import { useAuth } from "@/lib/api/hooks/useAuth";
 
 const ProfilePage = () => {
+    const { logoutAction } = useAuth();
     const [data, setData] = useState(dummyUsers);
     const [itemPick, setItemPick] = useState<"Personal" | "Business" | "Others">("Personal");
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -39,6 +41,10 @@ const ProfilePage = () => {
             setProfileImage({ uri: result.assets[0].uri });
             setIsModalVisible(false);
         }
+    };
+
+    const onSubmit = () => {
+        logoutAction();
     };
 
     return (
@@ -147,6 +153,21 @@ const ProfilePage = () => {
                     {itemPick === "Others" && (
                         <ListDataComponent data={data[0].dataOthers} />
                     )}
+                    <TouchableOpacity 
+                        style={[
+                            profileStyles.buttonPicker
+                        ]}
+                        onPress={(onSubmit)}
+                    >
+                        <Text
+                            style={[
+                                profileStyles.modeText,
+                                itemPick === "Others" && { color: COLORS.white },
+                            ]}
+                        >
+                            Others
+                        </Text>
+                    </TouchableOpacity>
                 </View>
             </View>
             <ChangeImageModal

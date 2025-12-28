@@ -29,7 +29,7 @@ export const COLORS = {
   textMutedOpacity20: "#6B728020",     // Abu-abu netral untuk teks deskriptif
   textLight: "#FFFFFF95",     // Hijau lebih terang untuk teks sekunder
   text: "#181818",  // Hitam utama
-  border: "#E2E8F0",        // Warna garis pembatas
+  border: "#e2e8f0",        // Warna garis pembatas
   muted: "#94A3B8",         // Warna teks redup (placeholder / hint)
 };
 
