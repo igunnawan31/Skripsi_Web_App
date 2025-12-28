@@ -10,11 +10,13 @@ import ModalNotification from "@/components/rootComponents/homeComponent/ModalNo
 import AbsenseComponent from "@/components/rootComponents/homeComponent/AbsenseComponent";
 import FeatureComponent from "@/components/rootComponents/homeComponent/FeatureComponent";
 import ReimburseComponent from "@/components/rootComponents/homeComponent/ReimburseComponent";
+import { useAuthStore } from "@/lib/store/authStore";
 
 type HomeNavigation = NativeStackNavigationProp<RootTabParamList, "Home Page">;
 
 const HomePage = () => {
     const navigation = useNavigation<HomeNavigation>();
+    const user = useAuthStore((state) => state.user);
     const [userData, setUserData] = useState(dummyUsers);
     const [newNotification, setNewNotification] = useState(false);
     const [onClickNotification, setOnClickNotification] = useState(false);
@@ -52,9 +54,9 @@ const HomePage = () => {
                         />   
                     </Svg>
                     <View>
-                        <Text style={homeStyles.headerTitle}>{userData[0].dataPersonal[0].value}</Text>
+                        <Text style={homeStyles.headerTitle}>{user?.name ? user?.name : "Not Available"}</Text>
                         <Text style={homeStyles.headerDescription}>
-                            {userData[0].dataBusiness[2].value}
+                            {user?.minorRole ? user?.minorRole : "Not Available"}
                         </Text>
                     </View>
                     <TouchableOpacity
