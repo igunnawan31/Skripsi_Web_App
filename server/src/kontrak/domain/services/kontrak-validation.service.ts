@@ -1,47 +1,36 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { KontrakKerjaStatus, MetodePembayaran } from '@prisma/client';
 import { RetrieveKontrakResponseDTO } from 'src/kontrak/application/dtos/response/read-response.dto';
 
 @Injectable()
 export class KontrakValidationService {
-  validateDates(startDate: Date, endDate?: Date): {
-    valid: boolean;
-    message: string;
-  } {
-    if (endDate && endDate < startDate) {
-      return {
-        valid: false,
-        message: 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai',
-      };
-    }
 
-    return { valid: true, message: 'Tanggal valid' };
+  assertValidDates(
+    startDate: Date,
+    endDate?: Date,
+  ) {
+    if (endDate && endDate < startDate) {
+      throw new BadRequestException('Tanggal selesai tidak boleh lebih awal dari tanggal mulai')
+    }
   }
 
-  validateTerminPercentage(metodePembayaran: MetodePembayaran, dpPercentage?: number, finalPercentage?: number): {
-    valid: boolean;
-    message: string;
-  } {
+  assertValidTerminPercentage(
+    metodePembayaran: MetodePembayaran,
+    dpPercentage?: number,
+    finalPercentage?: number,
+  ){
     if (metodePembayaran === MetodePembayaran.TERMIN) {
       if (!dpPercentage || !finalPercentage) {
-        return {
-          valid: false,
-          message: 'DP dan Final percentage harus diisi untuk metode TERMIN',
-        };
+        throw new BadRequestException('DP dan Final percentage harus diisi untuk metode TERMIN')
       }
 
       if (dpPercentage + finalPercentage !== 100) {
-        return {
-          valid: false,
-          message: 'Total DP dan Final percentage harus 100%',
-        };
+        throw new BadRequestException('Total DP dan Final percentage harus 100%')
       }
     }
-
-    return { valid: true, message: 'Percentage valid' };
   }
 
   canEndContract(kontrak: RetrieveKontrakResponseDTO): boolean {
-    return kontrak.status === KontrakKerjaStatus.AKTIF;
+    return kontrak.status === KontrakKerjaStatus.ACTIVE;
   }
 }

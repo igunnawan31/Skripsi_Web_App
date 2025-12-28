@@ -20,7 +20,7 @@ export const welcomeStyles = StyleSheet.create({
         borderRadius: 16,
         alignItems: "center",
         justifyContent: "space-between",
-        padding: 16,
+        padding: 20,
         marginHorizontal: 10,
         width: width,
         height: "75%",

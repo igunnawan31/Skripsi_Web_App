@@ -1,30 +1,31 @@
-import { KontrakKerjaStatus, MetodePembayaran } from "@prisma/client";
-import { IsDateString, IsEnum, IsNotEmptyObject, IsNumber, IsOptional, IsString } from "class-validator";
-import { CreateProjectDTO } from "src/project/application/dtos/request/create-project.dto";
-import { CreateUserDTO } from "src/users/application/dtos/request/create-user.dto";
+import { BadRequestException } from '@nestjs/common';
+import { OmitType } from '@nestjs/mapped-types';
+import {
+  EmployeeType,
+  KontrakKerjaStatus,
+  MetodePembayaran,
+} from '@prisma/client';
+import { Transform, Type } from 'class-transformer';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsDate,
+  IsDateString,
+  IsEnum,
+  IsNotEmptyObject,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+import { FileMetaData } from 'src/common/types/FileMetaData.dto';
+import { ProjectProvisionInputDTO } from 'src/project/application/dtos/request/create-project.dto';
+import { UserProvisionInputDTO } from 'src/users/application/dtos/request/create-user.dto';
 
-class ExtendedUser extends CreateUserDTO {
-  @IsOptional()
-  @IsString()
-  id?: string; // in case bikin user dulu baru bikin kontrak
-}
-
-class ExtendedProject extends CreateProjectDTO {
-  @IsOptional()
-  @IsString()
-  id?: string; // in case bikin project dulu baru bikin kontrak
-}
-
-export class CreateKontrakDTO {
-  @IsNotEmptyObject()
-  userData: ExtendedUser;
-
-  @IsNotEmptyObject()
-  projectData: ExtendedProject;
-
+class BaseCreateKontrakDTO {
   @IsEnum(MetodePembayaran)
   metodePembayaran: MetodePembayaran;
-  
+
   @IsNumber()
   @IsOptional()
   dpPercentage?: number;
@@ -43,7 +44,8 @@ export class CreateKontrakDTO {
   cutiBulanan: number;
 
   @IsEnum(KontrakKerjaStatus)
-  status: KontrakKerjaStatus;
+  @IsOptional()
+  status?: KontrakKerjaStatus;
 
   @IsString()
   @IsOptional()
@@ -53,6 +55,60 @@ export class CreateKontrakDTO {
   startDate: string;
 
   @IsDateString()
-  @IsOptional()
   endDate: string;
+
+  @IsEnum(EmployeeType)
+  jenis: EmployeeType;
+}
+
+export class CreateKontrakDTO extends BaseCreateKontrakDTO {
+  @IsNotEmptyObject()
+  @Type(() => UserProvisionInputDTO)
+  @Transform(({ value }): UserProvisionInputDTO => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        throw new BadRequestException('userData must be a valid JSON string');
+      }
+    }
+    return value;
+  })
+  userData: UserProvisionInputDTO;
+
+  @IsOptional()
+  @Type(() => ProjectProvisionInputDTO)
+  @Transform(({ value }): ProjectProvisionInputDTO => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        throw new BadRequestException('projectData must be a valid JSON string');
+      }
+    }
+    return value;
+  })
+  projectData: ProjectProvisionInputDTO;
+}
+
+export class InternalCreateKontrakDTO extends OmitType(BaseCreateKontrakDTO, ['startDate', 'endDate']) {
+  @Type(() => Date)
+  @IsDate()
+  startDate: Date;
+
+  @Type(() => Date)
+  @IsDate()
+  endDate: Date;
+
+  @ValidateNested()
+  @Type(() => UserProvisionInputDTO)
+  userData: UserProvisionInputDTO;
+
+  @ValidateNested()
+  @Type(() => ProjectProvisionInputDTO)
+  projectData: ProjectProvisionInputDTO;
+
+  @ValidateNested()
+  @Type(() => FileMetaData)
+  documents: FileMetaData[];
 }

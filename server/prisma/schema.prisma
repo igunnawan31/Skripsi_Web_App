@@ -103,9 +103,9 @@ model KontrakKerja {
   totalBayaran     Int // Dalam rupiah
   absensiBulanan   Int // Quota absensi per bulan
   cutiBulanan      Int // Quota cuti per bulan
-  status           KontrakKerjaStatus @default(AKTIF)
+  status           KontrakKerjaStatus @default(ACTIVE)
   catatan          String?
-  dokumen          Json? // Path/URL dokumen kontrak
+  documents        Json? // Path/URL dokumen kontrak
   startDate        DateTime           @db.Date
   endDate          DateTime?          @db.Date
   createdAt        DateTime           @default(now())
@@ -155,7 +155,7 @@ model Project {
   status      ProjectStatus @default(ACTIVE)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
-  dokumen     Json?
+  documents   Json?
 
   projectTeams ProjectTeam[]  @relation("ProjectTeam")
   kontrak      KontrakKerja[] @relation("KontrakProject")
@@ -405,13 +405,13 @@ enum ProjectStatus {
 }
 
 enum KontrakKerjaStatus {
-  AKTIF
-  SELESAI
-  DITANGGUHKAN // Kontrak sempat berhenti sementara
+  ACTIVE
+  COMPLETED
+  ON_HOLD // Kontrak sempat berhenti sementara
 }
 
 enum MetodePembayaran {
-  BULANAN // Dibayar per bulan
+  MONTHLY // Dibayar per bulan
   TERMIN // Dibayar per termin/milestone
   FULL // Dibayar di awal (freelance)
 }
@@ -423,9 +423,9 @@ enum KategoriPertanyaan {
 
 enum StatusIndikatorKPI {
   DRAFT // Masih draft
-  AKTIF // Sedang berjalan
-  SELESAI // Sudah selesai
-  ARSIP // Diarsipkan
+  ACTIVE // Sedang berjalan
+  COMPLETED // Sudah selesai
+  ARCHIVED // Diarsipkan
 }
 
 enum ProjectRole {

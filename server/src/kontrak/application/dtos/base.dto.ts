@@ -1,4 +1,4 @@
-import { KontrakKerjaStatus, MetodePembayaran } from "@prisma/client";
+import { EmployeeType, KontrakKerjaStatus, MetodePembayaran } from "@prisma/client";
 import { Expose } from "class-transformer";
 import { FileMetaData } from "src/common/types/FileMetaData.dto";
 
@@ -11,6 +11,9 @@ export class KontrakBaseDTO {
 
   @Expose()
   projectId: string;
+
+  @Expose()
+  jenis: EmployeeType;
 
   @Expose()
   metodePembayaran: MetodePembayaran;
@@ -37,10 +40,13 @@ export class KontrakBaseDTO {
   catatan?: string;
 
   @Expose()
-  dokumen?: FileMetaData[];
+  documents: FileMetaData[];
 
   @Expose()
   startDate: string;
+
+  @Expose()
+  endDate: string;
 
   @Expose()
   tanggalSelesai?: string;

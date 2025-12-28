@@ -1,23 +1,16 @@
 import { View, Text, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { authStyles } from '@/assets/styles/authstyles/auth.styles'
-import { useRouter } from 'expo-router'
+import { ButtonSignInProps } from '@/types/auth/authProps'
 
-type ButtonSignInProps = {
-    text: string,
-}
-
-const ButtonSignIn: React.FC<ButtonSignInProps> = ({text}) => {
-    const router = useRouter();
-    
-    const handleSignIn = () => {
-        router.push('/home')
-    }
-
+const ButtonSignIn: React.FC<ButtonSignInProps> = ({text, onPress, disabled}) => {
     return (
         <View>
-            <TouchableOpacity onPress={handleSignIn} style={authStyles.button}>
-                <Text style={authStyles.buttonText}>Sign In</Text>
+            <TouchableOpacity 
+                onPress={onPress}
+                disabled={disabled} 
+                style={authStyles.button}>
+                <Text style={authStyles.buttonText}>{text}</Text>
             </TouchableOpacity>
         </View>
     )
