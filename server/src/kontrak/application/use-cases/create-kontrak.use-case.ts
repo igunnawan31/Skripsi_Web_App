@@ -3,99 +3,102 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { KontrakKerjaStatus } from '@prisma/client';
 import { IKontrakRepository } from 'src/kontrak/domain/repositories/kontrak.repository.interface';
 import { KontrakValidationService } from 'src/kontrak/domain/services/kontrak-validation.service';
-import { IUserRepository } from 'src/users/domain/repositories/users.repository.interface';
-import { CreateKontrakDTO } from '../dtos/request/create-kontrak.dto';
+import { InternalCreateKontrakDTO } from '../dtos/request/create-kontrak.dto';
 import { CreateKontrakResponseDTO } from '../dtos/response/create-response.dto';
 import { plainToClass } from 'class-transformer';
-import { UserBaseDTO } from 'src/users/application/dtos/base.dto';
-import { ProjectBaseDTO } from 'src/project/application/dtos/base.dto';
 import { KontrakCreatedEvent } from '../events/kontrak.events';
-import { IProjectRepository } from 'src/project/domain/repositories/project.repository.interface';
+import { deleteFile, deleteFileArray } from 'src/common/utils/fileHelper';
+import { ProjectBaseDTO } from 'src/project/application/dtos/base.dto';
+import { ProjectProvisionService } from 'src/project/application/services/project-provisioning.services';
+import { UserProvisionService } from 'src/users/application/services/user-provisioning.service';
+import { RollbackManager } from 'src/common/utils/rollbackManager';
 
 @Injectable()
 export class CreateKontrakUseCase {
   constructor(
     @Inject(IKontrakRepository)
     private readonly kontrakRepo: IKontrakRepository,
-    @Inject(IUserRepository)
-    private readonly userRepo: IUserRepository,
-    @Inject(IProjectRepository)
-    private readonly projectRepo: IProjectRepository,
     private readonly validationService: KontrakValidationService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly projectProvision: ProjectProvisionService,
+    private readonly userProvision: UserProvisionService,
   ) { }
 
   async execute(
-    dto: CreateKontrakDTO,
+    dto: InternalCreateKontrakDTO,
     createdBy: string,
   ): Promise<CreateKontrakResponseDTO> {
-    const dateValidation = this.validationService.validateDates(
-      new Date(dto.startDate),
-      new Date(dto.endDate),
-    );
-    if (!dateValidation.valid) {
-      throw new BadRequestException(dateValidation.message);
-    }
+    const rollback = new RollbackManager();
+    try {
+      this.validationService.assertValidDates(
+        new Date(dto.startDate),
+        new Date(dto.endDate),
+      );
 
-    const percentageValidation =
-      this.validationService.validateTerminPercentage(
+      this.validationService.assertValidTerminPercentage(
         dto.metodePembayaran,
         dto.dpPercentage,
         dto.finalPercentage,
       );
-    if (!percentageValidation.valid) {
-      throw new BadRequestException(percentageValidation.message);
+
+      const user = await this.userProvision.resolve(dto.userData, rollback);
+
+      let project: ProjectBaseDTO | undefined;
+      if (dto.jenis === 'CONTRACT') {
+        project = await this.projectProvision.resolve(
+          dto.projectData,
+          rollback,
+        );
+      } else {
+        // CONTRACT, BUT USER PROVIDED PROJECT DOCUMENT HENCE SHOULD BE CLEANED UP
+        if (dto.projectData.documents) {
+          await deleteFileArray(dto.projectData.documents, 'Dokumen Proyek');
+        }
+      }
+
+      const kontrakData: InternalCreateKontrakDTO = plainToClass(
+        InternalCreateKontrakDTO,
+        {
+          userData: user,
+          projectData: project ? project : null,
+          metodePembayaran: dto.metodePembayaran,
+          dpPercentage: dto.dpPercentage,
+          finalPercentage: dto.finalPercentage,
+          totalBayaran: dto.totalBayaran,
+          absensiBulanan: dto.absensiBulanan,
+          cutiBulanan: dto.cutiBulanan,
+          startDate: new Date(dto.startDate),
+          endDate: new Date(dto.endDate),
+          catatan: dto.catatan,
+          status: KontrakKerjaStatus.ACTIVE,
+          documents: dto.documents,
+        },
+      );
+
+      const kontrak = await this.kontrakRepo.create(kontrakData);
+
+      this.eventEmitter.emit(
+        'kontrak.created',
+        new KontrakCreatedEvent(
+          kontrak.id,
+          kontrak.userId,
+          kontrak.projectId,
+          dto.cutiBulanan,
+          dto.absensiBulanan,
+          dto.totalBayaran,
+          dto.metodePembayaran,
+          dto.startDate,
+          dto.endDate,
+          createdBy,
+          dto.dpPercentage,
+          dto.finalPercentage,
+        ),
+      );
+
+      return kontrak;
+    } catch (err) {
+      await rollback.rollback();
+      throw err;
     }
-
-    let user: UserBaseDTO;
-    if (dto.userData.id) {
-      user = await this.userRepo.findById(dto.userData.id);
-    } else {
-      user = await this.userRepo.create(dto.userData);
-    }
-
-    let project: ProjectBaseDTO;
-    if (dto.projectData.id) {
-      project = await this.projectRepo.findById(dto.projectData.id);
-    } else {
-      project = await this.projectRepo.create(dto.projectData);
-    }
-
-    const kontrakData: CreateKontrakDTO = plainToClass(CreateKontrakDTO, {
-      userId: user.id,
-      projectId: project.id,
-      metodePembayaran: dto.metodePembayaran,
-      dpPercentage: dto.dpPercentage,
-      finalPercentage: dto.finalPercentage,
-      totalBayaran: dto.totalBayaran,
-      absensiBulanan: dto.absensiBulanan,
-      cutiBulanan: dto.cutiBulanan,
-      startDate: dto.startDate,
-      endDate: dto.endDate,
-      catatan: dto.catatan,
-      status: KontrakKerjaStatus.AKTIF,
-    });
-
-    const kontrak = await this.kontrakRepo.create(kontrakData);
-
-    this.eventEmitter.emit(
-      'kontrak.created',
-      new KontrakCreatedEvent(
-        kontrak.id,
-        kontrak.userId,
-        kontrak.projectId,
-        dto.cutiBulanan,
-        dto.absensiBulanan,
-        dto.totalBayaran,
-        dto.metodePembayaran,
-        dto.startDate,
-        dto.endDate,
-        createdBy,
-        dto.dpPercentage,
-        dto.finalPercentage
-      ),
-    );
-
-    return kontrak;
   }
 }

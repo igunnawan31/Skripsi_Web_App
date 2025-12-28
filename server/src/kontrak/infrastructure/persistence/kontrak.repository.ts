@@ -1,14 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { KontrakKerjaStatus, Prisma } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { handlePrismaError } from 'src/common/errors/prisma-exception';
 import { PrismaService } from 'src/database/prisma/prisma.service';
 import { GajiBaseDTO } from 'src/gaji/application/dtos/base.dto';
-import { CreateKontrakDTO } from 'src/kontrak/application/dtos/request/create-kontrak.dto';
+import { InternalCreateKontrakDTO } from 'src/kontrak/application/dtos/request/create-kontrak.dto';
 import { KontrakFilterDTO } from 'src/kontrak/application/dtos/request/kontrak-filter.dto';
-import { UpdateKontrakDTO } from 'src/kontrak/application/dtos/request/update-kontrak.dto';
+import {
+  InternalUpdateKontrakDTO,
+  UpdateKontrakDTO,
+} from 'src/kontrak/application/dtos/request/update-kontrak.dto';
 import { CreateKontrakResponseDTO } from 'src/kontrak/application/dtos/response/create-response.dto';
-import { DeleteKontrakResponseDTO } from 'src/kontrak/application/dtos/response/delete-response.dto';
 import {
   RetrieveAllKontrakResponseDTO,
   RetrieveKontrakResponseDTO,
@@ -22,13 +24,26 @@ import { UserBaseDTO } from 'src/users/application/dtos/base.dto';
 export class KontrakRepository implements IKontrakRepository {
   constructor(private readonly prisma: PrismaService) { }
 
-  async create(dto: CreateKontrakDTO): Promise<CreateKontrakResponseDTO> {
+  async create(
+    dto: InternalCreateKontrakDTO,
+  ): Promise<CreateKontrakResponseDTO> {
     try {
       const query = await this.prisma.kontrakKerja.create({
         data: {
+          jenis: dto.jenis,
+          metodePembayaran: dto.metodePembayaran,
+          dpPercentage: dto.dpPercentage ?? null,
+          finalPercentage: dto.finalPercentage ?? null,
+          totalBayaran: dto.totalBayaran,
+          absensiBulanan: dto.absensiBulanan,
+          cutiBulanan: dto.cutiBulanan,
+          status: dto.status ?? 'ACTIVE',
+          catatan: dto.catatan ?? null,
+          startDate: dto.startDate,
+          endDate: dto.endDate,
           projectId: dto.projectData.id!, // validate di use case, disini selalu available. harusnya gapernah undefined
           userId: dto.userData.id!,
-          ...dto,
+          documents: dto.documents as any[], // [{FileMetaData}]
         },
         include: {
           user: true,
@@ -43,7 +58,7 @@ export class KontrakRepository implements IKontrakRepository {
 
   async findAll(
     filters: KontrakFilterDTO,
-  ): Promise<RetrieveAllKontrakResponseDTO> {
+  ): Promise<RetrieveAllKontrakResponseDTO | null> {
     try {
       const {
         metodePembayaran,
@@ -81,7 +96,7 @@ export class KontrakRepository implements IKontrakRepository {
           gte: minStartDate ? new Date(minStartDate) : undefined,
         },
         endDate: {
-          lte: maxEndDate? new Date(maxEndDate) : undefined,
+          lte: maxEndDate ? new Date(maxEndDate) : undefined,
         },
       };
 
@@ -119,6 +134,8 @@ export class KontrakRepository implements IKontrakRepository {
         this.prisma.kontrakKerja.count({ where }),
       ]);
 
+      if (!contracts) return null;
+
       return plainToInstance(RetrieveAllKontrakResponseDTO, {
         data: contracts.map((c) =>
           plainToInstance(RetrieveKontrakResponseDTO, {
@@ -140,9 +157,9 @@ export class KontrakRepository implements IKontrakRepository {
     }
   }
 
-  async findById(id: string): Promise<RetrieveKontrakResponseDTO> {
+  async findById(id: string): Promise<RetrieveKontrakResponseDTO | null> {
     try {
-      const kontrak = this.prisma.kontrakKerja.findUnique({
+      const kontrak = await this.prisma.kontrakKerja.findUnique({
         where: { id },
         include: {
           user: true,
@@ -151,7 +168,8 @@ export class KontrakRepository implements IKontrakRepository {
         },
       });
 
-      if (!kontrak) throw new NotFoundException('Kontrak data not found');
+      if (!kontrak) return null;
+
       return plainToInstance(RetrieveKontrakResponseDTO, {
         ...kontrak,
         user: plainToInstance(UserBaseDTO, kontrak.user),
@@ -166,7 +184,7 @@ export class KontrakRepository implements IKontrakRepository {
   async findByUserId(
     userId: string,
     filters: KontrakFilterDTO,
-  ): Promise<RetrieveAllKontrakResponseDTO> {
+  ): Promise<RetrieveAllKontrakResponseDTO | null> {
     try {
       const {
         metodePembayaran,
@@ -243,6 +261,8 @@ export class KontrakRepository implements IKontrakRepository {
         this.prisma.kontrakKerja.count({ where }),
       ]);
 
+      if (!contracts) return null;
+
       return plainToInstance(RetrieveAllKontrakResponseDTO, {
         data: contracts.map((c) =>
           plainToInstance(RetrieveKontrakResponseDTO, {
@@ -268,7 +288,7 @@ export class KontrakRepository implements IKontrakRepository {
     const result = await this.prisma.kontrakKerja.aggregate({
       where: {
         userId,
-        status: KontrakKerjaStatus.AKTIF,
+        status: KontrakKerjaStatus.ACTIVE,
       },
       _sum: {
         cutiBulanan: true,
@@ -282,7 +302,7 @@ export class KontrakRepository implements IKontrakRepository {
     const result = await this.prisma.kontrakKerja.aggregate({
       where: {
         userId,
-        status: KontrakKerjaStatus.AKTIF,
+        status: KontrakKerjaStatus.ACTIVE,
       },
       _sum: {
         absensiBulanan: true,
@@ -294,15 +314,26 @@ export class KontrakRepository implements IKontrakRepository {
 
   async update(
     id: string,
-    dto: UpdateKontrakDTO,
+    dto: InternalUpdateKontrakDTO,
   ): Promise<UpdateKontrakResponseDTO> {
     try {
-      const target = this.findById(id);
-      if (!target) throw new NotFoundException('Kontrak data not found');
-
+      console.log(dto.documents);
       const query = await this.prisma.kontrakKerja.update({
         where: { id },
-        data: dto,
+        data: {
+          jenis: dto.jenis,
+          metodePembayaran: dto.metodePembayaran,
+          dpPercentage: dto.dpPercentage ?? null,
+          finalPercentage: dto.finalPercentage ?? null,
+          totalBayaran: dto.totalBayaran,
+          absensiBulanan: dto.absensiBulanan,
+          cutiBulanan: dto.cutiBulanan,
+          status: dto.status ?? 'ACTIVE',
+          catatan: dto.catatan ?? null,
+          startDate: dto.startDate,
+          endDate: dto.endDate,
+          documents: dto.documents as any[], // [{FileMetaData}]
+        },
       });
       return plainToInstance(UpdateKontrakResponseDTO, query);
     } catch (err) {
@@ -312,9 +343,6 @@ export class KontrakRepository implements IKontrakRepository {
 
   async endContract(id: string): Promise<UpdateKontrakResponseDTO> {
     try {
-      const target = this.findById(id);
-      if (!target) throw new NotFoundException('Kontrak data not found');
-
       const query = await this.prisma.kontrakKerja.update({
         where: { id },
         data: {
@@ -327,15 +355,11 @@ export class KontrakRepository implements IKontrakRepository {
     }
   }
 
-  async remove(id: string): Promise<DeleteKontrakResponseDTO> {
+  async remove(id: string): Promise<void> {
     try {
-      const target = this.findById(id);
-      if (!target) throw new NotFoundException('Kontrak data not found');
-
-      const query = await this.prisma.kontrakKerja.delete({
+      await this.prisma.kontrakKerja.delete({
         where: { id },
       });
-      return plainToInstance(DeleteKontrakResponseDTO, query);
     } catch (err) {
       handlePrismaError(err, 'Kontrak', id);
     }
