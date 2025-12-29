@@ -211,7 +211,7 @@ export class CutiRepository implements ICutiRepository {
           plainToInstance(RetrieveCutiResponseDTO, {
             ...c,
             user: plainToInstance(UserBaseDTO, c.user),
-            approver: plainToInstance(UserBaseDTO, c.user),
+            approver: plainToInstance(UserBaseDTO, c.approver),
           }),
         ),
         meta: {
