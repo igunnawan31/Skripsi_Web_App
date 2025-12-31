@@ -8,13 +8,26 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import * as ImagePicker from "expo-image-picker";
 import ChangeImageModal from "@/components/rootComponents/profileComponent/ChangeImageModal";
 import { useAuth } from "@/lib/api/hooks/useAuth";
+import { useAuthStore } from "@/lib/store/authStore";
+import { getImageUrl } from "@/lib/utils/path";
+import { useUser } from "@/lib/api/hooks/useUser";
 
 const ProfilePage = () => {
     const { logoutAction } = useAuth();
+    const user = useAuthStore((state) => state.user);
+    const photoUrl = user?.photo ? getImageUrl(user.photo) : null;
     const [data, setData] = useState(dummyUsers);
-    const [itemPick, setItemPick] = useState<"Personal" | "Business" | "Others">("Personal");
+    const [itemPick, setItemPick] = useState<"Personal" | "Business" | "Others">("Business");
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [profileImage, setProfileImage] = useState(require("../../../assets/images/foto2.jpeg"));
+    const { mutate: updatePhoto, isPending: isUploading } = useUser().updatePhoto();
+    console.log("user", user);
+
+    const uriToFile = async (uri: string) => {
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        return new File([blob], "profile.jpg", { type: "image/jpeg" });
+    }
 
     const pickImageFromGallery = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -24,7 +37,13 @@ const ProfilePage = () => {
             quality: 1,
         });
 
-        if (!result.canceled) {
+        if (!result.canceled && user?.id) {
+            const photoData = {
+                uri: result.assets[0].uri,
+                name: result.assets[0].fileName,
+                type: result.assets[0].type,
+            };
+            updatePhoto({ id: user.id, photo: photoData });
             setProfileImage({ uri: result.assets[0].uri });
             setIsModalVisible(false);
         }
@@ -37,7 +56,13 @@ const ProfilePage = () => {
             quality: 1,
         });
 
-        if (!result.canceled) {
+        if (!result.canceled && user?.id) {
+            const photoData = {
+                uri: result.assets[0].uri,
+                name: result.assets[0].fileName,
+                type: result.assets[0].type, 
+            };
+            updatePhoto({ id: user.id, photo: photoData });
             setProfileImage({ uri: result.assets[0].uri });
             setIsModalVisible(false);
         }
@@ -50,9 +75,6 @@ const ProfilePage = () => {
     return (
         <KeyboardAwareScrollView
             style={{ flex: 1, backgroundColor: COLORS.background }}
-            contentContainerStyle={{
-                paddingBottom: itemPick === "Personal" ? 210 : null,
-            }}
             enableOnAndroid={true}
             extraScrollHeight={80}
             keyboardShouldPersistTaps="handled"
@@ -61,12 +83,15 @@ const ProfilePage = () => {
                 <View 
                     style={[
                         profileStyles.cardProfile,
-                        {height: itemPick === "Personal" ? "80%" : itemPick === "Business" ? "75.5%" : "71.6%"}
+                        {height: "75%"}
                     ]}
                 >
                     <View style={profileStyles.outerProfilePicture} />
                     <View style={profileStyles.profilePictureContainer}>
-                        <Image source={profileImage} style={profileStyles.profilePicture} />
+                        <Image 
+                            source={photoUrl ? { uri: photoUrl } : require("../../../assets/images/default-profile.png")} 
+                            style={profileStyles.profilePicture} 
+                        />
                     </View>
                     <View style={profileStyles.changeImageContainer}>
                         <TouchableOpacity 
@@ -94,7 +119,7 @@ const ProfilePage = () => {
                         <Text style={profileStyles.roleText}>Karyawan - Backend Developer</Text>
                     </View>
                     <View style={profileStyles.cardPickerContainer}>
-                        <TouchableOpacity 
+                        {/* <TouchableOpacity 
                             style={[
                                 profileStyles.buttonPicker,
                                 itemPick === "Personal" && { backgroundColor: COLORS.primary },
@@ -109,7 +134,7 @@ const ProfilePage = () => {
                             >
                                 Personal
                             </Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                         <TouchableOpacity 
                             style={[
                                 profileStyles.buttonPicker,
@@ -126,7 +151,7 @@ const ProfilePage = () => {
                                 Business
                             </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity 
+                        {/* <TouchableOpacity 
                             style={[
                                 profileStyles.buttonPicker,
                                 itemPick === "Others" && { backgroundColor: COLORS.primary },
@@ -141,18 +166,18 @@ const ProfilePage = () => {
                             >
                                 Others
                             </Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                     </View>
 
-                    {itemPick === "Personal" && (
-                        <ListDataComponent data={data[0].dataPersonal} changeData={true} />
-                    )}
+                    {/* {itemPick === "Personal" && (
+                        <ListDataComponent data={data[0].dataPersonal} />
+                    )} */}
                     {itemPick === "Business" && (
                         <ListDataComponent data={data[0].dataBusiness} />
                     )}
-                    {itemPick === "Others" && (
+                    {/* {itemPick === "Others" && (
                         <ListDataComponent data={data[0].dataOthers} />
-                    )}
+                    )} */}
                     <TouchableOpacity 
                         style={[
                             profileStyles.buttonPicker
@@ -165,7 +190,7 @@ const ProfilePage = () => {
                                 itemPick === "Others" && { color: COLORS.white },
                             ]}
                         >
-                            Others
+                            Logout
                         </Text>
                     </TouchableOpacity>
                 </View>

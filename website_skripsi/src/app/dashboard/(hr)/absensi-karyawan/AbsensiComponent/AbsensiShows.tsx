@@ -12,7 +12,7 @@ import Image from "next/image";
 import { icons } from "@/app/lib/assets/assets";
 import FilterModal from "@/app/dashboard/dashboardComponents/allComponents/FilterModal";
 import { format } from "date-fns";
-import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
+import { fromZonedTime } from "date-fns-tz";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
