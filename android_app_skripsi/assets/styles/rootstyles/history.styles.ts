@@ -1,12 +1,14 @@
 import { Dimensions, StyleSheet } from "react-native"
 import { COLORS } from "@/constants/colors"
+const { width } = Dimensions.get("window");
+const isTablet = width >= 768;
 
 export const historyStyles = StyleSheet.create({
     container: {
         flex: 1,
         width: "100%",
         backgroundColor: COLORS.background,
-        paddingBottom: 96,
+        paddingBottom: isTablet ? 40 : 96,
         alignItems: "center"
     },
     header: {
@@ -25,12 +27,18 @@ export const historyStyles = StyleSheet.create({
         fontFamily: "poppins",
         fontSize: 24,
         fontWeight: "bold",
-        color: COLORS.white
+        color: COLORS.white,
+        flexWrap: "wrap"
     },
     headerDescription: {
         fontFamily: "poppins",
         fontSize: 16,
-        color: COLORS.background
+        color: COLORS.background,
+        flexWrap: "wrap"
+    },
+    textHeaderContainer: {
+        flex: 1,
+        paddingHorizontal: 10,
     },
     logoHeaderContainer: {
         width: 50,
@@ -136,7 +144,7 @@ export const historyStyles = StyleSheet.create({
         tintColor: COLORS.primary,
     },
     applyButton: {
-        marginTop: 20,
+        marginTop: 10,
         backgroundColor: COLORS.primary,
         borderRadius: 10,
         paddingVertical: 15,
@@ -144,10 +152,34 @@ export const historyStyles = StyleSheet.create({
         alignItems: "center",
         width: "100%",
     },
+    cancelButton: {
+        marginTop: 20,
+        backgroundColor: COLORS.white,
+        borderRadius: 10,
+        paddingVertical: 15,
+        paddingHorizontal: 30,
+        alignItems: "center",
+        width: "100%",
+        borderWidth: 1,
+        borderColor: COLORS.primary,
+    },
     applyText: {
         color: COLORS.white,
         fontSize: 16,
         fontWeight: "600",
+    },
+    cancelText: {
+        color: COLORS.primary,
+        fontSize: 16,
+        fontWeight: "600",
+    },
+    historyContainer: {
+        width: "100%",
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
     },
     listContainer: {
         height: "auto",
@@ -172,15 +204,18 @@ export const historyStyles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         marginBottom: 8,
+        flexWrap: "wrap"
     },
     name: {
         fontSize: 16,
         fontWeight: "bold",
         color: COLORS.textPrimary,
+        flexWrap: "wrap"
     },
     date: {
         fontSize: 13,
         color: COLORS.textSecondary,
+        flexWrap: "wrap"
     },
     roleContainer: {
         flexDirection: "row",

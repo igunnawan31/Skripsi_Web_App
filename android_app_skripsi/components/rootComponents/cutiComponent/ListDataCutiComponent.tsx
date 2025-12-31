@@ -1,40 +1,41 @@
 import { cutiStyles } from "@/assets/styles/rootstyles/cuti/cuti.styles";
 import COLORS from "@/constants/colors";
+import { CutiResponse } from "@/types/cuti/cutiTypes";
+import { CutiStatus } from "@/types/enumTypes";
+import { format, parseISO } from "date-fns";
 import { useRouter } from "expo-router";
-import { useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
-type Cuti = {
-    id: string;
-    name: string;
-    startDate: string;
-    endDate: string;
-    submissionDate: string;
-    totalDays: number;
-    reason: string;
-    majorRole: string;
-    minorRole: string;
-    cutiStatus: string;
-    approver: string;
-};
-
 type ListDataCutiComponentProps = {
-    data: Cuti[];
+    data: CutiResponse[];
 };
 
 const ListDataCutiComponent = ({ data }: ListDataCutiComponentProps) => {
     const router = useRouter();
 
     const getStatusColor = (status: string) => {
-    switch (status) {
-        case "Cuti Diterima":
-            return COLORS.success;
-        case "Cuti Ditolak":
-            return COLORS.error;
-        case "Menunggu Jawaban":
-            return COLORS.tertiary;
-        default:
-            return COLORS.muted;
+        switch (status) {
+            case CutiStatus.DITERIMA:
+                return COLORS.success;
+            case CutiStatus.DITOLAK:
+                return COLORS.error;
+            case CutiStatus.MENUNGGU:
+                return COLORS.tertiary;
+            default:
+                return COLORS.muted;
+        }
+    };
+
+    const computeTotalDays = (startStr: string, endStr: string) => {
+        if (!startStr || !endStr) return 0;
+        try {
+            const start = parseISO(startStr);
+            const end = parseISO(endStr);
+            const msPerDay = 24 * 60 * 60 * 1000;
+            const diff = Math.floor((end.getTime() - start.getTime()) / msPerDay);
+            return diff >= 0 ? diff + 1 : 0
+        } catch {
+            return 0;
         }
     };
 
@@ -47,22 +48,22 @@ const ListDataCutiComponent = ({ data }: ListDataCutiComponentProps) => {
                         style={cutiStyles.listContainer}
                     >
                         <View style={cutiStyles.listHeader}>
-                            <Text style={cutiStyles.name}>{item.name}</Text>
+                            <Text style={cutiStyles.name}>{item.user.name}</Text>
                             <Text style={cutiStyles.date}>
-                                {item.startDate} → {item.endDate}
+                                {item.startDate ? format(new Date(item.startDate), "dd-MM-yyyy") : "-"} → {item.endDate ? format(new Date(item.endDate), "dd-MM-yyyy") : "-"}
                             </Text>
                         </View>
                         <View style={cutiStyles.roleContainer}>
                             <Text style={cutiStyles.roleText}>
-                                {item.majorRole} - {item.minorRole}
+                                {item.user.majorRole} - {item.user.minorRole}
                             </Text>
                             <View
                                 style={[
                                     cutiStyles.statusBadge,
-                                    { backgroundColor: getStatusColor(item.cutiStatus) },
+                                    { backgroundColor: getStatusColor(item.status) },
                                 ]}
                             >
-                                <Text style={cutiStyles.statusText}>{item.cutiStatus}</Text>
+                                <Text style={cutiStyles.statusText}>{item.status}</Text>
                             </View>
                         </View>
                         <View style={cutiStyles.timeContainer}>
@@ -72,7 +73,7 @@ const ListDataCutiComponent = ({ data }: ListDataCutiComponentProps) => {
                                     style={cutiStyles.icon}
                                 />
                                 <Text style={cutiStyles.timeText}>
-                                    Pengajuan: {item.submissionDate}
+                                    Pengajuan: {item.createdAt ? format(new Date(item.createdAt), "dd-MM-yyyy") : "-"}
                                 </Text>
                             </View>
                             <View style={cutiStyles.timeBox}>
@@ -81,7 +82,7 @@ const ListDataCutiComponent = ({ data }: ListDataCutiComponentProps) => {
                                     style={cutiStyles.icon}
                                 />
                                 <Text style={cutiStyles.timeText}>
-                                    Total: {item.totalDays} Hari
+                                    Total: {computeTotalDays(item.startDate, item.endDate)} Hari
                                 </Text>
                             </View>
                         </View>

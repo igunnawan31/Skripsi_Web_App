@@ -1,41 +1,39 @@
 import { historyStyles } from "@/assets/styles/rootstyles/history.styles";
 import COLORS from "@/constants/colors";
-import { dummyAbsensi } from "@/data/dummyAbsensi";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Image, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import Modal from "react-native-modal";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useRouter } from "expo-router";
+import { useAuthStore } from "@/lib/store/authStore";
+import { useAbsensi } from "@/lib/api/hooks/useAbsensi";
+import { AbsensiResponse } from "@/types/absensi/absensiTypes";
+import ListDataHistoryAbsenComponent from "@/components/rootComponents/absenComponent/ListDataHistoryAbsenComponent";
 
 const HistoryAbsensiPage = () => {
-    const [data, setData] = useState(dummyAbsensi);
+    const user = useAuthStore((state) => state.user);
+    let current = new Date();
+    const [selectedYear, setSelectedYear] = useState(current.getFullYear());
+    const [selectedMonth, setSelectedMonth] = useState(current.getMonth());
+    const { data, isLoading, error} = useAbsensi().fetchAbsensiByUserId(user.id, selectedYear, selectedMonth);
+    const [filteredData, setFilteredData] = useState<AbsensiResponse[]>([]);
+
     const [modalVisible, setModalVisible] = useState(false);
-    const [pickerMode, setPickerMode] = useState<"date" | "month">("date");
+    const [pickerMode, setPickerMode] = useState("month");
     const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endDate, setEndDate] = useState<Date | null>(null);
     const [showPicker, setShowPicker] = useState(false);
-    const [pickerTarget, setPickerTarget] = useState<"start" | "end" | "month">("start");
-    const router = useRouter();
+    const [pickerTarget, setPickerTarget] = useState("month");
 
     const showHandlePopUpFilter = () => setModalVisible(true);
     const closeHandlePopUpFilter = () => setModalVisible(false);
 
+    useEffect(() => {
+        if (data) setFilteredData(data);
+    }, [data]);
+
     const handleFilter = () => {
-        if (pickerMode === "month" && startDate) {
-            const selectedMonth = startDate.getMonth();
-            const selectedYear = startDate.getFullYear();
-            const filtered = dummyAbsensi.filter((item) => {
-                const [day, month, year] = item.date.split("-").map(Number);
-                return month - 1 === selectedMonth && year === selectedYear;
-            });
-            setData(filtered);
-        } else if (startDate && endDate) {
-            const filtered = dummyAbsensi.filter((item) => {
-                const [day, month, year] = item.date.split("-").map(Number);
-                const itemDate = new Date(year, month - 1, day);
-                return itemDate >= startDate && itemDate <= endDate;
-            });
-            setData(filtered);
+        if (startDate) {
+            setSelectedYear(startDate.getFullYear());
+            setSelectedMonth(startDate.getMonth());
         }
         closeHandlePopUpFilter();
     };
@@ -43,11 +41,39 @@ const HistoryAbsensiPage = () => {
     const onChangeDate = (event: any, selectedDate?: Date) => {
         setShowPicker(false);
         if (selectedDate) {
-            if (pickerTarget === "start") setStartDate(selectedDate);
-            else if (pickerTarget === "end") setEndDate(selectedDate);
-            else if (pickerTarget === "month") setStartDate(selectedDate);
+            if (pickerTarget === "month") setStartDate(selectedDate);
         }
     };
+
+    const resetFilter = () => {
+        setSelectedYear(current.getFullYear());
+        setSelectedMonth(current.getMonth());
+        setStartDate(null);
+        setPickerMode("month");
+        closeHandlePopUpFilter();
+    };
+    
+    const MONTH_NAMES = [
+        "Januari","Februari","Maret","April","Mei","Juni",
+        "Juli","Agustus","September","Oktober","November","Desember"
+    ];
+
+    if (isLoading) {
+        return (
+            <View style={historyStyles.container}>
+                <Text>Loading absensi data...</Text>
+            </View>
+        );
+    }
+
+    if (error) {
+        return (
+            <View style={historyStyles.container}>
+                <Text>Error: {error.message}</Text>
+            </View>
+        );
+    }
+
     return (
         <ScrollView
             contentContainerStyle={{ flexGrow: 1 }}
@@ -61,17 +87,19 @@ const HistoryAbsensiPage = () => {
                             source={require("../../../assets/icons/history.png")}
                         />
                     </View>
-                    <View>
+                    <View style={historyStyles.textHeaderContainer}>
                         <Text style={historyStyles.headerTitle}>
                             History
                         </Text>
                         <Text style={historyStyles.headerDescription}>
-                            Ini adalah history absensi yang kamu miliki
-                        </Text>
-                        <Text style={historyStyles.headerDescription}>
-                            per bulannya
+                            Ini adalah history absensi yang kamu miliki per bulannya
                         </Text>
                     </View>
+                </View>
+                <View style={historyStyles.historyContainer}>
+                    <Text style={{ color: COLORS.textPrimary, fontWeight: "bold", fontSize: 18 }}>
+                        {selectedMonth !== null && selectedMonth !== undefined ? `Bulan ${MONTH_NAMES[selectedMonth]}` : "Semua Bulan"}
+                    </Text>
                 </View>
                 <TouchableOpacity
                     style={historyStyles.filterContainer}
@@ -92,23 +120,6 @@ const HistoryAbsensiPage = () => {
                             <TouchableOpacity
                                 style={[
                                     historyStyles.modeButton,
-                                    pickerMode === "date" && { backgroundColor: COLORS.primary },
-                                ]}
-                                onPress={() => setPickerMode("date")}
-                            >
-                                <Text
-                                    style={[
-                                        historyStyles.modeText,
-                                        pickerMode === "date" && { color: COLORS.white },
-                                    ]}
-                                >
-                                    Rentang Tanggal
-                                </Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={[
-                                    historyStyles.modeButton,
                                     pickerMode === "month" && { backgroundColor: COLORS.primary },
                                 ]}
                                 onPress={() => setPickerMode("month")}
@@ -124,43 +135,7 @@ const HistoryAbsensiPage = () => {
                             </TouchableOpacity>
                         </View>
 
-                        {pickerMode === "date" ? (
-                            <View style={historyStyles.modalPicker}>
-                                <Text style={historyStyles.modalLabel}>Tanggal Mulai</Text>
-                                <TouchableOpacity
-                                    style={historyStyles.buttonDate}
-                                    onPress={() => {
-                                        setPickerTarget("start");
-                                        setShowPicker(true);
-                                    }}
-                                >
-                                    <Text style={historyStyles.dateText}>
-                                        {startDate ? startDate.toDateString() : "Pilih tanggal mulai"}
-                                    </Text>
-                                    <Image
-                                        source={require("../../../assets/icons/calendar.png")}
-                                        style={historyStyles.iconCalendar}
-                                    />
-                                </TouchableOpacity>
-
-                                <Text style={historyStyles.modalLabel}>Tanggal Selesai</Text>
-                                <TouchableOpacity
-                                    style={historyStyles.buttonDate}
-                                    onPress={() => {
-                                        setPickerTarget("end");
-                                        setShowPicker(true);
-                                    }}
-                                >
-                                    <Text style={historyStyles.dateText}>
-                                        {endDate ? endDate.toDateString() : "Pilih tanggal selesai"}
-                                    </Text>
-                                    <Image
-                                        source={require("../../../assets/icons/calendar.png")}
-                                        style={historyStyles.iconCalendar}
-                                    />
-                                </TouchableOpacity>
-                            </View>
-                        ) : (
+                        {pickerMode === "month" && (
                             <View style={historyStyles.modalPicker}>
                                 <Text style={historyStyles.modalLabel}>Pilih Bulan</Text>
                                 <TouchableOpacity
@@ -176,82 +151,26 @@ const HistoryAbsensiPage = () => {
                                         : "Pilih bulan"}
                                     </Text>
                                 </TouchableOpacity>
+                                {showPicker && (
+                                    <DateTimePicker
+                                        value={startDate || new Date()}
+                                        mode="date"
+                                        display={Platform.OS === "ios" ? "spinner" : "default"}
+                                        onChange={onChangeDate}
+                                    />
+                                )}
                             </View>
                         )}
 
-                        {showPicker && (
-                            <DateTimePicker
-                                value={startDate || new Date()}
-                                mode="date"
-                                display={Platform.OS === "ios" ? "spinner" : "default"}
-                                onChange={onChangeDate}
-                            />
-                        )}
-
+                        <TouchableOpacity style={historyStyles.cancelButton} onPress={resetFilter}>
+                            <Text style={historyStyles.cancelText}>Hapus Filter</Text>
+                        </TouchableOpacity>
                         <TouchableOpacity style={historyStyles.applyButton} onPress={handleFilter}>
                             <Text style={historyStyles.applyText}>Terapkan Filter</Text>
                         </TouchableOpacity>
                     </View>
                 </Modal>
-
-                {data.map((item) => (
-                    <View
-                        key={item.id} 
-                        style={historyStyles.listContainer}
-                    >
-                        <View style={historyStyles.listHeader}>
-                            <Text style={historyStyles.name}>{item.name}</Text>
-                            <Text style={historyStyles.date}>{item.date}</Text>
-                        </View>
-                        <View style={historyStyles.roleContainer}>
-                            <Text style={historyStyles.roleText}>
-                                {item.majorRole} - {item.minorRole}
-                            </Text>
-                            <View
-                                style={[
-                                    historyStyles.statusBadge,
-                                    { backgroundColor: item.workStatus === "WFO" ? COLORS.success : COLORS.info },
-                                ]}
-                            >
-                                <Text style={historyStyles.statusText}>{item.workStatus}</Text>
-                            </View>
-                        </View>
-                        <View style={historyStyles.timeContainer}>
-                            <View style={historyStyles.timeBox}>
-                                <Image
-                                    source={require("../../../assets/icons/clock-in.png")}
-                                    style={historyStyles.icon}
-                                />
-                                <Text style={historyStyles.timeText}>Masuk: {item.checkIn}</Text>
-                            </View>
-                            <View style={historyStyles.timeBox}>
-                                <Image
-                                    source={require("../../../assets/icons/clock-out.png")}
-                                    style={historyStyles.icon}
-                                />
-                                <Text style={historyStyles.timeText}>Pulang: {item.checkOut}</Text>
-                            </View>
-                        </View>
-                        <View style={{ height: 1, backgroundColor: COLORS.border, marginTop: 12 }} />
-                        <TouchableOpacity
-                            key={item.id}
-                            onPress={() => router.push(`/(absensi)/${item.id}`)}
-                            style={{
-                                marginTop: 12,
-                                alignItems: 'center',
-                                flexDirection: 'row',
-                                justifyContent: 'flex-end',
-                                gap: 5,
-                            }}
-                        >
-                            <Text>Lebih Lanjut</Text>
-                            <Image
-                                style={historyStyles.iconCalendar}
-                                source={require('../../../assets/icons/arrow-right.png')}
-                            />
-                        </TouchableOpacity>
-                    </View>
-                ))}
+                <ListDataHistoryAbsenComponent data={filteredData} />
             </View>
         </ScrollView>
     )

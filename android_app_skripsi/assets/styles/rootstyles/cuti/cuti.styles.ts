@@ -25,12 +25,18 @@ export const cutiStyles = StyleSheet.create({
         fontFamily: "poppins",
         fontSize: 24,
         fontWeight: "bold",
-        color: COLORS.white
+        color: COLORS.white,
+        flexWrap: "wrap"
     },
     headerDescription: {
         fontFamily: "poppins",
         fontSize: 16,
-        color: COLORS.background
+        color: COLORS.background,
+        flexWrap: "wrap"
+    },
+    textHeaderContainer: {
+        flex: 1,
+        paddingHorizontal: 10,
     },
     logoHeaderContainer: {
         width: 50,
@@ -261,18 +267,31 @@ export const cutiStyles = StyleSheet.create({
         elevation: 11,
         gap: 5,
     },
-    logoCuti: {
+    logoCutiAccepted: {
         width: 30,
         height: 30,
-        tintColor: COLORS.tertiary,
+        tintColor: COLORS.success,
     },
-    titleCutiAvailable: {
-        color: COLORS.tertiary,
+    logoCutiRejected: {
+        width: 30,
+        height: 30,
+        tintColor: COLORS.error,
+    },
+    titleCutiAccepted: {
+        color: COLORS.success,
         fontSize: 18,
         fontWeight: "600",
     },
-    textCutiAvailable: {
-
+    titleCutiRejected: {
+        color: COLORS.error,
+        fontSize: 18,
+        fontWeight: "600",
+    },
+    textCutiAccepted: {
+        color: COLORS.success,
+    },
+    textCutiRejected: {
+        color: COLORS.error,
     },
     cutiContainer: {
         width: "100%",

@@ -123,7 +123,6 @@ const FilterModalReimburseComponent = ({
                         </View>
                     </View>
                 ) : (
-                    // Date Picker
                     <View style={reimburseStyles.modalPicker}>
                         <Text style={reimburseStyles.modalLabel}>Pilih Bulan</Text>
 
@@ -155,7 +154,6 @@ const FilterModalReimburseComponent = ({
                     </View>
                 )}
 
-                {/* Buttons */}
                 <TouchableOpacity style={reimburseStyles.cancelButton} onPress={resetFilter}>
                     <Text style={reimburseStyles.cancelText}>Hapus Filter</Text>
                 </TouchableOpacity>
