@@ -84,9 +84,9 @@ export const useUser = () => {
         })
     }
 
-    const updatePhoto = () => {
+    const updatePhoto = (onSuccessCallback?: (data: any) => void) => {
         const queryClient = useQueryClient();
-        const setUser = useAuthStore((state) => state.user);
+        const setUser = useAuthStore((state) => state.setUserProfile);
 
         return useMutation({
             mutationFn: async ({ id, photo }: { id: string; photo: any }) => {
@@ -95,29 +95,29 @@ export const useUser = () => {
                 if (!jwt) throw new Error("No access token found");
 
                 const form = new FormData();
-                form.append("photo", photo);
+                form.append("userPhoto", photo);
 
                 const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/users/${id}`, {
                     method: "PATCH",
                     headers: {
                         "Authorization": `Bearer ${jwt}`,
                     },
-                    credentials: "include",
                     body: form,
                 });
 
                 if (!response.ok) {
-                    let errorMessage = "Failed to update photo";
-                    try {
-                        const errorData = await response.json();
-                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
-                    } catch {
-                        errorMessage = response.statusText || errorMessage;
-                    }
-                    throw new Error(errorMessage);
+                    const ct = response.headers.get("content-type") || "";
+                    const errBody = ct.includes("application/json")
+                        ? await response.json().catch(() => ({}))
+                        : await response.text().catch(() => "");
+                    const msg = typeof errBody === "string"
+                        ? errBody
+                        : errBody?.response?.message || errBody?.message || `Failed to update photo (${response.status})`;
+                    throw new Error(msg);
                 }
 
-                return response.json();
+                const result = await response.json();
+                return result;
             },
             onSuccess: (data) => {
                 const currentUser = useAuthStore.getState().user;
@@ -125,6 +125,10 @@ export const useUser = () => {
                     setUser({ ...currentUser, photo: data.photo.path });
                 }
                 queryClient.invalidateQueries({ queryKey: ["users"] });
+                if (onSuccessCallback) onSuccessCallback(data);
+            },
+            onError: (error) => {
+                console.error("Photo update error:", error.message);
             },
         });
     };

@@ -148,4 +148,38 @@ export const profileStyles = StyleSheet.create({
         fontSize: 16,
         color: COLORS.primary,
     },
+    menuPickerContainer: {
+        width: "100%",
+        marginTop: 10,
+    },
+    menuPicker: {
+        paddingVertical: 16,
+        borderBottomColor: COLORS.border,
+        borderStyle: "solid",
+        borderBottomWidth: 1,
+        flexDirection: 'row',
+        justifyContent: "space-between",
+        alignItems: "center",
+    },
+    menu: { 
+        flexDirection: "row", 
+        justifyContent: "center", 
+        alignItems: "center",
+        gap: 10
+    },
+    imagePicker: {
+        width: 30,
+        height: 30,
+        tintColor: COLORS.tertiary,
+    },
+    textPicker: {
+        fontSize: 16,
+        color: COLORS.tertiary,
+        marginTop: 2,
+    },
+    actionImagePicker: {
+        width: 12,
+        height: 12,
+        tintColor: COLORS.tertiary,
+    },
 });

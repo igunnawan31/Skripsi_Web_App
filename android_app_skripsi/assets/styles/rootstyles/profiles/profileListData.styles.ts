@@ -1,33 +1,31 @@
-import COLORS from "@/constants/colors";
+; import COLORS from "@/constants/colors";
 import { StyleSheet } from "react-native";
 
 export const profileListDataStyles = StyleSheet.create({
     dataContainer: {
         width: "100%",
         paddingVertical: 20,
-        gap: 12,
+        gap: 2,
     },
-    itemContainer: {
-        backgroundColor: COLORS.white,
-        padding: 12,
-        borderRadius: 12,
-        shadowColor: COLORS.shadow,
-        shadowOffset: { 
-            width: 0, 
-            height: 2 
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-        elevation: 2,
+    labelContainer: {
+        gap: 2,
+        marginBottom: 6,
     },
-    label: {
-        fontSize: 13,
-        color: COLORS.textSecondary,
-    },
-    value: {
-        fontSize: 15,
+    labelInput: {
+        fontSize: 14,
         color: COLORS.textPrimary,
-        fontWeight: "600",
+        marginBottom: 6,
+    },
+    input: {
+        backgroundColor: COLORS.white,
+        borderRadius: 10,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        fontSize: 15,
+        color: "#0f172a",
+        borderWidth: 1,
+        borderColor: "#e2e8f0",
+        opacity: 0.8,
     },
     changeData: {
         backgroundColor: COLORS.tertiary,

@@ -1,5 +1,7 @@
 import { homeStyles } from "@/assets/styles/rootstyles/home/home.styles";
 import COLORS from "@/constants/colors";
+import { useAuthStore } from "@/lib/store/authStore";
+import { MajorRole, MinorRole } from "@/types/enumTypes";
 import { useRouter } from "expo-router";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
@@ -11,12 +13,28 @@ const featureNames = [
         linkTo: "/(cuti)/create",
         accessedBy: [
             {
-                majorRole:"Karyawan", 
-                minorRole:"",
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.ADMIN,
             },
             {
-                majorRole:"Karyawan", 
-                minorRole:"",
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.HR,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.FRONTEND,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.BACKEND,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.PROJECT_MANAGER,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.UI_UX,
             },
         ]
     },
@@ -27,12 +45,28 @@ const featureNames = [
         linkTo: "/(gaji)/gaji",
         accessedBy: [
             {
-                majorRole:"Karyawan", 
-                minorRole:"",
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.ADMIN,
             },
             {
-                majorRole:"Karyawan", 
-                minorRole:"",
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.HR,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.FRONTEND,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.BACKEND,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.PROJECT_MANAGER,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.UI_UX,
             },
         ]
     },
@@ -43,12 +77,12 @@ const featureNames = [
         linkTo: "/(kpi)/penilaian-kpi/penilaian-kpi",
         accessedBy: [
             {
-                majorRole:"Karyawan", 
-                minorRole:"",
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.HR,
             },
             {
-                majorRole:"Karyawan", 
-                minorRole:"",
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.PROJECT_MANAGER,
             },
         ]
     },
@@ -59,12 +93,28 @@ const featureNames = [
         linkTo: "/(kpi)/hasil-kpi/hasil-kpi",
         accessedBy: [
             {
-                majorRole:"Karyawan", 
-                minorRole:"",
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.ADMIN,
             },
             {
-                majorRole:"Karyawan", 
-                minorRole:"",
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.HR,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.FRONTEND,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.BACKEND,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.PROJECT_MANAGER,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.UI_UX,
             },
         ]
     },
@@ -75,12 +125,28 @@ const featureNames = [
         linkTo: "/(reimburse)/reimburse/reimburse",
         accessedBy: [
             {
-                majorRole:"Karyawan", 
-                minorRole:"",
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.ADMIN,
             },
             {
-                majorRole:"Karyawan", 
-                minorRole:"",
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.HR,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.FRONTEND,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.BACKEND,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.PROJECT_MANAGER,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.UI_UX,
             },
         ]
     },
@@ -91,12 +157,8 @@ const featureNames = [
         linkTo: "/(reimburse)/setujui-reimburse/setujui-reimburse",
         accessedBy: [
             {
-                majorRole:"Karyawan", 
-                minorRole:"",
-            },
-            {
-                majorRole:"Karyawan", 
-                minorRole:"",
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.ADMIN,
             },
         ]
     },
@@ -104,6 +166,10 @@ const featureNames = [
 
 const FeatureComponent = () => {
     const router = useRouter();
+    const user = useAuthStore((state) => state.user);
+    const allowedFeatures = featureNames.filter(f => 
+        f.accessedBy.some(a => a.majorRole === user.majorRole && a.minorRole === user.minorRole)
+    )
 
     return (
         <View style={homeStyles.featureContainer}>
@@ -123,7 +189,7 @@ const FeatureComponent = () => {
                 }}
             >
                 <View style={{ flexDirection: "row", gap: 20  }}>
-                    {featureNames.map((item, index) => (
+                    {allowedFeatures.map((item, index) => (
                         <TouchableOpacity
                             key={index}
                             style={homeStyles.featureTouchContainer}
