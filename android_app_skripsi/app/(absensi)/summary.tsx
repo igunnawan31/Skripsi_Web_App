@@ -5,9 +5,12 @@ import { useAbsen } from "@/context/AbsenContext";
 import COLORS from "@/constants/colors";
 import absenSummaryStyles from "@/assets/styles/rootstyles/absen/absensummary.style";
 import ConfirmationPopUpModal from "@/components/rootComponents/absenComponent/ConfirmationPopUpModal";
+import { useAbsensi } from "@/lib/api/hooks/useAbsensi";
+import { useAuthStore } from "@/lib/store/authStore";
 
 const SummaryAbsensiPage = () => {
     const router = useRouter();
+    const user = useAuthStore((state) => state.user);
     const { location, photoUrl, resetAbsen } = useAbsen();
     const [mode, setMode] = useState<"Check-In" | "Check-Out">("Check-In");
     const [currentDate, setCurrentDate] = useState("");
@@ -36,13 +39,22 @@ const SummaryAbsensiPage = () => {
         return () => clearInterval(interval);
     }, []);
 
-    const handleSubmit = async () => {
+    const { mutate: checkInMutate, isPending: isUploading, isError, error } = useAbsensi().checkIn(user.id);
+
+    const handleSubmit = () => {
         if (!location.latitude || !photoUrl) {
-            setModalPop(true);
+            Alert.alert("Error", "Lokasi dan foto diperlukan untuk absensi.");
             return;
         }
 
-        setModalPop(true);
+        checkInMutate(undefined, {
+            onSuccess: () => {
+                setModalPop(true);
+            },
+            onError: (err: any) => {
+                Alert.alert("Error", err.message || "Gagal mengirim absensi.");
+            },
+        });
     };
 
     const handleBackToHome = () => {
@@ -126,8 +138,11 @@ const SummaryAbsensiPage = () => {
                         <TouchableOpacity
                             style={[absenSummaryStyles.button, { backgroundColor: COLORS.tertiary || "#00AEEF" }]}
                             onPress={handleSubmit}
+                            disabled={isUploading}  // Disable button while uploading
                         >
-                            <Text style={absenSummaryStyles.buttonText}>Kirim Absensi</Text>
+                            <Text style={absenSummaryStyles.buttonText}>
+                                {isUploading ? "Mengirim..." : "Kirim Absensi"}
+                            </Text>
                         </TouchableOpacity>
                     </View>
                 </View>

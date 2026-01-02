@@ -66,6 +66,7 @@ const ProfilePage = () => {
             aspect: [1, 1],
             quality: 1,
         });
+        console.log("result", result);
 
         if (!result.canceled && user?.id) {
             const photoPart = buildPhotoPart(result.assets[0]);

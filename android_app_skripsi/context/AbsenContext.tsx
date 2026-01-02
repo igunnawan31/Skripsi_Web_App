@@ -28,6 +28,8 @@ export const AbsenProvider: React.FC<{ children: React.ReactNode}> = ({ children
         setLocation({latitude, longitude, address})
     }; 
 
+    console.log("photo :",photoUrl)
+
     const resetAbsen = () => {
         setLocation({ latitude: null, longitude: null, address: ""});
         setPhotoUrl(null);

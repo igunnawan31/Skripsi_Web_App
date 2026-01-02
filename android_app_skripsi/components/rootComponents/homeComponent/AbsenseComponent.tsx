@@ -6,15 +6,27 @@ import { useEffect, useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { RootTabParamList } from "../Tabs";
 import { useNavigation, useRouter } from "expo-router";
+import { useAbsensi } from "@/lib/api/hooks/useAbsensi";
+import { useAuthStore } from "@/lib/store/authStore";
+import { fromZonedTime } from "date-fns-tz";
 
 type HomeNavigation = NativeStackNavigationProp<RootTabParamList, "Home Page">;
 
 const AbsenseComponent = () => {
     const navigation = useNavigation<HomeNavigation>();
     const router = useRouter();
-    const [data, setData] = useState(dummyAbsensi[2]);
+    const user = useAuthStore((state) => state.user);
+    const userId = user.id ? user.id : null;
     const [currentDate, setCurrentDate] = useState("");
     const [currentTime, setCurrentTime] = useState("");
+
+    if (!user?.id) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Text style={{ color: COLORS.textMuted }}>Memuat data user...</Text>
+            </View>
+        );
+    }
 
     useEffect(() => {
         const updateTime = () => {
@@ -38,26 +50,27 @@ const AbsenseComponent = () => {
         return () => clearInterval(interval);
     }, []);
 
-    const isCheckedIn = data.checkIn !== "";
-    const isCheckedOut = data.checkOut !== "";
+    const dateNow = new Date().toISOString();
+    const { data, isLoading } = useAbsensi().fetchAbsensiById(userId, dateNow);
+    const absensi = data?.statusCode === 500 || !data ? null : data;
+
+    const checkIn = absensi?.checkIn ?? null;
+    const checkOut = absensi?.checkOut ?? null;
+
+    const getCheckInStatus = (checkIn?: string) => {
+        if (!checkIn) return "-";
+
+        const checkInWIB = fromZonedTime(checkIn, "Asia/Jakarta");
+        const limit = new Date(checkInWIB);
+        limit.setUTCHours(8, 30, 0, 0);
+
+        return checkInWIB > limit ? "Terlambat" : "Tepat Waktu";
+    }
     
-    const isLate = (() => {
-        if (!isCheckedIn) return false;
-        const [hour, minute] = data.checkIn.split(":").map(Number);
-        return hour > 8 || (hour === 8 && minute > 30);
-    })();
+    const isLate = checkIn ? getCheckInStatus(checkIn) === "Terlambat" : false;
 
-    const checkInColor = isLate
-        ? COLORS.primary
-        : isCheckedIn
-        ? COLORS.success
-        : COLORS.textMutedOpacity20;
-
-    const checkInBgColor = isLate
-        ? COLORS.primaryOpacity20
-        : isCheckedIn
-        ? COLORS.successOpacity20
-        : COLORS.textMutedOpacity20;
+    const checkInColor = isLate ? COLORS.primary : checkIn ? COLORS.success : COLORS.textMutedOpacity20;
+    const checkInBgColor = isLate ? COLORS.primaryOpacity20 : checkIn ? COLORS.successOpacity20 : COLORS.textMutedOpacity20;
 
     return (
         <View style={homeStyles.absenseContainer}>
@@ -79,7 +92,7 @@ const AbsenseComponent = () => {
                             Check In
                         </Text>
                         <Text style={[homeStyles.checkValue, { color: checkInColor }]}>
-                            {isCheckedIn ? data.checkIn : "Belum"}
+                            {checkIn ? absensi.checkIn : "Belum"}
                         </Text>
                         {isLate && (
                             <Text style={{ color: COLORS.primary, fontSize: 12 }}>
@@ -93,7 +106,7 @@ const AbsenseComponent = () => {
                         style={[
                             homeStyles.logoAbsenseContainer,
                             {
-                                backgroundColor: isCheckedOut
+                                backgroundColor: checkOut
                                 ? COLORS.successOpacity20
                                 : COLORS.textMutedOpacity20,
                             },
@@ -103,7 +116,7 @@ const AbsenseComponent = () => {
                             style={[
                                 homeStyles.logoAbsense,
                                 {
-                                    tintColor: isCheckedOut
+                                    tintColor: checkOut
                                     ? COLORS.success
                                     : COLORS.textMutedOpacity20,
                                 },
@@ -115,7 +128,7 @@ const AbsenseComponent = () => {
                         <Text
                             style={[
                                 homeStyles.checkLabel,
-                                { color: isCheckedOut ? COLORS.success : COLORS.textMutedOpacity20 },
+                                { color: checkOut ? COLORS.success : COLORS.textMutedOpacity20 },
                             ]}
                         >
                             Check Out
@@ -123,10 +136,10 @@ const AbsenseComponent = () => {
                         <Text
                             style={[
                                 homeStyles.checkValue,
-                                { color: isCheckedOut ? COLORS.success : COLORS.textMutedOpacity20 },
+                                { color: checkOut ? COLORS.success : COLORS.textMutedOpacity20 },
                             ]}
                         >
-                            {isCheckedOut ? data.checkOut : "Belum"}
+                            {checkOut ? absensi.checkOut : "Belum"}
                         </Text>
                     </View>
                 </View>
