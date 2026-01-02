@@ -3,9 +3,6 @@ import { IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
 import { FileMetaData } from "src/common/types/FileMetaData.dto";
 
 export class CheckInDTO {
-  @IsString()
-  userId: string;
-
   @IsEnum(WorkStatus)
   workStatus: WorkStatus;
 
@@ -23,6 +20,9 @@ export class CheckInDTO {
 }
 
 export class InternalCheckInDTO extends CheckInDTO {
+  @IsString()
+  userId: string;
+
   @IsNotEmpty()
   photo: FileMetaData;
 }

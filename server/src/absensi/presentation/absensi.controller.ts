@@ -23,7 +23,7 @@ import { AbsensiFilterDTO } from '../application/dtos/request/absensi-filter.dto
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { UserRequest } from 'src/common/types/UserRequest.dto';
-import { MinorRole } from '@prisma/client';
+import { MinorRole, User } from '@prisma/client';
 import { RolesMinor } from 'src/common/decorators/minor-role.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -62,9 +62,10 @@ export class AbsensiController {
       }),
     }),
   )
-  checkIn(@Body() data: CheckInDTO, @UploadedFile() file: Express.Multer.File) {
-    return this.checkInUseCase.execute(data.userId, {
+  checkIn(@Body() data: CheckInDTO, @UploadedFile() file: Express.Multer.File, @Req() req: Request & {user: UserRequest}) {
+    return this.checkInUseCase.execute(req.user.id, {
       ...data,
+      userId: req.user.id,
       photo: file,
     });
   }
@@ -135,7 +136,10 @@ export class AbsensiController {
       }),
     }),
   )
-  checkOut(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
+  checkOut(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Req() req: Request & {user: UserRequest}) {
+    if (id !== req.user.id){
+      throw new UnauthorizedException();
+    }
     return this.checkOutUseCase.execute(id, file);
   }
 }
