@@ -42,7 +42,7 @@ export class AbsensiController {
   // POST absensi/
   @Post()
   @UseInterceptors(
-    FileInterceptor('checkInPhoto', {
+    FileInterceptor('photo', {
       storage: diskStorage({
         destination: (req, file, cb) => {
           const folder = `./uploads/absensi`;
@@ -56,7 +56,7 @@ export class AbsensiController {
             Date.now() + '-' + Math.round(Math.random() * 1e9);
           cb(
             null,
-            `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`,
+            `checkInPhoto-${uniqueSuffix}${extname(file.originalname)}`,
           );
         },
       }),
@@ -115,7 +115,7 @@ export class AbsensiController {
   // PATCH absensi/:id
   @Patch(':id')
   @UseInterceptors(
-    FileInterceptor('checkOutPhoto', {
+    FileInterceptor('photo', {
       storage: diskStorage({
         destination: (req, file, cb) => {
           const folder = `./uploads/absensi`;
@@ -129,7 +129,7 @@ export class AbsensiController {
             Date.now() + '-' + Math.round(Math.random() * 1e9);
           cb(
             null,
-            `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`,
+            `checkOutPhoto-${uniqueSuffix}${extname(file.originalname)}`,
           );
         },
       }),
