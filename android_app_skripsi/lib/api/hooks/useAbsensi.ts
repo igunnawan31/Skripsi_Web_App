@@ -1,5 +1,7 @@
+import { useAbsen } from "@/context/AbsenContext";
 import { getTokens } from "@/lib/utils/secureStorage";
-import { useQuery } from "@tanstack/react-query";
+import { WorkStatus } from "@/types/enumTypes";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useAbsensi = () => {
     const fetchAbsensiByUserId = (id: string, year: number, month: number) => {
@@ -74,8 +76,54 @@ export const useAbsensi = () => {
         })
     }
 
+    const checkIn = (id: string) => {
+        const { location, photoUrl } = useAbsen();
+        return useMutation({
+            mutationFn: async () => {
+                const token = await getTokens();
+                const jwt = token?.access_token;
+                if (!jwt) throw new Error("No access token found");
+                
+                const form = new FormData();
+                form.append("workStatus", WorkStatus.WFO);
+                form.append("address", location.address);
+                form.append("latitude", String(location.latitude));
+                form.append("longitude", String(location.longitude));
+                form.append("checkInPhoto", {
+                    uri: photoUrl,
+                    name: `absen-${Date.now()}.jpeg`,
+                    type: "image/jpeg"
+                } as any);
+                console.log(form);
+
+                const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/absensi`,{
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${jwt}`,
+                    },
+                    body: form,
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Failed to fetch user by ID"
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                const result = await response.json();
+                return result;
+            },
+        })
+    }
+
     return {
         fetchAbsensiByUserId,
-        fetchAbsensiById
+        fetchAbsensiById,
+        checkIn,
     }
 }

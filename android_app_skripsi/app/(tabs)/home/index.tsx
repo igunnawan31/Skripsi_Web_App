@@ -17,7 +17,6 @@ type HomeNavigation = NativeStackNavigationProp<RootTabParamList, "Home Page">;
 const HomePage = () => {
     const navigation = useNavigation<HomeNavigation>();
     const user = useAuthStore((state) => state.user);
-    const [userData, setUserData] = useState(dummyUsers);
     const [newNotification, setNewNotification] = useState(false);
     const [onClickNotification, setOnClickNotification] = useState(false);
 

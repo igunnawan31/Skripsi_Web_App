@@ -5,6 +5,9 @@ import { UserResponse } from "@/types/user/userTypes";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 export const useUser = () => {
+    const queryClient = useQueryClient();
+    const setUser = useAuthStore((state) => state.setUserProfile);
+    
     const fetchUserById = (id: string) => {
         return useQuery ({
             queryKey: ["user", id],
@@ -85,9 +88,6 @@ export const useUser = () => {
     }
 
     const updatePhoto = (onSuccessCallback?: (data: any) => void) => {
-        const queryClient = useQueryClient();
-        const setUser = useAuthStore((state) => state.setUserProfile);
-
         return useMutation({
             mutationFn: async ({ id, photo }: { id: string; photo: any }) => {
                 const token = await getTokens();
