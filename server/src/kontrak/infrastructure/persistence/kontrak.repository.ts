@@ -62,6 +62,7 @@ export class KontrakRepository implements IKontrakRepository {
     try {
       const {
         metodePembayaran,
+        searchTerm,
         status,
         minBayaran,
         minAbsensi,
@@ -99,6 +100,24 @@ export class KontrakRepository implements IKontrakRepository {
           lte: maxEndDate ? new Date(maxEndDate) : undefined,
         },
       };
+
+      if (
+        searchTerm !== undefined &&
+        searchTerm !== null &&
+        searchTerm.trim() !== ''
+      ) {
+        const searchValue = searchTerm.trim();
+        where.OR = [
+          {
+            user: {
+              name: {
+                contains: searchValue,
+                mode: 'insensitive',
+              },
+            },
+          },
+        ];
+      }
 
       const orderBy: Prisma.KontrakKerjaOrderByWithRelationInput = {};
       if (
