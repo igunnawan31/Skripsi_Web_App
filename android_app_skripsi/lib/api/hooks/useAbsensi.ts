@@ -69,14 +69,14 @@ export const useAbsensi = () => {
                 }
 
                 const result = await response.json();
-                return result.data;                
+                return result;                
             },
             enabled: !!id && !!date,
             staleTime: 5 * 60 * 1000,
         })
     }
 
-    const checkIn = (id: string) => {
+    const checkIn = () => {
         const { location, photoUrl } = useAbsen();
         return useMutation({
             mutationFn: async () => {
@@ -85,11 +85,11 @@ export const useAbsensi = () => {
                 if (!jwt) throw new Error("No access token found");
                 
                 const form = new FormData();
-                form.append("workStatus", WorkStatus.WFO);
+                form.append("workStatus", "WFO");
                 form.append("address", location.address);
                 form.append("latitude", String(location.latitude));
                 form.append("longitude", String(location.longitude));
-                form.append("checkInPhoto", {
+                form.append("photo", {
                     uri: photoUrl,
                     name: `absen-${Date.now()}.jpeg`,
                     type: "image/jpeg"
@@ -121,9 +121,50 @@ export const useAbsensi = () => {
         })
     }
 
+    const checkOut = () => {
+        const { photoUrl } = useAbsen();
+        return useMutation({
+            mutationFn: async ({id} : {id: string;}) => {
+                const token = await getTokens();
+                const jwt = token?.access_token;
+                if (!jwt) throw new Error("No access token found");
+                
+                const form = new FormData();
+                form.append("photo", {
+                    uri: photoUrl,
+                    name: `absen-${Date.now()}.jpeg`,
+                    type: "image/jpeg"
+                } as any);
+
+                const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/absensi/${id}`,{
+                    method: "PATCH",
+                    headers: {
+                        "Authorization": `Bearer ${jwt}`,
+                    },
+                    body: form,
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Failed to fetch user by ID"
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                const result = await response.json();
+                return result;
+            },
+        })
+    }
+
     return {
         fetchAbsensiByUserId,
         fetchAbsensiById,
         checkIn,
+        checkOut,
     }
 }

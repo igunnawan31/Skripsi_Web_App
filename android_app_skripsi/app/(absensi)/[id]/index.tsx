@@ -2,19 +2,70 @@ import absenDetailStyles from "@/assets/styles/rootstyles/absen/absendetail.styl
 import AbsenseComponent from "@/components/rootComponents/homeComponent/AbsenseComponent";
 import COLORS from "@/constants/colors";
 import { dummyAbsensi } from "@/data/dummyAbsensi";
+import { useAbsensi } from "@/lib/api/hooks/useAbsensi";
+import { useAuthStore } from "@/lib/store/authStore";
+import { fetchImageWithAuth } from "@/lib/utils/path";
+import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, Region } from "react-native-maps";
 
 export default function DetailAbsensi() {
+    const user = useAuthStore((state) => state.user);
     const router = useRouter();
     const { id } = useLocalSearchParams();
-    const data = dummyAbsensi.find((item) => item.id === id);
+    const idParam = Array.isArray(id) ? id[0] : id ?? "";
     const [region, setRegion] = useState<Region | null>(null);
     const [currentDate, setCurrentDate] = useState("");
     const [currentTime, setCurrentTime] = useState("");
+    const [photoUri, setPhotoUri] = useState<string[] | null>(null);
+    const dateNow = useMemo(() => {
+        const today = new Date().toISOString();
+        return today;
+    }, []);
+
+    const { data: detailData, isLoading: isDetailLoading, error: detailError } = useAbsensi().fetchAbsensiById(idParam, dateNow);
     
+    if (!user) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Text style={{ color: COLORS.textMuted }}>Memuat data user...</Text>
+            </View>
+        );
+    }
+    const loadPhoto = async (path: string, index: number) => {
+        if (!path) return;
+        try {
+            const blob = await fetchImageWithAuth(path);
+            const reader = new FileReader();
+            reader.onload = () => {
+                setPhotoUri(prev => {
+                    const arr = prev ? [...prev] : [];
+                    arr[index] = reader.result as string;
+                    return arr;
+                });
+            };
+            reader.readAsDataURL(blob);
+        } catch (err) {
+            console.error("Load photo error:", err);
+            setPhotoUri(null);
+        }
+    };
+
+    useEffect(() => {
+        if (!detailData?.photo || !Array.isArray(detailData.photo)) return;
+
+        if (detailData.photo[0]?.path) {
+            loadPhoto(detailData.photo[0].path, 0);
+        }
+
+        if (detailData.checkOut && detailData.photo[1]?.path) {
+            loadPhoto(detailData.photo[1].path, 1);
+        }
+    }, [detailData]);
+
     useEffect(() => {
         const now = new Date();
         const date = now.toLocaleDateString("id-ID", {
@@ -30,17 +81,17 @@ export default function DetailAbsensi() {
         setCurrentDate(date);
         setCurrentTime(time);
 
-        if (data?.latitude && data?.longitude) {
+        if (detailData?.latitude && detailData?.longitude) {
             setRegion({
-                latitude: parseFloat(data?.latitude),
-                longitude: parseFloat(data?.longitude),
+                latitude: parseFloat(detailData?.latitude),
+                longitude: parseFloat(detailData?.longitude),
                 latitudeDelta: 0.005,
                 longitudeDelta: 0.005,
             });
         }
-    }, [data]);
+    }, [detailData]);
 
-    if (!data) {
+    if (!detailData) {
         return (
             <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
                 <Text>Data absensi tidak ditemukan.</Text>
@@ -48,27 +99,59 @@ export default function DetailAbsensi() {
         );
     };
 
+    const checkIn = detailData.checkIn ?? null;
+    const checkOut = detailData.checkOut ?? null;
+    const isAlreadyAbsent = Boolean(checkIn) && Boolean(checkOut);
+
+    const toWIB = (dateString: string) => {
+        const zoned = toZonedTime(dateString, "Asia/Jakarta");
+        return format(zoned, "HH:mm");
+    }
+
+    const toDate = (isoString: string) => {
+        if (!isoString) return "-";
+
+        const date = new Date(isoString);
+        return date.toLocaleDateString("id-ID", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+        });
+    };
+
+    const getCheckInStatus = (checkIn?: string) => {
+        if (!checkIn) return "-";
+        
+        const checkInWIB = toZonedTime(checkIn, "Asia/Jakarta");
+        const limit = new Date(checkInWIB);
+        limit.setHours(8, 30, 0, 0);
+
+        return checkInWIB > limit ? "Terlambat" : "Tepat Waktu";
+    };
+    
+    const getCheckOutStatus = (checkOut?: string) => {
+        if (!checkOut) return "-";
+
+        const checkOutWIB = toZonedTime(checkOut, "Asia/Jakarta");
+        const limit = new Date(checkOutWIB);
+        limit.setHours(16, 0, 0, 0);
+        return checkOutWIB < limit ? "Terlalu Cepat" : "Tepat Waktu";
+    }
+
+    const isLate = checkIn ? getCheckInStatus(checkIn) === "Terlambat" : false;
+    const isEarly = checkOut ? getCheckOutStatus(checkOut) === "Terlalu Cepat" : false;
+    const checkInColor = isLate ? COLORS.primary : checkIn ? COLORS.success : COLORS.textMutedOpacity20;
+
     const statusLabel =
-        data.status === "COMPLETED"
+        isAlreadyAbsent
         ? "Sudah Check-In & Check-Out"
-        : data.status === "CHECKED_IN"
+        : checkIn
         ? "Sudah Check-In, Belum Check-Out"
         : "Belum Check-In";
 
-    const isCheckedIn = data.checkIn !== "";
-    const isCheckedOut = data.checkOut !== "";
-
-    const isLate = (() => {
-        if (!isCheckedIn) return false;
-        const [hour, minute] = data.checkIn.split(":").map(Number);
-        return hour > 8 || (hour === 8 && minute > 30);
-    })();
-
-    const isEarly = (() => {
-        if (!isCheckedOut) return false;
-        const [hour, minute] = data.checkOut.split(":").map(Number);
-        return hour < 16 || (hour === 16 && minute < 0);
-    })();
+    const isCheckedIn = detailData.checkIn !== "";
+    const isCheckedOut = detailData.checkOut !== "";
 
     const checkInBgColor = isLate
         ? COLORS.primary
@@ -115,11 +198,11 @@ export default function DetailAbsensi() {
                     <Text style={absenDetailStyles.subHeaderTitle}>
                         Detail Absensi
                     </Text>
-                    <Text style={{ color: COLORS.textMuted }}>{currentDate}</Text>
+                    <Text style={{ color: COLORS.textMuted }}>{toDate(detailData.date)}</Text>
                     <Text style={[
                         absenDetailStyles.textStatus, 
-                        data.status === "COMPLETED" ? { backgroundColor: COLORS.success} :
-                        data.status === "CHECKED-IN" ? { backgroundColor: COLORS.tertiaryOpacity20} :
+                        isAlreadyAbsent ? { backgroundColor: COLORS.success} :
+                        checkIn ? { backgroundColor: COLORS.tertiaryOpacity20} :
                         {backgroundColor: COLORS.error}, 
                     ]}>{statusLabel}</Text>
                 </View>
@@ -127,7 +210,7 @@ export default function DetailAbsensi() {
                 <View style={absenDetailStyles.absenseContainer}>
                     <View style={absenDetailStyles.tanggalContainer}>
                         <Text style={{ fontSize: 14, color: COLORS.textPrimary }}>Tanggal</Text>
-                        <Text style={absenDetailStyles.tanggalText}>{data.date}</Text>
+                        <Text style={absenDetailStyles.tanggalText}>{toDate(detailData.date)}</Text>
                     </View>
                     <View style={absenDetailStyles.checkContainer}>
                         <View style={absenDetailStyles.checkInOutContainer}>
@@ -140,7 +223,7 @@ export default function DetailAbsensi() {
                                     Check In
                                 </Text>
                                 <Text style={absenDetailStyles.textCheck}>
-                                    {isCheckedIn ? data.checkIn : "Belum"}
+                                    {isCheckedIn ? toWIB(detailData.checkIn) : "Belum"}
                                 </Text>
                                 {isLate && (
                                     <Text style={{ color: COLORS.white, fontSize: 12 }}>
@@ -157,7 +240,7 @@ export default function DetailAbsensi() {
                                     Check-Out
                                 </Text>
                                 <Text style={absenDetailStyles.textCheck}>
-                                    {isCheckedOut ? data.checkOut : "Belum"}
+                                    {isCheckedOut ? toWIB(detailData.checkOut) : "Belum"}
                                 </Text>
                                 {isEarly && (
                                     <Text style={{ color: COLORS.white, fontSize: 12 }}>
@@ -170,15 +253,15 @@ export default function DetailAbsensi() {
                 </View>
 
                 {[
-                    { title: "Nama", value: data.name },
-                    { title: "Role", value: `${data.majorRole} - ${data.minorRole}` },
-                    { title: "Status Kerja", value: data.workStatus },
-                    { title: "Tanggal", value: data.date },
+                    { title: "Nama", value: user.name},
+                    { title: "Role", value: `${user.majorRole} - ${user.minorRole}` },
+                    { title: "Status Kerja", value: detailData.workStatus },
+                    { title: "Tanggal", value: toDate(detailData.date) },
                     { 
                         title: "Lokasi", 
-                        value: data.address || "Alamat belum tersedia",
-                        extra: (data.latitude && data.longitude) 
-                            ? `${data.latitude}, ${data.longitude}`
+                        value: detailData.address || "Alamat belum tersedia",
+                        extra: (detailData.latitude && detailData.longitude) 
+                            ? `${detailData.latitude}, ${detailData.longitude}`
                             : "Koordinat belum tersedia"
                     },
                 ].map((item, index) => (
@@ -205,25 +288,31 @@ export default function DetailAbsensi() {
                     </View>
                 ))}
 
-                {data.url ? (
-                    <View style={absenDetailStyles.section}>
-                        <Text style={absenDetailStyles.sectionTitle}>Foto Selfie</Text>
+                <View style={absenDetailStyles.section}>
+                    <Text style={absenDetailStyles.sectionTitle}>Foto Selfie Check-In</Text>
+                    {photoUri?.[0] ? (
                         <Image
-                            source={require('../../../assets/images/foto2.jpeg')}
-                            style={{
-                                width: "100%",
-                                height: 200,
-                                borderRadius: 12,
-                                marginTop: 10,
-                            }}
+                            source={{ uri: photoUri[0] }}
+                            style={{ width: "100%", height: 200, borderRadius: 12, marginTop: 10 }}
                         />
-                    </View>
-                ) : (
-                    <View style={absenDetailStyles.section}>
-                        <Text style={absenDetailStyles.sectionTitle}>Foto Selfie</Text>
+                    ) : (
                         <Text style={absenDetailStyles.infoText}>Belum ada foto diambil.</Text>
+                    )}
                     </View>
-                )}
+
+                    <View style={absenDetailStyles.section}>
+                    <Text style={absenDetailStyles.sectionTitle}>Foto Selfie Check-Out</Text>
+                    {!detailData.checkOut ? (
+                        <Text style={absenDetailStyles.infoText}>Belum ada foto diambil.</Text>
+                    ) : photoUri?.[1] ? (
+                        <Image
+                            source={{ uri: photoUri[1] }}
+                            style={{ width: "100%", height: 200, borderRadius: 12, marginTop: 10 }}
+                        />
+                    ) : (
+                        <Text style={absenDetailStyles.infoText}>Gagal memuat foto.</Text>
+                    )}
+                </View>
             </ScrollView>
         </View>
     )

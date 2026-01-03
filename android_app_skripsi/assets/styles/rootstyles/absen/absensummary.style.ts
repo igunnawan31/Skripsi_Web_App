@@ -27,12 +27,18 @@ const absenSummaryStyles = StyleSheet.create({
         fontFamily: "poppins",
         fontSize: 24,
         fontWeight: "bold",
-        color: COLORS.white
+        color: COLORS.white,
+        flexWrap: "wrap"
     },
     headerDescription: {
         fontFamily: "poppins",
         fontSize: 16,
-        color: COLORS.background
+        color: COLORS.background,
+        flexWrap: "wrap"
+    },
+    textHeaderContainer: {
+        flex: 1,
+        paddingHorizontal: 10,
     },
     logoHeaderContainer: {
         width: 50,

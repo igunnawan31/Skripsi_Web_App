@@ -103,6 +103,7 @@ const absenDetailStyles = StyleSheet.create({
         fontSize: 14,
         fontWeight: "600",
         color: COLORS.textPrimary,
+        marginBottom: 4,
     },
     checkContainer: {
         paddingVertical: 8,

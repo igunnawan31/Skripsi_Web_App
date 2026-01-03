@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { useAbsen } from "@/context/AbsenContext";
@@ -11,11 +11,30 @@ import { useAuthStore } from "@/lib/store/authStore";
 const SummaryAbsensiPage = () => {
     const router = useRouter();
     const user = useAuthStore((state) => state.user);
+    const userId = user?.id ? user.id : null;
     const { location, photoUrl, resetAbsen } = useAbsen();
-    const [mode, setMode] = useState<"Check-In" | "Check-Out">("Check-In");
+
     const [currentDate, setCurrentDate] = useState("");
     const [currentTime, setCurrentTime] = useState("");
     const [modalPop, setModalPop] = useState(false);
+    
+    if (!user?.id) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Text style={{ color: COLORS.textMuted }}>Memuat data user...</Text>
+            </View>
+        );
+    }
+
+    const dateNow = useMemo(() => {
+        const today = new Date().toISOString();
+        return today
+    }, []);
+
+    const { data, isLoading } = useAbsensi().fetchAbsensiById(userId, dateNow);
+    const absensi = data;
+    const checkIn = absensi?.checkIn ?? null;
+    const mode: "Check-In" | "Check-Out" = absensi?.checkIn ? "Check-Out" : "Check-In";
 
     useEffect(() => {
         const updateTime = () => {
@@ -39,22 +58,35 @@ const SummaryAbsensiPage = () => {
         return () => clearInterval(interval);
     }, []);
 
-    const { mutate: checkInMutate, isPending: isUploading, isError, error } = useAbsensi().checkIn(user.id);
+    const { mutate: checkInMutate, isPending: isUploadingCheckIn, isError, error } = useAbsensi().checkIn();
+    const { mutate: checkOutMutate, isPending: isUploadingCheckOut } = useAbsensi().checkOut();
 
     const handleSubmit = () => {
-        if (!location.latitude || !photoUrl) {
-            Alert.alert("Error", "Lokasi dan foto diperlukan untuk absensi.");
+        if (!photoUrl) {
+            Alert.alert("Error", "Foto selfie diperlukan untuk absensi.");
             return;
         }
 
-        checkInMutate(undefined, {
-            onSuccess: () => {
-                setModalPop(true);
-            },
-            onError: (err: any) => {
-                Alert.alert("Error", err.message || "Gagal mengirim absensi.");
-            },
-        });
+        if (mode === "Check-In") {
+            if (!location.latitude || !location.longitude) {
+                Alert.alert("Error", "Lokasi diperlukan untuk Check-In.");
+                return;
+            }
+
+            checkInMutate(undefined, {
+                onSuccess: () => setModalPop(true),
+                onError: (err: any) => Alert.alert("Error", err.message),
+            });
+        } 
+        else {
+            checkOutMutate(
+                { id: userId },
+                {
+                    onSuccess: () => setModalPop(true),
+                    onError: (err: any) => Alert.alert("Error", err.message),
+                }
+            );
+        }
     };
 
     const handleBackToHome = () => {
@@ -75,36 +107,35 @@ const SummaryAbsensiPage = () => {
                             source={require("../../assets/icons/absence.png")}
                         />
                     </View>
-                    <View>
+                    <View style={absenSummaryStyles.textHeaderContainer}>
                         <Text style={absenSummaryStyles.headerTitle}>
-                            Konfirmasi Absen
+                            Konfirmasi {mode === "Check-In" ? "Check-In" : "Check-Out"}
                         </Text>
                         <Text style={absenSummaryStyles.headerDescription}>
-                            Pastikan semua data sudah benar sebelum
-                        </Text>
-                        <Text style={absenSummaryStyles.headerDescription}>
-                            dikirim.
+                            Pastikan semua data sudah benar sebelum dikirim.
                         </Text>
                     </View>
                 </View>
-                <View style={{ paddingHorizontal: 20, }}>
-                    <View style={absenSummaryStyles.section}>
-                        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10, gap: 5 }}>
-                            <Image
-                                style={[absenSummaryStyles.logoHeader, { height: 16, width: 16, tintColor: COLORS.primary }]}
-                                source={require("../../assets/icons/location.png")}
-                            />
-                            <Text style={absenSummaryStyles.sectionTitle}>Lokasi Anda</Text>
-                        </View>
-                        <Text style={absenSummaryStyles.infoText}>
-                            {location.address || "Alamat tidak ditemukan"}
-                        </Text>
-                        <Text style={absenSummaryStyles.coordText}>
-                            {location.latitude && location.longitude
-                                ? `${location.latitude}, ${location.longitude}`
-                                : "Koordinat belum tersedia"}
-                        </Text>
-                    </View>
+                <View style={{ paddingHorizontal: 20, width: "100%"}}>
+                    {mode === "Check-In" && (
+                        <View style={absenSummaryStyles.section}>
+                            <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10, gap: 5 }}>
+                                <Image
+                                    style={[absenSummaryStyles.logoHeader, { height: 16, width: 16, tintColor: COLORS.primary }]}
+                                    source={require("../../assets/icons/location.png")}
+                                />
+                                <Text style={absenSummaryStyles.sectionTitle}>Lokasi Anda</Text>
+                            </View>
+                            <Text style={absenSummaryStyles.infoText}>
+                                {location.address || "Alamat tidak ditemukan"}
+                            </Text>
+                            <Text style={absenSummaryStyles.coordText}>
+                                {location.latitude && location.longitude
+                                    ? `${location.latitude}, ${location.longitude}`
+                                    : "Koordinat belum tersedia"}
+                            </Text>
+                        </View>  
+                    )}
 
                     <View style={absenSummaryStyles.section}>
                         <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10, gap: 5 }}>
@@ -122,7 +153,7 @@ const SummaryAbsensiPage = () => {
                     </View>
                     
                     <View style={absenSummaryStyles.section}>
-                        <Text style={absenSummaryStyles.sectionTitle}>{mode}</Text>
+                        <Text style={absenSummaryStyles.sectionTitle}>{mode === "Check-In" ? "Check-In Time" : "Check-Out Time"}</Text>
                         <Text style={absenSummaryStyles.infoText}>
                             {currentTime}
                         </Text>
@@ -138,10 +169,10 @@ const SummaryAbsensiPage = () => {
                         <TouchableOpacity
                             style={[absenSummaryStyles.button, { backgroundColor: COLORS.tertiary || "#00AEEF" }]}
                             onPress={handleSubmit}
-                            disabled={isUploading}  // Disable button while uploading
+                            disabled={isUploadingCheckIn}
                         >
                             <Text style={absenSummaryStyles.buttonText}>
-                                {isUploading ? "Mengirim..." : "Kirim Absensi"}
+                                {isUploadingCheckIn || isUploadingCheckOut ? "Mengirim..." : `Kirim ${mode}`}
                             </Text>
                         </TouchableOpacity>
                     </View>
