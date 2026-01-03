@@ -161,7 +161,7 @@ const AbsenseComponent = () => {
                     disabled={isAlreadyAbsent}
                     onPress={() => {
                         if (isAlreadyAbsent) return;
-                        if (absensi.checkIn !== null && absensi.checkOut === null) {
+                        if (checkIn !== null) {
                             router.push("/(absensi)/fotoabsensi");
                         } else {
                             router.push("/(absensi)/geoLocation");
