@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { BaseExceptionFilter } from '@nestjs/core';
 import { Response, Request } from 'express';
-import { LoggerService } from 'src/logger/logger.service';
+import { LoggerService } from 'src/modules/logger/logger.service';
 interface ExceptionResponseObj {
   statusCode: number;
   timestamp: string;

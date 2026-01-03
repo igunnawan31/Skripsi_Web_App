@@ -2,23 +2,22 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { LoggerService } from './logger/logger.service';
-import { PrismaModule } from './database/prisma/prisma.module';
-import { RedisModule } from './database/redis/redis.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { createClient } from 'redis';
-import { LoggerModule } from './logger/logger.module';
-import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
-import { CutiModule } from './cuti/cuti.module';
-import { AbsensiModule } from './absensi/absensi.module';
-import { KontrakModule } from './kontrak/kontrak.module';
-import { GajiModule } from './gaji/gaji.module';
-import { ProjectModule } from './project/project.module';
-import { KpiModule } from './kpi/kpi.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { FilesModule } from './files/files.module';
-import { ReimburseModule } from './reimburse/reimburse.module';
+import { FilesModule } from './modules/files/files.module';
+import { ReimburseModule } from './modules/reimburse/reimburse.module';
+import { RedisModule } from './modules/database/redis/redis.module';
+import { LoggerModule } from './modules/logger/logger.module';
+import { PrismaModule } from './modules/database/prisma/prisma.module';
+import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { CutiModule } from './modules/cuti/cuti.module';
+import { AbsensiModule } from './modules/absensi/absensi.module';
+import { KontrakModule } from './modules/kontrak/kontrak.module';
+import { GajiModule } from './modules/gaji/gaji.module';
+import { ProjectModule } from './modules/project/project.module';
+import { KpiModule } from './modules/kpi/kpi.module';
 
 @Module({
   imports: [
@@ -81,7 +80,6 @@ import { ReimburseModule } from './reimburse/reimburse.module';
     ProjectModule,
     KpiModule,
     ReimburseModule,
-    LoggerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

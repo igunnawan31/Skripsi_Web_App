@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as moment from 'moment-timezone';
 
@@ -34,5 +34,30 @@ export class DateUtilService {
 
   getTimezone(): string {
     return this.timezone;
+  }
+
+  parseDate(dateStr: string): Date {
+    // Allow YYYY-MM-DD format
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime()))
+        throw new BadRequestException('Invalid date format');
+      return date;
+    }
+
+    // Allow ISO FORMAT
+    if (
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?$/.test(
+        dateStr,
+      )
+    ) {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) {
+        throw new BadRequestException('Invalid ISO 8601 date-time format');
+      }
+      return date;
+    }
+
+    throw new BadRequestException('Date must be in YYYY-MM-DD format');
   }
 }

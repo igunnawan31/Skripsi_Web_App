@@ -8,7 +8,7 @@ import {
   PrismaClientKnownRequestError,
   PrismaClientValidationError,
 } from '@prisma/client/runtime/library';
-import { LoggerService } from 'src/logger/logger.service';
+import { LoggerService } from 'src/modules/logger/logger.service';
 
 export function handlePrismaError(
   error: unknown,

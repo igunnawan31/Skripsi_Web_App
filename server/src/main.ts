@@ -2,8 +2,8 @@ import { HttpAdapterHost, NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { LoggerService } from './logger/logger.service';
 import { AllExceptionsFilter } from './common/filters/exception.filter';
+import { LoggerService } from './modules/logger/logger.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

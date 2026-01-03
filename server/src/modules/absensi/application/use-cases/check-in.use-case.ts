@@ -1,0 +1,94 @@
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { CheckInResponseDTO } from '../dtos/response/create-response.dto';
+import { AbsensiCheckedInEvent } from '../events/absensi.events';
+import { InternalCheckInDTO } from '../dtos/request/check-in.dto';
+import { IAbsensiRepository } from '../../domain/repositories/absensi.repository.interface';
+import { IUserRepository } from 'src/modules/users/domain/repositories/users.repository.interface';
+import { AbsensiValidationService } from '../../domain/services/absensi-validation.service';
+
+@Injectable()
+export class CheckInUseCase {
+  constructor(
+    @Inject(IAbsensiRepository)
+    private readonly absensiRepo: IAbsensiRepository,
+    @Inject(IUserRepository)
+    private readonly userRepo: IUserRepository,
+    private readonly validationService: AbsensiValidationService,
+    private readonly eventEmitter: EventEmitter2,
+  ) { }
+
+  async execute(
+    userId: string,
+    dto: InternalCheckInDTO,
+  ): Promise<CheckInResponseDTO> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) {
+      throw new NotFoundException(`User ${userId} tidak ditemukan`);
+    }
+
+    const today = new Date();
+    const existing = await this.absensiRepo.findByUserAndDate(userId, today);
+    if (existing) {
+      throw new BadRequestException('Anda sudah check-in hari ini');
+    }
+    const workStatusValidation = this.validationService.validateWorkStatus(
+      dto.workStatus,
+      dto.address,
+      dto.latitude,
+      dto.longitude,
+    );
+    if (!workStatusValidation.valid) {
+      throw new BadRequestException(workStatusValidation.message);
+    }
+
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
+
+    const usedAbsensi = await this.absensiRepo.countAbsensiInMonth(
+      userId,
+      year,
+      month,
+    );
+
+    const quotaValidation = await this.validationService.validateMonthlyQuota(
+      userId,
+      today,
+      usedAbsensi,
+    );
+    if (!quotaValidation.valid) {
+      throw new BadRequestException(quotaValidation.message);
+    }
+
+    const now = new Date();
+    const timeValidation = this.validationService.validateCheckInTime(now);
+    const absensi = await this.absensiRepo.checkIn({
+      userId,
+      date: today,
+      workStatus: dto.workStatus,
+      checkIn: now,
+      address: dto.address,
+      latitude: dto.latitude,
+      longitude: dto.longitude,
+      photo: dto.photo,
+    });
+
+    // STEP 7: Emit event
+    this.eventEmitter.emit(
+      'absensi.checkedIn',
+      new AbsensiCheckedInEvent(
+        userId,
+        today,
+        dto.workStatus,
+        timeValidation.isLate,
+      ),
+    );
+
+    return absensi;
+  }
+}
