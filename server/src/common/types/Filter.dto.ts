@@ -24,3 +24,13 @@ export class FilterDTO {
   @IsString()
   sortOrder?: 'asc' | 'desc' = 'desc';
 }
+
+// Sort Values
+export const ALLOWED_REIMBURSE_SORT_FIELDS = [
+  'title',
+  'totalExpenses',
+  'createdAt',
+] as const;
+
+export type ReimburseSortField = typeof ALLOWED_REIMBURSE_SORT_FIELDS[number];
+

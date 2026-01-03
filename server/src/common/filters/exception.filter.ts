@@ -3,10 +3,10 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
-  Logger,
 } from '@nestjs/common';
 import { BaseExceptionFilter } from '@nestjs/core';
 import { Response, Request } from 'express';
+import { LoggerService } from 'src/logger/logger.service';
 interface ExceptionResponseObj {
   statusCode: number;
   timestamp: string;
@@ -16,7 +16,7 @@ interface ExceptionResponseObj {
 
 @Catch()
 export class AllExceptionsFilter extends BaseExceptionFilter {
-  private readonly logger = new Logger(AllExceptionsFilter.name);
+  private readonly logger = new LoggerService(AllExceptionsFilter.name);
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();

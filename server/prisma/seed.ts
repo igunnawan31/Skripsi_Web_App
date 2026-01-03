@@ -35,6 +35,16 @@ async function main() {
     },
   });
 
+  await prisma.user.create({
+    data: {
+      name: 'Admin',
+      email: 'admin@example.com',
+      password,
+      majorRole: 'KARYAWAN',
+      minorRole: 'ADMIN',
+    },
+  });
+
   const pm = await prisma.user.create({
     data: {
       name: 'Project Manager',
@@ -236,9 +246,9 @@ async function main() {
   await prisma.reimburse.create({
     data: {
       userId: frontend.id,
-      name: 'Biaya Internet Bulan Januari',
-      totalPengeluaran: 150000,
-      file: { url: '/uploads/reimburse/internet-jan.pdf' },
+      title: 'Biaya Internet Bulan Januari',
+      totalExpenses: 150000,
+      documents: { url: '/uploads/reimburse/internet-jan.pdf' },
     },
   });
 

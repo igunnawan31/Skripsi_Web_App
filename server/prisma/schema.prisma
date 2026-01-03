@@ -55,7 +55,7 @@ model Absensi {
   date       DateTime   @db.Date
   workStatus WorkStatus
   checkIn    DateTime   @default(now())
-  checkOut   DateTime?  
+  checkOut   DateTime?
   address    String?
   latitude   String?
   longitude  String?
@@ -96,7 +96,7 @@ model KontrakKerja {
   id               String             @id @default(uuid())
   userId           String
   projectId        String?
-  jenis            EmployeeType @default(CONTRACT)
+  jenis            EmployeeType       @default(CONTRACT)
   metodePembayaran MetodePembayaran
   dpPercentage     Int?
   finalPercentage  Int?
@@ -111,9 +111,9 @@ model KontrakKerja {
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
 
-  user    User    @relation("UserKontrak", fields: [userId], references: [id], onDelete: Cascade)
+  user    User     @relation("UserKontrak", fields: [userId], references: [id], onDelete: Cascade)
   project Project? @relation("KontrakProject", fields: [projectId], references: [id], onDelete: Cascade)
-  gaji    Gaji[]  @relation("KontrakGaji")
+  gaji    Gaji[]   @relation("KontrakGaji")
 
   @@index([userId])
   @@index([projectId])
@@ -134,7 +134,7 @@ model Gaji {
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 
-  user    User         @relation("UserGaji", fields: [userId], references: [id], onDelete: Cascade)
+  user    User          @relation("UserGaji", fields: [userId], references: [id], onDelete: Cascade)
   kontrak KontrakKerja? @relation("KontrakGaji", fields: [kontrakId], references: [id], onDelete: Cascade)
 
   @@unique([userId, kontrakId, periode]) // Satu user hanya bisa punya 1 gaji per periode
@@ -349,15 +349,16 @@ model Notification {
 }
 
 model Reimburse {
-  id               String    @id @default(cuid())
-  userId           String
-  approverId       String?
-  name             String
-  submissionDate   DateTime  @default(now())
-  totalPengeluaran Int
-  approvalDate     DateTime?
-  alasanPenolakan  String?
-  file             Json?
+  id             String         @id @default(cuid())
+  userId         String
+  approverId     String?
+  title          String
+  totalExpenses  Int
+  approvalStatus ApprovalStatus @default(PENDING)
+  rejectReason   String?
+  documents      Json?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
   requester User  @relation("ReimburseRequester", fields: [userId], references: [id], onDelete: Cascade)
   approver  User? @relation("ReimburseApprover", fields: [approverId], references: [id], onDelete: Cascade)
@@ -382,6 +383,12 @@ enum WorkStatus {
   WFH
   WFO
   HYBRID
+}
+
+enum ApprovalStatus {
+  APPROVED
+  PENDING
+  REJECTED
 }
 
 enum StatusCuti {

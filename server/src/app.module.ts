@@ -18,6 +18,7 @@ import { ProjectModule } from './project/project.module';
 import { KpiModule } from './kpi/kpi.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { FilesModule } from './files/files.module';
+import { ReimburseModule } from './reimburse/reimburse.module';
 
 @Module({
   imports: [
@@ -79,8 +80,10 @@ import { FilesModule } from './files/files.module';
     GajiModule,
     ProjectModule,
     KpiModule,
+    ReimburseModule,
+    LoggerModule,
   ],
   controllers: [AppController],
-  providers: [AppService, LoggerService],
+  providers: [AppService],
 })
 export class AppModule { }
