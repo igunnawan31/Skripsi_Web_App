@@ -26,9 +26,11 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
         isLoading: isDetailLoading,
         error: detailError,
     } = absensi.fetchAbsensiById(id, date);
+    console.log(detailData);
 
     let current = new Date();
     const year = current.getFullYear();
+    console.log(year);
     const month = current.getMonth();
 
     const {
@@ -36,6 +38,8 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
         isLoading: isHistoryLoading,
         error: historyError,
     } = absensi.fetchAbsensiByUserId(id, year, month);
+
+    console.log("history", historyData);
 
     if (isDetailLoading || isHistoryLoading) {
         return <div className="text-center text-(--color-muted)">Memuat data...</div>;
@@ -48,6 +52,9 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
     if (!detailData || !historyData) {
         return <div className="text-center text-red-500">Data tidak ditemukan.</div>;
     }
+
+    const photos = Array.isArray(detailData.photo) ? detailData.photo : [];
+    const history = historyData ?? [];
 
     const getTimeFromISO = (iso?: string) => {
         if (!iso) return "-";
@@ -89,8 +96,7 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
         return "bg-gray-100 text-gray-700";
     };
 
-    // const lastShownHistory = historyData?.data.slice(0,7) ?? []; 
-    const lastShownHistory = (historyData?.data ?? []).filter((abs: any) => (abs.user.id !== detailData.user.id && abs.checkIn !== detailData.checkIn)).slice(0,7);
+    const lastShownHistory = history.slice(0, 7);
 
     return (
         <div className="flex flex-col gap-6 w-full pb-8">
@@ -173,85 +179,103 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
                                 </div>
                             </div>
 
-
                             <div className="w-full gap-2 flex flex-col">
                                 <label className="text-sm font-medium text-gray-600 mb-1">
-                                    Lampiran Foto
+                                    Status Kehadiran
                                 </label>
-                                {detailData.photo !== null ? (
-                                    <div className="flex justify-between items-center rounded-lg p-4 border border-gray-300 hover:shadow-md transition-shadow bg-gray-50">
-                                        <div className="flex flex-row gap-4">
-                                            <div className="w-20 h-20 bg-(--color-secondary) rounded-lg items-center justify-center relative">
-                                                <Image
-                                                    src={getFileIcon(detailData.photo)}
-                                                    fill
-                                                    alt="Format"
-                                                    className="object-cover p-4"
-                                                />
-                                            </div>
-                                            <div className="flex flex-col justify-center gap-1">
-                                                <p className="text-md font-bold">Bukti Absensi</p>
-                                                <span
-                                                    onClick={() => handlePreview(detailData.path)}
-                                                    className="text-xs cursor-pointer hover:underline text-(--color-muted)"
-                                                >
-                                                    See File
-                                                </span>
-                                            </div>
-                                        </div>
-                                        {previewUrl && (
-                                            <div className="fixed inset-0 bg-black/60 flex justify-center items-center">
-                                                <div className="bg-white w-3/4 h-3/4 rounded-xl p-4 relative">
-                                                    <div className="items-center justify-between flex mb-5">
-                                                        <p className="text-md font-bold">Detail Foto</p>
-                                                        <button onClick={() => setPreviewUrl(null)} className="bg-(--color-primary) rounded-lg p-2 hover: hover:bg-red-800 cursor-pointer">
-                                                            <Image 
-                                                                src={icons.closeMenu}
-                                                                alt="Close Preview PDF"
-                                                                width={24}
-                                                                height={24}
-                                                            />
-                                                        </button>
-                                                    </div>
-                                                    <iframe src={previewUrl} className="w-full h-[90%]" />
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="flex justify-between items-center rounded-lg p-4 border border-gray-300 hover:shadow-md transition-shadow bg-gray-50">
-                                        <div className="flex flex-row gap-4">
-                                            <div className="w-20 h-20 bg-(--color-secondary) rounded-lg items-center justify-center relative">
-                                                <Image
-                                                    src={getFileIcon(detailData.photo)}
-                                                    fill
-                                                    alt="Format"
-                                                    className="object-cover p-4"
-                                                />
-                                            </div>
-                                            <div className="text-center text-(--color-muted) py-6">
-                                                Belum ada lampiran yang tersedia.
-                                            </div>
-                                        </div>
-                                    </div>  
-                                )}
+                                <div
+                                    className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                >
+                                    {getCheckInStatus(detailData.checkIn)}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="mt-6 border-t border-(--color-border) pt-6">
-                    <h2 className="text-lg font-semibold text-(--color-text-primary) mb-4">
-                        Detail Lokasi CheckIn
-                    </h2>
+                <div className="flex flex-col gap-4">
+                    <div className="flex justify-between items-center">
+                        <h2 className="font-semibold text-lg text-(--color-text-primary)">
+                            Lampiran
+                        </h2>
+                    </div>
+                    {photos.length > 0 ? (
+                        photos.map((pt: any) => (
+                            <div 
+                                className="flex justify-between items-center rounded-lg p-4 border border-gray-300 hover:shadow-md transition-shadow bg-gray-50"
+                                key={pt.path}
+                            >
+                                <div className="flex flex-row gap-4">
+                                    <div className="w-20 h-20 bg-(--color-secondary) rounded-lg items-center justify-center relative">
+                                        <Image
+                                            src={getFileIcon(pt.photo)}
+                                            fill
+                                            alt="Format"
+                                            className="object-cover p-4"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col justify-center gap-1">
+                                        <p className="text-md font-bold">{pt.filename}</p>
+                                        <span
+                                            onClick={() => handlePreview(pt.path)}
+                                            className="text-xs cursor-pointer hover:underline text-(--color-muted)"
+                                        >
+                                            See File
+                                        </span>
+                                    </div>
+                                </div>
+                                {previewUrl && (
+                                    <div className="fixed inset-0 bg-black/60 flex justify-center items-center">
+                                        <div className="bg-white w-3/4 h-3/4 rounded-xl p-4 relative">
+                                            <div className="items-center justify-between flex mb-5">
+                                                <p className="text-md font-bold">Detail Foto</p>
+                                                <button onClick={() => setPreviewUrl(null)} className="bg-(--color-primary) rounded-lg p-2 hover: hover:bg-red-800 cursor-pointer">
+                                                    <Image 
+                                                        src={icons.closeMenu}
+                                                        alt="Close Preview PDF"
+                                                        width={24}
+                                                        height={24}
+                                                    />
+                                                </button>
+                                            </div>
+                                            <iframe src={previewUrl} className="w-full h-[90%]" />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )) 
+                    ) : (
+                        <div className="flex justify-between items-center rounded-lg p-4 border border-gray-300 hover:shadow-md transition-shadow bg-gray-50">
+                            <div className="flex flex-row gap-4">
+                                <div className="w-20 h-20 bg-(--color-secondary) rounded-lg items-center justify-center relative">
+                                    <Image
+                                        src={getFileIcon(detailData.photo)}
+                                        fill
+                                        alt="Format"
+                                        className="object-cover p-4"
+                                    />
+                                </div>
+                                <div className="text-center text-(--color-muted) py-6">
+                                    Belum ada lampiran yang tersedia.
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+                <div className="flex flex-col gap-4">
+                    <div className="flex justify-between items-center">
+                        <h2 className="font-semibold text-lg text-(--color-text-primary)">
+                            Detail Lokasi Check-In
+                        </h2>
+                    </div>
                     {detailData.latitude && detailData.longitude ? (
                         <div className="w-full h-84 rounded-lg overflow-hidden border border-(--color-border)">
                             <MapContainer
-                                center={[parseFloat(detailData.latitude), parseFloat(detailData.longitude)]}  // Pusatkan ke lokasi check-in
+                                center={[parseFloat(detailData.latitude), parseFloat(detailData.longitude)]}
                                 zoom={15}
                                 style={{ height: "100%", width: "100%" }}
                             >
                                 <TileLayer
-                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"  // Tile layer gratis dari OSM
+                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                 />
                                 <Marker position={[parseFloat(detailData.latitude), parseFloat(detailData.longitude)]}>

@@ -34,8 +34,15 @@ export enum GajiStatus {
 }
 
 export enum KontrakKerjaStatus {
-    AKTIF = "Aktif",
-    SELESAI = "Selesai",
+    ACTIVE = "ACTIVE",
+    COMPLETED = "COMPLETED",
+    ON_HOLD = "ON_HOLD",
+}
+
+export enum MetodePembayaran {
+    MONTHLY = "MONTHLY",
+    TERMIN = "TERMIN",
+    FULL = "FULL",
 }
 
 export enum KategoriPertanyaanKPI {
@@ -91,13 +98,10 @@ export type Project = {
 export type User = {
     id: string;
     email: string;
-    password: string;
     name: string;
     majorRole: MajorRole;
     minorRole?: MinorRole;
-    tanggalMulai: string;
-    tanggalSelesai: string;
-    projectList: Project[];
+    photo: JSON;
 }
 
 export type Gaji = {
