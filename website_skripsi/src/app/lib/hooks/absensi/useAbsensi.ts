@@ -98,13 +98,20 @@ export const useAbsensi = () => {
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || "Failed to fetch absensi by ID");
+                    let errorMessage = "Failed to fetch absensi by ID";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
                 }
 
-                return response.json();
+                const result = await response.json();
+                return result.data;
             },
-            enabled: !!id && !!year && !!month,
+            enabled: !!id && year >= 0 && month >= 0,
             staleTime: 5 * 60 * 1000,
         });
     }

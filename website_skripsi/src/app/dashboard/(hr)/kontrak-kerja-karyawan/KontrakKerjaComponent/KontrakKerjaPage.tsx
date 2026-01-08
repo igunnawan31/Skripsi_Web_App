@@ -17,10 +17,6 @@ const KontrakKerjaPage = () => {
             </div> */}
             <div className="w-full bg-white rounded-2xl shadow-sm p-4 border border-slate-200 mb-10">
                 <div className="flex flex-col gap-4">
-                    <SearchBar
-                        placeholder="Cari karyawan..."
-                        onSearch={handleSearch}
-                    />
                     <KontrakKerjaShows />
                 </div>
             </div>
