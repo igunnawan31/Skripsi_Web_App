@@ -4,22 +4,40 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { usePathname } from "next/navigation";
-import { HRMenuProps } from "../props/MenuProps";
+import { HRMenuProps, MenuItem, OwnerMenuProps } from "../props/MenuProps";
 import Image from "next/image";
 import { icons, photo } from "@/app/lib/assets/assets";
 import { User } from "@/app/lib/types/types";
 import Link from "next/link";
 import { useAuth } from "@/app/lib/hooks/auth/useAuth";
 import CustomToast from "@/app/rootComponents/CustomToast";
+import { MajorRole, MinorRole } from "@/app/lib/types/enumTypes";
 
 
 export default function Navbar({ user, withDropdown }: { user: User, withDropdown?: boolean }) {
     const [isDropdownMenuOpen, setIsDropdownMenuOpen] = useState(false);
     const {logout, isLoggingIn, loginError } = useAuth();
+    const [currentItem, setCurrentItem] = useState<any>(null);
     const pathname = usePathname();
-    const currentItem = HRMenuProps.flatMap((menu) => menu.items || []).find(
-        (item) => item.href === pathname
-    );
+
+    useEffect(() => {
+        let foundItem = null;
+
+        if (user.majorRole === MajorRole.OWNER) {
+            foundItem = OwnerMenuProps.flatMap(menu => menu.items).find(
+                item => item.href === pathname
+                ) || null;
+        } else if (user.majorRole === MajorRole.KARYAWAN && user.minorRole === MinorRole.HR) {
+            foundItem = HRMenuProps.flatMap(menu => menu.items).find(
+                item => item.href === pathname
+                ) || null;
+        }
+
+        setCurrentItem(foundItem);
+    }, [pathname, user]);
+
+    console.log("current", currentItem);
+
     const dropdownRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
 
@@ -54,7 +72,7 @@ export default function Navbar({ user, withDropdown }: { user: User, withDropdow
                         text-lg sm:text-xl md:text-2xl 
                         font-bold text-slate-800 leading-snug
                     ">
-                        {currentItem?.label}
+                        {currentItem?.alt}
                     </h1>
 
                     <p className="

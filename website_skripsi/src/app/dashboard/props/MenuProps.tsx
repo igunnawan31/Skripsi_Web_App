@@ -1,5 +1,18 @@
 import { icons } from "@/app/lib/assets/assets"
 
+export interface MenuItem {
+    title: string;
+    description?: string;
+    href?: string;
+    items: Array<{
+        icon: string;
+        alt: string;
+        label: string;
+        description: string;
+        href: string;
+    }>;
+}
+
 export const HRMenuProps = [
     {
         title: "Dashboard",
@@ -186,18 +199,6 @@ export const OwnerMenuProps = [
         ],
     },
     {
-        title: "Manage Absensi",
-        items: [
-            {
-                icon: icons.absensiLogo,
-                alt: "Absensi",
-                label: "Absensi Karyawan",
-                description: "Kelola dan pantau data kehadiran karyawan, termasuk waktu masuk, keluar, dan status kehadiran harian.",
-                href: "/dashboard/absensi-karyawan",
-            },
-        ],
-    },
-    {
         title: "Manage Cuti",
         items: [
             {
@@ -210,18 +211,6 @@ export const OwnerMenuProps = [
         ],
     },
     {
-        title: "Manage Gaji",
-        items: [
-            {
-                icon: icons.gajiLogo,
-                alt: "Gaji",
-                label: "Gaji Karyawan",
-                description: "Kelola data penggajian, potongan, tunjangan, dan riwayat pembayaran untuk seluruh karyawan.",
-                href: "/dashboard/gaji-karyawan",
-            },
-        ],
-    },
-    {
         title: "Manage Kontrak Kerja",
         items: [
             {
@@ -230,44 +219,6 @@ export const OwnerMenuProps = [
                 label: "Kontrak Kerja Karyawan",
                 description: "Pantau masa berlaku kontrak, perpanjangan, dan riwayat status kerja karyawan dalam satu tempat.",
                 href: "/dashboard/kontrak-kerja-karyawan",
-            },
-        ],
-    },
-    {
-        title: "Manage Reimburse",
-        items: [
-            {
-                icon: icons.reimburseLogo,
-                alt: "Reimburse",
-                label: "Reimburse Karyawan",
-                description: "Kelola data pengajuan reimburse karyawan (petty cash).",
-                href: "/dashboard/reimburse-karyawan",
-            },
-        ],
-    },
-    {
-        title: "Manajemen Kinerja Karyawan",
-        items: [
-            {
-                icon: icons.indikatorKPILogo,
-                alt: "Manajemen Indikator Kinerja Karyawan",
-                label: "Manajemen Indikator Kinerja Karyawan",
-                description: "Tetapkan indikator KPI dan metrik penilaian untuk mengukur performa karyawan secara objektif.",
-                href: "/dashboard/manajemen-kpi/manajemen-indikator-kinerja-karyawan",
-            },
-            {
-                icon: icons.penilaianKPILogo,
-                alt: "Penilaian Kinerja Karyawan",
-                label: "Penilaian Kinerja Karyawan",
-                description: "Lakukan penilaian kinerja berdasarkan indikator yang telah ditetapkan untuk setiap karyawan.",
-                href: "/dashboard/manajemen-kpi/penilaian-kinerja-karyawan",
-            },
-            {
-                icon: icons.hasilKPILogo,
-                alt: "Hasil Kinerja Karyawan",
-                label: "Hasil Kinerja Karyawan",
-                description: "Lihat hasil evaluasi kinerja karyawan dalam bentuk laporan dan grafik perkembangan performa.",
-                href: "/dashboard/manajemen-kpi/hasil-kinerja-karyawan",
             },
         ],
     },
@@ -298,7 +249,7 @@ export const OwnerMenuProps = [
                 alt: "Rekomendasi Freelance",
                 label: "Rekomendasi Freelance",
                 description: "Dapatkan rekomendasi freelancer terbaik berdasarkan kinerja, keahlian, dan riwayat proyek.",
-                href: "/dashboard/rekomendasi-freelance",
+                href: "/dashboard/rekomendasi-freelance-owner",
             }
         ]
     },
@@ -315,6 +266,18 @@ export const OwnerMenuProps = [
         ],
     },
     {
+        title: "Pengajuan Reimburse",
+        items: [
+            {
+                icon: icons.manajemenKaryawanLogo,
+                alt: "Pengajuan Reimburse",
+                label: "Pengajuan Reimburse",
+                description: "Kelola pengajuan reimburse karyawan dengan mudah dan efisien.",
+                href: "/dashboard/pengajuan-reimburse",
+            },
+        ],
+    },
+    {
         title: "Laporan Perusahaan",
         items: [
             {
@@ -322,35 +285,35 @@ export const OwnerMenuProps = [
                 alt: "Rekap Absensi Karyawan",
                 label: "Rekap Absensi Karyawan",
                 description: "Tinjau laporan rekapitulasi absensi karyawan untuk analisis kehadiran bulanan atau tahunan.",
-                href: "/dashboard/rekap-absensi-karyawan",
+                href: "/dashboard/rekap-absensi-karyawan-owner",
             },
             {
                 icon: icons.rekapCutiKaryawanLogo,
                 alt: "Rekap Cuti Karyawan",
                 label: "Rekap Cuti Karyawan",
                 description: "Lihat rekap cuti karyawan berdasarkan jenis cuti, periode waktu, dan status pengajuan.",
-                href: "/dashboard/rekap-cuti-karyawan",
+                href: "/dashboard/rekap-cuti-karyawan-owner",
             },
             {
                 icon: icons.rekapGajiKaryawanLogo,
                 alt: "Rekap Gaji Karyawan",
                 label: "Rekap Gaji Karyawan",
                 description: "Tampilkan laporan penggajian untuk seluruh karyawan sebagai dasar evaluasi keuangan perusahaan.",
-                href: "/dashboard/rekap-gaji-karyawan",
+                href: "/dashboard/rekap-gaji-karyawan-owner",
             },
             {
                 icon: icons.rekapKPIKaryawanLogo,
                 alt: "Rekap Kinerja Karyawan",
                 label: "Rekap Kinerja Karyawan",
                 description: "Pantau performa keseluruhan karyawan berdasarkan hasil KPI dan evaluasi manajerial.",
-                href: "/dashboard/rekap-kinerja-karyawan",
+                href: "/dashboard/rekap-kinerja-karyawan-owner",
             },
             {
                 icon: icons.rekapReimbursePengeluaranLogo,
                 alt: "Rekap Reimburse Pengeluaran",
                 label: "Rekap Reimburse Pengeluaran",
                 description: "Kelola laporan reimburse dan pengeluaran karyawan untuk transparansi serta kontrol anggaran.",
-                href: "/dashboard/rekap-reimburse-pengeluaran",
+                href: "/dashboard/rekap-reimburse-pengeluaran-owner",
             },
         ],
     },
