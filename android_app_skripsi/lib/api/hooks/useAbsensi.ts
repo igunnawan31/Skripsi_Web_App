@@ -77,7 +77,9 @@ export const useAbsensi = () => {
     }
 
     const checkIn = () => {
+        const queryClient = useQueryClient();
         const { location, photoUrl } = useAbsen();
+
         return useMutation({
             mutationFn: async () => {
                 const token = await getTokens();
@@ -116,13 +118,19 @@ export const useAbsensi = () => {
                 }
 
                 const result = await response.json();
-                return result;
+                return result.data;
+            },
+
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["absen"] });
             },
         })
     }
 
     const checkOut = () => {
+        const queryClient = useQueryClient();
         const { photoUrl } = useAbsen();
+        
         return useMutation({
             mutationFn: async ({id} : {id: string;}) => {
                 const token = await getTokens();
@@ -156,7 +164,11 @@ export const useAbsensi = () => {
                 }
 
                 const result = await response.json();
-                return result;
+                return result.data;
+            },
+
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["absen"] });
             },
         })
     }

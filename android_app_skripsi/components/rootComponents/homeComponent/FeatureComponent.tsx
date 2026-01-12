@@ -3,6 +3,7 @@ import COLORS from "@/constants/colors";
 import { useAuthStore } from "@/lib/store/authStore";
 import { MajorRole, MinorRole } from "@/types/enumTypes";
 import { useRouter } from "expo-router";
+import { useMemo } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 const featureNames = [
@@ -167,9 +168,27 @@ const featureNames = [
 const FeatureComponent = () => {
     const router = useRouter();
     const user = useAuthStore((state) => state.user);
-    const allowedFeatures = featureNames.filter(f => 
-        f.accessedBy.some(a => a.majorRole === user.majorRole && a.minorRole === user.minorRole)
-    )
+
+    const allowedFeatures = useMemo(() => {
+        if (!user) return [];
+        return featureNames.filter(f =>
+            f.accessedBy.some(
+                a =>
+                    a.majorRole === user.majorRole &&
+                    a.minorRole === user.minorRole
+            )
+        );
+    }, [user]);
+
+    if (!user) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Text style={{ color: COLORS.textMuted }}>
+                    Memuat data user...
+                </Text>
+            </View>
+        );
+    }
 
     return (
         <View style={homeStyles.featureContainer}>

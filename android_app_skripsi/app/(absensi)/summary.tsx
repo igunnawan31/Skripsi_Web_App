@@ -27,13 +27,15 @@ const SummaryAbsensiPage = () => {
     }
 
     const dateNow = useMemo(() => {
-        const today = new Date().toISOString();
-        return today
+        const now = new Date();
+        const utcPlus7 = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+        const today = utcPlus7.toISOString();
+        console.log(today);
+        return today;
     }, []);
 
     const { data, isLoading } = useAbsensi().fetchAbsensiById(userId, dateNow);
     const absensi = data;
-    const checkIn = absensi?.checkIn ?? null;
     const mode: "Check-In" | "Check-Out" = absensi?.checkIn ? "Check-Out" : "Check-In";
 
     useEffect(() => {

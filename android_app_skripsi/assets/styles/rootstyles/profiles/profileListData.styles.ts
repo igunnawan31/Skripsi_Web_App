@@ -66,6 +66,8 @@ export const profileListDataStyles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 5,
         elevation: 5,
+        justifyContent: "center",
+        alignItems: "center"
     },
     titleModal: {
         fontSize: 18,
@@ -81,14 +83,16 @@ export const profileListDataStyles = StyleSheet.create({
         marginBottom: 10,
     },
     activeButton: {
-        backgroundColor: COLORS.primary,
+        backgroundColor: COLORS.error,
         padding: 10,
         borderRadius: 8,
+        width: "100%"
     },
     passiveButton: {
         padding: 10,
         borderRadius: 8,
         borderColor: COLORS.border,
         borderWidth: 1,
+        width: "100%"
     }
 })

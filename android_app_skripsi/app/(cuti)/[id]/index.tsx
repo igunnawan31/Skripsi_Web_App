@@ -4,27 +4,56 @@ import { dummyCuti } from "@/data/dummyCuti";
 import { cutiDetailStyles } from "@/assets/styles/rootstyles/cuti/cutidetail.styles";
 import COLORS from "@/constants/colors";
 import CutiFormComponent from "@/components/rootComponents/cutiComponent/CutiFormComponent";
+import { useAuthStore } from "@/lib/store/authStore";
+import { useCuti } from "@/lib/api/hooks/useCuti";
+import { CutiStatus } from "@/types/enumTypes";
 
 export default function DetailCuti() {
+    const user = useAuthStore((state) => state.user);
     const { id } = useLocalSearchParams();
-    const data = dummyCuti.find((item) => item.id === id);
+    const idParam = Array.isArray(id) ? id[0] : id ?? "";
+    const { data: detailData, isLoading: isDetailLoading, error: detailError } = useCuti().fetchCutiById(idParam);
     const router = useRouter();
-
-    if (!data) {
-        return <Text style={{ textAlign: "center", marginTop: 50 }}>Cuti not found.</Text>;
-    }
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case "Cuti Diterima":
+            case CutiStatus.DITERIMA:
                 return COLORS.success;
-            case "Cuti Ditolak":
+            case CutiStatus.DITOLAK:
                 return COLORS.error;
-            case "Menunggu Jawaban":
+            case CutiStatus.MENUNGGU:
                 return COLORS.tertiary;
             default:
                 return COLORS.muted;
         }
+    };
+
+    const toDate = (isoString: string) => {
+        if (!isoString) return "-";
+
+        const date = new Date(isoString);
+        return date.toLocaleDateString("id-ID", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+        });
+    };
+
+    if (isDetailLoading) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Text style={{ color: COLORS.textMuted }}>Memuat data cuti...</Text>
+            </View>
+        );
+    }
+
+    if (!detailData) {
+        return (
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                <Text>Data cuti tidak ditemukan.</Text>
+            </View>
+        );
     };
 
     return (
@@ -51,30 +80,41 @@ export default function DetailCuti() {
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
-                <View style={cutiDetailStyles.cutiContainer}>
-                    <View>
-                        <Text style={cutiDetailStyles.label}>Status: </Text>
-                        <Text
-                            style={[
-                                cutiDetailStyles.cutiStatus,
-                                { backgroundColor: getStatusColor(data.cutiStatus) },
-                            ]}
-                        >
-                            {data.cutiStatus}
-                        </Text>
-                    </View>
-                    <View>
-                        <Text style={cutiDetailStyles.label}>Penilai: </Text>
-                        <Text style={cutiDetailStyles.cutiApprover}>{data.approver}</Text>
-                    </View>
+                <View style={cutiDetailStyles.subHeaderDetail}>
+                    <Image
+                        source={require("../../../assets/icons/leave.png")}
+                        style={{ width: 64, height: 64 }}
+                    />
+                    <Text style={cutiDetailStyles.detailTitle}>
+                        Detail Cuti
+                    </Text>
+                    <Text style={cutiDetailStyles.label}>Diajukan tanggal: {toDate(detailData.createdAt)}</Text>
+                    <Text
+                        style={[
+                            cutiDetailStyles.cutiStatus,
+                            { backgroundColor: getStatusColor(detailData.status) },
+                        ]}
+                    >
+                        {detailData.status}
+                    </Text>
                 </View>
 
-                <View style={cutiDetailStyles.penolakanContainer}>
-                    <Text style={cutiDetailStyles.label}>Alasan Penolakan</Text>
-                    <Text style={cutiDetailStyles.value}>{data.reason} {data.reason} {data.reason} {data.reason} {data.reason} {data.reason} {data.reason} {data.reason}</Text>
-                </View>
+                {(detailData.status === CutiStatus.DITERIMA || detailData.status === CutiStatus.DITOLAK) && (
+                    <View style={cutiDetailStyles.dataContainer}>
+                        <View style={cutiDetailStyles.itemContainer}>
+                            <View style={{ flex: 1, width: "100%" }}>
+                                <Text style={cutiDetailStyles.sectionTitle}>Penilai: </Text>
+                                <Text style={cutiDetailStyles.infoText}>{detailData.approver ? detailData.approver : "-"}</Text>
+                            </View>
+                            <View style={{ flex: 1, width: "100%" }}>
+                                <Text style={cutiDetailStyles.sectionTitle}>Catatan </Text>
+                                <Text style={cutiDetailStyles.infoText}>{detailData.catatan ? detailData.catatan : "-"}</Text>
+                            </View>
+                        </View>
+                    </View>
+                )}
 
-                <CutiFormComponent data={data} />
+                <CutiFormComponent data={detailData} />
 
                 <TouchableOpacity
                     style={{ flexDirection: "row", alignItems: "center", marginTop: 20 }}

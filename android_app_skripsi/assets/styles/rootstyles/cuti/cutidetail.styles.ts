@@ -23,6 +23,17 @@ export const cutiDetailStyles = StyleSheet.create({
         paddingVertical: 10,
         zIndex: 10,
     },
+    subHeaderDetail: {
+        alignItems: "center",
+        marginBottom: 10,
+        gap: 5,
+    },
+    detailTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginTop: 10,
+        color: COLORS.textPrimary
+    },
     iconPlace: { 
         width: 32, 
         height: 32, 
@@ -50,7 +61,6 @@ export const cutiDetailStyles = StyleSheet.create({
         paddingVertical: 16,
         borderRadius: 16,
         marginVertical: 4,
-        flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
 
@@ -65,6 +75,7 @@ export const cutiDetailStyles = StyleSheet.create({
 
         borderWidth: 1,
         borderColor: COLORS.border,
+        gap: 10
     },
     penolakanContainer: {
         backgroundColor: COLORS.white,
@@ -149,6 +160,7 @@ export const cutiDetailStyles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 3,
         elevation: 2,
+        gap: 10,
     },
     value: {
         fontSize: 15,
@@ -263,5 +275,39 @@ export const cutiDetailStyles = StyleSheet.create({
         width: 30,
         height: 30,
         tintColor: COLORS.primary,
+    },
+    profilePictureContainer: {
+        alignSelf: "center",
+        width: 30,
+        height: 30,
+        borderRadius: 60,
+        backgroundColor: COLORS.white,
+        justifyContent: "center",
+        alignItems: "center",
+        overflow: "hidden",
+        borderWidth: 3,
+        borderColor: COLORS.primary,
+    },
+    profilePicture: {
+        width: "100%",
+        height: "100%",
+        borderRadius: 20,
+        backgroundColor: COLORS.white,
+    },
+    dataRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: "#F1F5F9",
+    },
+    sectionTitle: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: COLORS.textPrimary,
+    },
+    infoText: {
+        fontSize: 14,
+        color: COLORS.textPrimary,
     },
 });

@@ -3,47 +3,38 @@ import COLORS from "@/constants/colors";
 import { dummyUsers } from "@/data/dummyUser";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Image, Platform, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Image, Platform, Text, TextInput, TouchableOpacity, View } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import CutiPopUpModal from "./CutiPopUpModal";
 import DateTimePicker from "@react-native-community/datetimepicker";
-
-type CutiForm = {
-    name: string;
-    startDate: string;
-    endDate: string;
-    submissionDate: string;
-    totalDays: number;
-    reason: string;
-    majorRole: string;
-    minorRole: string;
-    buktiPendukung: string;
-    fileType?: string;
-};
+import { useAuthStore } from "@/lib/store/authStore";
+import { CreateCutiRequest } from "@/types/cuti/cutiTypes";
+import { useCuti } from "@/lib/api/hooks/useCuti";
+import NotificationModal from "../NotificationModal";
 
 const CutiCreateFormComponent = () => {
-    const [data, setData] = useState(dummyUsers);
+    const user = useAuthStore((state) => state.user);
     const [showModal, setShowModal] = useState(false);
     const [showStartPicker, setShowStartPicker] = useState(false);
     const [showEndPicker, setShowEndPicker] = useState(false);
     const [error, setError] = useState<{ [key: string]: string}>({});
-    const dataDummy = data[0];
-    const today = new Date().toISOString().split("T")[0];
-    
+    const { mutate: cutiMutate, isPending: isCreateCuti, isError} = useCuti().createCuti();
+    const [notification, setNotification] = useState<{
+        visible: boolean;
+        status: "success" | "error";
+        title?: string;
+        description?: string;
+    }>({
+        visible: false,
+        status: "success",
+    });
     const MaxCutiDay = 2;
-    const [errorMsg, setErrorMsg] = useState("");
-    
-    const [formData, setFormData] = useState<CutiForm>({
-        name: dataDummy.dataPersonal[0].value,
+    const [formData, setFormData] = useState<CreateCutiRequest>({
+        userId: user.id,
         startDate: "",
         endDate: "",
-        submissionDate: today,
-        totalDays: 0,
         reason: "",
-        majorRole: dataDummy.majorRole,
-        minorRole: dataDummy.minorRole,
-        buktiPendukung: "",
-        fileType: "",
+        dokumenCuti: null,
     });
 
     const handleDateChange = (key: "startDate" | "endDate", value: string) => {
@@ -62,17 +53,13 @@ const CutiCreateFormComponent = () => {
                         ...prev,
                         endDate: "Tanggal berakhir tidak boleh sebelum tanggal mulai.",
                     }));
-                    updated.totalDays = 0;
                     updated.endDate = "";
                 } else if (diffDays > MaxCutiDay) {
                     setError((prev) => ({
                         ...prev,
                         endDate: `Jatah cuti maksimal hanya ${MaxCutiDay} hari.`,
                     }));
-                    updated.totalDays = MaxCutiDay;
                     updated.endDate = "";
-                } else {
-                    updated.totalDays = diffDays;
                 }
             }
             return updated;
@@ -88,14 +75,17 @@ const CutiCreateFormComponent = () => {
 
             if (result.assets && result.assets.length > 0) {
                 const file = result.assets[0];
-                const fileType = file.mimeType?.includes("image") ? "image" : "document";
 
-                setFormData({
-                    ...formData,
-                    buktiPendukung: file.uri,
-                    fileType: fileType,
-                });
-                console.log("File uploaded:", file);
+                const fileObj = {
+                    uri: file.uri,
+                    name: file.name ?? file.uri.split("/").pop() ?? "document",
+                    type: file.mimeType ?? "application/pdf",
+                } as any;
+
+                setFormData(prev => ({
+                    ...prev,
+                    dokumenCuti: fileObj,
+                }));
             }
         } catch (error) {
             console.error("Upload failed:", error);
@@ -113,30 +103,51 @@ const CutiCreateFormComponent = () => {
         }
     };
 
+    const handleDeleteDocument = () => {
+        setFormData(prev => ({...prev, dokumenCuti: null}));
+    }
+
     const validateForm = () => {
         let tempErrors: { [key: string]: string } = {};
 
-        if (!formData.name.trim()) tempErrors.name = "Nama wajib diisi.";
         if (!formData.startDate) tempErrors.startDate = "Tanggal mulai wajib diisi.";
         if (!formData.endDate) tempErrors.endDate = "Tanggal berakhir wajib diisi.";
         if (!formData.reason.trim()) tempErrors.reason = "Alasan cuti wajib diisi.";
-        if (!formData.majorRole.trim()) tempErrors.majorRole = "Major role wajib diisi.";
-        if (!formData.minorRole.trim()) tempErrors.minorRole = "Minor role wajib diisi.";
 
         setError(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
 
     const handleSubmit = () => {
-        const isValid = validateForm();
-        if (!isValid) {
-            console.log("Form invalid:", error);
-            return;
+        if (!validateForm()) {
+            setShowModal(false);
         }
-        console.log("Data Pengajuan:", formData);
-        setShowModal(false);
-        router.push("/(tabs)/cuti");
+
+        cutiMutate(formData, {
+            onSuccess: () => {
+                setShowModal(false);
+
+                setNotification({
+                    visible: true,
+                    status: "success",
+                    title: "Pengajuan Berhasil",
+                    description: "Pengajuan cuti anda berhasil dikirim.",
+                });
+            },
+            onError: (err: any) => {
+                setShowModal(false);
+
+                setNotification({
+                    visible: true,
+                    status: "error",
+                    title: "Pengajuan Gagal",
+                    description:
+                    err?.message || "Terjadi kesalahan saat mengirim pengajuan cuti.",
+                });
+            },
+        });
     };
+
 
     const getMaxEndDate = () => {
         if (!formData.startDate) return undefined;
@@ -149,7 +160,7 @@ const CutiCreateFormComponent = () => {
         <View style={cutiDetailStyles.createFormContainer}>
             <View style={cutiDetailStyles.labelContainer}>
                 <Text style={cutiDetailStyles.labelInput}>Nama Lengkap <Text style={cutiDetailStyles.error}>*</Text></Text>
-                <Text style={[cutiDetailStyles.input, { opacity: 0.5 }]}>{dataDummy.dataPersonal[0].value}</Text>
+                <Text style={[cutiDetailStyles.input, { opacity: 0.5 }]}>{user.name ? user.name : "-"}</Text>
                 {error.name && <Text style={cutiDetailStyles.error}>{error.name}</Text>}
             </View>
             <View style={cutiDetailStyles.labelContainer}>
@@ -214,34 +225,33 @@ const CutiCreateFormComponent = () => {
                     value={formData.reason}
                     onChangeText={(text) => setFormData({ ...formData, reason: text })}
                 />
-                {error.reason && <Text style={cutiDetailStyles.error}
-                >{error.reason}</Text>}
+                {error.reason && <Text style={cutiDetailStyles.error}>{error.reason}</Text>}
             </View>
             <View style={cutiDetailStyles.labelContainer}>
                 <Text style={cutiDetailStyles.labelInput}>Major Role <Text style={cutiDetailStyles.error}>*</Text></Text>
-                <Text style={[cutiDetailStyles.input, { opacity: 0.5 }]}>{dataDummy.majorRole}</Text>
+                <Text style={[cutiDetailStyles.input, { opacity: 0.5 }]}>{user.majorRole ? user.majorRole : "-"}</Text>
                 {error.majorRole && <Text style={cutiDetailStyles.error}>{error.majorRole}</Text>}
             </View>
             <View style={cutiDetailStyles.labelContainer}>
                 <Text style={cutiDetailStyles.labelInput}>Minor Role <Text style={cutiDetailStyles.error}>*</Text></Text>
-                <Text style={[cutiDetailStyles.input, { opacity: 0.5 }]}>{dataDummy.minorRole}</Text>
+                <Text style={[cutiDetailStyles.input, { opacity: 0.5 }]}>{user.minorRole ? user.minorRole : "-"}</Text>
                 {error.minorRole && <Text style={cutiDetailStyles.error}>{error.minorRole}</Text>}
             </View>
             <View style={cutiDetailStyles.labelContainer}>
-                <Text style={cutiDetailStyles.labelInput}>Bukti Pendukung</Text>
+                <Text style={cutiDetailStyles.labelInput}>Bukti Pendukung (PDF)</Text>
                 <TouchableOpacity
                     style={{
                         backgroundColor: COLORS.tertiary,
                         padding: 10,
-                        borderRadius: 8,
+                        borderRadius: 20,
                         alignItems: "center",
                     }}
                     onPress={handleUploadFile}
                 >
-                    <Text style={{ color: "#fff", fontWeight: "bold" }}>Upload File</Text>
+                    <Text style={{ color: "#fff", fontWeight: "bold" }}>{formData.dokumenCuti ? "Change File" : "Upload File"}</Text>
                 </TouchableOpacity>
 
-                {formData.buktiPendukung ? (
+                {formData.dokumenCuti ? (
                     <View
                         style={{
                             marginTop: 10,
@@ -257,39 +267,63 @@ const CutiCreateFormComponent = () => {
                             elevation: 3,
                         }}
                     >
-                        {formData.fileType === "image" ? (
-                            <Image
-                                source={{ uri: formData.buktiPendukung }}
-                                style={{
-                                    width: 70,
-                                    height: 70,
-                                    borderRadius: 10,
-                                    marginRight: 10,
-                                }}
-                                resizeMode="cover"
-                            />
-                        ) : (
-                            <View
-                                style={{
-                                    width: 70,
-                                    height: 70,
-                                    borderRadius: 10,
-                                    backgroundColor: "#E8EAF6",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    marginRight: 10,
-                                }}
-                            >
-                                {/* <Filt color={COLORS.primary} size={32} /> */}
-                            </View>
-                        )}
+                        <View
+                            style={{
+                                width: 80,
+                                height: 80,
+                                borderRadius: 10,
+                                backgroundColor: "#E8EAF6",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                marginRight: 10,
+                            }}
+                        >
+                            {formData.dokumenCuti.type === "image/" ? (
+                                <Image
+                                    source={require("../../../assets/icons/changeImage.png")}
+                                    style={{
+                                        width: 70,
+                                        height: 70,
+                                        borderRadius: 10,
+                                    }}
+                                    resizeMode="cover"
+                                />
+                            ) : (
+                                <Image
+                                    source={require("../../../assets/icons/pdfFile.png")}
+                                    style={{
+                                        width: 70,
+                                        height: 70,
+                                        borderRadius: 10,
+                                    }}
+                                    resizeMode="cover"
+                                />
+                            )}
+                        </View>
                         <View style={{ flex: 1 }}>
                             <Text numberOfLines={1} style={{ fontWeight: "600", color: "#333" }}>
-                                {formData.buktiPendukung.split("/").pop()}
+                                {formData.dokumenCuti.name}
                             </Text>
                             <Text style={{ fontSize: 12, color: "#777" }}>
-                                {formData.fileType === "image" ? "Gambar" : "Dokumen"}
+                                {formData.dokumenCuti.type}
                             </Text>
+                        </View>
+                        <View style={{ flex: 1, justifyContent: "center", alignItems: "flex-end" }}>
+                            <TouchableOpacity 
+                                style={{ backgroundColor: COLORS.primary, borderRadius: 20, width: 40, height: 40, justifyContent: "center", alignItems: "center" }}
+                                onPress={handleDeleteDocument}
+                            >    
+                                <Image
+                                    source={require("../../../assets/icons/trash.png")}
+                                    style={{
+                                        width: 20,
+                                        height: 20,
+                                        padding: 10,
+                                        tintColor: COLORS.white
+                                    }}
+                                    resizeMode="cover"
+                                />
+                            </TouchableOpacity>
                         </View>
                     </View>
                 ) : (
@@ -299,7 +333,7 @@ const CutiCreateFormComponent = () => {
                 )}
             </View>
             <TouchableOpacity
-                style={cutiDetailStyles.filterContainer}
+                style={[cutiDetailStyles.filterContainer, {borderRadius: 5}]}
                 onPress={() => setShowModal(true)}
             >
                 <Text style={cutiDetailStyles.filterText}>Submit Cuti</Text>
@@ -309,6 +343,20 @@ const CutiCreateFormComponent = () => {
                 visible={showModal}
                 onClose={() => setShowModal(false)}
                 onSave={handleSubmit}
+            />
+
+            <NotificationModal
+                visible={notification.visible}
+                status={notification.status}
+                title={notification.title}
+                description={notification.description}
+                onContinue={() => {
+                    setNotification(prev => ({ ...prev, visible: false }));
+
+                    if (notification.status === "success") {
+                        router.push("/(tabs)/cuti");
+                    }
+                }}
             />
         </View>
     )

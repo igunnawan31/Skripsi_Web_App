@@ -9,8 +9,25 @@ export type CutiResponse = {
     reason: string;
     status: string;
     catatan: string;
-    dokumen: string;
+    dokumen: {
+        path: string;
+        size: number;
+        encoding: string;
+        filename: string;
+        mimetype: string;
+        fieldname: string;
+        destination: string;
+        originalname: string;
+    };
     user: User;
     createdAt: string;
-    updatedAt: string;    
+    updatedAt: string;
+}
+
+export type CreateCutiRequest = {
+    userId: string;
+    startDate: string;
+    endDate: string;
+    reason: string;
+    dokumenCuti?: File | null;
 }

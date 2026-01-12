@@ -91,9 +91,18 @@ const ProfilePage = () => {
     });
 
     const handleLogout = async () => {
-        await removeTokens();
-        router.replace("/(auth)/loading-screen");
+        logoutAction();
     };
+
+    if (!user) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Text style={{ color: COLORS.textMuted }}>
+                    Memuat data user...
+                </Text>
+            </View>
+        );
+    }
 
     return (
         <KeyboardAwareScrollView

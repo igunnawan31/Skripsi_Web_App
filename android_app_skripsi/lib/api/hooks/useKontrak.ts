@@ -1,9 +1,8 @@
-import { getTokens } from "@/lib/utils/secureStorage"
-import { CreateCutiRequest } from "@/types/cuti/cutiTypes";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { getTokens } from "@/lib/utils/secureStorage";
+import { useQuery } from "@tanstack/react-query";
 
 export const useCuti = () => {
-    const fetchAllCuti = (filters?: {
+    const fetchAllKontrakByUserId = (filters?: {
         page?: number;
         limit?: number;
         sortBy?: string;
@@ -14,7 +13,7 @@ export const useCuti = () => {
         searchTerm?: string;
     }) => {
         return useQuery({
-            queryKey: ["cutis", filters],
+            queryKey: ["kontraks", filters],
             queryFn: async () => {
                 const token = await getTokens();
                 const jwt = token?.access_token;
@@ -74,57 +73,6 @@ export const useCuti = () => {
                 });
 
                 if (!response.ok) {
-                    let errorMessage = "Failed to fetch cuti by ID"
-                    try {
-                        const errorData = await response.json();
-                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
-                    } catch {
-                        errorMessage = response.statusText || errorMessage;
-                    }
-                    throw new Error(errorMessage);
-                }
-
-                const result = await response.json();
-                return result;
-            },
-            enabled: !!id,
-            staleTime: 5 * 60 * 1000,
-        });
-    }
-
-    const createCuti = () => {
-        const queryClient = useQueryClient();
-
-        return useMutation<
-            any,
-            Error,
-            CreateCutiRequest
-        >({
-            mutationFn: async (cutiData: CreateCutiRequest) => {
-                const token = await getTokens();
-                const jwt = token?.access_token;
-                if (!token?.access_token) throw new Error("No access token found");
-
-                const fd = new FormData();
-                fd.append("userId", cutiData.userId);
-                fd.append("startDate", cutiData.startDate);
-                fd.append("endDate", cutiData.endDate);
-                fd.append("reason", cutiData.reason);
-                
-                if (cutiData.dokumenCuti) {
-                    fd.append("dokumenCuti", cutiData.dokumenCuti);
-                }
-
-                const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cuti`, {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${jwt}`,
-                    },
-                    credentials: "include",
-                    body: fd,
-                });
-
-                if (!response.ok) {
                     let errorMessage = "Failed to fetch absensi by ID"
                     try {
                         const errorData = await response.json();
@@ -138,16 +86,12 @@ export const useCuti = () => {
                 const result = await response.json();
                 return result.data;
             },
-
-            onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: ["cutis"] });
-            },
+            enabled: !!id,
+            staleTime: 5 * 60 * 1000,
         });
     }
 
     return {
-        fetchAllCuti,
-        fetchCutiById,
-        createCuti,
+        fetch
     }
 }

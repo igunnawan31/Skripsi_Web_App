@@ -15,8 +15,9 @@ import MapView, { Marker, Region } from "react-native-maps";
 export default function DetailAbsensi() {
     const user = useAuthStore((state) => state.user);
     const router = useRouter();
-    const { id } = useLocalSearchParams();
+    const { id, date } = useLocalSearchParams();
     const idParam = Array.isArray(id) ? id[0] : id ?? "";
+    const dateParam = Array.isArray(date) ? date[0] : date ?? "";
     const [region, setRegion] = useState<Region | null>(null);
     const [currentDate, setCurrentDate] = useState("");
     const [currentTime, setCurrentTime] = useState("");
@@ -25,16 +26,7 @@ export default function DetailAbsensi() {
         const today = new Date().toISOString();
         return today;
     }, []);
-
-    const { data: detailData, isLoading: isDetailLoading, error: detailError } = useAbsensi().fetchAbsensiById(idParam, dateNow);
-    
-    if (!user) {
-        return (
-            <View style={{ padding: 20, alignItems: "center" }}>
-                <Text style={{ color: COLORS.textMuted }}>Memuat data user...</Text>
-            </View>
-        );
-    }
+    const { data: detailData, isLoading: isDetailLoading, error: detailError } = useAbsensi().fetchAbsensiById(idParam, dateParam);
     const loadPhoto = async (path: string, index: number) => {
         if (!path) return;
         try {
@@ -164,6 +156,21 @@ export default function DetailAbsensi() {
         : isCheckedOut
         ? COLORS.success
         : COLORS.border;
+    
+    if (isDetailLoading) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Text style={{ color: COLORS.textMuted }}>Memuat data absen...</Text>
+            </View>
+        );
+    }
+    if (!user || !detailData) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Text style={{ color: COLORS.textMuted }}>Data tidak ditemukan...</Text>
+            </View>
+        )
+    }
     
     return (
         <View style={{ flex: 1, backgroundColor: COLORS.background }}>

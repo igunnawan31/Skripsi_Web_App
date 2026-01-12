@@ -21,14 +21,6 @@ const AbsenseComponent = () => {
     const [currentDate, setCurrentDate] = useState("");
     const [currentTime, setCurrentTime] = useState("");
 
-    if (!user?.id) {
-        return (
-            <View style={{ padding: 20, alignItems: "center" }}>
-                <Text style={{ color: COLORS.textMuted }}>Memuat data user...</Text>
-            </View>
-        );
-    }
-
     useEffect(() => {
         const updateTime = () => {
             const now = new Date();
@@ -52,7 +44,10 @@ const AbsenseComponent = () => {
     }, []);
 
     const dateNow = useMemo(() => {
-        const today = new Date().toISOString();
+        const now = new Date();
+        const utcPlus7 = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+        const today = utcPlus7.toISOString();
+        console.log(today);
         return today;
     }, []);
 
@@ -81,6 +76,14 @@ const AbsenseComponent = () => {
     const isLate = checkIn ? getCheckInStatus(checkIn) === "Terlambat" : false;
     const checkInColor = isLate ? COLORS.primary : checkIn ? COLORS.success : COLORS.textMutedOpacity20;
     const checkInBgColor = isLate ? COLORS.primaryOpacity20 : checkIn ? COLORS.successOpacity20 : COLORS.textMutedOpacity20;
+
+    if (!user?.id) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Text style={{ color: COLORS.textMuted }}>Memuat data user...</Text>
+            </View>
+        );
+    }
 
     return (
         <View style={homeStyles.absenseContainer}>
