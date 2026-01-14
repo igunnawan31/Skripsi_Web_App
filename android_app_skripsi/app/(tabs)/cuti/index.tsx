@@ -232,7 +232,7 @@ const CutiPage = () => {
                             </View>
                         ) : (
                             <View style={cutiStyles.modalPicker}>
-                                <Text style={cutiStyles.modalLabel}>Pilih Status Reimburse</Text>
+                                <Text style={cutiStyles.modalLabel}>Pilih Status Cuti</Text>
 
                                 <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
                                     {Object.values(CutiStatus).map((status) => (

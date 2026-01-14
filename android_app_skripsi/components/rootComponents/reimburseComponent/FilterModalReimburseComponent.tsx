@@ -55,7 +55,6 @@ const FilterModalReimburseComponent = ({
             <View style={reimburseStyles.filterModal}>
                 <Text style={reimburseStyles.modalTitle}>Pilih Mode Filter</Text>
 
-                {/* Mode Selector */}
                 <View style={reimburseStyles.modeSelector}>
                     <TouchableOpacity
                         style={[
@@ -77,14 +76,14 @@ const FilterModalReimburseComponent = ({
                     <TouchableOpacity
                         style={[
                             reimburseStyles.modeButton,
-                            pickerMode === "status" && { backgroundColor: COLORS.primary },
+                            pickerMode === "approvalStatus" && { backgroundColor: COLORS.primary },
                         ]}
-                        onPress={() => setPickerMode("status")}
+                        onPress={() => setPickerMode("approvalStatus")}
                     >
                         <Text
                             style={[
                                 reimburseStyles.modeText,
-                                pickerMode === "status" && { color: COLORS.white },
+                                pickerMode === "approvalStatus" && { color: COLORS.white },
                             ]}
                         >
                             Berdasarkan Status
@@ -92,19 +91,18 @@ const FilterModalReimburseComponent = ({
                     </TouchableOpacity>
                 </View>
 
-                {/* Status */}
-                {pickerMode === "status" ? (
+                {pickerMode === "approvalStatus" ? (
                     <View style={reimburseStyles.modalPicker}>
                         <Text style={reimburseStyles.modalLabel}>Pilih Status Reimburse</Text>
 
                         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-                            {Object.values(ReimburseStatus).map((status) => (
+                            {Object.values(ReimburseStatus).map((approvalStatus) => (
                                 <TouchableOpacity
-                                    key={status}
-                                    onPress={() => setSelectedStatus(status)}
+                                    key={approvalStatus}
+                                    onPress={() => setSelectedStatus(approvalStatus)}
                                     style={[
                                         reimburseStyles.modeButton,
-                                        selectedStatus === status && {
+                                        selectedStatus === approvalStatus && {
                                             backgroundColor: COLORS.primary,
                                             borderWidth: 0,
                                         },
@@ -113,10 +111,10 @@ const FilterModalReimburseComponent = ({
                                     <Text
                                         style={[
                                             reimburseStyles.modeText,
-                                            selectedStatus === status && { color: COLORS.white },
+                                            selectedStatus === approvalStatus && { color: COLORS.white },
                                         ]}
                                     >
-                                        {status}
+                                        {approvalStatus}
                                     </Text>
                                 </TouchableOpacity>
                             ))}

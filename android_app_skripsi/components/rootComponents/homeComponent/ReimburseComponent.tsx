@@ -7,12 +7,30 @@ import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import ListDataCutiComponent from "../cutiComponent/ListDataCutiComponent";
 import { dummyReimburse } from "@/data/dummyReimburse";
 import ListDataReimburseComponent from "../reimburseComponent/ListDataReimburseComponent";
+import { useReimburse } from "@/lib/api/hooks/useReimburse";
+import { cutiStyles } from "@/assets/styles/rootstyles/cuti/cuti.styles";
 
 const ReimburseComponent = () => {
-    const [data, setData] = useState(dummyReimburse);
+    const { data, isLoading, error } = useReimburse().fetchAllReimburse();
     const router = useRouter();
 
-    const displayedData = data.slice(0,1);
+    const displayedData = data?.data.slice(0,1);
+
+    if (isLoading) {
+        return (
+            <View style={cutiStyles.container}>
+                <Text>Loading reimburse data...</Text>
+            </View>
+        );
+    }
+
+    if (error) {
+        return (
+            <View style={cutiStyles.container}>
+                <Text>Error: {error.message}</Text>
+            </View>
+        );
+    }
     
     return (
         <>

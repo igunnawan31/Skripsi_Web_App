@@ -235,7 +235,7 @@ export const cutiDetailStyles = StyleSheet.create({
         gap: 2,
     },
     labelContainer: {
-        gap: 4,
+        gap: 10,
         marginBottom: 12,
     },
     error: { 

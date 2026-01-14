@@ -1,15 +1,12 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { dummyCuti } from "@/data/dummyCuti";
 import { cutiDetailStyles } from "@/assets/styles/rootstyles/cuti/cutidetail.styles";
 import COLORS from "@/constants/colors";
 import CutiFormComponent from "@/components/rootComponents/cutiComponent/CutiFormComponent";
-import { useAuthStore } from "@/lib/store/authStore";
 import { useCuti } from "@/lib/api/hooks/useCuti";
 import { CutiStatus } from "@/types/enumTypes";
 
 export default function DetailCuti() {
-    const user = useAuthStore((state) => state.user);
     const { id } = useLocalSearchParams();
     const idParam = Array.isArray(id) ? id[0] : id ?? "";
     const { data: detailData, isLoading: isDetailLoading, error: detailError } = useCuti().fetchCutiById(idParam);

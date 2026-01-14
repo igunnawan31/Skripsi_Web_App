@@ -10,93 +10,136 @@ import CutiPopUpModal from "../cutiComponent/CutiPopUpModal";
 import { ReimburseStatus } from "@/data/dummyReimburse";
 import reimburseStyles from "@/assets/styles/rootstyles/reimburse/reimburse.styles";
 import ReimbursePopUpModal from "./ReimbursePopUpModal";
-
-type ReimburseForm = {
-    name: string;
-    submissionDate: string;
-    totalPengeluaran: number;
-    majorRole: string;
-    minorRole: string;
-    buktiPendukung: string;
-    fileType?: string;
-};
+import { CreateReimburseRequest } from "@/types/reimburse/reimburseTypes";
+import { useAuthStore } from "@/lib/store/authStore";
+import { useReimburse } from "@/lib/api/hooks/useReimburse";
+import NotificationModal from "../NotificationModal";
 
 const ReimburseCreateFormComponent = () => {
-    const [data, setData] = useState(dummyUsers);
+    const user = useAuthStore((state) => state.user);
     const [showModal, setShowModal] = useState(false);
     const [error, setError] = useState<{ [key: string]: string}>({});
-    const dataDummy = data[0];
     const today = new Date().toISOString().split("T")[0];
+    const { mutate: reimburseMutate, isPending: isCreateCuti, isError} = useReimburse().createReimburse();
+    const [notification, setNotification] = useState<{
+        visible: boolean;
+        status: "success" | "error";
+        title?: string;
+        description?: string;
+    }>({
+        visible: false,
+        status: "success",
+    });
     
-    const [formData, setFormData] = useState<ReimburseForm>({
-        name: dataDummy.dataPersonal[0].value,
-        submissionDate: today,
-        totalPengeluaran: 0,
-        majorRole: dataDummy.majorRole,
-        minorRole: dataDummy.minorRole,
-        buktiPendukung: "",
-        fileType: "",
+    const [formData, setFormData] = useState<CreateReimburseRequest>({
+        title: "",
+        totalExpenses: 0,
+        reimburseDocuments: [],
     });
 
     const handleChangeTotal = (text: string) => {
         const numericValue = text.replace(/[^0-9]/g, "");
         const numberValue = Number(numericValue) || 0;
-        setFormData({ ...formData, totalPengeluaran: numberValue });
+        setFormData({ ...formData, totalExpenses: numberValue });
     };
-
 
     const handleUploadFile = async () => {
         try {
             const result = await DocumentPicker.getDocumentAsync({
-                type: ["image/*", "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+                type: [
+                    "image/*",
+                    "application/pdf",
+                    "application/msword",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                ],
                 copyToCacheDirectory: true,
+                multiple: true,
             });
 
             if (result.assets && result.assets.length > 0) {
-                const file = result.assets[0];
-                const fileType = file.mimeType?.includes("image") ? "image" : "document";
+                const files = result.assets.map((file) => ({
+                    uri: file.uri,
+                    name: file.name ?? file.uri.split("/").pop() ?? "document",
+                    type: file.mimeType ?? "application/octet-stream",
+                }));
 
-                setFormData({
-                    ...formData,
-                    buktiPendukung: file.uri,
-                    fileType: fileType,
-                });
-                console.log("File uploaded:", file);
+                setFormData((prev) => ({
+                    ...prev,
+                    reimburseDocuments: [
+                        ...(prev.reimburseDocuments ?? []),
+                        ...files,
+                    ],
+                }));
             }
         } catch (error) {
             console.error("Upload failed:", error);
         }
     };
 
+    const handleDeleteDocument = (index: number) => {
+        setFormData((prev) => ({
+            ...prev,
+            reimburseDocuments: prev.reimburseDocuments?.filter(
+                (_, i) => i !== index
+            ),
+        }));
+    };
+
     const validateForm = () => {
         let tempErrors: { [key: string]: string } = {};
 
-        if (!formData.name.trim()) tempErrors.name = "Nama wajib diisi.";
-        if (!formData.submissionDate) tempErrors.startDate = "Tanggal Pengajuan wajib diisi.";
-        if (!formData.totalPengeluaran) tempErrors.endDate = "Total Pengeluaran wajib diisi.";
-        if (!formData.majorRole.trim()) tempErrors.majorRole = "Major role wajib diisi.";
-        if (!formData.minorRole.trim()) tempErrors.minorRole = "Minor role wajib diisi.";
-        if (!formData.buktiPendukung.trim()) tempErrors.reason = "Bukti Pendukung wajib diisi.";
+        if (!formData.title.trim()) tempErrors.name = "Nama wajib diisi.";
+        if (!formData.totalExpenses) tempErrors.endDate = "Total Pengeluaran wajib diisi.";
+        if (formData.reimburseDocuments?.length === 0) tempErrors.reimburseDocuments = "Minimal 1 bukti pendukung.";
 
         setError(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
 
     const handleSubmit = () => {
-        const isValid = validateForm();
-        if (!isValid) {
-            console.log("Form invalid:", error);
-            return;
+        if (!validateForm()) {
+            setShowModal(false);
         }
-        setShowModal(false);
-        router.push("/(tabs)/cuti");
+        reimburseMutate(formData, {
+            onSuccess: () => {
+                setShowModal(false);
+
+                setNotification({
+                    visible: true,
+                    status: "success",
+                    title: "Pengajuan Berhasil",
+                    description: "Pengajuan reimburse anda berhasil dikirim.",
+                });
+            },
+            onError: (err: any) => {
+                setShowModal(false);
+
+                setNotification({
+                    visible: true,
+                    status: "error",
+                    title: "Pengajuan Gagal",
+                    description:
+                    err?.message || "Terjadi kesalahan saat mengirim pengajuan reimburse.",
+                });
+            },
+        });
     };
+
+    if (!user) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Text style={{ color: COLORS.textMuted }}>
+                    Memuat data user...
+                </Text>
+            </View>
+        );
+    }
 
     return (
         <View style={reimburseStyles.createFormContainer}>
             <View style={reimburseStyles.labelContainer}>
                 <Text style={reimburseStyles.labelInput}>Nama Lengkap <Text style={reimburseStyles.error}>*</Text></Text>
-                <Text style={[reimburseStyles.input, { opacity: 0.5 }]}>{dataDummy.dataPersonal[0].value}</Text>
+                <Text style={[reimburseStyles.input, { opacity: 0.5 }]}>{user.name}</Text>
                 {error.name && <Text style={reimburseStyles.error}>{error.name}</Text>}
             </View>
             <View style={reimburseStyles.labelContainer}>
@@ -105,16 +148,24 @@ const ReimburseCreateFormComponent = () => {
                 {error.submissionDate && <Text style={reimburseStyles.error}>{error.submissionDate}</Text>}
             </View>
             <View style={reimburseStyles.labelContainer}>
+                <Text style={reimburseStyles.labelInput}>Judul Pengajuan Reimburse <Text style={reimburseStyles.error}>*</Text></Text>
+                <TextInput
+                    placeholder="Reimburse Uang Makan" 
+                    style={reimburseStyles.input}
+                    value={formData.title}
+                    onChangeText={(text) => setFormData({ ...formData, title: text})}
+                />
+                {error.title && <Text style={reimburseStyles.error}>{error.title}</Text>}
+            </View>
+            <View style={reimburseStyles.labelContainer}>
                 <Text style={reimburseStyles.labelInput}>Total Pengeluaran <Text style={reimburseStyles.error}>*</Text></Text>
                 <TextInput
                     placeholder="Total Pengeluaran"
                     style={reimburseStyles.input}
                     keyboardType="numeric"
-                    value={
-                        formData.totalPengeluaran
-                            ? formData.totalPengeluaran.toLocaleString("id-ID")
-                            : ""
-                    }
+                    value={formData.totalExpenses
+                        ? formData.totalExpenses.toLocaleString("id-ID")
+                        : ""}
                     onChangeText={handleChangeTotal}
                 />
                 {error.reason && <Text style={reimburseStyles.error}
@@ -122,12 +173,12 @@ const ReimburseCreateFormComponent = () => {
             </View>
             <View style={reimburseStyles.labelContainer}>
                 <Text style={reimburseStyles.labelInput}>Major Role <Text style={reimburseStyles.error}>*</Text></Text>
-                <Text style={[reimburseStyles.input, { opacity: 0.5 }]}>{dataDummy.majorRole}</Text>
+                <Text style={[reimburseStyles.input, { opacity: 0.5 }]}>{user.majorRole}</Text>
                 {error.majorRole && <Text style={reimburseStyles.error}>{error.majorRole}</Text>}
             </View>
             <View style={reimburseStyles.labelContainer}>
                 <Text style={reimburseStyles.labelInput}>Minor Role <Text style={reimburseStyles.error}>*</Text></Text>
-                <Text style={[reimburseStyles.input, { opacity: 0.5 }]}>{dataDummy.minorRole}</Text>
+                <Text style={[reimburseStyles.input, { opacity: 0.5 }]}>{user.minorRole}</Text>
                 {error.minorRole && <Text style={reimburseStyles.error}>{error.minorRole}</Text>}
             </View>
             <View style={reimburseStyles.labelContainer}>
@@ -144,48 +195,87 @@ const ReimburseCreateFormComponent = () => {
                     <Text style={{ color: "#fff", fontWeight: "bold" }}>Upload File</Text>
                 </TouchableOpacity>
 
-                {formData.buktiPendukung ? (
-                    <View
-                        style={reimburseStyles.buktiPendukungContainer}
-                    >
-                        {formData.fileType === "image" ? (
-                            <Image
-                                source={{ uri: formData.buktiPendukung }}
-                                style={{
-                                    width: 70,
-                                    height: 70,
-                                    borderRadius: 10,
-                                    marginRight: 10,
-                                }}
-                                resizeMode="cover"
-                            />
-                        ) : (
+                {formData.reimburseDocuments.length > 0 ? (
+                    formData.reimburseDocuments.map((file, index) => {
+                        const isImage = file.type.startsWith("image");
+
+                        return (
                             <View
+                                key={index}
                                 style={{
-                                    width: 70,
-                                    height: 70,
-                                    borderRadius: 10,
-                                    backgroundColor: "#E8EAF6",
-                                    justifyContent: "center",
+                                    marginTop: 10,
+                                    backgroundColor: COLORS.white,
+                                    borderRadius: 12,
+                                    padding: 10,
+                                    flexDirection: "row",
                                     alignItems: "center",
-                                    marginRight: 10,
+                                    shadowColor: "#000",
+                                    shadowOpacity: 0.1,
+                                    shadowOffset: { width: 0, height: 4 },
+                                    shadowRadius: 4,
+                                    elevation: 3,
                                 }}
                             >
-                                {/* <Filt color={COLORS.primary} size={32} /> */}
+                                <View
+                                    style={{
+                                        width: 80,
+                                        height: 80,
+                                        borderRadius: 10,
+                                        backgroundColor: "#E8EAF6",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        marginRight: 10,
+                                    }}
+                                >
+                                    <Image
+                                        source={
+                                            isImage
+                                                ? require("../../../assets/icons/changeImage.png")
+                                                : require("../../../assets/icons/pdfFile.png")
+                                        }
+                                        style={{
+                                            width: 60,
+                                            height: 60,
+                                        }}
+                                        resizeMode="contain"
+                                    />
+                                </View>
+
+                                <View style={{ flex: 1 }}>
+                                    <Text numberOfLines={1} style={{ fontWeight: "600", color: "#333" }}>
+                                        {file.name}
+                                    </Text>
+                                    <Text style={{ fontSize: 12, color: "#777" }}>
+                                        {isImage ? "Gambar" : "Dokumen"}
+                                    </Text>
+                                </View>
+
+                                <TouchableOpacity
+                                    style={{
+                                        backgroundColor: COLORS.primary,
+                                        borderRadius: 20,
+                                        width: 40,
+                                        height: 40,
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                    }}
+                                    onPress={() => handleDeleteDocument(index)}
+                                >
+                                    <Image
+                                        source={require("../../../assets/icons/trash.png")}
+                                        style={{
+                                            width: 20,
+                                            height: 20,
+                                            tintColor: COLORS.white,
+                                        }}
+                                    />
+                                </TouchableOpacity>
                             </View>
-                        )}
-                        <View style={{ flex: 1 }}>
-                            <Text numberOfLines={1} style={{ fontWeight: "600", color: "#333" }}>
-                                {formData.buktiPendukung.split("/").pop()}
-                            </Text>
-                            <Text style={{ fontSize: 12, color: "#777" }}>
-                                {formData.fileType === "image" ? "Gambar" : "Dokumen"}
-                            </Text>
-                        </View>
-                    </View>
+                        );
+                    })
                 ) : (
                     <Text style={{ marginTop: 6, fontSize: 13, color: "#888" }}>
-                        Belum ada file yang dipilih
+                        Belum ada file dipilih
                     </Text>
                 )}
             </View>
@@ -200,6 +290,20 @@ const ReimburseCreateFormComponent = () => {
                 visible={showModal}
                 onClose={() => setShowModal(false)}
                 onSave={handleSubmit}
+            />
+
+            <NotificationModal
+                visible={notification.visible}
+                status={notification.status}
+                title={notification.title}
+                description={notification.description}
+                onContinue={() => {
+                    setNotification(prev => ({ ...prev, visible: false }));
+
+                    if (notification.status === "success") {
+                        router.push("/(reimburse)/reimburse/reimburse");
+                    }
+                }}
             />
         </View>
     )
