@@ -16,7 +16,7 @@ export class ReimburseBaseDTO {
   approvalStatus: ApprovalStatus;
   
   @Expose()
-  rejectReason: string;
+  notes: string;
 
   @Expose()
   documents: FileMetaData[];
