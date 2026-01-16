@@ -255,8 +255,9 @@ async function main() {
   // 14. Agenda
   const agenda = await prisma.agenda.create({
     data: {
-      name: 'Sprint Planning',
+      title: 'Sprint Planning',
       eventDate: new Date('2025-01-15T09:00:00Z'),
+      timezone: 'Asia/Jakarta',
       projectId: project.id,
       status: 'UPCOMING',
       frequency: 'WEEKLY',

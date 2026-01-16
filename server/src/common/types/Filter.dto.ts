@@ -34,3 +34,10 @@ export const ALLOWED_REIMBURSE_SORT_FIELDS = [
 
 export type ReimburseSortField = typeof ALLOWED_REIMBURSE_SORT_FIELDS[number];
 
+export const ALLOWED_AGENDA_SORT_FIELDS = [
+  'status',
+  'createdAt',
+  'eventDate'
+] as const;
+
+export type AgendaSortField = typeof ALLOWED_AGENDA_SORT_FIELDS[number]

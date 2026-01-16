@@ -37,11 +37,12 @@ export class DateUtilService {
   }
 
   parseDate(dateStr: string): Date {
-    // Allow YYYY-MM-DD format
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-      const date = new Date(dateStr);
-      if (isNaN(date.getTime()))
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const date = new Date(Date.UTC(year, month - 1, day));
+      if (isNaN(date.getTime())) {
         throw new BadRequestException('Invalid date format');
+      }
       return date;
     }
 

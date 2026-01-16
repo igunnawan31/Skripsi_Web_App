@@ -319,11 +319,12 @@ model RekapKPI {
 
 model Agenda {
   id          String             @id @default(cuid())
-  name        String
+  title       String
   eventDate   DateTime
   projectId   String?
-  status      AgendaStatus
-  frequency   AgendaFreq
+  status      AgendaStatus       @default(UPCOMING)
+  frequency   AgendaFreq?
+  timezone    String
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
   project     Project?           @relation("ProjectAgenda", fields: [projectId], references: [id], onDelete: Cascade)
@@ -336,6 +337,8 @@ model AgendaOccurrence {
   date        DateTime
   isCancelled Boolean  @default(false)
   agenda      Agenda   @relation("AgendaOccurrences", fields: [agendaId], references: [id], onDelete: Cascade)
+  @@index([date])
+  @@index([agendaId, date])
 }
 
 model Notification {
@@ -355,7 +358,7 @@ model Reimburse {
   title          String
   totalExpenses  Int
   approvalStatus ApprovalStatus @default(PENDING)
-  rejectReason   String?
+  catatan        String?
   documents      Json?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
@@ -444,7 +447,6 @@ enum AgendaFreq {
   DAILY
   WEEKLY
   MONTHLY
-  ANNUALLY
 }
 
 enum AgendaStatus {

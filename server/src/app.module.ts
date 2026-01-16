@@ -18,6 +18,7 @@ import { KontrakModule } from './modules/kontrak/kontrak.module';
 import { GajiModule } from './modules/gaji/gaji.module';
 import { ProjectModule } from './modules/project/project.module';
 import { KpiModule } from './modules/kpi/kpi.module';
+import { AgendaModule } from './modules/agenda/agenda.module';
 
 @Module({
   imports: [
@@ -80,6 +81,7 @@ import { KpiModule } from './modules/kpi/kpi.module';
     ProjectModule,
     KpiModule,
     ReimburseModule,
+    AgendaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
