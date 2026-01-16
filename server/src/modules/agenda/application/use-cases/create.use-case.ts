@@ -15,9 +15,11 @@ import { IProjectRepository } from 'src/modules/project/domain/repositories/proj
 import { ALLOWED_TIMEZONES } from 'src/common/types/timezone';
 import { DateUtilService } from 'src/common/utils/dateUtil';
 import { RecurrenceGenerator } from '../../domain/services/recurrence.generator';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CreateAgendaUseCase {
+  private readonly timezone: string;
   constructor(
     @Inject(IAgendaRepository)
     private readonly agendaRepo: IAgendaRepository,
@@ -25,11 +27,14 @@ export class CreateAgendaUseCase {
     private readonly projectRepo: IProjectRepository,
     private readonly logger: LoggerService,
     private readonly dateUtil: DateUtilService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.timezone = this.configService.getOrThrow<string>('TZ', 'Asia/Jakarta')
+  }
 
   async execute(dto: CreateAgendaDTO): Promise<CreateAgendaResponseDTO> {
     try {
-      if (!ALLOWED_TIMEZONES.includes(dto.timezone)) {
+      if (dto.timezone && !ALLOWED_TIMEZONES.includes(dto.timezone)) {
         throw new BadRequestException(
           'Hanya timezone Asia/Jakarta yang didukung',
         );
@@ -64,7 +69,7 @@ export class CreateAgendaUseCase {
 
         occurrences = RecurrenceGenerator.generate({
           startDate: eventDate,
-          timezone: dto.timezone,
+          timezone: dto.timezone ?? this.timezone,
           frequency: dto.frequency,
           until: sixMonthsFromNow,
         });
