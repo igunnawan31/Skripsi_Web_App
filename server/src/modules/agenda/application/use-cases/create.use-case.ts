@@ -60,6 +60,7 @@ export class CreateAgendaUseCase {
 
       const payload: InternalCreateAgendaDTO = {
         ...dto,
+        timezone: dto.timezone ?? this.timezone,
         eventDate,
       };
       let occurrences: Date[] = [];
