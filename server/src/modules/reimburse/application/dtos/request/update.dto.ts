@@ -14,5 +14,5 @@ export class InternalUpdateReimburseDTO extends PartialType(InternalCreateReimbu
 
   @IsOptional()
   @IsString()
-  rejectReason?: string;
+  notes?: string;
 }

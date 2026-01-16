@@ -105,9 +105,11 @@ export class ReimburseController {
   approve(
     @Param('id') id: string,
     @Req() req: Request & { user: UserRequest },
+    @Body() dto: { notes: string },
   ) {
     const payload: InternalUpdateReimburseDTO = {
       approvalStatus: 'APPROVED',
+      notes: dto.notes,
     };
 
     return this.approvalUseCase.execute(id, req.user, payload);
@@ -117,11 +119,11 @@ export class ReimburseController {
   reject(
     @Param('id') id: string,
     @Req() req: Request & { user: UserRequest },
-    @Body() dto: { rejectReason: string },
+    @Body() dto: { notes: string },
   ) {
     const payload: InternalUpdateReimburseDTO = {
       approvalStatus: 'REJECTED',
-      rejectReason: dto.rejectReason,
+      notes: dto.notes,
     };
 
     return this.approvalUseCase.execute(id, req.user, payload);
