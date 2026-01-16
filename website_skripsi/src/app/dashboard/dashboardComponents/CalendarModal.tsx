@@ -95,7 +95,6 @@ export default function CalendarModal({ events = [] }: Props) {
         const eventsOnDate: Array<{event: AgendaResponse, isOccurrence: boolean, occurrenceId?: string}> = [];
         
         safeEvents.forEach((event) => {
-            // If event has occurrences, ONLY show occurrences, not the main event
             if (event.occurrences && event.occurrences.length > 0) {
                 event.occurrences.forEach((occurrence) => {
                     if (!occurrence.isCancelled && format(parseISO(occurrence.date), "yyyy-MM-dd") === dateStr) {
@@ -103,7 +102,6 @@ export default function CalendarModal({ events = [] }: Props) {
                     }
                 });
             } else {
-                // Only show main event if there are NO occurrences
                 if (format(parseISO(event.eventDate), "yyyy-MM-dd") === dateStr) {
                     eventsOnDate.push({ event, isOccurrence: false });
                 }
@@ -171,7 +169,7 @@ export default function CalendarModal({ events = [] }: Props) {
     };
 
     return (
-        <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col gap-4 w-full relative md:flex-row">
             <div className={`bg-(--color-surface) text-white rounded-xl p-4 shadow-lg ${panelMode ? "w-full md:w-3/4 transition-all ease-in duration-300" : "w-full transition-all ease-in duration-300"}`}>
                 <div className="flex items-center justify-between mb-8">
                     <h2 className="text-lg font-semibold text-(--color-text-primary)">
