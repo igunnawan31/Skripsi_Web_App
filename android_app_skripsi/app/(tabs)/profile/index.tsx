@@ -145,13 +145,6 @@ const ProfilePage = () => {
                     <View style={profileStyles.namaUserContainer}>
                         <View style={profileStyles.rowContainer}>
                             <Text style={profileStyles.namaUser}>{user.name}</Text>
-                            <View
-                                style={[
-                                    profileStyles.statusBadge,
-                                ]}
-                            >
-                                <Text style={profileStyles.statusText}>{user.absensi[0].workStatus}</Text>
-                            </View>
                         </View>
                         <Text style={profileStyles.roleText}>{user.majorRole} - {user.minorRole}</Text>
                     </View>

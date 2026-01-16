@@ -4,6 +4,7 @@ import { ReimburseStatus } from "@/data/dummyReimburse";
 import { Platform, Text, TouchableOpacity, View } from "react-native";
 import Modal from "react-native-modal";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { ApprovalStatus } from "@/types/reimburse/reimburseTypes";
 
 export type FilterModalReimburseComponentProps = {
     visible: boolean;
@@ -96,7 +97,7 @@ const FilterModalReimburseComponent = ({
                         <Text style={reimburseStyles.modalLabel}>Pilih Status Reimburse</Text>
 
                         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-                            {Object.values(ReimburseStatus).map((approvalStatus) => (
+                            {Object.values(ApprovalStatus).map((approvalStatus) => (
                                 <TouchableOpacity
                                     key={approvalStatus}
                                     onPress={() => setSelectedStatus(approvalStatus)}

@@ -1,59 +1,89 @@
 import reimburseStyles from "@/assets/styles/rootstyles/reimburse/reimburse.styles";
-import ListDataReimburseComponent from "@/components/rootComponents/reimburseComponent/ListDataReimburseComponent";
 import COLORS from "@/constants/colors";
-import { dummyReimburse, ReimburseStatus } from "@/data/dummyReimburse";
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import { Image, Modal } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { Platform, Text, TouchableOpacity, View } from "react-native"
+import { useEffect, useState } from "react";
+import { Image } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native"
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import FilterModalReimburseComponent from "@/components/rootComponents/reimburseComponent/FilterModalReimburseComponent";
 import ListDataPengajuanReimburseComponent from "@/components/rootComponents/reimburseComponent/ListDataPengajuanReimburseComponent";
+import { useReimburse } from "@/lib/api/hooks/useReimburse";
+import { ApprovalStatus, ReimburseResponse } from "@/types/reimburse/reimburseTypes";
+import { cutiStyles } from "@/assets/styles/rootstyles/cuti/cuti.styles";
 
 const SetujuiReimbursePage = () => {
     const router = useRouter();
-    const [data, setData] = useState(dummyReimburse);
+    const { data, isLoading, error } = useReimburse().fetchAllReimburse();
     const [startDate, setStartDate] = useState<Date | null>(null);
+    const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+    const [filteredData, setFilteredData] = useState<ReimburseResponse[]>([]);
+
     const [modalVisible, setModalVisible] = useState(false);
     const [pickerMode, setPickerMode] = useState("month");
-    const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
     const [showPicker, setShowPicker] = useState(false);
     const [pickerTarget, setPickerTarget] = useState("month");
+
     const showHandlePopUpFilter = () => setModalVisible(true);
     const closeHandlePopUpFilter = () => setModalVisible(false);
 
+    useEffect(() => {
+        if (data?.data) setFilteredData(data?.data);
+    }, [data]);
+
+    const totalBelumKeputusan = (reimburse: ReimburseResponse[]) => {
+        if (!Array.isArray(reimburse)) return 0;
+        return reimburse.filter((item) => item.approvalStatus === ApprovalStatus.PENDING).length;
+    };
+
+    const totalSudahKeputusan = (reimburse: ReimburseResponse[]) => {
+        if (!Array.isArray(reimburse)) return 0;
+        return reimburse.filter((item) => item.approvalStatus !== ApprovalStatus.PENDING).length;
+    };
+
     const handleFilter = () => {
-        let filtered = dummyReimburse;
+        let filtered = data?.data || [];
 
         if (pickerMode === "month" && startDate) {
             const selectedMonth = startDate.getMonth();
             const selectedYear = startDate.getFullYear();
 
-            filtered = dummyReimburse.filter((item) => {
-                let [day, month, year] = item.submissionDate.split("-").map(Number);
-                if (year < 2000) {
-                    [year, month, day] = item.submissionDate.split("-").map(Number);
-                }
-                return month - 1 === selectedMonth && year === selectedYear;
+            filtered = filtered.filter((item: ReimburseResponse) => {
+                const itemDate = new Date(item.createdAt);
+                return itemDate.getMonth() === selectedMonth && itemDate.getFullYear() === selectedYear;
             });
         }
 
-        if (pickerMode === "status" && selectedStatus) {
-            filtered = dummyReimburse.filter((item) => item.reimburseStatus === selectedStatus);
+        if (pickerMode === "approvalStatus" && selectedStatus) {
+            filtered = filtered.filter((item: ReimburseResponse) => item.approvalStatus === selectedStatus);
         }
 
-        setData(filtered);
+        setFilteredData(filtered);
         closeHandlePopUpFilter();
     };
     
     const resetFilter = () => {
-        setData(dummyReimburse);
+        if (data?.data) setFilteredData(data.data);
         setStartDate(null);
         setSelectedStatus(null);
         setPickerMode("month");
         closeHandlePopUpFilter();
     };
+
+    if (isLoading) {
+        return (
+            <View style={cutiStyles.container}>
+                <Text>Loading absensi data...</Text>
+            </View>
+        );
+    }
+
+    if (error) {
+        return (
+            <View style={cutiStyles.container}>
+                <Text>Error: {error.message}</Text>
+            </View>
+        );
+    }
 
     return (
         <View style={{ flex: 1, backgroundColor: COLORS.background }}>
@@ -102,13 +132,39 @@ const SetujuiReimbursePage = () => {
                         Bulan {startDate ? startDate.toLocaleString("default", { month: "long", year: "numeric" }): "All"}
                     </Text>
                 </View>
+                <View style={cutiStyles.cutiAvailableContainer}>
+                    <View style={cutiStyles.cutiAvailable}>
+                        <Text style={cutiStyles.titleCutiAccepted}>
+                            Sudah Diproses
+                        </Text>
+                        <Image 
+                            style={cutiStyles.logoCutiAccepted}
+                            source={require("../../../assets/icons/cuti.png")}
+                        />
+                        <Text style={cutiStyles.textCutiAccepted}>
+                            {totalSudahKeputusan(data?.data ?? [])}
+                        </Text>
+                    </View>
+                    <View style={cutiStyles.cutiAvailable}>
+                        <Text style={cutiStyles.titleCutiRejected}>
+                            Belum Diproses
+                        </Text>
+                        <Image 
+                            style={cutiStyles.logoCutiRejected}
+                            source={require("../../../assets/icons/cuti.png")}
+                        />
+                        <Text style={cutiStyles.textCutiRejected}>
+                            {totalBelumKeputusan(data?.data ?? [])}
+                        </Text>
+                    </View>
+                </View>
                 <TouchableOpacity
                     style={reimburseStyles.filterContainer}
                     onPress={showHandlePopUpFilter}
                 >
                     <Text style={reimburseStyles.filterText}>Terapkan Filter</Text>
                 </TouchableOpacity>
-                <ListDataPengajuanReimburseComponent data={data} />
+                <ListDataPengajuanReimburseComponent data={filteredData} />
             </KeyboardAwareScrollView>
             <FilterModalReimburseComponent
                 visible={modalVisible}

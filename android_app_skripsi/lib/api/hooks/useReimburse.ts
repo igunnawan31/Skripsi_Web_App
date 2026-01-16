@@ -151,9 +151,97 @@ export const useReimburse = () => {
         });
     }
 
+    const approveReimburse = () => {
+        const queryClient = useQueryClient();
+
+        return useMutation<
+            any,
+            Error,
+            { id: string; catatan?: string }
+        >({
+            mutationFn: async ({ id, catatan }) => {
+                const token = await getTokens();
+                const jwt = token?.access_token;
+                if (!token?.access_token) throw new Error("No access token found");
+
+                const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/reimburses/${id}/approve`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${jwt}`,
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({ catatan }),
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Failed to approve reimburse"
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                return response.json();
+            },
+
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["reimburses"] });
+            },
+        });
+    }
+
+    const rejectReimburse = () => {
+        const queryClient = useQueryClient();
+
+        return useMutation<
+            any,
+            Error,
+            { id: string; catatan?: string }
+        >({
+            mutationFn: async ({ id, catatan}) => {
+                const token = await getTokens();
+                const jwt = token?.access_token;
+                if (!token?.access_token) throw new Error("No access token found");
+
+                const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/reimburses/${id}/reject`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({ catatan }),
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Failed to reject reimburse"
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                return response.json();
+            },
+
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["reimburses"] });
+            },
+        })
+    }
+
     return {
         fetchAllReimburse,
         fetchReimburseById,
         createReimburse,
+        approveReimburse,
+        rejectReimburse
     }
 }

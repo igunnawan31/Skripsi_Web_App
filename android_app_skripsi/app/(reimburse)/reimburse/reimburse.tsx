@@ -61,13 +61,6 @@ const ReimbursePage = () => {
         closeHandlePopUpFilter();
     };
 
-    const onChangeDate = (event: any, selectedDate?: Date) => {
-        setShowPicker(false);
-        if (selectedDate) {
-            if (pickerTarget === "month") setStartDate(selectedDate);
-        }
-    };
-
     if (isLoading) {
         return (
             <View style={cutiStyles.container}>

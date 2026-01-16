@@ -3,36 +3,25 @@ import { homeStyles } from "@/assets/styles/rootstyles/home/home.styles";
 import reimburseStyles from "@/assets/styles/rootstyles/reimburse/reimburse.styles";
 import COLORS from "@/constants/colors";
 import { ReimburseStatus } from "@/data/dummyReimburse";
+import { ApprovalStatus, ReimburseResponse } from "@/types/reimburse/reimburseTypes";
+import { format } from "date-fns";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
-type Reimburse = {
-    id: string;
-    name: string;
-    submissionDate: string;
-    totalPengeluaran: number;
-    majorRole: string;
-    minorRole: string;
-    reimburseStatus: ReimburseStatus;
-    approver: string;
-    approvalDate: string;
-    file: string;
-};
-
 type ListDataPengajuanReimburseComponentProps = {
-    data: Reimburse[];
+    data: ReimburseResponse[];
 };
 
 const ListDataPengajuanReimburseComponent = ({ data }: ListDataPengajuanReimburseComponentProps) => {
     const router = useRouter();
-    const getStatusColor = (status: string) => {
-    switch (status) {
-        case "Reimburse Diterima":
+    const getStatusColor = (approvalStatus: string) => {
+    switch (approvalStatus) {
+        case ApprovalStatus.APPROVED:
             return COLORS.success;
-        case "Reimburse Ditolak":
+        case ApprovalStatus.REJECTED:
             return COLORS.error;
-        case "Menunggu Jawaban":
+        case ApprovalStatus.PENDING:
             return COLORS.tertiary;
         default:
             return COLORS.muted;
@@ -48,28 +37,28 @@ const ListDataPengajuanReimburseComponent = ({ data }: ListDataPengajuanReimburs
                         style={reimburseStyles.listContainer}
                     >
                         <View style={reimburseStyles.listHeader}>
-                            <Text style={reimburseStyles.name}>{item.name}</Text>
+                            <Text style={reimburseStyles.name}>{item.requester.name}</Text>
                             <View style={reimburseStyles.timeBox}>
                                 <Image
                                     source={require("../../../assets/icons/calendar.png")}
                                     style={reimburseStyles.icon}
                                 />
                                 <Text style={reimburseStyles.timeText}>
-                                    Pengajuan: {item.submissionDate}
+                                    Pengajuan: {item.createdAt ? format(new Date(item.createdAt), "dd-MM-yyyy") : "-"}
                                 </Text>
                             </View>
                         </View>
                         <View style={reimburseStyles.roleContainer}>
                             <Text style={reimburseStyles.roleText}>
-                                {item.majorRole} - {item.minorRole}
+                                {item.requester.majorRole} - {item.requester.minorRole}
                             </Text>
                             <View
                                 style={[
                                     reimburseStyles.statusBadge,
-                                    { backgroundColor: getStatusColor(item.reimburseStatus) },
+                                    { backgroundColor: getStatusColor(item.approvalStatus) },
                                 ]}
                             >
-                                <Text style={reimburseStyles.statusText}>{item.reimburseStatus}</Text>
+                                <Text style={reimburseStyles.statusText}>{item.approvalStatus}</Text>
                             </View>
                         </View>
                         <View style={reimburseStyles.timeContainer}>
@@ -79,7 +68,7 @@ const ListDataPengajuanReimburseComponent = ({ data }: ListDataPengajuanReimburs
                                     style={reimburseStyles.icon}
                                 />
                                 <Text style={reimburseStyles.timeText}>
-                                    Total Pengajuan: {item.totalPengeluaran?.toLocaleString("id-ID", {
+                                    Total Pengajuan: {item.totalExpenses?.toLocaleString("id-ID", {
                                         style: "currency",
                                         currency: "IDR",
                                     })}
