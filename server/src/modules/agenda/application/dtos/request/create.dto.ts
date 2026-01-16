@@ -10,6 +10,7 @@ export class CreateAgendaDTO {
   eventDate: string;
 
   @IsString()
+  @IsOptional()
   timezone: string;
 
   @IsOptional()
