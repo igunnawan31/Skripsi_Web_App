@@ -43,6 +43,14 @@ export type AgendaResponse = {
     ]
 };
 
+export type FormDataAgenda = {
+    title: string,
+    date: string,
+    time: string,
+    projectId?: string | null,
+    frequency?: AgendaFreq | null, 
+}
+
 export type CreateAgenda = {
     title: string,
     eventDate: string,

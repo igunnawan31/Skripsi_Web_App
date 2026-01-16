@@ -63,19 +63,14 @@ export const useAgenda = () => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const fd = new FormData();
-                fd.append('title', agendaData.title || '');
-                fd.append('eventDate', agendaData.eventDate || '');
-                fd.append('projectId', agendaData.projectId || '');
-                fd.append('frequency', agendaData.frequency || '');
-
                 const response = await fetch(`${API}/agendas`, {
                     method: "POST",
                     headers: { 
                         "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
                     },
                     credentials: "include",
-                    body: fd,
+                    body: JSON.stringify(agendaData),
                 });
 
                 if (!response.ok) {

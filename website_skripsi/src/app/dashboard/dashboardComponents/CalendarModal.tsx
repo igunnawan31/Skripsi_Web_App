@@ -16,7 +16,7 @@ import {
 } from "date-fns";
 import Image from "next/image";
 import { icons } from "@/app/lib/assets/assets";
-import { AgendaFreq, AgendaResponse, CreateAgenda } from "@/app/lib/types/agendas/agendaTypes";
+import { AgendaFreq, AgendaResponse, CreateAgenda, FormDataAgenda } from "@/app/lib/types/agendas/agendaTypes";
 import { useProject } from "@/app/lib/hooks/project/useProject";
 import { useAgenda } from "@/app/lib/hooks/agenda/useAgenda";
 import toast from "react-hot-toast";
@@ -31,10 +31,11 @@ export default function CalendarModal({ events = [] }: Props) {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [panelMode, setPanelMode] = useState<"create" | "detail" | null>(null);
     const [selectedEvent, setSelectedEvent] = useState<AgendaResponse | null>(null);
+    const [selectedOccurrence, setSelectedOccurrence] = useState<{id: string, date: string} | null>(null);
     const [isOccurent, setIsOccurent] = useState(false);
     const { mutate, isPending } = useAgenda().createAgendas();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<FormDataAgenda>({
         title: "",
         date: "",
         time: "",
@@ -89,15 +90,34 @@ export default function CalendarModal({ events = [] }: Props) {
         day = addDays(day, 1);
     }
 
-    const getEvents = (date: Date) =>
-        safeEvents.filter((e) =>
-            format(parseISO(e.eventDate), "yyyy-MM-dd") === format(date, "yyyy-MM-dd")
-        );
+    const getEventsForDate = (date: Date) => {
+        const dateStr = format(date, "yyyy-MM-dd");
+        const eventsOnDate: Array<{event: AgendaResponse, isOccurrence: boolean, occurrenceId?: string}> = [];
+        
+        safeEvents.forEach((event) => {
+            // If event has occurrences, ONLY show occurrences, not the main event
+            if (event.occurrences && event.occurrences.length > 0) {
+                event.occurrences.forEach((occurrence) => {
+                    if (!occurrence.isCancelled && format(parseISO(occurrence.date), "yyyy-MM-dd") === dateStr) {
+                        eventsOnDate.push({ event, isOccurrence: true, occurrenceId: occurrence.id });
+                    }
+                });
+            } else {
+                // Only show main event if there are NO occurrences
+                if (format(parseISO(event.eventDate), "yyyy-MM-dd") === dateStr) {
+                    eventsOnDate.push({ event, isOccurrence: false });
+                }
+            }
+        });
+        
+        return eventsOnDate;
+    };
 
     const buildISODate = () => {
         if (!formData.date || !formData.time) return "";
 
         const localDate = new Date(`${formData.date}T${formData.time}`);
+        console.log("localDate",localDate.toISOString)
         return localDate.toISOString();
     };
 
@@ -106,28 +126,50 @@ export default function CalendarModal({ events = [] }: Props) {
     }
 
     const handleSubmit = () => {
+        const eventDate = buildISODate();
+        console.log("eventDate", eventDate);
+
+        if (!eventDate) {
+            toast.custom(
+                <CustomToast type="error" message="Tanggal dan waktu wajib diisi" />
+            );
+            return;
+        }
+
         const payload: CreateAgenda = {
             title: formData.title,
-            eventDate: buildISODate(),
+            eventDate,
             projectId: formData.projectId,
             frequency: isOccurent ? formData.frequency : null,
         };
+        console.log(payload);
+
         mutate(payload, {
             onSuccess: () => {
                 toast.custom(
-                    <CustomToast 
-                        type="success" 
-                        message={"Agenda berhasil dibuat"} 
-                    />
+                    <CustomToast type="success" message="Agenda berhasil dibuat" />
                 );
                 setIsModalOpen(false);
+                
+                setFormData({
+                    title: "",
+                    date: "",
+                    time: "",
+                    projectId: null,
+                    frequency: null,
+                });
+                setIsOccurent(false);
+                
+                setPanelMode(null);
             },
             onError: (error) => {
-                toast.custom(<CustomToast type="error" message={error.message || "Terjadi kesalahan"} />);
-                setIsModalOpen(false);
+                toast.custom(
+                    <CustomToast type="error" message={error.message || "Terjadi kesalahan"} />
+                );
             },
         });
-    }
+    };
+
     return (
         <div className="flex flex-col md:flex-row gap-4">
             <div className={`bg-(--color-surface) text-white rounded-xl p-4 shadow-lg ${panelMode ? "w-full md:w-3/4 transition-all ease-in duration-300" : "w-full transition-all ease-in duration-300"}`}>
@@ -141,6 +183,7 @@ export default function CalendarModal({ events = [] }: Props) {
                             onClick={() => {
                                 setPanelMode("create"); 
                                 setSelectedEvent(null);
+                                setSelectedOccurrence(null);
                             }}
                             className="px-3 py-3 rounded bg-slate-800 hover:bg-slate-700 cursor-pointer"
                         >
@@ -176,7 +219,7 @@ export default function CalendarModal({ events = [] }: Props) {
                 </div>
                 <div className="grid grid-cols-7 gap-px bg-(--color-secondary) rounded-lg overflow-hidden">
                     {days.map((date) => {
-                        const dayEvents = getEvents(date);
+                        const dayEvents = getEventsForDate(date);
 
                         return (
                             <div
@@ -196,16 +239,27 @@ export default function CalendarModal({ events = [] }: Props) {
                                 </div>
 
                                 <div className="space-y-1">
-                                    {dayEvents.map((e) => (
+                                    {dayEvents.map((eventData, idx) => (
                                         <div
-                                            key={e.id}
+                                            key={`${eventData.event.id}-${eventData.occurrenceId || 'main'}-${idx}`}
                                             onClick={() => {
-                                                setSelectedEvent(e);
+                                                setSelectedEvent(eventData.event);
+                                                if (eventData.isOccurrence && eventData.occurrenceId) {
+                                                    const occurrence = eventData.event.occurrences?.find(
+                                                        occ => occ.id === eventData.occurrenceId
+                                                    );
+                                                    setSelectedOccurrence(occurrence ? {
+                                                        id: occurrence.id,
+                                                        date: occurrence.date
+                                                    } : null);
+                                                } else {
+                                                    setSelectedOccurrence(null);
+                                                }
                                                 setPanelMode("detail");
                                             }}
-                                            className="text-xs bg-indigo-500/20 text-indigo-300 rounded px-1 py-3 truncate cursor-pointer"
+                                            className="text-xs bg-indigo-500/20 text-indigo-300 rounded px-1 py-3 truncate cursor-pointer hover:bg-indigo-500/30"
                                         >
-                                            {e.title}
+                                            {eventData.event.title}
                                         </div>
                                     ))}
                                 </div>
@@ -226,6 +280,7 @@ export default function CalendarModal({ events = [] }: Props) {
                             onClick={() => {
                                 setPanelMode(null);
                                 setSelectedEvent(null);
+                                setSelectedOccurrence(null);
                             }}
                             className="p-2 rounded-lg bg-(--color-primary) hover:bg-(--color-primary)/80 cursor-pointer transition"
                         >
@@ -275,23 +330,22 @@ export default function CalendarModal({ events = [] }: Props) {
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium text-gray-600 mb-1">Agenda Untuk : (opsional)</label>
                                 <select
-                                    name="project"
+                                    name="projectId"
                                     value={formData.projectId ?? ""}
                                     onChange={(e) => {
-                                        const selected = project.find((p: any) => p.id === e.target.value);
-                                        if (selected) {
-                                            setFormData(prev => ({
-                                                ...prev,
-                                                projectId: selected.id,
-                                            }));
-                                        }
+                                        const value = e.target.value;
+
+                                        setFormData(prev => ({
+                                        ...prev,
+                                        projectId: value === "" ? null : value,
+                                        }));
                                     }}
                                     className="border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                 >
                                     <option value="">-- Pilih Project Tim --</option>
-                                    {project.map((project: any) => (
-                                        <option key={project.id} value={project.id}>
-                                            {project.name}
+                                    {project.map((p: any) => (
+                                        <option key={p.id} value={p.id}>
+                                            {p.name}
                                         </option>
                                     ))}
                                 </select>
@@ -351,13 +405,13 @@ export default function CalendarModal({ events = [] }: Props) {
                         </form>
                     )}
                     {panelMode === "detail" && selectedEvent && (
-                        <div className="space-y-4">
+                        <div key={`${selectedEvent.id}-${selectedOccurrence?.id || 'main'}`} className="space-y-4">
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium text-gray-600 mb-1">Judul Event</label>
                                 <input
                                     className="w-full border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                     placeholder="Event title"
-                                    defaultValue={selectedEvent.title}
+                                    value={selectedEvent.title}
                                     disabled
                                 />
                             </div>
@@ -365,7 +419,7 @@ export default function CalendarModal({ events = [] }: Props) {
                                 <label className="text-sm font-medium text-gray-600 mb-1">Tanggal Event</label>
                                 <input
                                     className="w-full border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                    defaultValue={toDate(selectedEvent.eventDate)}
+                                    value={toDate(selectedOccurrence?.date || selectedEvent.eventDate)}
                                     disabled
                                 />
                             </div>
@@ -373,7 +427,7 @@ export default function CalendarModal({ events = [] }: Props) {
                                 <label className="text-sm font-medium text-gray-600 mb-1">Waktu Event</label>
                                 <input
                                     className="w-full border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                    defaultValue={format(parseISO(selectedEvent.eventDate), "HH:mm")}
+                                    value={format(parseISO(selectedOccurrence?.date || selectedEvent.eventDate), "HH:mm")}
                                     disabled
                                 />
                             </div>
@@ -381,7 +435,7 @@ export default function CalendarModal({ events = [] }: Props) {
                                 <label className="text-sm font-medium text-gray-600 mb-1">Agenda Untuk : (opsional)</label>
                                 <input
                                     className="w-full border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                    defaultValue={selectedEvent.project.name}
+                                    value={selectedEvent.project.name}
                                     disabled
                                 />
                             </div>
