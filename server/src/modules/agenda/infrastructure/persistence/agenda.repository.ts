@@ -58,18 +58,25 @@ export class AgendaRepository implements IAgendaRepository {
           gte: minEventDate ? new Date(minEventDate) : undefined,
           lte: maxEventDate ? new Date(maxEventDate) : undefined,
         },
-        project: {
-          projectTeams: {
-            some: {
-              userId:
-                user.majorRole === 'KARYAWAN'
-                  ? user.minorRole === 'HR'
-                    ? undefined
-                    : user.id
-                  : undefined,
+        OR: [
+          {
+            projectId: null,
+          },
+          {
+            project: {
+              projectTeams: {
+                some: {
+                  userId:
+                    user.majorRole === 'KARYAWAN'
+                      ? user.minorRole === 'HR'
+                        ? undefined // HR melihat semua
+                        : user.id // Karyawan non-HR
+                      : undefined, // Non-KARYAWAN
+                },
+              },
             },
           },
-        },
+        ],
       };
       if (
         searchTerm !== undefined &&
