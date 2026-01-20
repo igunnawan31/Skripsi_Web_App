@@ -255,7 +255,7 @@ export default function CalendarModal({ events = [] }: Props) {
                                                 }
                                                 setPanelMode("detail");
                                             }}
-                                            className="text-xs bg-indigo-500/20 text-indigo-300 rounded px-1 py-3 truncate cursor-pointer hover:bg-indigo-500/30"
+                                            className="text-xs bg-indigo-500/20 text-indigo-300 rounded px-3 py-3 truncate cursor-pointer hover:bg-indigo-500/30"
                                         >
                                             {eventData.event.title}
                                         </div>
@@ -437,6 +437,20 @@ export default function CalendarModal({ events = [] }: Props) {
                                     disabled
                                 />
                             </div>
+                            {selectedEvent.occurrences.length > 1 ? (
+                                <div className="">
+                                    <div className="">
+                                        Update agenda ini saja
+                                    </div>
+                                    <div>
+                                        Update agenda berulang
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="">
+                                    Update agenda
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

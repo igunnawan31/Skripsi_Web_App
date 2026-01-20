@@ -15,16 +15,16 @@ export default function DashboardPage() {
     const renderHtml = (
         <div className="min-h-screen">
             <section className="flex flex-col gap-4 pb-8">
-                <div className="w-full border-b-2 border-b-(--color-border) flex gap-4">
+                <div className="w-full border-b-2 border-b-(--color-tertiary) flex">
                     <span
                         onClick={() => setActionType("overview")}
-                        className={`hover:bg-(--color-border) p-4 cursor-pointer ${actionType === "overview" ? "bg-(--color-border)" : "bg-transparent"}`}
+                        className={`hover:bg-(--color-tertiary)/60 p-4 cursor-pointer rounded-t-lg ${actionType === "overview" ? "bg-(--color-tertiary) rounded-t-lg" : "bg-transparent"}`}
                     >
                         Overview
                     </span>
                     <span
                         onClick={() => setActionType("calendar")}
-                        className={`hover:bg-(--color-border) p-4 cursor-pointer ${actionType === "calendar" ? "bg-(--color-border)" : "bg-transparent"}`}
+                        className={`hover:bg-(--color-tertiary)/60 p-4 cursor-pointer rounded-t-lg ${actionType === "calendar" ? "bg-(--color-tertiary) rounded-t-lg" : "bg-transparent"}`}
                     >
                         Calendar
                     </span>
@@ -37,7 +37,7 @@ export default function DashboardPage() {
                 )}
                 {actionType === "calendar" && isLoading && (
                     <p className="text-slate-400">Loading calendar...</p>
-                    )}
+                )}
 
                 {actionType === "calendar" && !isLoading && (
                     <CalendarModal events={agendaData} />
