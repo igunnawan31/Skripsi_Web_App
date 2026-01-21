@@ -33,9 +33,21 @@ export default function CalendarModal({ events = [] }: Props) {
     const [selectedEvent, setSelectedEvent] = useState<AgendaResponse | null>(null);
     const [selectedOccurrence, setSelectedOccurrence] = useState<{id: string, date: string} | null>(null);
     const [isOccurent, setIsOccurent] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false);
     const { mutate, isPending } = useAgenda().createAgendas();
+    const { updateAgendas, updateOccurrences, deleteAgenda } = useAgenda();
+    const updateAgendaMutation = updateAgendas();
+    const updateOccurrenceMutation = updateOccurrences();
+    const deleteAgendaMutation = deleteAgenda();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState<FormDataAgenda>({
+        title: "",
+        date: "",
+        time: "",
+        projectId: null,
+        frequency: null, 
+    });
+    const [editFormData, setEditFormData] = useState<FormDataAgenda>({
         title: "",
         date: "",
         time: "",
@@ -95,7 +107,7 @@ export default function CalendarModal({ events = [] }: Props) {
         const eventsOnDate: Array<{event: AgendaResponse, isOccurrence: boolean, occurrenceId?: string}> = [];
         
         safeEvents.forEach((event) => {
-            if (event.occurrences && event.occurrences.length > 0) {
+            if (event.frequency && event.occurrences?.length > 0) {
                 event.occurrences.forEach((occurrence) => {
                     if (!occurrence.isCancelled && format(parseISO(occurrence.date), "yyyy-MM-dd") === dateStr) {
                         eventsOnDate.push({ event, isOccurrence: true, occurrenceId: occurrence.id });
@@ -111,20 +123,108 @@ export default function CalendarModal({ events = [] }: Props) {
         return eventsOnDate;
     };
 
-    const buildISODate = () => {
-        if (!formData.date || !formData.time) return "";
+    const buildISODate = (source: "create" | "edit") => {
+        const data = source === "edit" ? editFormData : formData;
 
-        const localDate = new Date(`${formData.date}T${formData.time}`);
-        console.log("localDate",localDate.toISOString)
-        return localDate.toISOString();
+        if (!data.date || !data.time) return "";
+
+        return new Date(`${data.date}T${data.time}`).toISOString();
     };
 
     const handleOpenModal = () => {
         setIsModalOpen(true);
     }
 
+    const openDetail = (
+        event: AgendaResponse,
+        occurrence?: { id: string; date: string }
+    ) => {
+        const sourceDate = occurrence?.date ?? event.eventDate;
+        const parsed = parseISO(sourceDate);
+
+        setSelectedEvent(event);
+        setSelectedOccurrence(occurrence ?? null);
+
+        setEditFormData({
+            title: event.title,
+            date: format(parsed, "yyyy-MM-dd"),
+            time: format(parsed, "HH:mm"),
+            projectId: event.projectId ?? null,
+            frequency: event.frequency ?? null,
+        });
+
+        setIsOccurent(event.frequency !== null);
+        setPanelMode("detail");
+    };
+
+
+    const handleUpdateAgenda = () => {
+        if (!selectedEvent) return;
+        const eventDate = buildISODate("edit");
+        console.log(eventDate);
+
+        if (!eventDate) {
+            toast.custom(
+                <CustomToast type="error" message="Tanggal dan waktu wajib diisi" />
+            );
+            return;
+        }
+
+        const isRecurring = selectedEvent.frequency !== null;
+
+        updateAgendaMutation.mutate(
+            {
+                id: selectedEvent.id,
+                agendaData: {
+                    title: editFormData.title,
+                    eventDate,
+                    projectId: editFormData.projectId,
+                    frequency: isRecurring ? editFormData.frequency : null,
+                },
+            },
+            {
+                onSuccess: () => {
+                    toast.custom(<CustomToast type="success" message="Agenda berhasil diperbarui" />);
+                    setPanelMode(null);
+                },
+                onError: (err) => {
+                    toast.custom(<CustomToast type="error" message={err.message} />);
+                },
+            }
+        );
+    }
+
+    const handleUpdateOccurrence = () => {
+        if (!selectedOccurrence) return;
+        const eventDate = buildISODate("edit");
+        
+        if (!eventDate) {
+            toast.custom(<CustomToast type="error" message="Tanggal & waktu wajib diisi" />);
+            return;
+        }
+
+        updateOccurrenceMutation.mutate(
+            {
+                id: selectedOccurrence.id,
+                occurrencesData: {
+                    date: eventDate,
+                    isCancelled: false,
+                },
+            },
+            {
+                onSuccess: () => {
+                    toast.custom(<CustomToast type="success" message="Occurrence berhasil diperbarui" />);
+                    setPanelMode(null);
+                },
+                onError: (err) => {
+                    toast.custom(<CustomToast type="error" message={err.message} />);
+                },
+            }
+        );
+    };
+
     const handleSubmit = () => {
-        const eventDate = buildISODate();
+        const eventDate = buildISODate("create");
         console.log("eventDate", eventDate);
 
         if (!eventDate) {
@@ -168,6 +268,31 @@ export default function CalendarModal({ events = [] }: Props) {
         });
     };
 
+    const handleDelete = () => {
+        if (!selectedEvent) return;   
+
+        deleteAgendaMutation.mutate(selectedEvent.id, {
+            onSuccess: () => {
+                toast.custom(
+                    <CustomToast 
+                        type="success"
+                        message="Agenda berhasil dihapus"
+                    />
+                );
+                setIsModalOpen(false);
+                setSelectedEvent(null);
+            },
+            onError: (error) => {
+                toast.custom(
+                    <CustomToast 
+                        type="error"
+                        message={error?.message || "Terjadi kendala ketika ingin menghapus agenda"}
+                    />
+                )
+            }
+        })        
+    }
+
     return (
         <div className="flex flex-col gap-4 w-full relative md:flex-row">
             <div className={`bg-(--color-surface) text-white rounded-xl p-4 shadow-lg ${panelMode ? "w-full md:w-3/4 transition-all ease-in duration-300" : "w-full transition-all ease-in duration-300"}`}>
@@ -182,6 +307,7 @@ export default function CalendarModal({ events = [] }: Props) {
                                 setPanelMode("create"); 
                                 setSelectedEvent(null);
                                 setSelectedOccurrence(null);
+                                setIsOccurent(false);
                             }}
                             className="px-3 py-3 rounded bg-slate-800 hover:bg-slate-700 cursor-pointer"
                         >
@@ -241,19 +367,15 @@ export default function CalendarModal({ events = [] }: Props) {
                                         <div
                                             key={`${eventData.event.id}-${eventData.occurrenceId || 'main'}-${idx}`}
                                             onClick={() => {
-                                                setSelectedEvent(eventData.event);
-                                                if (eventData.isOccurrence && eventData.occurrenceId) {
-                                                    const occurrence = eventData.event.occurrences?.find(
-                                                        occ => occ.id === eventData.occurrenceId
-                                                    );
-                                                    setSelectedOccurrence(occurrence ? {
-                                                        id: occurrence.id,
-                                                        date: occurrence.date
-                                                    } : null);
-                                                } else {
-                                                    setSelectedOccurrence(null);
-                                                }
-                                                setPanelMode("detail");
+                                                const occurrence =
+                                                    eventData.isOccurrence && eventData.occurrenceId
+                                                    ? eventData.event.occurrences?.find(
+                                                        (occ) => occ.id === eventData.occurrenceId
+                                                        )
+                                                    : undefined;
+
+                                                openDetail(eventData.event, occurrence);
+                                                setIsEditMode(false);
                                             }}
                                             className="text-xs bg-indigo-500/20 text-indigo-300 rounded px-3 py-3 truncate cursor-pointer hover:bg-indigo-500/30"
                                         >
@@ -279,6 +401,7 @@ export default function CalendarModal({ events = [] }: Props) {
                                 setPanelMode(null);
                                 setSelectedEvent(null);
                                 setSelectedOccurrence(null);
+                                setIsEditMode(false);
                             }}
                             className="p-2 rounded-lg bg-(--color-primary) hover:bg-(--color-primary)/80 cursor-pointer transition"
                         >
@@ -334,8 +457,8 @@ export default function CalendarModal({ events = [] }: Props) {
                                         const value = e.target.value;
 
                                         setFormData(prev => ({
-                                        ...prev,
-                                        projectId: value === "" ? null : value,
+                                            ...prev,
+                                            projectId: value === "" ? null : value,
                                         }));
                                     }}
                                     className="border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
@@ -408,48 +531,184 @@ export default function CalendarModal({ events = [] }: Props) {
                                 <label className="text-sm font-medium text-gray-600 mb-1">Judul Event</label>
                                 <input
                                     className="w-full border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                    placeholder="Event title"
-                                    value={selectedEvent.title}
-                                    disabled
+                                    value={editFormData.title}
+                                    disabled={!isEditMode}
+                                    onChange={(e) =>
+                                        setEditFormData((prev) => ({ ...prev, title: e.target.value }))
+                                    }
                                 />
                             </div>
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium text-gray-600 mb-1">Tanggal Event</label>
                                 <input
+                                    type="date"
                                     className="w-full border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                    value={toDate(selectedOccurrence?.date || selectedEvent.eventDate)}
-                                    disabled
+                                    value={editFormData.date}
+                                    disabled={!isEditMode}
+                                    onChange={(e) =>
+                                        setEditFormData((prev) => ({ ...prev, date: e.target.value }))
+                                    }
                                 />
                             </div>
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium text-gray-600 mb-1">Waktu Event</label>
                                 <input
+                                    type="time"
                                     className="w-full border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                    value={format(parseISO(selectedOccurrence?.date || selectedEvent.eventDate), "HH:mm")}
-                                    disabled
+                                    value={editFormData.time}
+                                    disabled={!isEditMode}
+                                    onChange={(e) =>
+                                        setEditFormData((prev) => ({ ...prev, time: e.target.value }))
+                                    }
                                 />
                             </div>
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium text-gray-600 mb-1">Agenda Untuk : (opsional)</label>
-                                <input
-                                    className="w-full border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                    value={selectedEvent.project.name}
-                                    disabled
-                                />
+                                <select
+                                    disabled={!isEditMode}
+                                    value={editFormData.projectId ?? ""}
+                                    onChange={(e) =>
+                                        setEditFormData((prev) => ({
+                                            ...prev,
+                                            projectId: e.target.value || null,
+                                        }))
+                                    }
+                                    className="border border-(--color-border) rounded-lg px-3 py-2"
+                                >
+                                    <option value="">-- Pilih Project --</option>
+                                    {project.map((p: any) => (
+                                        <option key={p.id} value={p.id}>
+                                            {p.name}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
-                            {selectedEvent.occurrences.length > 1 ? (
-                                <div className="">
-                                    <div className="">
-                                        Update agenda ini saja
-                                    </div>
-                                    <div>
-                                        Update agenda berulang
-                                    </div>
+                            <div className="w-full flex gap-4 items-center">
+                                <label className="flex items-center cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        id="check" 
+                                        className="sr-only peer" 
+                                        checked={isOccurent}
+                                        onChange={(e) => {
+                                            const checked = e.target.checked;
+                                            setIsOccurent(checked)
+                                        }} 
+                                    />
+                                    <div className="
+                                        relative w-14 h-8 bg-(--color-border) 
+                                        peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-soft dark:peer-focus:ring-brand-soft rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer 
+                                        after:content-[''] after:absolute after:top-1 after:start-1 after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all after:duration-500 
+                                        peer-checked:bg-(--color-primary)"
+                                    />
+                                </label>
+                                <span className="text-sm">
+                                    Apakah Agenda Berulang?
+                                </span>
+                            </div>
+                            {isOccurent && (
+                                <div className="flex flex-col">
+                                    <label className="text-sm font-medium text-gray-600 mb-1">Agenda Perulangan</label>
+                                    <select
+                                        disabled={!isEditMode}
+                                        value={editFormData.frequency ?? ""}
+                                        onChange={(e) =>
+                                            setEditFormData((prev) => ({
+                                                ...prev,
+                                                frequency: e.target.value as AgendaFreq,
+                                            }))
+                                        }
+                                        className="border border-(--color-border) rounded-lg px-3 py-2"
+                                    >
+                                        {Object.values(AgendaFreq).map((freq) => (
+                                            <option key={freq} value={freq}>
+                                                {freq}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
-                            ) : (
-                                <div className="">
-                                    Update agenda
+                            )}
+                            {!isEditMode && (
+                                <div className="flex justify-between">
+                                    <button
+                                        onClick={() => handleDelete()}
+                                        className="flex justify-center items-center text-sm gap-2 py-2 px-3 border bg-(--color-primary) text-(--color-surface) rounded-lg text-center hover:bg-(--color-primary)/80 transition cursor-pointer"
+                                    >
+                                        <Image
+                                            src={icons.deleteLogo}
+                                            alt="Delete Logo"
+                                            width={20}
+                                            height={20}
+                                        />
+                                        Delete Agenda
+                                    </button>
+                                    <button
+                                        onClick={() => setIsEditMode(true)}
+                                        className="flex justify-center items-center text-sm gap-2 py-2 px-3 bg-yellow-500 text-(--color-surface) rounded-lg text-center hover:bg-yellow-600 transition cursor-pointer"
+                                    >
+                                        <Image
+                                            src={icons.editLogo}
+                                            alt="Edit Agenda"
+                                            width={20}
+                                            height={20}
+                                        />
+                                        Edit Agenda
+                                    </button>
                                 </div>
+                            )}
+                            {isEditMode && (
+                                selectedEvent.occurrences.length > 1 && selectedOccurrence ? (
+                                    <div className="flex flex-col gap-2">
+                                        <button
+                                            onClick={() => setIsEditMode(false)}
+                                            className="flex justify-center items-center text-sm gap-2 py-2 px-3 bg-yellow-500 text-(--color-surface) rounded-lg text-center hover:bg-yellow-600 transition cursor-pointer"
+                                        >
+                                            <Image
+                                                src={icons.editLogo}
+                                                alt="Edit Agenda"
+                                                width={20}
+                                                height={20}
+                                            />
+                                            Batalkan Edit Agenda
+                                        </button>
+                                        <div className="flex justify-between gap-2">
+                                            <button
+                                                onClick={handleUpdateOccurrence}
+                                                className="py-2 px-2 bg-(--color-secondary) hover:bg-(--color-secondary)/90 text-white rounded-lg cursor-pointer"
+                                            >
+                                                Update agenda ini saja
+                                            </button>
+
+                                            <button
+                                                onClick={handleUpdateAgenda}
+                                                className="py-2 px-2 border-2 border-(--color-secondary) hover:bg-(--color-secondary)/10 text-(--color-secondary) rounded-lg cursor-pointer"
+                                            >
+                                                Update agenda berulang
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col gap-2">
+                                        <button
+                                            onClick={() => setIsEditMode(false)}
+                                            className="flex justify-center items-center text-sm gap-2 py-2 px-3 bg-yellow-500 text-(--color-surface) rounded-lg text-center hover:bg-yellow-600 transition cursor-pointer"
+                                        >
+                                            <Image
+                                                src={icons.editLogo}
+                                                alt="Edit Agenda"
+                                                width={20}
+                                                height={20}
+                                            />
+                                            Batalkan Edit Agenda
+                                        </button>
+                                        <button
+                                            onClick={handleUpdateAgenda}
+                                            className="w-full py-3 bg-(--color-secondary) text-white rounded-lg"
+                                        >
+                                            Update agenda
+                                        </button>
+                                    </div>
+                                )
                             )}
                         </div>
                     )}

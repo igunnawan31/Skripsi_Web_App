@@ -57,3 +57,8 @@ export type CreateAgenda = {
     projectId?: string | null,
     frequency?: AgendaFreq | null, 
 }
+
+export type UpdateOccurrences = {
+    date: string,
+    isCancelled: boolean
+}

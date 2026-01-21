@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
-import { CreateAgenda } from "../../types/agendas/agendaTypes";
+import { CreateAgenda, UpdateOccurrences } from "../../types/agendas/agendaTypes";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -93,8 +93,129 @@ export const useAgenda = () => {
         });
     }
 
+    const updateAgendas = () => {
+        const queryClient = useQueryClient();
+
+        return useMutation<
+            any,
+            Error,
+            {id: string; agendaData: CreateAgenda}
+        >({
+            mutationFn: async ({id, agendaData}) => {
+                const token = Cookies.get("accessToken");
+                if (!token) throw new Error("No access token found");
+
+                const response = await fetch(`${API}/agendas/${id}`, {
+                    method: "PATCH",
+                    headers: { 
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include",
+                    body: JSON.stringify(agendaData),
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Failed to update agenda";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                return response.json();
+            },
+
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["agendas"]});
+            },
+        });
+    }
+
+    const updateOccurrences = () => {
+        const queryClient = useQueryClient();
+
+        return useMutation<
+            any,
+            Error,
+            {id: string; occurrencesData: UpdateOccurrences}
+        >({
+            mutationFn: async ({id, occurrencesData}) => {
+                const token = Cookies.get("accessToken");
+                if (!token) throw new Error("No access token found");
+
+                const response = await fetch(`${API}/agendas/occurrences/${id}`, {
+                    method: "PATCH",
+                    headers: { 
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include",
+                    body: JSON.stringify(occurrencesData),
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Failed to update agenda";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                return response.json();
+            },
+
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["agendas"]});
+            },
+        });
+    }
+
+    const deleteAgenda = () => {
+        const queryClient = useQueryClient();
+
+        return useMutation<
+            any,
+            Error,
+            string
+        >({
+            mutationFn: async (id: string) => {
+                const token = Cookies.get("accessToken");
+                if (!token) throw new Error("No access token found");
+
+                const response = await fetch(`${API}/agendas/${id}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    credentials: "include",
+                });
+
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(text || "Failed to delete agendas");
+                }
+
+                return true;
+            },
+
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["agendas"] });
+            },
+        });   
+    }
+
     return {
         fetchAllAgendas,
-        createAgendas
+        createAgendas,
+        updateAgendas,
+        updateOccurrences,
+        deleteAgenda
     }
 }
