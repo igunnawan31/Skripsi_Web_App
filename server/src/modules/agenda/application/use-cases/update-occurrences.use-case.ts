@@ -34,12 +34,18 @@ export class UpdateAgendaOccurrenceUseCase {
         throw new NotFoundException(
           `Data agenda tidak ditemukan, gagal memperbarui data`,
         );
-      if (
-        (targetOccurrence.isCancelled && dto.isCancelled === undefined) ||
-        targetOccurrence.isCancelled === dto.isCancelled
-      ) {
+
+      const isCancelledChanged =
+        dto.isCancelled !== undefined &&
+        dto.isCancelled !== targetOccurrence.isCancelled;
+
+      const dateChanged =
+        dto.date !== undefined &&
+        new Date(targetOccurrence.date).toISOString() !== dto.date.toISOString();
+
+      if (!isCancelledChanged && !dateChanged) {
         throw new BadRequestException(
-          `Agenda sudah dibatalkan. Tidak dapat memperbarui data`,
+          'Agenda sudah dibatalkan. Tidak dapat memperbarui data',
         );
       }
 
