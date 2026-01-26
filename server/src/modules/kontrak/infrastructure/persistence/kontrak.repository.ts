@@ -10,9 +10,9 @@ import { KontrakFilterDTO } from '../../application/dtos/request/kontrak-filter.
 import { RetrieveAllKontrakResponseDTO, RetrieveKontrakResponseDTO } from '../../application/dtos/response/read-response.dto';
 import { UserBaseDTO } from 'src/modules/users/application/dtos/base.dto';
 import { ProjectBaseDTO } from 'src/modules/project/application/dtos/base.dto';
-import { GajiBaseDTO } from 'src/modules/gaji/application/dtos/base.dto';
 import { InternalUpdateKontrakDTO } from '../../application/dtos/request/update-kontrak.dto';
 import { UpdateKontrakResponseDTO } from '../../application/dtos/response/update-response.dto';
+import { SalaryBaseDTO } from 'src/modules/salary/application/dtos/base.dto';
 
 @Injectable()
 export class KontrakRepository implements IKontrakRepository {
@@ -141,7 +141,7 @@ export class KontrakRepository implements IKontrakRepository {
           include: {
             user: true,
             project: true,
-            gaji: true,
+            salary: true,
           },
         }),
         this.prisma.kontrakKerja.count({ where }),
@@ -155,7 +155,7 @@ export class KontrakRepository implements IKontrakRepository {
             ...c,
             user: plainToInstance(UserBaseDTO, c.user),
             project: plainToInstance(ProjectBaseDTO, c.project),
-            gaji: plainToInstance(GajiBaseDTO, c.gaji),
+            salary: plainToInstance(SalaryBaseDTO, c.salary),
           }),
         ),
         meta: {
@@ -177,7 +177,7 @@ export class KontrakRepository implements IKontrakRepository {
         include: {
           user: true,
           project: true,
-          gaji: true,
+          salary: true,
         },
       });
 
@@ -187,7 +187,7 @@ export class KontrakRepository implements IKontrakRepository {
         ...kontrak,
         user: plainToInstance(UserBaseDTO, kontrak.user),
         project: plainToInstance(ProjectBaseDTO, kontrak.project),
-        gaji: plainToInstance(GajiBaseDTO, kontrak.gaji),
+        salary: plainToInstance(SalaryBaseDTO, kontrak.salary),
       });
     } catch (err) {
       handlePrismaError(err, 'Kontrak', id);
@@ -268,7 +268,7 @@ export class KontrakRepository implements IKontrakRepository {
           include: {
             user: true,
             project: true,
-            gaji: true,
+            salary: true,
           },
         }),
         this.prisma.kontrakKerja.count({ where }),
@@ -282,7 +282,7 @@ export class KontrakRepository implements IKontrakRepository {
             ...c,
             user: plainToInstance(UserBaseDTO, c.user),
             project: plainToInstance(ProjectBaseDTO, c.project),
-            gaji: plainToInstance(GajiBaseDTO, c.gaji),
+            salary: plainToInstance(SalaryBaseDTO, c.salary),
           }),
         ),
         meta: {

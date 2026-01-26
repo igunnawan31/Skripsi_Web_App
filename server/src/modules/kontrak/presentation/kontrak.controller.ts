@@ -25,9 +25,6 @@ import { UserRequest } from 'src/common/types/UserRequest.dto';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import * as fs from 'fs';
 import { KontrakValidationService } from '../domain/services/kontrak-validation.service';
 import { DeleteKontrakUseCase } from '../application/use-cases/delete-kontrak.use-case';
 import { GetKontrakUseCase } from '../application/use-cases/get-kontrak.use-case';
@@ -39,6 +36,9 @@ import {
   UpdateKontrakDTO,
 } from '../application/dtos/request/update-kontrak.dto';
 import { UpdateKontrakUseCase } from '../application/use-cases/update-kontrak.use-case';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import * as fs from 'fs';
 
 @Controller('kontrak')
 @UseGuards(AuthGuard('jwt'), RolesGuard)

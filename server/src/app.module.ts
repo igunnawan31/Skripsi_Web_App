@@ -15,10 +15,10 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CutiModule } from './modules/cuti/cuti.module';
 import { AbsensiModule } from './modules/absensi/absensi.module';
 import { KontrakModule } from './modules/kontrak/kontrak.module';
-import { GajiModule } from './modules/gaji/gaji.module';
 import { ProjectModule } from './modules/project/project.module';
 import { KpiModule } from './modules/kpi/kpi.module';
 import { AgendaModule } from './modules/agenda/agenda.module';
+import { SalaryModule } from './modules/salary/salary.module';
 
 @Module({
   imports: [
@@ -77,7 +77,7 @@ import { AgendaModule } from './modules/agenda/agenda.module';
     CutiModule,
     AbsensiModule,
     KontrakModule,
-    GajiModule,
+    SalaryModule,
     ProjectModule,
     KpiModule,
     ReimburseModule,

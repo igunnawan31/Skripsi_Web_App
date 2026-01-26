@@ -113,7 +113,7 @@ async function main() {
   });
 
   // 6. Buat gaji bulan Januari 2025
-  await prisma.gaji.create({
+  await prisma.salary.create({
     data: {
       userId: frontend.id,
       kontrakId: kontrak.id,

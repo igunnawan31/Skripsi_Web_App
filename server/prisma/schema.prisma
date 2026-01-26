@@ -24,8 +24,8 @@ model User {
   cutiDiajukan  Cuti[]    @relation("UserCuti")
   cutiDisetujui Cuti[]    @relation("ApproverCuti")
 
-  // Relasi Gaji & Kontrak
-  gaji    Gaji[]         @relation("UserGaji")
+  // Relasi Salary & Kontrak
+  salary  Salary[]       @relation("UserSalary")
   kontrak KontrakKerja[] @relation("UserKontrak")
 
   // Relasi Project
@@ -113,7 +113,7 @@ model KontrakKerja {
 
   user    User     @relation("UserKontrak", fields: [userId], references: [id], onDelete: Cascade)
   project Project? @relation("KontrakProject", fields: [projectId], references: [id], onDelete: Cascade)
-  gaji    Gaji[]   @relation("KontrakGaji")
+  salary  Salary[] @relation("KontrakSalary")
 
   @@index([userId])
   @@index([projectId])
@@ -121,21 +121,21 @@ model KontrakKerja {
   @@index([startDate, endDate])
 }
 
-model Gaji {
-  id              String     @id @default(uuid())
-  userId          String
-  kontrakId       String?
-  periode         String // Format: "YYYY-MM" contoh: "2025-01"
-  dueDate         DateTime   @db.Date
-  status          GajiStatus @default(BELUM_DIBAYAR)
-  amount          Int // Jumlah gaji dalam rupiah
-  paymentDate     DateTime?
-  buktiPembayaran Json? // Nambah Schema, ketika HR membayar dan butuh bukti pembayaran
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+model Salary {
+  id          String       @id @default(uuid())
+  userId      String
+  kontrakId   String?
+  periode     String // Format: "YYYY-MM" contoh: "2025-01"
+  dueDate     DateTime     @db.Date
+  status      SalaryStatus @default(PENDING)
+  amount      Int // Jumlah gaji dalam rupiah
+  paymentDate DateTime?
+  paychecks   Json? // Nambah Schema, ketika HR membayar dan butuh bukti pembayaran
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
-  user    User          @relation("UserGaji", fields: [userId], references: [id], onDelete: Cascade)
-  kontrak KontrakKerja? @relation("KontrakGaji", fields: [kontrakId], references: [id], onDelete: Cascade)
+  user    User          @relation("UserSalary", fields: [userId], references: [id], onDelete: Cascade)
+  kontrak KontrakKerja? @relation("KontrakSalary", fields: [kontrakId], references: [id], onDelete: Cascade)
 
   @@unique([userId, kontrakId, periode]) // Satu user hanya bisa punya 1 gaji per periode
   @@index([userId])
@@ -337,6 +337,7 @@ model AgendaOccurrence {
   date        DateTime
   isCancelled Boolean  @default(false)
   agenda      Agenda   @relation("AgendaOccurrences", fields: [agendaId], references: [id], onDelete: Cascade)
+
   @@index([date])
   @@index([agendaId, date])
 }
@@ -402,10 +403,10 @@ enum StatusCuti {
   BATAL
 }
 
-enum GajiStatus {
-  BELUM_DIBAYAR
-  DIBAYAR
-  TERLAMBAT
+enum SalaryStatus {
+  PENDING
+  PAID
+  OVERDUE
 }
 
 enum ProjectStatus {

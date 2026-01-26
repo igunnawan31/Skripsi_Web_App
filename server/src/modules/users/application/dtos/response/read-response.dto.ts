@@ -3,12 +3,12 @@ import { CreateUserResponseDTO } from './create-response.dto';
 import { Expose } from 'class-transformer';
 import { AbsensiBaseDTO } from 'src/modules/absensi/application/dtos/base.dto';
 import { CutiBaseDTO } from 'src/modules/cuti/application/dtos/base.dto';
-import { GajiBaseDTO } from 'src/modules/gaji/application/dtos/base.dto';
 import { KontrakBaseDTO } from 'src/modules/kontrak/application/dtos/base.dto';
 import { ProjectTeamBaseDTO } from 'src/modules/project/application/dtos/base.dto';
 import { IndikatorKPIBaseDTO, IndikatorKPIPivotBaseDTO } from 'src/modules/kpi/application/dtos/indikatorKPI.dto';
 import { JawabanKPIBaseDTO } from 'src/modules/kpi/application/dtos/jawabanKPI.dto';
 import { RekapKPIBaseDTO } from 'src/modules/kpi/application/dtos/rekapKPI.dto';
+import { SalaryBaseDTO } from 'src/modules/salary/application/dtos/base.dto';
 
 export class RetrieveUserResponseDTO extends CreateUserResponseDTO {
   @Expose()
@@ -18,7 +18,7 @@ export class RetrieveUserResponseDTO extends CreateUserResponseDTO {
   @Expose()
   cutiDisetujui: CutiBaseDTO[];
   @Expose()
-  gaji: GajiBaseDTO[];
+  salary: SalaryBaseDTO[];
   @Expose()
   kontrak: KontrakBaseDTO[];
   @Expose()

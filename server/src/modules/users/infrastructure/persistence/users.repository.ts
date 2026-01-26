@@ -1,23 +1,29 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { handlePrismaError } from 'src/common/errors/prisma-exception';
 import { plainToInstance } from 'class-transformer';
 import { IUserRepository } from '../../domain/repositories/users.repository.interface';
 import { PrismaService } from 'src/modules/database/prisma/prisma.service';
 import { InternalCreateUserDTO } from '../../application/dtos/request/create-user.dto';
 import { CreateUserResponseDTO } from '../../application/dtos/response/create-response.dto';
-import { RetrieveAllUserResponseDTO, RetrieveUserResponseDTO } from '../../application/dtos/response/read-response.dto';
+import {
+  RetrieveAllUserResponseDTO,
+  RetrieveUserResponseDTO,
+} from '../../application/dtos/response/read-response.dto';
 import { UserFilterDTO } from '../../application/dtos/request/user-filter.dto';
 import { Prisma } from '@prisma/client';
 import { AbsensiBaseDTO } from 'src/modules/absensi/application/dtos/base.dto';
 import { CutiBaseDTO } from 'src/modules/cuti/application/dtos/base.dto';
-import { GajiBaseDTO } from 'src/modules/gaji/application/dtos/base.dto';
 import { KontrakBaseDTO } from 'src/modules/kontrak/application/dtos/base.dto';
 import { ProjectBaseDTO } from 'src/modules/project/application/dtos/base.dto';
-import { IndikatorKPIBaseDTO, IndikatorKPIPivotBaseDTO } from 'src/modules/kpi/application/dtos/indikatorKPI.dto';
+import {
+  IndikatorKPIBaseDTO,
+  IndikatorKPIPivotBaseDTO,
+} from 'src/modules/kpi/application/dtos/indikatorKPI.dto';
 import { JawabanKPIBaseDTO } from 'src/modules/kpi/application/dtos/jawabanKPI.dto';
 import { RekapKPIBaseDTO } from 'src/modules/kpi/application/dtos/rekapKPI.dto';
 import { InternalUpdateUserDTO } from '../../application/dtos/request/update-user.dto';
 import { UpdateUserResponseDTO } from '../../application/dtos/response/update-response.dto';
+import { SalaryBaseDTO } from 'src/modules/salary/application/dtos/base.dto';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
@@ -36,7 +42,9 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async findAll(filters: UserFilterDTO): Promise<RetrieveAllUserResponseDTO | null> {
+  async findAll(
+    filters: UserFilterDTO,
+  ): Promise<RetrieveAllUserResponseDTO | null> {
     try {
       const {
         searchTerm,
@@ -91,7 +99,7 @@ export class UserRepository implements IUserRepository {
             absensi: true,
             cutiDiajukan: true,
             cutiDisetujui: true,
-            gaji: true,
+            salary: true,
             kontrak: true,
             projectTeams: true,
             indikatorDibuat: true,
@@ -114,7 +122,7 @@ export class UserRepository implements IUserRepository {
             absensi: plainToInstance(AbsensiBaseDTO, user.absensi),
             cutiDiajukan: plainToInstance(CutiBaseDTO, user.cutiDiajukan),
             cutiDisetujui: plainToInstance(CutiBaseDTO, user.cutiDisetujui),
-            gaji: plainToInstance(GajiBaseDTO, user.gaji),
+            salary: plainToInstance(SalaryBaseDTO, user.salary),
             kontrak: plainToInstance(KontrakBaseDTO, user.kontrak),
             projectTeams: plainToInstance(ProjectBaseDTO, user.projectTeams),
             indikatorDibuat: plainToInstance(
@@ -154,7 +162,7 @@ export class UserRepository implements IUserRepository {
           absensi: true,
           cutiDiajukan: true,
           cutiDisetujui: true,
-          gaji: true,
+          salary: true,
           kontrak: true,
           projectTeams: true,
           indikatorDibuat: true,
@@ -176,7 +184,7 @@ export class UserRepository implements IUserRepository {
             absensi: plainToInstance(AbsensiBaseDTO, user.absensi),
             cutiDiajukan: plainToInstance(CutiBaseDTO, user.cutiDiajukan),
             cutiDisetujui: plainToInstance(CutiBaseDTO, user.cutiDisetujui),
-            gaji: plainToInstance(GajiBaseDTO, user.gaji),
+            salary: plainToInstance(SalaryBaseDTO, user.salary),
             kontrak: plainToInstance(KontrakBaseDTO, user.kontrak),
             projectTeams: plainToInstance(ProjectBaseDTO, user.projectTeams),
             indikatorDibuat: plainToInstance(
