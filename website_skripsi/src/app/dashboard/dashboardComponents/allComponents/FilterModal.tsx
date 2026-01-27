@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 type FilterField = {
     key: string;
     label: string;
-    type: "text" | "date" | "select";
+    type: "text" | "date" | "select" | "month";
     options?: string[];
 };
 
@@ -121,6 +121,14 @@ export default function FilterModal({
                             {field.type === "date" && (
                                 <input
                                     type="date"
+                                    value={values[field.key] || ""}
+                                    onChange={(e) => handleChange(field.key, e.target.value)}
+                                    className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-(--color-primary) cursor-pointer"
+                                />
+                            )}
+                            {field.type === "month" && (
+                                <input
+                                    type="month"
                                     value={values[field.key] || ""}
                                     onChange={(e) => handleChange(field.key, e.target.value)}
                                     className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-(--color-primary) cursor-pointer"
