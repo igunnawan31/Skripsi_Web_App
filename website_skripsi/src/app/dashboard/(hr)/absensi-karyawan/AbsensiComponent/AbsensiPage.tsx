@@ -1,11 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
 import AbsensiShows from "./AbsensiShows";
-import TableModal from "@/app/dashboard/dashboardComponents/TableModal";
-import FilterBar from "@/app/dashboard/dashboardComponents/allComponents/FilterBar";
-import GrafikBar from "@/app/dashboard/dashboardComponents/allComponents/GrafikBar";
 
 const AbsensiKaryawanPage = () => {
     const renderHtml = (

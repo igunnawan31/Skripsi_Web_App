@@ -51,11 +51,20 @@ export default function FilterModal({
 
     const handleReset = () => {
         const resetValues: Record<string, string> = {};
+
         filterFields.forEach((field) => {
-            resetValues[field.key] = enableAllOption && field.type === "select"
-                ? "All"
-                : "";
+            if (field.type === "select") {
+                resetValues[field.key] = enableAllOption ? "All" : "";
+            } else if (field.type === "month") {
+                const now = new Date();
+                resetValues[field.key] = `${now.getFullYear()}-${String(
+                    now.getMonth() + 1
+                ).padStart(2, "0")}`;
+            } else {
+                resetValues[field.key] = "";
+            }
         });
+
         setValues(resetValues);
     };
 

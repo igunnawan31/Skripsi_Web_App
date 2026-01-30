@@ -233,7 +233,6 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
                                             height={24}
                                         />
                                         {abs.checkIn ? format(new Date(abs.checkIn), "dd MMM yyyy") : "-"}
-
                                     </div>
                                     <div className="flex flex-col sm:flex-row sm:justify-between items-start">
                                         <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
@@ -292,7 +291,7 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
                 </p>
             )}
 
-            {absen.length > 0 && !isLoading && (
+            {absen.length > 10 && !isLoading && (
                 <div className="mt-6">
                     <PaginationBar
                         totalItems={totalItems}
