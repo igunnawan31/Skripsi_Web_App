@@ -1,5 +1,4 @@
 import absenDetailStyles from "@/assets/styles/rootstyles/absen/absendetail.style";
-import { cutiDetailStyles } from "@/assets/styles/rootstyles/cuti/cutidetail.styles";
 import AbsenseComponent from "@/components/rootComponents/homeComponent/AbsenseComponent";
 import COLORS from "@/constants/colors";
 import { dummyAbsensi } from "@/data/dummyAbsensi";
@@ -12,11 +11,13 @@ import { SalaryResponse, SalaryStatus } from "@/types/salary/salaryTypes";
 import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { Image, RefreshControl, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 import ImageViewing from "react-native-image-viewing";
+import SkeletonBox from "@/components/rootComponents/SkeletonBox";
+import { gajiDetailStyles, HEADER_HEIGHT } from "@/assets/styles/rootstyles/gaji/gajidetail.styles";
 
 export default function DetailSalary() {
     const router = useRouter();
@@ -26,10 +27,12 @@ export default function DetailSalary() {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const openImageModal = (uri: string) => setSelectedImage(uri);
     const [visible, setIsVisible] = useState(false);
+    const [showSkeleton, setShowSkeleton] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
     const imageViewerData = photoUris.filter(Boolean).map(uri => ({ uri }));
+    const { data: detailData, isLoading: isDetailLoading, error: detailError,  refetch, isFetching } = useSalary().fetchSalaryById(idParam);
     
-    const { data: detailData, isLoading: isDetailLoading, error: detailError } = useSalary().fetchSalaryById(idParam);
     const loadPhoto = async (path: string, index: number) => {
         try {
             const blob = await fetchImageWithAuth(path);
@@ -74,9 +77,9 @@ export default function DetailSalary() {
             fileUrl,
             fileUri,
             {
-            headers: {
-                Authorization: `Bearer ${jwt}`,
-            },
+                headers: {
+                    Authorization: `Bearer ${jwt}`,
+                },
             }
         );
 
@@ -84,6 +87,18 @@ export default function DetailSalary() {
         if (result?.uri) {
             await Sharing.shareAsync(result.uri);
         }
+    };
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        setShowSkeleton(true);
+
+        await refetch();
+
+        setTimeout(() => {
+            setShowSkeleton(false);
+            setRefreshing(false);
+        }, 1000);
     };
 
     useEffect(() => {
@@ -95,6 +110,14 @@ export default function DetailSalary() {
             }
         });
     }, [detailData]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowSkeleton(false);
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -118,58 +141,138 @@ export default function DetailSalary() {
         }
     }
 
-    if (isDetailLoading) {
+    if (isDetailLoading || showSkeleton) {
         return (
-            <View style={{ padding: 20, alignItems: "center" }}>
-                <Text style={{ color: COLORS.textMuted }}>Memuat data salary...</Text>
-            </View>
-        );
-    }
+            <View style={gajiDetailStyles.container}>
+                <View style={gajiDetailStyles.header}>
+                    <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <SkeletonBox width={40} height={40} borderRadius={20} />
+                        <SkeletonBox width={80} height={16} style={{ marginLeft: 12 }} />
+                    </View>
+                </View>
 
-    if (!detailData) {
-        return (
-            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                <Text>Data salary tidak ditemukan.</Text>
+                <View style={gajiDetailStyles.subHeaderDetail}>
+                    <View style={{ flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                        <SkeletonBox width={70} height={70} borderRadius={40} />
+                        <SkeletonBox width={100} height={18}/>
+                        <SkeletonBox width={170} height={10}/>
+                        <SkeletonBox width={100} height={30}/>
+                    </View>
+                </View>
+
+                <View style={{ width: "90%", paddingVertical: 16, gap:12 }}>
+                    <View style={{ flex: 1, width: "100%", justifyContent: "center", alignItems: "center", marginTop: 20, marginBottom: 10}}>
+                        <SkeletonBox width={100} height={24}/>
+                    </View>
+                    {[1, 2, 3, 4].map((_, i) => (
+                        <View
+                            key={i}
+                            style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                backgroundColor: "transparent",
+                            }}
+                        >
+                            <SkeletonBox width={200} height={64} style={{ width: "100%" }}/>
+                        </View>
+                    ))}
+                </View>
             </View>
         );
     };
+
+    if (detailError || !detailData) {
+        const renderError = (
+            <ScrollView
+                contentContainerStyle={[gajiDetailStyles.container, { justifyContent: "center", alignItems: "center", paddingTop: 0, paddingBottom: 0}]}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing || isFetching}
+                        onRefresh={onRefresh}
+                        colors={[COLORS.primary]}
+                        tintColor={COLORS.primary}
+                    />
+                }
+            >
+                <View style={gajiDetailStyles.header}>
+                    <TouchableOpacity 
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                        onPress={() => router.back()}
+                    >
+                        <View style={gajiDetailStyles.iconPlace}>
+                            <Image
+                                style={gajiDetailStyles.iconBack}
+                                source={require('../../../assets/icons/arrow-left.png')}
+                            />
+                        </View>
+                        <Text style={gajiDetailStyles.headerTitle}>
+                            Kembali
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 30 }}>
+                    <Image
+                        source={require("../../../assets/icons/error-logo.png")}
+                        style={{ width: 72, height: 72, }}
+                    />
+                    <Text style={{ textAlign: "center", marginTop: 10, color: COLORS.textPrimary, fontWeight: "bold", fontSize: 16, }}>
+                        Terdapat kendala pada sistem
+                    </Text>
+                    <Text style={{ textAlign: "center", marginTop: 5, color: COLORS.muted, fontSize: 12, }}>
+                        Mohon untuk mengecek kembali nanti
+                    </Text>
+                </View> 
+            </ScrollView>
+        );
+
+        return renderError;
+    }
     
-    return (
+    const renderHtml = (
         <View style={{ flex: 1, backgroundColor: COLORS.background }}>
-            <View style={absenDetailStyles.header}>
+            <View style={gajiDetailStyles.header}>
                 <TouchableOpacity 
                     style={{ flexDirection: "row", alignItems: "center" }}
                     onPress={() => router.back()}
                 >
-                    <View style={absenDetailStyles.iconPlace}>
+                    <View style={gajiDetailStyles.iconPlace}>
                         <Image
-                            style={absenDetailStyles.iconBack}
+                            style={gajiDetailStyles.iconBack}
                             source={require('../../../assets/icons/arrow-left.png')}
                         />
                     </View>
-                    <Text style={absenDetailStyles.headerTitle}>
+                    <Text style={gajiDetailStyles.headerTitle}>
                         Kembali
                     </Text>
                 </TouchableOpacity>
             </View>
 
             <ScrollView
-                contentContainerStyle={{ alignItems: "center", paddingTop: 80, paddingBottom: 30 }}
+                contentContainerStyle={{ alignItems: "center", paddingTop: HEADER_HEIGHT + 20, paddingBottom: 30 }}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing || isFetching}
+                        onRefresh={onRefresh}
+                        colors={[COLORS.primary]}
+                        tintColor={COLORS.primary}
+                        progressViewOffset={HEADER_HEIGHT}
+                    />
+                }
             >
-                <View style={cutiDetailStyles.subHeaderDetail}>
+                <View style={gajiDetailStyles.subHeaderDetail}>
                     <Image
                         source={require("../../../assets/icons/payment.png")}
                         style={{ width: 64, height: 64 }}
                     />
-                    <Text style={cutiDetailStyles.detailTitle}>
+                    <Text style={gajiDetailStyles.detailTitle}>
                         Detail Gaji
                     </Text>
-                    <Text style={cutiDetailStyles.label}>Dibayar tanggal: {toDate(detailData.paymentDate)}</Text>
+                    <Text style={gajiDetailStyles.label}>Dibayar tanggal: {toDate(detailData.paymentDate)}</Text>
                     <Text
                         style={[
-                            cutiDetailStyles.cutiStatus,
+                            gajiDetailStyles.cutiStatus,
                             { backgroundColor: getStatusColor(detailData.status) },
                         ]}
                     >
@@ -186,30 +289,30 @@ export default function DetailSalary() {
                             Your Salary Details
                         </Text>
                     </View>
-                    <View style={cutiDetailStyles.itemContainer}>
-                        <Text style={cutiDetailStyles.sectionTitle}>Nama</Text>
-                        <Text style={cutiDetailStyles.infoText}>{detailData.user.name}</Text>
+                    <View style={gajiDetailStyles.itemContainer}>
+                        <Text style={gajiDetailStyles.sectionTitle}>Nama</Text>
+                        <Text style={gajiDetailStyles.infoText}>{detailData.user.name}</Text>
                     </View>
-                    <View style={cutiDetailStyles.itemContainer}>
-                        <Text style={cutiDetailStyles.sectionTitle}>Tanggal Tenggat Pembayaran</Text>
-                        <Text style={cutiDetailStyles.infoText}>{detailData.dueDate ? format(new Date(detailData.dueDate), "dd-MM-yyyy") : "-"}</Text>
+                    <View style={gajiDetailStyles.itemContainer}>
+                        <Text style={gajiDetailStyles.sectionTitle}>Tanggal Tenggat Pembayaran</Text>
+                        <Text style={gajiDetailStyles.infoText}>{detailData.dueDate ? format(new Date(detailData.dueDate), "dd-MM-yyyy") : "-"}</Text>
                     </View>
-                    <View style={cutiDetailStyles.itemContainer}>
-                        <Text style={cutiDetailStyles.sectionTitle}>Tanggal Pembayaran</Text>
-                        <Text style={cutiDetailStyles.infoText}>{detailData.paymentDate ? format(new Date(detailData.paymentDate), "dd-MM-yyyy") : "-"} ({getStatusReal(detailData)?.toLowerCase()})</Text>
+                    <View style={gajiDetailStyles.itemContainer}>
+                        <Text style={gajiDetailStyles.sectionTitle}>Tanggal Pembayaran</Text>
+                        <Text style={gajiDetailStyles.infoText}>{detailData.paymentDate ? format(new Date(detailData.paymentDate), "dd-MM-yyyy") : "-"} ({getStatusReal(detailData)?.toLowerCase()})</Text>
                     </View>
-                    <View style={cutiDetailStyles.itemContainer}>
-                        <Text style={cutiDetailStyles.sectionTitle}>Salary yang dibayarkan</Text>
-                        <Text style={cutiDetailStyles.infoText}>
+                    <View style={gajiDetailStyles.itemContainer}>
+                        <Text style={gajiDetailStyles.sectionTitle}>Salary yang dibayarkan</Text>
+                        <Text style={gajiDetailStyles.infoText}>
                             {detailData.amount?.toLocaleString("id-ID", {
                                 style: "currency",
                                 currency: "IDR",
                             })}
                         </Text>
                     </View>
-                    <View style={cutiDetailStyles.itemContainer}>
-                        <Text style={cutiDetailStyles.sectionTitle}>Dokumen Pendukung</Text>
-                        <View style={cutiDetailStyles.labelContainer}>
+                    <View style={gajiDetailStyles.itemContainer}>
+                        <Text style={gajiDetailStyles.sectionTitle}>Dokumen Pendukung</Text>
+                        <View style={gajiDetailStyles.labelContainer}>
                             {detailData.paychecks?.length > 0 ? (
                                 detailData.paychecks.map((doc: any, index: number) => {
                                     const isImage = doc.mimetype?.startsWith("image/");
@@ -310,5 +413,7 @@ export default function DetailSalary() {
                 onRequestClose={() => setIsVisible(false)}
             />
         </View>
-    )
+    );
+
+    return renderHtml;
 }

@@ -101,9 +101,18 @@ const ListDataHistoryAbsenComponent = ({ data } : ListDataAbsenseComponentProps)
                     </View>
                 ))
             ) : (
-                <Text style={{ textAlign: "center", marginTop: 20, color: COLORS.muted }}>
-                    Tidak ada data absensi
-                </Text>  
+                <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 20 }}>
+                    <Image
+                        source={require("../../../assets/icons/not-found.png")}
+                        style={{ width: 72, height: 72, }}
+                    />
+                    <Text style={{ textAlign: "center", marginTop: 10, color: COLORS.textPrimary, fontWeight: "bold", fontSize: 16, }}>
+                        Tidak ada riwayat absensi
+                    </Text>
+                    <Text style={{ textAlign: "center", marginTop: 5, color: COLORS.muted, fontSize: 12, }}>
+                        Mohon melakukan absensi untuk bulan ini
+                    </Text>
+                </View>  
             )}
         </View>
     )

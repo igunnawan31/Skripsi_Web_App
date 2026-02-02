@@ -146,8 +146,8 @@ export const GajiStyles = StyleSheet.create({
         borderBottomColor: "#eeeeee",
     },
     iconCircle: {
-        width: 34,
-        height: 34,
+        width: 45,
+        height: 45,
         borderRadius: 25,
         justifyContent: "center",
         alignItems: "center",
@@ -155,20 +155,21 @@ export const GajiStyles = StyleSheet.create({
         backgroundColor: COLORS.successOpacity20,
     },
     iconCheck: {
-        width: 20,
-        height: 20,
+        width: 30,
+        height: 30,
         tintColor: COLORS.success,
     },
     earningsMiddle: {
         flex: 1,
+        gap: 4,
     },
     earningsDate: {
-        fontSize: 15,
+        fontSize: 14,
         fontWeight: "600",
         color: "#222",
     },
     earningsStatus: {
-        fontSize: 13,
+        fontSize: 14,
         color: "#777",
         marginTop: -2,
     },
