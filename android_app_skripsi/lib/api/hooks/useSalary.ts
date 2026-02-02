@@ -67,7 +67,7 @@ export const useSalary = () => {
                 const jwt = token?.access_token;
                 if (!token?.access_token) throw new Error("No access token found");
                 
-                const response = await fetch(`${process.env.EXPO_PUBLIC_API_URLcuti}/salaries/${id}`, {
+                const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/salaries/${id}`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",

@@ -184,5 +184,10 @@ export const GajiStyles = StyleSheet.create({
         color: COLORS.textMuted, 
         marginTop: 16, 
         textAlign: 'center' 
-    }
+    },
+    iconCalendar: {
+        width: 14,
+        height: 14,
+        tintColor: COLORS.white,
+    },
 });

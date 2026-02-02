@@ -1,45 +1,101 @@
 import { GajiStyles } from "@/assets/styles/rootstyles/gaji/gaji.styles";
 import COLORS from "@/constants/colors";
-import { dummyGaji } from "@/data/dummyGaji";
 import { useSalary } from "@/lib/api/hooks/useSalary";
 import { SalaryResponse, SalaryStatus } from "@/types/salary/salaryTypes";
 import { format } from "date-fns";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Image, ScrollView, Text, TouchableOpacity } from "react-native";
+import { Image, RefreshControl, ScrollView, Text, TouchableOpacity } from "react-native";
 import { View } from "react-native";
 import Svg, { Path } from "react-native-svg";
+import { LinearGradient } from 'expo-linear-gradient';
+import SkeletonPlaceholder from "react-native-skeleton-placeholder";
 
 const GajiPage = () => {
     const router = useRouter();
-    const { data, isLoading, error } = useSalary().fetchAllSalary();
+    const { data, isLoading, error, refetch, isFetching } = useSalary().fetchAllSalary();
+
     const [showAll, setShowAll] = useState(false);
     const [showCurrency, setShowCurrency] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
 
     const filteredData = data?.data ?? [];
     const paidData = filteredData.filter((item: SalaryResponse) => item.status === SalaryStatus.PAID);
     const displayedData = showAll ? paidData : paidData.slice(0,5);
 
     const totalCurrency = paidData.reduce((sum: number, item: SalaryResponse) => sum + item.amount, 0);
+    const onRefresh = async () => {
+        setRefreshing(true);
+        setShowSkeleton(true);
 
-    if (isLoading) {
-            return (
-                <View style={GajiStyles.container}>
-                    <Text>Loading absensi data...</Text>
-                </View>
-            );
-        }
-    
-        if (error) {
-            return (
-                <View style={GajiStyles.container}>
-                    <Text>Error: {error.message}</Text>
-                </View>
-            );
-        }
+        await refetch();
+
+        setTimeout(() => {
+            setShowSkeleton(false);
+            setRefreshing(false);
+        }, 1000);
+    };
+    const [showSkeleton, setShowSkeleton] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowSkeleton(false);
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (isLoading || showSkeleton) {
+        return (
+            <View style={[GajiStyles.container, { padding: 20 }]}>
+                <SkeletonPlaceholder borderRadius={10}>
+                    
+                    <SkeletonPlaceholder.Item marginBottom={30}>
+                        <SkeletonPlaceholder.Item width={150} height={20} marginBottom={10} />
+                        <SkeletonPlaceholder.Item width={200} height={30} />
+                    </SkeletonPlaceholder.Item>
+
+                    {[1,2,3].map((_, i) => (
+                        <SkeletonPlaceholder.Item
+                            key={i}
+                            flexDirection="row"
+                            alignItems="center"
+                            marginBottom={20}
+                        >
+                            <SkeletonPlaceholder.Item width={50} height={50} borderRadius={25} />
+                            <SkeletonPlaceholder.Item marginLeft={15}>
+                                <SkeletonPlaceholder.Item width={180} height={15} marginBottom={6} />
+                                <SkeletonPlaceholder.Item width={120} height={15} />
+                            </SkeletonPlaceholder.Item>
+                            <SkeletonPlaceholder.Item marginLeft="auto" width={80} height={20} />
+                        </SkeletonPlaceholder.Item>
+                    ))}
+
+                </SkeletonPlaceholder>
+            </View>
+        );
+    }
+
+    if (error) {
+        return (
+            <View style={GajiStyles.container}>
+                <Text>Error: {error.message}</Text>
+            </View>
+        );
+    }
 
     return (
-        <View style={GajiStyles.container}>
+        <ScrollView
+            contentContainerStyle={GajiStyles.container}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing || isFetching}
+                    onRefresh={onRefresh}
+                    colors={[COLORS.primary]}
+                    tintColor={COLORS.primary}
+                />
+            }
+        >
             <View style={GajiStyles.header}>
                 <Svg
                     height="180"
@@ -185,10 +241,29 @@ const GajiPage = () => {
                                                 Received
                                             </Text>
                                         </View>
-                                        <View style={GajiStyles.earningsRight}>
-                                            <Text style={GajiStyles.earningsAmount}>
-                                                    + {item.amount.toLocaleString("id-ID")}
-                                            </Text>
+                                        <View style={{ justifyContent: "center", flexDirection: "row", alignItems: "center", gap: 10 }}>
+                                            <View style={GajiStyles.earningsRight}>
+                                                <Text style={GajiStyles.earningsAmount}>
+                                                        + Rp {item.amount.toLocaleString("id-ID")}
+                                                </Text>
+                                            </View>
+                                            <TouchableOpacity
+                                                key={`${item.id}`}
+                                                onPress={() => router.push(`/(gaji)/${item.id}`)}
+                                                style={{
+                                                    alignItems: 'center',
+                                                    flexDirection: 'row',
+                                                    justifyContent: 'space-between',
+                                                    gap: 5,
+                                                }}
+                                            >
+                                                <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: COLORS.primary, justifyContent: "center", alignItems: "center" }}>
+                                                    <Image
+                                                        style={GajiStyles.iconCalendar}
+                                                        source={require('../../assets/icons/arrow-right.png')}
+                                                    />
+                                                </View>
+                                            </TouchableOpacity>
                                         </View>
                                     </View>
                                 );
@@ -199,7 +274,7 @@ const GajiPage = () => {
                     )}
                 </View>
             </View>
-        </View>
+        </ScrollView>
     )
 }
 

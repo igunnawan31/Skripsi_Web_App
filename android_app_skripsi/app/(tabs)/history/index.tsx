@@ -45,6 +45,8 @@ const HistoryAbsensiPage = () => {
         }
     };
 
+    console.log(data);
+
     const resetFilter = () => {
         setSelectedYear(current.getFullYear());
         setSelectedMonth(current.getMonth());
@@ -64,6 +66,14 @@ const HistoryAbsensiPage = () => {
                 <Text>Loading absensi data...</Text>
             </View>
         );
+    }
+
+    if (!user) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Text style={{ color: COLORS.textMuted }}>Data tidak ditemukan...</Text>
+            </View>
+        )
     }
 
     if (error) {
