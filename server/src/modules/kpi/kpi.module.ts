@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
-import { KpiController } from './presentation/kpi.controller';
-import { IKPIRepository } from './domain/repositories/kpi.repository.interface';
-import { KPIRepository } from './infrastructure/persistence/kpi.repository';
-
-@Module({
-  controllers: [KpiController],
-  providers: [{ provide: IKPIRepository, useClass: KPIRepository }],
-})
-export class KpiModule { }
+// import { Module } from '@nestjs/common';
+// import { IPertanyaanRepository } from './domain/repositories/pertanyaan.repository.interface';
+// import { PertanyaanRepository } from './infrastructure/persistence/pertanyaan.repository';
+// import { IndicatorController } from './presentation/indikator.controller';
+// import { JawabanController } from './presentation/jawaban.controller';
+//
+// @Module({
+//   controllers: [IndicatorController, JawabanController, JawabanController],
+//   providers: [{ provide: IPertanyaanRepository, useClass: PertanyaanRepository }],
+// })
+// export class KpiModule { }
