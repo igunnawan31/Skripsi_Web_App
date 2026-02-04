@@ -47,6 +47,16 @@ export class ProjectProvisionInputDTO {
   documents?: FileMetaData[];
 }
 
+export class ProjectTeamProvisionInputDTO {
+  @IsOptional()
+  @IsString()
+  userId: string;
+
+  @IsOptional()
+  @IsString()
+  projectId: string;
+}
+
 export class InternalCreateProjectDTO extends OmitType(CreateProjectDTO, [
   'startDate',
   'endDate',

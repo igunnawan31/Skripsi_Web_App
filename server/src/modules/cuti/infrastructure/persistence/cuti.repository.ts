@@ -7,7 +7,10 @@ import { deleteFile } from 'src/common/utils/fileHelper';
 import { FileMetaData } from 'src/common/types/FileMetaData.dto';
 import { ICutiRepository } from '../../domain/repositories/cuti.repository.interface';
 import { PrismaService } from 'src/modules/database/prisma/prisma.service';
-import { RetrieveAllCutiResponseDTO, RetrieveCutiResponseDTO } from '../../application/dtos/response/read-response.dto';
+import {
+  RetrieveAllCutiResponseDTO,
+  RetrieveCutiResponseDTO,
+} from '../../application/dtos/response/read-response.dto';
 import { UserBaseDTO } from 'src/modules/users/application/dtos/base.dto';
 import { CutiFilterDTO } from '../../application/dtos/request/filter-cuti.dto';
 import { InternalCreateCutiDTO } from '../../application/dtos/request/create-cuti.dto';
@@ -235,14 +238,7 @@ export class CutiRepository implements ICutiRepository {
           minorRole: { not: 'HR' }, // exclude HR
           projectTeams: {
             some: {
-              project: {
-                projectTeams: {
-                  some: {
-                    userId: user.id,
-                    role: 'KETUA',
-                  },
-                },
-              },
+              userId: user.id,
             },
           },
         },
@@ -526,7 +522,7 @@ export class CutiRepository implements ICutiRepository {
         where: { id },
         data: {
           ...data,
-          dokumen: file ? file as any : undefined,
+          dokumen: file ? (file as any) : undefined,
           status: target.status,
           approverId: target.approverId ?? undefined,
         },

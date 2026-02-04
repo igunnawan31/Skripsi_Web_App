@@ -5,18 +5,28 @@ import { handlePrismaError } from 'src/common/errors/prisma-exception';
 import { IProjectRepository } from '../../domain/repositories/project.repository.interface';
 import { PrismaService } from 'src/modules/database/prisma/prisma.service';
 import { ProjectFilterDTO } from '../../application/dtos/request/project-filter.dto';
-import { RetrieveAllProjectResponseDTO, RetrieveProjectResponseDTO, RetrieveTeamResponseDTO } from '../../application/dtos/response/read-response.dto';
+import {
+  RetrieveAllProjectResponseDTO,
+  RetrieveProjectResponseDTO,
+  RetrieveTeamResponseDTO,
+} from '../../application/dtos/response/read-response.dto';
 import { ProjectTeamBaseDTO } from '../../application/dtos/base.dto';
 import { KontrakBaseDTO } from 'src/modules/kontrak/application/dtos/base.dto';
 import { InternalCreateProjectDTO } from '../../application/dtos/request/create-project.dto';
-import { CreateProjectResponseDTO } from '../../application/dtos/response/create-response.dto';
+import { CreateProjectResponseDTO, CreateProjectTeamResponseDTO } from '../../application/dtos/response/create-response.dto';
 import { InternalUpdateProjectDTO } from '../../application/dtos/request/update-project.dto';
 import { UpdateProjectResponseDTO } from '../../application/dtos/response/update-response.dto';
+import { UserRequest } from 'src/common/types/UserRequest.dto';
+import { LoggerService } from 'src/modules/logger/logger.service';
 @Injectable()
 export class ProjectRepository implements IProjectRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService, 
+    private readonly logger: LoggerService,
+  ) { }
   async findAll(
     filters: ProjectFilterDTO,
+    user: UserRequest,
   ): Promise<RetrieveAllProjectResponseDTO | null> {
     try {
       const {
@@ -34,6 +44,16 @@ export class ProjectRepository implements IProjectRepository {
         startDate: { gte: minStartDate ? new Date(minStartDate) : undefined },
         endDate: { lte: maxEndDate ? new Date(maxEndDate) : undefined },
         status: status ?? undefined,
+        projectTeams: {
+          some: {
+            userId:
+              user.majorRole === 'KARYAWAN'
+                ? user.minorRole === 'HR'
+                  ? undefined
+                  : user.id
+                : undefined,
+          },
+        },
       };
       if (
         searchTerm !== undefined &&
@@ -144,6 +164,21 @@ export class ProjectRepository implements IProjectRepository {
     }
   }
 
+  async addPersonel(projectId: string, userId: string): Promise<CreateProjectTeamResponseDTO> {
+    try{
+      const query = await this.prisma.projectTeam.create({
+        data: {
+          userId,
+          projectId,
+        }
+      })
+
+      return plainToInstance(CreateProjectTeamResponseDTO, query);
+    }catch(err){
+      handlePrismaError(err, 'Project Team', "", this.logger)
+    }
+  }
+
   async update(
     id: string,
     data: InternalUpdateProjectDTO,
@@ -172,10 +207,7 @@ export class ProjectRepository implements IProjectRepository {
     }
   }
 
-  async removePersonel(
-    projectId: string,
-    userId: string,
-  ): Promise<void> {
+  async removePersonel(projectId: string, userId: string): Promise<void> {
     await this.prisma.projectTeam.delete({
       where: { projectId_userId: { projectId, userId } },
     });

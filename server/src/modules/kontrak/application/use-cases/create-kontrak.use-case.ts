@@ -5,13 +5,15 @@ import { InternalCreateKontrakDTO } from '../dtos/request/create-kontrak.dto';
 import { CreateKontrakResponseDTO } from '../dtos/response/create-response.dto';
 import { plainToClass } from 'class-transformer';
 import { KontrakCreatedEvent } from '../events/kontrak.events';
-import { deleteFile, deleteFileArray } from 'src/common/utils/fileHelper';
+import { deleteFileArray } from 'src/common/utils/fileHelper';
 import { RollbackManager } from 'src/common/utils/rollbackManager';
 import { IKontrakRepository } from '../../domain/repositories/kontrak.repository.interface';
 import { KontrakValidationService } from '../../domain/services/kontrak-validation.service';
-import { ProjectProvisionService } from 'src/modules/project/application/services/project-provisioning.services';
+import { ProjectProvisionService } from 'src/modules/project/application/services/project-provisioning.service';
 import { UserProvisionService } from 'src/modules/users/application/services/user-provisioning.service';
-import { ProjectBaseDTO } from 'src/modules/project/application/dtos/base.dto';
+import { ProjectBaseDTO, ProjectTeamBaseDTO } from 'src/modules/project/application/dtos/base.dto';
+import { ProjectTeamProvisionService } from 'src/modules/project/application/services/projectTeam-provisioning.service';
+import { ProjectTeamProvisionInputDTO } from 'src/modules/project/application/dtos/request/create-project.dto';
 
 @Injectable()
 export class CreateKontrakUseCase {
@@ -22,6 +24,7 @@ export class CreateKontrakUseCase {
     private readonly eventEmitter: EventEmitter2,
     private readonly projectProvision: ProjectProvisionService,
     private readonly userProvision: UserProvisionService,
+    private readonly projectTeamProvision: ProjectTeamProvisionService,
   ) { }
 
   async execute(
@@ -44,10 +47,19 @@ export class CreateKontrakUseCase {
       const user = await this.userProvision.resolve(dto.userData, rollback);
 
       let project: ProjectBaseDTO | undefined;
+      let projectTeam: ProjectTeamBaseDTO | undefined;
       if (dto.jenis === 'CONTRACT') {
         project = await this.projectProvision.resolve(
           dto.projectData,
           rollback,
+        );
+        const projectTeamPayload: ProjectTeamProvisionInputDTO = {
+          userId: user.id,
+          projectId: project.id,
+        } 
+        projectTeam = await this.projectTeamProvision.resolve(
+          projectTeamPayload,
+          rollback
         );
       } else {
         // CONTRACT, BUT USER PROVIDED PROJECT DOCUMENT HENCE SHOULD BE CLEANED UP

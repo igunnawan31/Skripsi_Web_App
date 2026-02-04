@@ -168,7 +168,6 @@ model Project {
 model ProjectTeam {
   projectId String
   userId    String
-  role      ProjectRole
   joinedAt  DateTime    @default(now())
 
   project Project @relation("ProjectTeam", fields: [projectId], references: [id], onDelete: Cascade)
@@ -183,9 +182,8 @@ model ProjectTeam {
 model SkalaNilaiKPI {
   id         Int      @id @default(autoincrement())
   name       String // Contoh: "Skala 1-5", "Skala Sangat Buruk - Sangat Baik"
-  valueType  String // "NUMERIC", "TEXT"
+  valueType  ValueType // "NUMERIC", "TEXT"
   valueRange String[] // Untuk NUMERIC: ["1","2","3","4","5"], untuk TEXT: ["Sangat Buruk","Buruk","Cukup","Baik","Sangat Baik"]
-  deskripsi  String? // Deskripsi skala
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -439,11 +437,6 @@ enum StatusIndikatorKPI {
   ARCHIVED // Diarsipkan
 }
 
-enum ProjectRole {
-  KETUA
-  ANGGOTA
-}
-
 enum AgendaFreq {
   DAILY
   WEEKLY
@@ -459,4 +452,9 @@ enum AgendaStatus {
 enum EmployeeType {
   CONTRACT
   PERMANENT
+}
+
+enum ValueType {
+  NUMERIC
+  TEXT
 }

@@ -6,7 +6,8 @@ import { ProjectRepository } from './infrastructure/persistence/project.reposito
 import { CreateProjectUseCase } from './application/use-cases/create-project.use-case';
 import { UpdateProjectUseCase } from './application/use-cases/update-project.use-case';
 import { DeleteProjectUseCase } from './application/use-cases/delete-project.use-case';
-import { ProjectProvisionService } from './application/services/project-provisioning.services';
+import { ProjectProvisionService } from './application/services/project-provisioning.service';
+import { ProjectTeamProvisionService } from './application/services/projectTeam-provisioning.service';
 
 @Module({
   controllers: [ProjectController],
@@ -16,8 +17,9 @@ import { ProjectProvisionService } from './application/services/project-provisio
     UpdateProjectUseCase,
     DeleteProjectUseCase,
     ProjectProvisionService,
+    ProjectTeamProvisionService,
     { provide: IProjectRepository, useClass: ProjectRepository },
   ],
-  exports: [IProjectRepository, ProjectProvisionService],
+  exports: [IProjectRepository, ProjectProvisionService, ProjectTeamProvisionService],
 })
 export class ProjectModule { }

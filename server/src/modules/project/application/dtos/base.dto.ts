@@ -1,4 +1,4 @@
-import { ProjectRole, ProjectStatus } from "@prisma/client";
+import { ProjectStatus } from "@prisma/client";
 import { Expose } from "class-transformer";
 import { FileMetaData } from "src/common/types/FileMetaData.dto";
 
@@ -37,7 +37,4 @@ export class ProjectTeamBaseDTO {
   
   @Expose()
   userId: string;
-  
-  @Expose()
-  role: ProjectRole;
 }

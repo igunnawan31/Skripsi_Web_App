@@ -2,7 +2,6 @@ import { Expose } from 'class-transformer';
 import { CreateProjectResponseDTO } from './create-response.dto';
 import { meta } from 'src/common/types/QueryMeta.dto';
 import { ProjectTeamBaseDTO } from '../base.dto';
-import { ProjectRole } from '@prisma/client';
 import { KontrakBaseDTO } from 'src/modules/kontrak/application/dtos/base.dto';
 
 export class RetrieveProjectResponseDTO extends CreateProjectResponseDTO {
@@ -27,7 +26,4 @@ export class RetrieveTeamResponseDTO {
 
   @Expose()
   userId: string;
-
-  @Expose()
-  role: ProjectRole;
 }

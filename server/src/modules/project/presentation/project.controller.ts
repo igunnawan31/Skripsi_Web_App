@@ -79,9 +79,8 @@ export class ProjectController {
 
   // GET project/
   @Get()
-  @RolesMinor(MinorRole.HR)
-  findAll(@Query() filters: ProjectFilterDTO) {
-    return this.projectRepo.findAll(filters);
+  findAll(@Query() filters: ProjectFilterDTO, @Req() req: Request & {user: UserRequest}) {
+    return this.projectRepo.findAll(filters, req.user);
   }
 
   // GET project/personel/:id

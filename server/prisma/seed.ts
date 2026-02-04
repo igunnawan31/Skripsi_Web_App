@@ -10,7 +10,6 @@ async function main() {
       name: 'Skala 1-5',
       valueType: 'NUMERIC',
       valueRange: ['1', '2', '3', '4', '5'],
-      deskripsi: 'Skala numerik untuk penilaian kinerja',
     },
   });
 
@@ -79,8 +78,8 @@ async function main() {
   // 4. Tambahkan anggota tim
   await prisma.projectTeam.createMany({
     data: [
-      { projectId: project.id, userId: pm.id, role: 'KETUA' },
-      { projectId: project.id, userId: frontend.id, role: 'ANGGOTA' },
+      { projectId: project.id, userId: pm.id },
+      { projectId: project.id, userId: frontend.id },
     ],
   });
 
@@ -286,7 +285,7 @@ async function main() {
 }
 
 main()
-  .catch(e => {
+  .catch((e) => {
     console.error(e);
     process.exit(1);
   })
