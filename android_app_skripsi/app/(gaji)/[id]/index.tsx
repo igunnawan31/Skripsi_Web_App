@@ -181,7 +181,54 @@ export default function DetailSalary() {
         );
     };
 
-    if (detailError || !detailData) {
+    if (!detailData) {
+        const renderNoData = (
+            <ScrollView
+                contentContainerStyle={[gajiDetailStyles.container, { justifyContent: "center", alignItems: "center", paddingTop: 0, paddingBottom: 0}]}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing || isFetching}
+                        onRefresh={onRefresh}
+                        colors={[COLORS.primary]}
+                        tintColor={COLORS.primary}
+                    />
+                }
+            >
+                <View style={gajiDetailStyles.header}>
+                    <TouchableOpacity 
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                        onPress={() => router.back()}
+                    >
+                        <View style={gajiDetailStyles.iconPlace}>
+                            <Image
+                                style={gajiDetailStyles.iconBack}
+                                source={require('../../../assets/icons/arrow-left.png')}
+                            />
+                        </View>
+                        <Text style={gajiDetailStyles.headerTitle}>
+                            Kembali
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 30 }}>
+                    <Image
+                        source={require("../../../assets/icons/not-found.png")}
+                        style={{ width: 72, height: 72, }}
+                    />
+                    <Text style={{ textAlign: "center", marginTop: 10, color: COLORS.textPrimary, fontWeight: "bold", fontSize: 16, }}>
+                        Tidak ditemukan data yang sesuai
+                    </Text>
+                    <Text style={{ textAlign: "center", marginTop: 5, color: COLORS.muted, fontSize: 12, }}>
+                        Mohon untuk mengecek kembali nanti
+                    </Text>
+                </View> 
+            </ScrollView>
+        );
+
+        return renderNoData;
+    }
+
+    if (detailError) {
         const renderError = (
             <ScrollView
                 contentContainerStyle={[gajiDetailStyles.container, { justifyContent: "center", alignItems: "center", paddingTop: 0, paddingBottom: 0}]}
