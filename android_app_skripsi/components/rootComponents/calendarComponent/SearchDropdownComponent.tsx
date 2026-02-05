@@ -13,6 +13,7 @@ import COLORS from "@/constants/colors";
 import { MajorRole, MinorRole } from "@/data/dummyUsers";
 import { calendarStyles } from "@/assets/styles/rootstyles/calendar.styles";
 import penilaianKpiStyles from "@/assets/styles/rootstyles/kpi/penilaiankpi.styles";
+import { ProjectResponse } from "@/types/project/projectTypes";
 
 export type User = {
     userId: string;
@@ -26,19 +27,12 @@ export type User = {
     projectList: string[];
 }
 
-export type ProjectType = {
-    projectId: string;
-    projectName: string;
-    ketuaProject: User;
-    anggotaProject: User[];
-}
-
 interface Props {
     visible: boolean;
     onClose: () => void;
-    items: ProjectType[];
-    selected: ProjectType[];
-    onChange: (items: ProjectType[]) => void;
+    items: ProjectResponse[];
+    selected: ProjectResponse[];
+    onChange: (items: ProjectResponse[]) => void;
 }
 
 export default function SearchDropdownComponent({
@@ -50,21 +44,13 @@ export default function SearchDropdownComponent({
 }: Props) {
     const [query, setQuery] = useState("");
     const filtered = items.filter((p) =>
-        p.projectName.toLowerCase().includes(query.toLowerCase())
+        p.name.toLowerCase().includes(query.toLowerCase())
     );
-    const toggleSelect = (project: ProjectType) => {
-        if (selected.some((p) => p.projectId === project.projectId)) {
-            onChange(selected.filter((p) => p.projectId !== project.projectId));
+    const toggleSelect = (project: ProjectResponse) => {
+        if (selected.some((p) => p.id === project.id)) {
+            onChange(selected.filter((p) => p.id !== project.id));
         } else {
             onChange([...selected, project]);
-        }
-    };
-    const isAllSelected = selected.length === items.length;
-    const handleSelectAll = () => {
-        if (isAllSelected) {
-            onChange([]);
-        } else {
-            onChange(items);
         }
     };
 
@@ -96,26 +82,14 @@ export default function SearchDropdownComponent({
                                 style={{ width: "100%" }}
                             />
                         </View>
-                        <TouchableOpacity
-                            onPress={handleSelectAll}
-                            style={[calendarStyles.selectAll, 
-                                isAllSelected && {backgroundColor: COLORS.white}
-                            ]}
-                        >
-                            <Text style={[calendarStyles.buttonSelectAll,
-                                isAllSelected && {color: COLORS.primary}
-                            ]}>
-                                {isAllSelected ? "Unselect All" : "Select All"}
-                            </Text>
-                        </TouchableOpacity>
                         
                         {filtered.map((item) => {
                             const isSelected = selected.some(
-                                (s) => s.projectId === item.projectId
+                                (s) => s.id === item.id
                             );
                             return (
                                 <TouchableOpacity
-                                    key={item.projectId}
+                                    key={item.id}
                                     onPress={() => toggleSelect(item)}
                                     style={[calendarStyles.projectSelect,
                                         isSelected ? {borderColor: COLORS.primary} : {borderColor: COLORS.border},
@@ -123,7 +97,7 @@ export default function SearchDropdownComponent({
                                     ]}
                                 >
                                     <Text style={{ fontSize: 16 }}>
-                                        {item.projectName}
+                                        {item.name}
                                     </Text>
                                 </TouchableOpacity>
                             )

@@ -131,13 +131,9 @@ export const calendarStyles = StyleSheet.create({
         borderBottomWidth: 1, 
         borderBottomColor: '#e0e0e0' 
     },
-    cardEvent: {
+    masterCardEvent: {
+        flexDirection: "column",
         backgroundColor: COLORS.white,
-        borderLeftWidth: 4,
-        borderLeftColor: COLORS.secondary,
-        padding: 12,
-        marginBottom: 8,
-        borderRadius: 4,
         shadowColor: COLORS.shadow,
         shadowOffset: {
             width: 0,
@@ -146,6 +142,16 @@ export const calendarStyles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 1,
         elevation: 2,
+        borderLeftWidth: 4,
+        borderLeftColor: COLORS.secondary,
+        padding: 12,
+        marginBottom: 8,
+        borderRadius: 4,
+        gap: 10,
+    },
+    cardEvent: {
+        flexDirection: "row",
+        justifyContent: "space-between",
     },
     eventTitle: {
         fontSize: 16, 

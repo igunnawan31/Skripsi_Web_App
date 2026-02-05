@@ -1,162 +1,138 @@
 import React, { useState } from "react";
-import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    ScrollView,
-    Image,
-    Platform,
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, Platform } from "react-native";
 import COLORS from "@/constants/colors";
-import SearchDropdownComponent, { User } from "@/components/rootComponents/calendarComponent/SearchDropdownComponent";
-import { dummyProjects } from "@/data/dummyProject";
-import { dummyUsers, MajorRole, MinorRole } from "@/data/dummyUsers";
-import { ProjectType } from "@/components/rootComponents/calendarComponent/SearchDropdownComponent";
-import penilaianKpiStyles from "@/assets/styles/rootstyles/kpi/penilaiankpi.styles";
+import SearchDropdownComponent from "@/components/rootComponents/calendarComponent/SearchDropdownComponent";
 import { useRouter } from "expo-router";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import reimburseStyles from "@/assets/styles/rootstyles/reimburse/reimburse.styles";
-import { calendarStyles } from "@/assets/styles/rootstyles/calendar.styles";
 import { cutiDetailStyles } from "@/assets/styles/rootstyles/cuti/cutidetail.styles";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import BuatCalendarModalComponent from "@/components/rootComponents/calendarComponent/BuatCalendarModalComponent";
-
-type CalendarForm = {
-    title: string;
-    createdBy: User,
-    eventFor: ProjectType[];
-    tanggal: string;
-    startTime: string;
-    endTime: string;
-}
+import { CreateEventRequest, FormDataEvent } from "@/types/event/eventTypes";
+import { useEvent } from "@/lib/api/hooks/useEvent";
+import { ProjectResponse, ProjectTeams } from "@/types/project/projectTypes";
+import { useAuthStore } from "@/lib/store/authStore";
+import { useProject } from "@/lib/api/hooks/useProject";
+import { MajorRole, MinorRole } from "@/types/enumTypes";
 
 const CreateEventFormPage = () => {
-    const [title, setTitle] = useState("");
-    const [startTime, setStart] = useState("");
-    const [endTime, setEnd] = useState("");
-    const [tanggal, setTanggal] = useState("");
+    const user = useAuthStore((state) => state.user);
     const [showSubmitModal, setShowSubmitModal] = useState(false); 
     const [showBackModal, setShowBackModal] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showStartPicker, setShowStartPicker] = useState(false);
-    const [showEndPicker, setShowEndPicker] = useState(false);
+    const { data: projectResponse, isLoading, error: errorProject } = useProject().fetchAllProject();
+    const { mutate: eventData, isPending: isCreateCuti, isError} = useEvent().createEvents();
+    const [isOccurent, setIsOccurent] = useState(false);
     const [error, setError] = useState<{ [key: string]: string}>({});
     const router = useRouter();
-    const [selectedProjects, setSelectedProjects] = useState<ProjectType[]>([]);
+    const [selectedProjects, setSelectedProjects] = useState<ProjectResponse[]>([]);
     const [modalVisible, setModalVisible] = useState(false);
 
-    const currentUser = dummyUsers[4];
-    let availableTargets: ProjectType[] = [];
+    const [notification, setNotification] = useState<{
+        visible: boolean;
+        status: "success" | "error";
+        title?: string;
+        description?: string;
+    }>({
+        visible: false,
+        status: "success",
+    });
 
-    if (
-        currentUser.majorRole === MajorRole.OWNER ||
-        currentUser.minorRole === MinorRole.HR
-    ) {
-        availableTargets = dummyProjects;
-    } else if (currentUser.minorRole === MinorRole.PROJECT_MANAGER) {
-        availableTargets = dummyProjects.filter(
-            (p) => p.ketuaProject.userId === currentUser.userId
-        );
-    } else {
-        availableTargets = dummyProjects.filter((p) =>
-            p.anggotaProject.some((u) => u.userId === currentUser.userId)
-        );
-    };
-    
-    const [formData, setFormData] = useState<CalendarForm>({
+    const [formData, setFormData] = useState<FormDataEvent>({
         title: "",
-        createdBy: dummyUsers[0],
-        eventFor: [],
-        tanggal: "",
-        startTime: "",
-        endTime: "",
-    })
+        date: "",
+        time: "",
+        projectId: null,
+        frequency: null, 
+    });
 
-    const handleDateChange = (key: "tanggal", value: string) => {
-        setFormData((prev) => {
-            const updated = { ...prev, [key]: value };
-            setError((prevErrors) => ({ ...prevErrors, [key]: "" }));
-            return updated;
-        });
-    };
-    const handleTimeChange = (
-        key: "startTime" | "endTime",
-        event: any,
-        selectedDate: Date | undefined,
-    ) => {
-        if (event.type === "dismissed") {
-            if (key === "startTime") setShowStartPicker(false);
-            if (key === "endTime") setShowEndPicker(false);
-            return;
-        }
+    const buildISODate = () => {
+        const data = formData;
 
-        if (!selectedDate) return;
+        if (!data.date || !data.time) return "";
 
-        const hours = selectedDate.getHours().toString().padStart(2, "0");
-        const minutes = selectedDate.getMinutes().toString().padStart(2, "0");
-        const formatted = `${hours}:${minutes}`;
-
-        setFormData((prev) => {
-            const updated = { ...prev, [key]: formatted };
-            if (updated.startTime && updated.endTime) {
-                const [sh, sm] = updated.startTime.split(":").map(Number);
-                const [eh, em] = updated.endTime.split(":").map(Number);
-
-                const startMinutes = sh * 60 + sm;
-                const endMinutes = eh * 60 + em;
-
-                if (endMinutes <= startMinutes) {
-                    setError((e) => ({
-                        ...e,
-                        [key]: "End time must be later than start time"
-                    }));
-                    return prev;
-                }
-            }
-
-            setError((e) => ({ ...e, [key]: "" }));
-            return updated;
-        });
-
-        if (key === "startTime") setShowStartPicker(false);
-        if (key === "endTime") setShowEndPicker(false);
+        return new Date(`${data.date}T${data.time}`).toISOString();
     };
 
-    const handleChange = (event: any, selectedDate: Date | undefined, key: "tanggal") => {
-        if (event.type === "dismissed") {
-            setShowDatePicker(false);
-            return;
+    const projects = projectResponse?.data ?? [];
+    const currentUser = user;
+    console.log(user.id);
+    let availableTargets: ProjectResponse[] = [];
+
+    if ( user.majorRole === MajorRole.OWNER) {
+        availableTargets = projects;
+    } 
+    else if (user.majorRole === MajorRole.KARYAWAN) {
+        if (user.minorRole === MinorRole.HR) {
+            availableTargets = projects;
         }
+        if (user.minorRole === MinorRole.PROJECT_MANAGER) {
+            availableTargets = projects.filter((p: ProjectResponse) =>
+                p.projectTeams?.some((team: ProjectTeams) => team.userId === user.userId)
+            );
+        }
+    }
 
-        if (!selectedDate) return;
+    const validateForm = () => {
+        let tempErrors: { [key: string]: string } = {};
 
-        const formatted = selectedDate.toISOString().split("T")[0];
-        handleDateChange(key, formatted);
+        if (!formData.title.trim()) tempErrors.title = "Judul acara wajib diisi.";
+        if (!formData.date) tempErrors.date = "Tanggal acara wajib diisi.";
+        if (!formData.time) tempErrors.time = "Waktu acara wajib diisi.";
 
-        setShowDatePicker(false);
+        setError(tempErrors);       
+        return Object.keys(tempErrors).length === 0;
     };
 
     const handleCreateEvent = () => {
-        // if (!title || !tanggal || !startTime || !endTime) {
-        //     alert("Semua field wajib diisi");
-        //     return;
-        // }
-        // if (selectedProjects.length === 0) {
-        //     alert("Pilih minimal satu project");
-        //     return;
-        // }
-        const newEvent = {
-            id: Date.now().toString(),
-            title,
-            startTime: new Date(startTime),
-            endTime: new Date(endTime),
-            createdBy: currentUser,
-            eventFor: selectedProjects,
+        const eventDate = buildISODate();
+
+        if (!validateForm()) {
+            setShowSubmitModal(false);
+        }
+
+        const payload: CreateEventRequest = {
+            title: formData.title,
+            eventDate,
+            projectId: formData.projectId,
+            frequency: isOccurent ? formData.frequency : null,
         };
-        setShowSubmitModal(false);
-        router.push("/(tabs)/calendar");
+
+        eventData(payload, {
+            onSuccess: () => {
+                setShowSubmitModal(false);
+
+                setNotification({
+                    visible: true,
+                    status: "success",
+                    title: "Pengajuan Berhasil",
+                    description: "Pengajuan reimburse anda berhasil dikirim.",
+                });
+            },
+            onError: (err: any) => {
+                setShowSubmitModal(false);
+
+                setNotification({
+                    visible: true,
+                    status: "error",
+                    title: "Pengajuan Gagal",
+                    description:
+                    err?.message || "Terjadi kesalahan saat mengirim pengajuan reimburse.",
+                });
+            },
+        });
     };
+
+    if (!user) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Text style={{ color: COLORS.textMuted }}>
+                    Memuat data user...
+                </Text>
+            </View>
+        );
+    }
 
     return (
         <View style={{ flex: 1, backgroundColor: COLORS.background }}>
@@ -204,8 +180,6 @@ const CreateEventFormPage = () => {
                     <View style={cutiDetailStyles.labelContainer}>
                         <Text style={cutiDetailStyles.labelInput}>Judul Event</Text>
                         <TextInput
-                            value={title}
-                            onChangeText={setTitle}
                             style={cutiDetailStyles.input}
                             placeholder="e.g. Team Meeting"
                         />
@@ -216,62 +190,38 @@ const CreateEventFormPage = () => {
                             onPress={() => setShowDatePicker(true)}
                             style={[cutiDetailStyles.input, { justifyContent: "center", paddingVertical: 12 }]}
                         >
-                            <Text style={{ color: formData.tanggal ? COLORS.textPrimary : COLORS.muted }}>
-                                {formData.tanggal || "Pilih tanggal mulai"}
+                            <Text style={{ color: formData.date ? COLORS.textPrimary : COLORS.muted }}>
+                                {formData.date || "Pilih tanggal acara"}
                             </Text>
                         </TouchableOpacity>
                         {error.tanggal && <Text style={cutiDetailStyles.error}>{error.tanggal}</Text>}
 
                         {showDatePicker && (
                             <DateTimePicker
-                                value={formData.tanggal ? new Date(formData.tanggal) : new Date()}
+                                value={formData.date ? new Date(formData.date) : new Date()}
                                 mode="date"
                                 display={Platform.OS === "ios" ? "spinner" : "default"}
-                                onChange={(e, date) => handleChange(e, date, "tanggal")}
                                 minimumDate={new Date()}
                             />
                         )}
                     </View>
                     <View style={cutiDetailStyles.labelContainer}>
-                        <Text style={cutiDetailStyles.labelInput}>Jam Mulai</Text>
+                        <Text style={cutiDetailStyles.labelInput}>Jam Acara</Text>
                         <TouchableOpacity
                             onPress={() => setShowStartPicker(true)}
                             style={[cutiDetailStyles.input, { justifyContent: "center", paddingVertical: 12 }]}
                         >
-                            <Text style={{ color: formData.startTime ? COLORS.textPrimary : COLORS.muted }}>
-                                {formData.startTime || "Pilih tanggal mulai"}
+                            <Text style={{ color: formData.time ? COLORS.textPrimary : COLORS.muted }}>
+                                {formData.time || "Pilih tanggal mulai"}
                             </Text>
                         </TouchableOpacity>
-                        {error.startTime && <Text style={cutiDetailStyles.error}>{error.startTime}</Text>}
+                        {error.time && <Text style={cutiDetailStyles.error}>{error.time}</Text>}
 
                         {showStartPicker && (
                             <DateTimePicker
                                 value={new Date()}
                                 mode="time"
                                 display={Platform.OS === "ios" ? "spinner" : "default"}
-                                onChange={(event, date) => handleTimeChange("startTime", event, date)}
-                                minimumDate={new Date()}
-                            />
-                        )}
-                    </View>
-                    <View style={cutiDetailStyles.labelContainer}>
-                        <Text style={cutiDetailStyles.labelInput}>Jam Berakhir</Text>
-                        <TouchableOpacity
-                            onPress={() => setShowEndPicker(true)}
-                            style={[cutiDetailStyles.input, { justifyContent: "center", paddingVertical: 12 }]}
-                        >
-                            <Text style={{ color: formData.endTime ? COLORS.textPrimary : COLORS.muted }}>
-                                {formData.endTime || "Pilih tanggal selesai"}
-                            </Text>
-                        </TouchableOpacity>
-                        {error.endTime && <Text style={cutiDetailStyles.error}>{error.endTime}</Text>}
-
-                        {showEndPicker && (
-                            <DateTimePicker
-                                value={new Date()}
-                                mode="time"
-                                display={Platform.OS === "ios" ? "spinner" : "default"}
-                                onChange={(event, date) => handleTimeChange("endTime", event, date)}
                                 minimumDate={new Date()}
                             />
                         )}
@@ -285,7 +235,7 @@ const CreateEventFormPage = () => {
                             <Text>
                                 {selectedProjects.length === 0
                                     ? "Select Project"
-                                    : selectedProjects.map((p) => p.projectName).join(", ")}
+                                    : selectedProjects.map((p) => p.name).join(", ")}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -294,7 +244,13 @@ const CreateEventFormPage = () => {
                         onClose={() => setModalVisible(false)}
                         items={availableTargets}
                         selected={selectedProjects}
-                        onChange={setSelectedProjects}
+                        onChange={(projects) => {
+                            setSelectedProjects(projects);
+                            setFormData(prev => ({
+                                ...prev,
+                                projectId: projects.length ? projects[0].id : null
+                            }));
+                        }}
                     />
                     <TouchableOpacity
                         onPress={() => setShowSubmitModal(true)}
