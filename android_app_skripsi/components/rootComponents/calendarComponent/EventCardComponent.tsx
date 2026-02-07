@@ -1,22 +1,28 @@
 import { calendarStyles } from "@/assets/styles/rootstyles/calendar.styles";
 import { GajiStyles } from "@/assets/styles/rootstyles/gaji/gaji.styles";
 import COLORS from "@/constants/colors";
+import { useEvent } from "@/lib/api/hooks/useEvent";
 import { useAuthStore } from "@/lib/store/authStore";
 import { MajorRole, MinorRole } from "@/types/enumTypes";
-import { EventResponse } from "@/types/event/eventTypes";
+import { CalendarEventItem} from "@/types/event/eventTypes";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import BuatCalendarModalComponent from "./BuatCalendarModalComponent";
 
 type EventCardComponentProps = {
-    event: EventResponse;
-}
+    event: CalendarEventItem;
+    onNotify: (v: any) => void;
+    onDeleteSuccess: any;
+};
 
-const EventCardComponent = ({ event }: EventCardComponentProps) => {
+const EventCardComponent = ({ event, onNotify, onDeleteSuccess }: EventCardComponentProps) => {
     const dateObj = new Date(event.eventDate);
     const user = useAuthStore((state) => state.user);
     const router = useRouter();
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const { mutate, isPending } = useEvent().deleteEvent();
     const [openInformation, setOpenInformation] = useState(false);
     
     const canManageEvent = useMemo(() => {
@@ -36,7 +42,30 @@ const EventCardComponent = ({ event }: EventCardComponentProps) => {
     }, [user]);
 
     const handleDelete = () => {
+        mutate(event.id, {
+            onSuccess: () => {
+                setShowDeleteModal(false);
 
+                onNotify({
+                    visible: true,
+                    status: "success",
+                    title: "Agenda Berhasil Diubah",
+                    description: "Agenda telah diubah, kembali ke daftar agenda.",
+                });
+                onDeleteSuccess();
+            },
+            onError: (err: any) => {
+                setShowDeleteModal(false);
+
+                onNotify({
+                    visible: true,
+                    status: "error",
+                    title: "Pembaharuan Gagal",
+                    description:
+                    err?.message || "Terjadi kesalahan saat mengirim pembaharuan.",
+                });
+            },
+        })        
     }
 
     const time = dateObj.toLocaleTimeString('id-ID', {
@@ -107,7 +136,15 @@ const EventCardComponent = ({ event }: EventCardComponentProps) => {
             {openInformation && (
                 <View style={{ flexDirection: "row", gap: 5, justifyContent: "flex-end" }}>
                     <TouchableOpacity
-                        onPress={() => router.push(`/(calendar)/${event.id}`)}
+                        onPress={() =>
+                            router.push({
+                                pathname: "/(calendar)/[id]",
+                                params: {
+                                    id: event.id,
+                                    occurrenceId: event.occurrenceId,
+                                },
+                            })
+                        }
                         style={{
                             alignItems: 'center',
                             flexDirection: 'row',
@@ -126,7 +163,15 @@ const EventCardComponent = ({ event }: EventCardComponentProps) => {
                     {canManageEvent && (
                         <>
                             <TouchableOpacity
-                                onPress={() => router.push(`/(calendar)/update/${event.id}`)}
+                                onPress={() =>
+                                    router.push({
+                                        pathname: "/(calendar)/update/[id]",
+                                        params: {
+                                            id: event.id,
+                                            occurrenceId: event.occurrenceId,
+                                        },
+                                    })
+                                }
                                 style={{
                                     alignItems: 'center',
                                     flexDirection: 'row',
@@ -143,7 +188,7 @@ const EventCardComponent = ({ event }: EventCardComponentProps) => {
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                onPress={() => handleDelete()}
+                                onPress={() => setShowDeleteModal(true)}
                                 style={{
                                     alignItems: 'center',
                                     flexDirection: 'row',
@@ -163,6 +208,15 @@ const EventCardComponent = ({ event }: EventCardComponentProps) => {
                     )}
                 </View>
             )}
+            <BuatCalendarModalComponent
+                visible={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                onSave={handleDelete}
+                title={"Menghapus Agenda"}
+                description={"Apakah anda sudah yakin terhadap penghapus saat ini?"}
+                textActive={"Ya, Hapus"}
+                textPassive={"Batal"}
+            />
         </View>
     );
 };

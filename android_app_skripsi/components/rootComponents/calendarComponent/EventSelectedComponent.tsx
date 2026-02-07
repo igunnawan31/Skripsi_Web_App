@@ -7,10 +7,21 @@ import { EventResponse } from "@/types/event/eventTypes";
 type EventSelectedComponentProps = {
     getEventsForDay: any;
     selectedDay: any;
+    onNotify?: any;
+    refreshData?: () => void;
 }
 
-const EventSelectedComponent = ({getEventsForDay, selectedDay}: EventSelectedComponentProps) => {
+const EventSelectedComponent = ({getEventsForDay, selectedDay, onNotify, refreshData}: EventSelectedComponentProps) => {
     const dayEvents = getEventsForDay(selectedDay);
+
+    const isSameDay = (dateA: string, dateB: Date) => {
+        const a = new Date(dateA);
+        return (
+            a.getFullYear() === dateB.getFullYear() &&
+            a.getMonth() === dateB.getMonth() &&
+            a.getDate() === dateB.getDate()
+        );
+    };
     
     return (
         <View style={{ flex: 1, backgroundColor: COLORS.background }}>
@@ -25,9 +36,22 @@ const EventSelectedComponent = ({getEventsForDay, selectedDay}: EventSelectedCom
 
             <ScrollView style={{ flex: 1 }} contentContainerStyle={[{ padding: 16 },{ paddingBottom: dayEvents.length > 0 ? 75 : 0}]}>
                 {dayEvents.length > 0 ? (
-                    dayEvents.map((event: EventResponse) => (
-                        <EventCardComponent key={event.id} event={event} />
-                    ))
+                    dayEvents.flatMap((event: EventResponse) =>
+                        event.occurrences
+                            .filter((occ) => isSameDay(occ.date, selectedDay))
+                            .map((occ) => (
+                                <EventCardComponent
+                                    key={occ.id}
+                                    event={{
+                                        ...event,
+                                        occurrenceId: occ.id,
+                                        eventDate: occ.date,
+                                    }}
+                                    onNotify={onNotify}
+                                    onDeleteSuccess={refreshData}
+                                />
+                            ))
+                    )
                 ) : (
                     <View style={{ padding: 40, alignItems: 'center', justifyContent: 'center' }}>
                         <Image 

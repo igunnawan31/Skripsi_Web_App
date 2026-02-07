@@ -107,19 +107,14 @@ export const useEvent = () => {
                 const jwt = token?.access_token;
                 if (!token?.access_token) throw new Error("No access token found");
 
-                const fd = new FormData();
-                fd.append("title", eventData.title);
-                fd.append("eventDate", eventData.eventDate);
-                fd.append("projectId", String(eventData.projectId));
-                fd.append("frequency", String(eventData.frequency));
-
                 const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/agendas`, {
                     method: "POST",
                     headers: { 
                         "Authorization": `Bearer ${jwt}`,
+                        "Content-Type": "application/json",
                     },
                     credentials: "include",
-                    body: fd,
+                    body: JSON.stringify(eventData),
                 });
 
                 if (!response.ok) {

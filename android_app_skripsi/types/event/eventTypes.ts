@@ -9,7 +9,7 @@ export enum EventFreq {
 export enum EventStatus {
     UPCOMING = "UPCOMING",
     COMPLETED = "COMPLETED",
-    CANCELLED = "MONTHLY"
+    CANCELLED = "CANCELLED",
 }
 
 
@@ -34,14 +34,18 @@ export type EventResponse = {
         createdAt: string,
         updatedAt: string
     },
-    occurrences: [
-        {
-            id: string,
-            agendaId: string,
-            date: string,
-            isCancelled: boolean
-        }
-    ]
+    occurrences: EventOccurrence[];
+};
+
+export type EventOccurrence = {
+    id: string;
+    agendaId: string;
+    date: string;
+    isCancelled: boolean;
+};
+
+export type CalendarEventItem = EventResponse & {
+    occurrenceId: string;
 };
 
 export type FormDataEvent = {

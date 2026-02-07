@@ -1,6 +1,7 @@
 import { calendarStyles } from "@/assets/styles/rootstyles/calendar.styles";
 import EventSelectedComponent from "@/components/rootComponents/calendarComponent/EventSelectedComponent";
 import MonthCalendar from "@/components/rootComponents/calendarComponent/MonthCalendar";
+import NotificationModal from "@/components/rootComponents/NotificationModal";
 import SkeletonBox from "@/components/rootComponents/SkeletonBox";
 import COLORS from "@/constants/colors";
 import { useEvent } from "@/lib/api/hooks/useEvent";
@@ -21,6 +22,15 @@ const CalendarPage = () => {
     const isScrolling = useRef(false);
     const [showSkeleton, setShowSkeleton] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+    const [notification, setNotification] = useState<{
+        visible: boolean;
+        status: "success" | "error";
+        title?: string;
+        description?: string;
+    }>({
+        visible: false,
+        status: "success",
+    });
 
     const isSameDay = (d1: Date, d2: Date) => {
         return d1.getDate() === d2.getDate() && d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
@@ -173,7 +183,8 @@ const CalendarPage = () => {
                     </View>
                 </View>
                 
-                <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                <View style={{ flex: 1, justifyContent: "center", alignItems: "center", gap: 10 }}>
+                    <SkeletonBox width={100} height={60} borderRadius={10} style={{ width: "90%" }} />
                     <SkeletonBox width={100} height={60} borderRadius={10} style={{ width: "90%" }} />
                 </View>
             </View>
@@ -234,12 +245,23 @@ const CalendarPage = () => {
                         monthScrollRef={monthScrollRef}
                         isScrolling={isScrolling}
                     />
-                    <EventSelectedComponent 
+                    <EventSelectedComponent
                         getEventsForDay={getEventsForDay}
                         selectedDay={selectedDay}
+                        onNotify={setNotification}
+                        refreshData={onRefresh}
                     />
                 </View>
             </ScrollView>
+            <NotificationModal
+                visible={notification.visible}
+                status={notification.status}
+                title={notification.title}
+                description={notification.description}
+                onContinue={() =>
+                    setNotification(prev => ({ ...prev, visible: false }))
+                }
+            />
         </View>
     )
 }

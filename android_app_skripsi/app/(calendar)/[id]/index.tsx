@@ -10,9 +10,13 @@ import { format } from "date-fns";
 import { ProjectResponse } from "@/types/project/projectTypes";
 import SkeletonBox from "@/components/rootComponents/SkeletonBox";
 import { gajiDetailStyles, HEADER_HEIGHT } from "@/assets/styles/rootstyles/gaji/gajidetail.styles";
+import { EventOccurrence } from "@/types/event/eventTypes";
 
 const DetailEventFormPage = () => {
-    const { id } = useLocalSearchParams();
+    const { id, occurrenceId } = useLocalSearchParams<{
+        id: string;
+        occurrenceId?: string;
+    }>();
     const idParam = Array.isArray(id) ? id[0] : id ?? "";
     const router = useRouter();
     const { data: detailData, isLoading: isDetailLoading, error: detailError,  refetch, isFetching } = useEvent().fetchEventById(idParam);
@@ -47,6 +51,24 @@ const DetailEventFormPage = () => {
         const zoned = toZonedTime(dateString, "Asia/Jakarta");
         return format(zoned, "HH:mm");
     }
+
+    const selectedOccurrence = React.useMemo(() => {
+        if (!occurrenceId || !detailData?.occurrences) return null;
+
+        return detailData.occurrences.find(
+            (occ: EventOccurrence) => occ.id === occurrenceId
+        );
+    }, [occurrenceId, detailData]);
+
+    const effectiveDate = React.useMemo(() => {
+        if (!detailData) return "";
+
+        if (selectedOccurrence) {
+            return selectedOccurrence.date;
+        }
+
+        return detailData.eventDate;
+    }, [detailData, selectedOccurrence]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -241,11 +263,11 @@ const DetailEventFormPage = () => {
                     </View>
                     <View style={cutiDetailStyles.labelContainer}>
                         <Text style={cutiDetailStyles.labelInput}>Tanggal Event</Text>
-                        <Text style={[cutiDetailStyles.input, { opacity: 0.5 }]}>{toDate(detailData.eventDate)}</Text>
+                        <Text style={[cutiDetailStyles.input, { opacity: 0.5 }]}>{toDate(effectiveDate)}</Text>
                     </View>
                     <View style={cutiDetailStyles.labelContainer}>
                         <Text style={cutiDetailStyles.labelInput}>Waktu Event</Text>
-                        <Text style={[cutiDetailStyles.input, { opacity: 0.5 }]}>{toWIB(detailData.eventDate)}</Text>
+                        <Text style={[cutiDetailStyles.input, { opacity: 0.5 }]}>{toWIB(effectiveDate)}</Text>
                     </View>
                     <View style={cutiDetailStyles.labelContainer}>
                         <Text style={cutiDetailStyles.labelInput}>Ditujukan Kepada</Text>
