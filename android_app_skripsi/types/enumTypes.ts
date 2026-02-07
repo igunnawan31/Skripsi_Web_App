@@ -33,9 +33,11 @@ export enum GajiStatus {
 }
 
 export enum KontrakKerjaStatus {
-    AKTIF = "Aktif",
-    SELESAI = "Selesai",
+    ACTIVE = "ACTIVE",
+    COMPLETED = "COMPLETED",
+    ON_HOLD = "ON_HOLD",
 }
+
 
 export enum KategoriPertanyaanKPI {
     KINERJA = "Kinerja Karyawan",

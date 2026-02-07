@@ -1,9 +1,8 @@
 import { cutiDetailStyles } from "@/assets/styles/rootstyles/cuti/cutidetail.styles";
 import COLORS from "@/constants/colors";
-import { dummyUsers } from "@/data/dummyUser";
 import { router } from "expo-router";
-import { useState } from "react";
-import { Alert, Image, Platform, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useMemo, useState } from "react";
+import { Image, Platform, Text, TextInput, TouchableOpacity, View } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import CutiPopUpModal from "./CutiPopUpModal";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -11,8 +10,14 @@ import { useAuthStore } from "@/lib/store/authStore";
 import { CreateCutiRequest } from "@/types/cuti/cutiTypes";
 import { useCuti } from "@/lib/api/hooks/useCuti";
 import NotificationModal from "../NotificationModal";
+import { useKontrak } from "@/lib/api/hooks/useKontrak";
+import { KontrakKerjaStatus } from "@/types/enumTypes";
 
-const CutiCreateFormComponent = () => {
+type Props = {
+    kontrakData: any;
+};
+
+const CutiCreateFormComponent = ({ kontrakData }: Props) => {
     const user = useAuthStore((state) => state.user);
     const [showModal, setShowModal] = useState(false);
     const [showStartPicker, setShowStartPicker] = useState(false);
@@ -28,7 +33,29 @@ const CutiCreateFormComponent = () => {
         visible: false,
         status: "success",
     });
-    const MaxCutiDay = 2;
+
+    if (!user) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Text style={{ color: COLORS.textMuted }}>Data tidak ditemukan...</Text>
+            </View>
+        )
+    }
+
+    const MaxCutiDay = useMemo(() => {
+        if (!Array.isArray(kontrakData)) return 0;
+
+        const activeKontrak = kontrakData.filter(
+            (k: any) => k.status === KontrakKerjaStatus.ACTIVE
+        );
+
+        if (activeKontrak.length === 0) return 0;
+
+        return Math.max(
+            ...activeKontrak.map((k: any) => k.cutiBulanan ?? 0)
+        );
+    }, [kontrakData]);
+
     const [formData, setFormData] = useState<CreateCutiRequest>({
         userId: user.id,
         startDate: "",
@@ -147,7 +174,6 @@ const CutiCreateFormComponent = () => {
             },
         });
     };
-
 
     const getMaxEndDate = () => {
         if (!formData.startDate) return undefined;
@@ -354,7 +380,7 @@ const CutiCreateFormComponent = () => {
                     setNotification(prev => ({ ...prev, visible: false }));
 
                     if (notification.status === "success") {
-                        router.push("/(tabs)/cuti");
+                        router.back();
                     }
                 }}
             />

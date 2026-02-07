@@ -17,7 +17,6 @@ import { MajorRole, MinorRole } from "@/types/enumTypes";
 import NotificationModal from "@/components/rootComponents/NotificationModal";
 import SkeletonBox from "@/components/rootComponents/SkeletonBox";
 import { gajiDetailStyles, HEADER_HEIGHT } from "@/assets/styles/rootstyles/gaji/gajidetail.styles";
-import { GajiStyles } from "@/assets/styles/rootstyles/gaji/gaji.styles";
 
 const CreateEventFormPage = () => {
     const user = useAuthStore((state) => state.user);

@@ -56,6 +56,42 @@ export const useCuti = () => {
         });
     }
 
+    const fetchCutiByUserId = (userId: string) => {
+        return useQuery({
+            queryKey: ["cuti-by-user", userId],
+            queryFn: async() => {
+                const token = await getTokens();
+                const jwt = token?.access_token;
+                if (!token?.access_token) throw new Error("No access token found");
+                
+                const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cuti/user/${userId}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${jwt}`,
+                    },
+                    credentials: "include",
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Failed to fetch cuti by User"
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                const result = await response.json();
+                return result;
+            },
+            enabled: !!userId,
+            staleTime: 5 * 60 * 1000,  
+        })
+    }
+
     const fetchCutiById = (id: string) => {
         return useQuery({
             queryKey: ["cuti-single", id],
@@ -147,6 +183,7 @@ export const useCuti = () => {
 
     return {
         fetchAllCuti,
+        fetchCutiByUserId,
         fetchCutiById,
         createCuti,
     }

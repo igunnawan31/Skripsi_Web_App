@@ -1,7 +1,7 @@
 import { getTokens } from "@/lib/utils/secureStorage";
 import { useQuery } from "@tanstack/react-query";
 
-export const useCuti = () => {
+export const useKontrak = () => {
     const fetchAllKontrakByUserId = (filters?: {
         page?: number;
         limit?: number;
@@ -55,15 +55,15 @@ export const useCuti = () => {
         });
     }
 
-    const fetchCutiById = (id: string) => {
+    const fetchKontrakById = (id: string) => {
         return useQuery({
-            queryKey: ["cuti-single", id],
+            queryKey: ["kontrak-single", id],
             queryFn: async() => {
                 const token = await getTokens();
                 const jwt = token?.access_token;
                 if (!token?.access_token) throw new Error("No access token found");
                 
-                const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cuti/${id}`, {
+                const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/kontrak/user/${id}`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -73,7 +73,7 @@ export const useCuti = () => {
                 });
 
                 if (!response.ok) {
-                    let errorMessage = "Failed to fetch absensi by ID"
+                    let errorMessage = "Failed to fetch kontrak by Id"
                     try {
                         const errorData = await response.json();
                         errorMessage = errorData.response?.message || errorData.message || errorMessage;
@@ -92,6 +92,6 @@ export const useCuti = () => {
     }
 
     return {
-        fetch
+        fetchKontrakById,
     }
 }
