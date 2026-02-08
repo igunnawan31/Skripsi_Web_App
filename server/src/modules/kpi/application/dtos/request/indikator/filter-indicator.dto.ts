@@ -1,25 +1,36 @@
+import { OmitType } from "@nestjs/mapped-types";
 import { StatusIndikatorKPI } from "@prisma/client";
-import { IsBoolean, IsDateString, IsEnum, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsDate, IsDateString, IsEnum, IsOptional, IsString } from "class-validator";
 import { FilterDTO } from "src/common/types/Filter.dto";
 
 export class IndikatorFilterDTO extends FilterDTO {
   @IsString()
   @IsOptional()
-  category: string;
+  category?: string;
 
   @IsDateString()
   @IsOptional()
-  minStartDate: string;
+  minStartDate?: string;
 
   @IsDateString()
   @IsOptional()
-  maxEndDate: string;
+  maxEndDate?: string;
 
   @IsBoolean()
   @IsOptional()
-  statusPublic: boolean;
+  statusPublic?: boolean;
 
   @IsEnum(StatusIndikatorKPI)
   @IsOptional()
-  status: StatusIndikatorKPI;
+  status?: StatusIndikatorKPI;
+}
+
+export class InternalIndikatorFilterDTO extends OmitType(IndikatorFilterDTO, ['minStartDate', 'maxEndDate']) {
+  @IsDate()
+  @IsOptional()
+  minStartDate?: Date;
+
+  @IsDate()
+  @IsOptional()
+  maxEndDate?: Date;
 }

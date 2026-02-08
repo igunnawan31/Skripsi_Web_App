@@ -15,8 +15,8 @@ export class CreatePertanyaanDTO {
   aktif: boolean;
 
   @IsNumber()
-  skalaId: number;
-
-  @IsNumber()
   urutanSoal: number;
+
+  @IsString()
+  indikatorId: string;
 }

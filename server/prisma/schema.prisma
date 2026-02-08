@@ -32,12 +32,12 @@ model User {
   projectTeams ProjectTeam[] @relation("ProjectMember")
 
   // Relasi KPI
-  indikatorDibuat  IndikatorKPI[]        @relation("PembuatIndikator")
-  penilaiKPI       JawabanKPI[]          @relation("PenilaiKPI")
-  dinilaiKPI       JawabanKPI[]          @relation("DinilaiKPI")
-  rekapKPI         RekapKPI[]            @relation("RekapUserKPI")
-  indikatorPenilai IndikatorKPIPenilai[] @relation("UserPenilai")
-  indikatorDinilai IndikatorKPIDinilai[] @relation("UserDinilai")
+  indikatorDibuat IndikatorKPI[] @relation("PembuatIndikator")
+  penilaiKPI      JawabanKPI[]   @relation("JawabanEvaluator")
+  dinilaiKPI      JawabanKPI[]   @relation("JawabanEvaluatee")
+  rekapKPI        RekapKPI[]     @relation("RekapUserKPI")
+  evaluatorOf     Evaluations[]  @relation("UserEvaluator")
+  evaluateeOf     Evaluations[]  @relation("UserEvaluatee")
 
   // Relasi Reimburse
   requestedReimburse Reimburse[] @relation("ReimburseRequester")
@@ -168,7 +168,7 @@ model Project {
 model ProjectTeam {
   projectId String
   userId    String
-  joinedAt  DateTime    @default(now())
+  joinedAt  DateTime @default(now())
 
   project Project @relation("ProjectTeam", fields: [projectId], references: [id], onDelete: Cascade)
   user    User    @relation("ProjectMember", fields: [userId], references: [id], onDelete: Cascade)
@@ -179,19 +179,6 @@ model ProjectTeam {
 }
 
 // ==================== KPI SYSTEM ====================
-model SkalaNilaiKPI {
-  id         Int      @id @default(autoincrement())
-  name       String // Contoh: "Skala 1-5", "Skala Sangat Buruk - Sangat Baik"
-  valueType  ValueType // "NUMERIC", "TEXT"
-  valueRange String[] // Untuk NUMERIC: ["1","2","3","4","5"], untuk TEXT: ["Sangat Buruk","Buruk","Cukup","Baik","Sangat Baik"]
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  pertanyaan PertanyaanKPI[] @relation("SkalaPertanyaan")
-
-  @@index([name])
-}
-
 model IndikatorKPI {
   id           String             @id @default(uuid())
   name         String
@@ -210,9 +197,7 @@ model IndikatorKPI {
   // Relasi ke pertanyaan
   pertanyaan PertanyaanKPI[] @relation("IndikatorPertanyaan")
 
-  // Relasi many-to-many: Siapa yang menilai & siapa yang dinilai
-  penilai IndikatorKPIPenilai[] @relation("IndikatorPenilai")
-  dinilai IndikatorKPIDinilai[] @relation("IndikatorDinilai")
+  evaluation Evaluations[] @relation("IndikatorEvaluation")
 
   // Hasil penilaian
   jawaban JawabanKPI[] @relation("IndikatorJawaban")
@@ -223,32 +208,20 @@ model IndikatorKPI {
   @@index([startDate, endDate])
 }
 
-// Tabel pivot: User mana saja yang bisa jadi PENILAI di indikator ini
-model IndikatorKPIPenilai {
+model Evaluations {
   indikatorId String
-  userId      String
+  evaluatorId String
+  evaluateeId String
   createdAt   DateTime @default(now())
 
-  indikator IndikatorKPI @relation("IndikatorPenilai", fields: [indikatorId], references: [id], onDelete: Cascade)
-  user      User         @relation("UserPenilai", fields: [userId], references: [id], onDelete: Cascade)
+  indikator IndikatorKPI @relation("IndikatorEvaluation", fields: [indikatorId], references: [id], onDelete: Cascade)
+  evaluator User         @relation("UserEvaluator", fields: [evaluatorId], references: [id], onDelete: Cascade)
+  evaluatee User         @relation("UserEvaluatee", fields: [evaluateeId], references: [id], onDelete: Cascade)
 
-  @@id([indikatorId, userId])
+  @@id([indikatorId, evaluateeId, evaluatorId])
   @@index([indikatorId])
-  @@index([userId])
-}
-
-// Tabel pivot: User mana saja yang akan DINILAI di indikator ini
-model IndikatorKPIDinilai {
-  indikatorId String
-  userId      String
-  createdAt   DateTime @default(now())
-
-  indikator IndikatorKPI @relation("IndikatorDinilai", fields: [indikatorId], references: [id], onDelete: Cascade)
-  user      User         @relation("UserDinilai", fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([indikatorId, userId])
-  @@index([indikatorId])
-  @@index([userId])
+  @@index([evaluateeId])
+  @@index([evaluatorId])
 }
 
 model PertanyaanKPI {
@@ -258,17 +231,14 @@ model PertanyaanKPI {
   pertanyaan  String             @db.Text
   bobot       Float
   aktif       Boolean            @default(true)
-  skalaId     Int
   urutanSoal  Int                @default(0) // buat sorting
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
 
-  indikator IndikatorKPI  @relation("IndikatorPertanyaan", fields: [indikatorId], references: [id], onDelete: Cascade)
-  skala     SkalaNilaiKPI @relation("SkalaPertanyaan", fields: [skalaId], references: [id], onDelete: Restrict)
-  jawaban   JawabanKPI[]  @relation("JawabanPertanyaan")
+  indikator IndikatorKPI @relation("IndikatorPertanyaan", fields: [indikatorId], references: [id], onDelete: Cascade)
+  jawaban   JawabanKPI[] @relation("JawabanPertanyaan")
 
   @@index([indikatorId])
-  @@index([skalaId])
   @@index([aktif])
 }
 
@@ -276,24 +246,24 @@ model JawabanKPI {
   id           String   @id @default(uuid())
   indikatorId  String
   pertanyaanId String
-  penilaiId    String
-  dinilaiId    String
-  nilai        String // Nilai sesuai dengan skala (bisa "1", "2", atau "Sangat Baik", dll)
+  evaluatorId  String
+  evaluateeId  String
+  nilai        Int // Nilai sesuai dengan skala (bisa "1", "2", atau "Sangat Baik", dll)
   notes        String?  @db.Text
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   indikator  IndikatorKPI  @relation("IndikatorJawaban", fields: [indikatorId], references: [id], onDelete: Cascade)
   pertanyaan PertanyaanKPI @relation("JawabanPertanyaan", fields: [pertanyaanId], references: [id], onDelete: Restrict)
-  penilai    User          @relation("PenilaiKPI", fields: [penilaiId], references: [id], onDelete: Cascade)
-  dinilai    User          @relation("DinilaiKPI", fields: [dinilaiId], references: [id], onDelete: Cascade)
+  evaluator  User          @relation("JawabanEvaluator", fields: [evaluatorId], references: [id], onDelete: Cascade)
+  evaluatee  User          @relation("JawabanEvaluatee", fields: [evaluateeId], references: [id], onDelete: Cascade)
 
-  @@unique([pertanyaanId, penilaiId, dinilaiId]) // Satu penilai hanya bisa jawab 1x per pertanyaan per dinilai
+  @@unique([pertanyaanId, evaluatorId, evaluateeId]) // Satu penilai hanya bisa jawab 1x per pertanyaan per dinilai
   @@index([indikatorId])
   @@index([pertanyaanId])
-  @@index([penilaiId])
-  @@index([dinilaiId])
-  @@index([penilaiId, dinilaiId])
+  @@index([evaluatorId])
+  @@index([evaluateeId])
+  @@index([evaluatorId, evaluateeId])
 }
 
 model RekapKPI {
@@ -452,9 +422,4 @@ enum AgendaStatus {
 enum EmployeeType {
   CONTRACT
   PERMANENT
-}
-
-enum ValueType {
-  NUMERIC
-  TEXT
 }

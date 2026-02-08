@@ -4,15 +4,6 @@ import { hash } from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  // 1. Buat skala nilai KPI
-  const skala1to5 = await prisma.skalaNilaiKPI.create({
-    data: {
-      name: 'Skala 1-5',
-      valueType: 'NUMERIC',
-      valueRange: ['1', '2', '3', '4', '5'],
-    },
-  });
-
   // 2. Buat user
   const password = await hash('rahasia123', 10);
   const owner = await prisma.user.create({
@@ -198,11 +189,8 @@ async function main() {
       endDate: new Date('2025-01-31'),
       status: 'ACTIVE',
       createdById: pm.id,
-      penilai: {
-        create: [{ userId: pm.id }],
-      },
-      dinilai: {
-        create: [{ userId: frontend.id }],
+      evaluation: {
+        create: [{ evaluatorId: pm.id, evaluateeId: frontend.id }],
       },
     },
   });
@@ -214,7 +202,6 @@ async function main() {
       kategori: 'KINERJA',
       pertanyaan: 'Seberapa bersih dan terstruktur kode yang ditulis?',
       bobot: 1.0,
-      skalaId: skala1to5.id,
     },
   });
 
@@ -223,9 +210,9 @@ async function main() {
     data: {
       indikatorId: indikator.id,
       pertanyaanId: pertanyaan.id,
-      penilaiId: pm.id,
-      dinilaiId: frontend.id,
-      nilai: '4',
+      evaluatorId: pm.id,
+      evaluateeId: frontend.id,
+      nilai: 4,
       notes: 'Kode cukup rapi, tapi kurang dokumentasi.',
     },
   });

@@ -18,6 +18,7 @@ import { KontrakModule } from './modules/kontrak/kontrak.module';
 import { ProjectModule } from './modules/project/project.module';
 import { AgendaModule } from './modules/agenda/agenda.module';
 import { SalaryModule } from './modules/salary/salary.module';
+import { KpiModule } from './modules/kpi/kpi.module';
 
 @Module({
   imports: [
@@ -78,7 +79,7 @@ import { SalaryModule } from './modules/salary/salary.module';
     KontrakModule,
     SalaryModule,
     ProjectModule,
-    // KpiModule,
+    KpiModule,
     ReimburseModule,
     AgendaModule,
   ],

@@ -32,9 +32,9 @@ export class RetrieveUserResponseDTO extends CreateUserResponseDTO {
   @Expose()
   rekapKPI: RekapKPIBaseDTO[];
   @Expose()
-  indikatorPenilai: IndikatorKPIPivotBaseDTO[];
+  evaluatorOf: IndikatorKPIPivotBaseDTO[];
   @Expose()
-  indikatorDinilai: IndikatorKPIPivotBaseDTO[];
+  evaluateeOf: IndikatorKPIPivotBaseDTO[];
 }
 
 export class RetrieveAllUserResponseDTO {

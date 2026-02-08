@@ -106,8 +106,8 @@ export class UserRepository implements IUserRepository {
             penilaiKPI: true,
             dinilaiKPI: true,
             rekapKPI: true,
-            indikatorPenilai: true,
-            indikatorDinilai: true,
+            evaluatorOf: true,
+            evaluateeOf: true,
           },
         }),
         this.prisma.user.count({ where }),
@@ -132,13 +132,13 @@ export class UserRepository implements IUserRepository {
             penilaiKPI: plainToInstance(JawabanKPIBaseDTO, user.penilaiKPI),
             dinilaiKPI: plainToInstance(JawabanKPIBaseDTO, user.dinilaiKPI),
             rekapKPI: plainToInstance(RekapKPIBaseDTO, user.rekapKPI),
-            indikatorPenilai: plainToInstance(
+            evaluatorOf: plainToInstance(
               IndikatorKPIPivotBaseDTO,
-              user.indikatorPenilai,
+              user.evaluatorOf,
             ),
-            indikatorDinilai: plainToInstance(
+            evaluateeOf: plainToInstance(
               IndikatorKPIPivotBaseDTO,
-              user.indikatorDinilai,
+              user.evaluateeOf,
             ),
           }),
         ),
@@ -169,8 +169,8 @@ export class UserRepository implements IUserRepository {
           penilaiKPI: true,
           dinilaiKPI: true,
           rekapKPI: true,
-          indikatorPenilai: true,
-          indikatorDinilai: true,
+          evaluatorOf: true,
+          evaluateeOf: true,
         },
       });
 
@@ -194,13 +194,13 @@ export class UserRepository implements IUserRepository {
             penilaiKPI: plainToInstance(JawabanKPIBaseDTO, user.penilaiKPI),
             dinilaiKPI: plainToInstance(JawabanKPIBaseDTO, user.dinilaiKPI),
             rekapKPI: plainToInstance(RekapKPIBaseDTO, user.rekapKPI),
-            indikatorPenilai: plainToInstance(
+            evaluatorOf: plainToInstance(
               IndikatorKPIPivotBaseDTO,
-              user.indikatorPenilai,
+              user.evaluatorOf,
             ),
-            indikatorDinilai: plainToInstance(
+            evaluateeOf: plainToInstance(
               IndikatorKPIPivotBaseDTO,
-              user.indikatorDinilai,
+              user.evaluateeOf,
             ),
           }
           : {},

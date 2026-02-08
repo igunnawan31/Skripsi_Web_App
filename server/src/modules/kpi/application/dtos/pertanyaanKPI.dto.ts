@@ -21,9 +21,6 @@ export class PertanyaanKPIBaseDTO {
   aktif: boolean;
 
   @Expose()
-  skalaId: number;
-
-  @Expose()
   urutanSoal: number;
 
   @Expose()
