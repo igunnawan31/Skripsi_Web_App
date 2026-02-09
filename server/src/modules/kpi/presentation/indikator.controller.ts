@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Req,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { LoggerService } from 'src/modules/logger/logger.service';
 import { CreateIndikatorUseCase } from '../application/use-cases/indikator/create.use-case';
 import { DeleteIndikatorUseCase } from '../application/use-cases/indikator/delete.use-case';
@@ -11,6 +22,8 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateIndikatorDTO } from '../application/dtos/request/indikator/create-indicator.dto';
 import { UpdateIndikatorDTO } from '../application/dtos/request/indikator/update-indicator.dto';
+import { GetAllPertanyaanIndikatorUseCase } from '../application/use-cases/pertanyaan/get-all-pertanyaan-indikator.use-case';
+import { PertanyaanFilterDTO } from '../application/dtos/request/pertanyaan/filter-question.dto';
 
 @Controller('indicators')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -22,19 +35,34 @@ export class IndicatorController {
     private readonly getAllIndicatorUseCase: GetAllIndikatorUseCase,
     private readonly getIndicatorUseCase: GetIndikatorUseCase,
     private readonly updateIndicatorUseCase: UpdateIndikatorUseCase,
+    private readonly getAllPertanyaanIndikatorUseCase: GetAllPertanyaanIndikatorUseCase,
   ) { }
 
   @Get()
-  getAll(@Query() filters: IndikatorFilterDTO, @Req() req: Request & { user: UserRequest }) {
+  getAll(
+    @Query() filters: IndikatorFilterDTO,
+    @Req() req: Request & { user: UserRequest },
+  ) {
     return this.getAllIndicatorUseCase.execute(filters, req.user);
+  }
+  @Get('/:id/questions')
+  getAllPertanyaanIndikator(
+    @Param('id') indikatorId: string,
+    @Query() filters: PertanyaanFilterDTO,
+    @Req() req: Request & { user: UserRequest },
+  ) {
+    return this.getAllPertanyaanIndikatorUseCase.execute(indikatorId, filters, req.user);
   }
   @Get('/:id')
   getOne(@Param('id') id: string, @Req() req: Request & { user: UserRequest }) {
-    return this.getIndicatorUseCase.execute(id)
+    return this.getIndicatorUseCase.execute(id);
   }
   @Post()
-  create(@Body() dto: CreateIndikatorDTO, @Req() req: Request & { user: UserRequest }) {
-    return this.createIndicatorUseCase.execute(dto, req.user)
+  create(
+    @Body() dto: CreateIndikatorDTO,
+    @Req() req: Request & { user: UserRequest },
+  ) {
+    return this.createIndicatorUseCase.execute(dto, req.user);
   }
   @Patch('/:id')
   update(@Param('id') id: string, @Body() dto: UpdateIndikatorDTO) {
