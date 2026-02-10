@@ -3,12 +3,9 @@ import { COLORS } from "@/constants/colors"
 
 export const profileStyles = StyleSheet.create({
     container: {
-        flex: 1,
         width: "100%",
-        height: "100%",
         backgroundColor: COLORS.primary,
-        justifyContent: "flex-end",
-        alignItems: "center",
+        paddingTop: 150,
     },
     profilePicture: {
         width: "100%",
@@ -52,7 +49,7 @@ export const profileStyles = StyleSheet.create({
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30,
         padding: 20,
-        justifyContent: "flex-start",
+        paddingTop: 40,
         alignItems: "center",
     },
     changeImageContainer: {
@@ -129,7 +126,7 @@ export const profileStyles = StyleSheet.create({
         justifyContent: "space-between",
     },
     buttonPicker: {
-        width: "30%",
+        width: "auto",
         backgroundColor: COLORS.white,
         borderRadius: 10,
         paddingVertical: 10,
@@ -150,7 +147,19 @@ export const profileStyles = StyleSheet.create({
     },
     menuPickerContainer: {
         width: "100%",
-        marginTop: 10,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        backgroundColor: COLORS.white,
+        borderRadius: 10,
+        marginTop: 20,
+        shadowColor: COLORS.shadow,
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 1,
+        elevation: 11,
     },
     menuPicker: {
         paddingVertical: 16,
@@ -165,11 +174,11 @@ export const profileStyles = StyleSheet.create({
         flexDirection: "row", 
         justifyContent: "center", 
         alignItems: "center",
-        gap: 10
+        gap: 16
     },
     imagePicker: {
-        width: 30,
-        height: 30,
+        width: 20,
+        height: 20,
         tintColor: COLORS.tertiary,
     },
     textPicker: {
@@ -182,4 +191,61 @@ export const profileStyles = StyleSheet.create({
         height: 12,
         tintColor: COLORS.tertiary,
     },
+    header: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 60,
+        backgroundColor: COLORS.primary,
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        zIndex: 10,
+    },
+    headerTitle: {
+        fontFamily: "poppins",
+        fontSize: 16,
+        fontWeight: "bold",
+        color: COLORS.white
+    },
+    subHeaderDetail: {
+        alignItems: "center",
+        marginBottom: 10,
+        gap: 5,
+    },
+    detailTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginTop: 10,
+        color: COLORS.textPrimary
+    },
+    iconPlace: { 
+        width: 32, 
+        height: 32, 
+        borderRadius: 40, 
+        backgroundColor: COLORS.white, 
+        justifyContent: "center", 
+        alignItems: "center",
+        marginRight: 10 
+    },
+    iconBack: {
+        width: 16,
+        height: 16,
+        tintColor: COLORS.primary,
+    },
+    firstContainer: {
+        width: "90%",
+        gap: 16,
+    },
+    titleFirst: {
+        fontSize: 28,
+        color: COLORS.primary,
+        fontWeight: "bold",
+    },
+    descriptionFirst: {
+        fontSize: 14,
+        color: COLORS.textMuted,
+    }
 });
