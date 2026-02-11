@@ -5,7 +5,7 @@ export const profileStyles = StyleSheet.create({
     container: {
         width: "100%",
         backgroundColor: COLORS.primary,
-        paddingTop: 150,
+        paddingTop: 120,
     },
     profilePicture: {
         width: "100%",
@@ -151,15 +151,16 @@ export const profileStyles = StyleSheet.create({
         paddingVertical: 10,
         backgroundColor: COLORS.white,
         borderRadius: 10,
-        marginTop: 20,
+        marginTop: 0,
         shadowColor: COLORS.shadow,
         shadowOffset: {
             width: 0,
             height: 10,
         },
-        shadowOpacity: 0.25,
+        shadowOpacity: 0.1,
         shadowRadius: 1,
-        elevation: 11,
+        elevation: 4,
+        gap: 5,
     },
     menuPicker: {
         paddingVertical: 16,
@@ -247,5 +248,55 @@ export const profileStyles = StyleSheet.create({
     descriptionFirst: {
         fontSize: 14,
         color: COLORS.textMuted,
-    }
+    },
+    subHeaderContainer: {
+        width: "100%",
+        flexDirection: "row",
+        justifyContent: "space-between",
+    },
+    subHeader: {
+        height: "auto",
+        width: "48%",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: COLORS.white,
+        paddingVertical: 16,
+        marginVertical: 15,
+        borderRadius: 15,
+        shadowColor: COLORS.shadow,
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 1,
+        elevation: 4,
+        gap: 5,
+    },
+    logoAbsen: {
+        width: 24,
+        height: 24,
+        tintColor: COLORS.tertiary,
+    },
+    logoCuti: {
+        width: 24,
+        height: 24,
+        tintColor: COLORS.tertiary,
+    },
+    titleAbsen: {
+        color: COLORS.tertiary,
+        fontSize: 16,
+        fontWeight: "600",
+    },
+    titleCuti: {
+        color: COLORS.tertiary,
+        fontSize: 16,
+        fontWeight: "600",
+    },
+    textAbsen: {
+        color: COLORS.tertiary,
+    },
+    textCuti: {
+        color: COLORS.tertiary,
+    },
 });

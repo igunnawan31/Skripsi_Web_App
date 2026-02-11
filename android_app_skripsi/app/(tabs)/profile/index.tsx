@@ -2,7 +2,7 @@ import { profileStyles } from "@/assets/styles/rootstyles/profiles/profile.style
 import ListDataComponent from "@/components/rootComponents/profileComponent/ListDataComponent";
 import COLORS from "@/constants/colors";
 import { dummyUsers } from "@/data/dummyUser";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Image, Text, TouchableOpacity, View, Modal, Animated, Easing, RefreshControl, Dimensions } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import * as ImagePicker from "expo-image-picker";
@@ -19,6 +19,9 @@ import { useKontrak } from "@/lib/api/hooks/useKontrak";
 import { gajiDetailStyles } from "@/assets/styles/rootstyles/gaji/gajidetail.styles";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
+import { cutiStyles } from "@/assets/styles/rootstyles/cuti/cuti.styles";
+import { format } from "date-fns";
+import { KontrakKerjaStatus } from "@/types/enumTypes";
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const ProfilePage = () => {
@@ -135,6 +138,47 @@ const ProfilePage = () => {
             await Sharing.shareAsync(result.uri);
         }
     };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case KontrakKerjaStatus.COMPLETED:
+                return COLORS.success;
+            case KontrakKerjaStatus.ON_HOLD:
+                return COLORS.error;
+            case KontrakKerjaStatus.ACTIVE:
+                return COLORS.tertiary;
+            default:
+                return COLORS.muted;
+        }
+    };
+
+    const MaxCutiDay = useMemo(() => {
+        if (!Array.isArray(data)) return 0;
+
+        const activeKontrak = data.filter(
+            (k: any) => k.status === KontrakKerjaStatus.ACTIVE
+        );
+
+        if (activeKontrak.length === 0) return 0;
+
+        return Math.max(
+            ...activeKontrak.map((k: any) => k.cutiBulanan ?? 0)
+        );
+    }, [data]);
+
+    const MaxAbsenDay = useMemo(() => {
+        if (!Array.isArray(data)) return 0;
+
+        const activeKontrak = data.filter(
+            (k: any) => k.status === KontrakKerjaStatus.ACTIVE
+        );
+
+        if (activeKontrak.length === 0) return 0;
+
+        return Math.max(
+            ...activeKontrak.map((k: any) => k.absensiBulanan ?? 0)
+        );
+    }, [data]);
 
     useEffect(() => {
         Animated.timing(rotateUserAnim, {
@@ -253,6 +297,32 @@ const ProfilePage = () => {
                         </View>
                         <Text style={profileStyles.roleText}>{user.majorRole} - {user.minorRole}</Text>
                     </View>
+                    <View style={profileStyles.subHeaderContainer}>
+                        <View style={profileStyles.subHeader}>
+                            <Text style={profileStyles.titleAbsen}>
+                                Absensi Bulanan
+                            </Text>
+                            <Image 
+                                style={profileStyles.logoAbsen}
+                                source={require("../../../assets/icons/clock-in.png")}
+                            />
+                            <Text style={profileStyles.textAbsen}>
+                                {MaxAbsenDay} Hari
+                            </Text>
+                        </View>
+                        <View style={profileStyles.subHeader}>
+                            <Text style={profileStyles.titleCuti}>
+                                Cuti Bulanan
+                            </Text>
+                            <Image 
+                                style={profileStyles.logoCuti}
+                                source={require("../../../assets/icons/cuti.png")}
+                            />
+                            <Text style={profileStyles.textCuti}>
+                                {MaxCutiDay} Hari
+                            </Text>
+                        </View>
+                    </View>
                     <View style={profileStyles.menuPickerContainer}>
                         <TouchableOpacity
                             style={profileStyles.menuPicker}
@@ -318,9 +388,33 @@ const ProfilePage = () => {
                                             data.map((kontrak: any, kontrakIndex: number) => (
                                                 <View key={kontrak.id || kontrakIndex}>
                                                     {data.length > 0 && (
-                                                        <Text style={{ fontSize: 12, fontWeight: '700', color: COLORS.primary, marginBottom: 8 }}>
-                                                            Kontrak {kontrak.jenis} ({kontrak.status})
-                                                        </Text>
+                                                        <>
+                                                            <View style={cutiStyles.listHeader}>
+                                                                <Text style={cutiStyles.name}>Kontrak</Text>
+                                                                <Text style={cutiStyles.date}>
+                                                                    {kontrak.project?.name ? 
+                                                                        kontrak.project.name
+                                                                        : `${kontrak.startDate ? format(new Date(kontrak.startDate), "dd-MM-yyyy") : "-"} → ${kontrak.endDate ? format(new Date(kontrak.endDate), "dd-MM-yyyy") : "-"}`
+                                                                    }
+                                                                </Text>
+                                                            </View>
+                                                            <View style={cutiStyles.roleContainer}>
+                                                                <Text style={cutiStyles.roleText}>
+                                                                    {kontrak.project?.name ? 
+                                                                       `${kontrak.startDate ? format(new Date(kontrak.startDate), "dd-MM-yyyy") : "-"} → ${kontrak.endDate ? format(new Date(kontrak.endDate), "dd-MM-yyyy") : "-"}`
+                                                                        : `${kontrak.user.majorRole} - ${kontrak.user.minorRole}`
+                                                                    }
+                                                                </Text>
+                                                                <View
+                                                                    style={[
+                                                                        cutiStyles.statusBadge,
+                                                                        { backgroundColor: getStatusColor(kontrak.status) },
+                                                                    ]}
+                                                                >
+                                                                    <Text style={cutiStyles.statusText}>{kontrak.status}</Text>
+                                                                </View>
+                                                            </View>
+                                                        </>
                                                     )}
 
                                                     {kontrak.documents?.length > 0 ? (
@@ -374,9 +468,18 @@ const ProfilePage = () => {
                                                             </View>
                                                         ))
                                                     ) : (
-                                                        <Text style={{ fontSize: 13, color: "#888", fontStyle: 'italic' }}>
-                                                            Tidak ada dokumen untuk kontrak ini.
-                                                        </Text>
+                                                        <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 20 }}>
+                                                            <Image
+                                                                source={require("../../../assets/icons/not-found.png")}
+                                                                style={{ width: 72, height: 72, }}
+                                                            />
+                                                            <Text style={{ textAlign: "center", marginTop: 10, color: COLORS.textPrimary, fontWeight: "bold", fontSize: 16, }}>
+                                                                Belum ada dokumen pendukung kontrak
+                                                            </Text>
+                                                            <Text style={{ textAlign: "center", marginTop: 5, color: COLORS.muted, fontSize: 12, }}>
+                                                                Mohon untuk mengecek kembali nanti
+                                                            </Text>
+                                                        </View> 
                                                     )}
                                                 </View>
                                             ))

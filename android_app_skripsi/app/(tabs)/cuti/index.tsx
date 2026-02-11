@@ -1,6 +1,6 @@
 import { cutiStyles } from "@/assets/styles/rootstyles/cuti/cuti.styles";
 import COLORS from "@/constants/colors";
-import { CutiStatus } from "@/types/enumTypes";
+import { CutiStatus, MinorRole } from "@/types/enumTypes";
 import { useEffect, useState } from "react";
 import { Image, Platform, RefreshControl, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import Modal from "react-native-modal";
@@ -15,12 +15,21 @@ import { useAuthStore } from "@/lib/store/authStore";
 
 const CutiPage = () => {
     const user = useAuthStore((state) => state.user);
-    const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
-    const { data, isLoading, error, refetch, isFetching} = useCuti().fetchCutiByUserId(user?.id);
-    const [filteredData, setFilteredData] = useState<CutiResponse[]>([]);
+    const isHR = user?.minorRole === MinorRole.HR;
 
+    const userCuti = useCuti().fetchCutiByUserId(user?.id);
+    const allCuti = useCuti().fetchAllCuti();
+
+    const activeData = isHR ? userCuti.data?.data : allCuti.data?.data;
+    const isLoading = isHR ? userCuti.isLoading : allCuti.isLoading;
+    const isFetching = isHR ? userCuti.isFetching : allCuti.isFetching;
+    const error = isHR ? userCuti.error : allCuti.error;
+    const refetch = isHR ? userCuti.refetch : allCuti.refetch;
+
+    const [filteredData, setFilteredData] = useState<CutiResponse[]>([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [pickerMode, setPickerMode] = useState("month");
+    const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [showPicker, setShowPicker] = useState(false);
     const [pickerTarget, setPickerTarget] = useState("month");
@@ -33,8 +42,12 @@ const CutiPage = () => {
     const closeHandlePopUpFilter = () => setModalVisible(false);
 
     useEffect(() => {
-        if (data?.data) setFilteredData(data?.data);
-    }, [data]);
+        if (activeData) {
+            setFilteredData(activeData);
+        } else {
+            setFilteredData([]);
+        }
+    }, [activeData]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -75,26 +88,25 @@ const CutiPage = () => {
     };
 
     const handleFilter = () => {
-        let filtered = data?.data || [];
-        console.log("filtered", filtered);
+    let filtered = activeData || [];
 
-        if (pickerMode === "month" && startDate) {
-            const selectedMonth = startDate.getMonth();
-            const selectedYear = startDate.getFullYear();
+    if (pickerMode === "month" && startDate) {
+        const selectedMonth = startDate.getMonth();
+        const selectedYear = startDate.getFullYear();
 
-            filtered = filtered.filter((item: CutiResponse) => {
-                const itemDate = new Date(item.createdAt);
-                return itemDate.getMonth() === selectedMonth && itemDate.getFullYear() === selectedYear;
-            });
-        }
+        filtered = filtered.filter((item: CutiResponse) => {
+            const itemDate = new Date(item.createdAt);
+            return itemDate.getMonth() === selectedMonth && itemDate.getFullYear() === selectedYear;
+        });
+    }
 
-        if (pickerMode === "status" && selectedStatus) {
-            filtered = filtered.filter((item: CutiResponse) => item.status === selectedStatus);
-        }
+    if (pickerMode === "status" && selectedStatus) {
+        filtered = filtered.filter((item: CutiResponse) => item.status === selectedStatus);
+    }
 
-        setFilteredData(filtered);
-        closeHandlePopUpFilter();
-    };
+    setFilteredData(filtered);
+    closeHandlePopUpFilter();
+};
 
     const onChangeDate = (event: any, selectedDate?: Date) => {
         setShowPicker(false);
@@ -104,7 +116,7 @@ const CutiPage = () => {
     };
   
     const resetFilter = () => {
-        if (data?.data) setFilteredData(data.data);
+        if (activeData) setFilteredData(activeData);
         setStartDate(null);
         setSelectedStatus(null);
         setPickerMode("month");
@@ -209,7 +221,7 @@ const CutiPage = () => {
                                 source={require("../../../assets/icons/cuti.png")}
                             />
                             <Text style={cutiStyles.textCutiAccepted}>
-                                {totalDiterima(data?.data ?? [])}
+                                {totalDiterima(activeData ?? [])}
                             </Text>
                         </View>
                         <View style={cutiStyles.cutiAvailable}>
@@ -221,7 +233,7 @@ const CutiPage = () => {
                                 source={require("../../../assets/icons/cuti.png")}
                             />
                             <Text style={cutiStyles.textCutiRejected}>
-                                {totalDitolak(data?.data ?? [])}
+                                {totalDitolak(activeData ?? [])}
                             </Text>
                         </View>
                     </View>
@@ -303,7 +315,7 @@ const CutiPage = () => {
                             source={require("../../../assets/icons/cuti.png")}
                         />
                         <Text style={cutiStyles.textCutiAccepted}>
-                            {totalDiterima(data?.data ?? [])}
+                            {totalDiterima(activeData ?? [])}
                         </Text>
                     </View>
                     <View style={cutiStyles.cutiAvailable}>
@@ -315,7 +327,7 @@ const CutiPage = () => {
                             source={require("../../../assets/icons/cuti.png")}
                         />
                         <Text style={cutiStyles.textCutiRejected}>
-                            {totalDitolak(data?.data ?? [])}
+                            {totalDitolak(activeData ?? [])}
                         </Text>
                     </View>
                 </View>

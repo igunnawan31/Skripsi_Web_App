@@ -107,9 +107,18 @@ const ListDataCutiComponent = ({ data }: ListDataCutiComponentProps) => {
                     </View>
                 ))
             ) : (
-                <Text style={{ textAlign: "center", marginTop: 20, color: COLORS.muted }}>
-                    Tidak ada data cuti di bulan ini
-                </Text>  
+                <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 20 }}>
+                    <Image
+                        source={require("../../../assets/icons/not-found.png")}
+                        style={{ width: 72, height: 72, }}
+                    />
+                    <Text style={{ textAlign: "center", marginTop: 10, color: COLORS.textPrimary, fontWeight: "bold", fontSize: 16, }}>
+                        Tidak ada riwayat pengajuan cuti
+                    </Text>
+                    <Text style={{ textAlign: "center", marginTop: 5, color: COLORS.muted, fontSize: 12, }}>
+                        Mohon untuk mengecek kembali nanti
+                    </Text>
+                </View> 
             )}
         </View>
     )
