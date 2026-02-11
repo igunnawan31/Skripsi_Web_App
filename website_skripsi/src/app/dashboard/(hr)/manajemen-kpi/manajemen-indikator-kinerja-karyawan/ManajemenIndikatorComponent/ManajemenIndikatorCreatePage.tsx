@@ -249,7 +249,7 @@ const ManajemenIndikatorCreatePage = () => {
                                         >
                                             {Object.values(KategoriPertanyaanKPI).map((kategori) => (
                                                 <option key={kategori} value={kategori}>
-                                                {kategori}
+                                                    {kategori}
                                                 </option>
                                             ))}
                                         </select>
@@ -333,7 +333,7 @@ const ManajemenIndikatorCreatePage = () => {
                                 <option value="">-- Pilih Penilai --</option>
                                 {dummyUsers.map((u) => (
                                     <option key={u.id} value={u.id}>
-                                        {u.nama} ({u.majorRole} - {u.minorRole})
+                                        {u.name} ({u.majorRole} - {u.minorRole})
                                     </option>
                                 ))}
                             </select>
@@ -349,7 +349,7 @@ const ManajemenIndikatorCreatePage = () => {
                                 {formData.pertanyaanUntuk.length > 0 ? (
                                     formData.pertanyaanUntuk.map((u) => (
                                         <div key={u.id} className="text-sm text-gray-700">
-                                        {u.nama} ({u.minorRole})
+                                        {u.name} ({u.minorRole})
                                         </div>
                                     ))
                                 ) : (
