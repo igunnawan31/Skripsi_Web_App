@@ -279,7 +279,7 @@ const KontrakKerjaShows = () => {
                             <div className="flex justify-between items-center py-2">
                                 <div className="flex flex-col gap-2 items-start">
                                     <p className="font-medium text-(--color-text-primary)">
-                                        {kk.user.name} — {kk.user.minorRole}
+                                        {kk.user?.name} — {kk.user?.minorRole}
                                     </p>
                                     <p className="text-[10px] sm:text-xs bg-(--color-tertiary) px-2.5 py-1 rounded-md whitespace-nowrap">
                                         Project: {kk.project?.name ? kk.project.name : "-"}

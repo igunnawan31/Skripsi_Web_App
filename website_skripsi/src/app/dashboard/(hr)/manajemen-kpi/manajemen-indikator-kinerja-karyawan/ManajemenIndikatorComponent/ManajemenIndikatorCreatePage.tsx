@@ -168,8 +168,8 @@ const ManajemenIndikatorCreatePage = () => {
                         </label>
                         <input
                             type="date"
-                            name="periodeMulai"
-                            value={formData.periodeMulai}
+                            name="startDate"
+                            value={formData.startDate}
                             className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                             required
                         />
@@ -180,8 +180,8 @@ const ManajemenIndikatorCreatePage = () => {
                         </label>
                         <input
                             type="date"
-                            name="periodeBerakhir"
-                            value={formData.periodeBerakhir}
+                            name="endDate"
+                            value={formData.endDate}
                             className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                             required
                         />
@@ -249,7 +249,7 @@ const ManajemenIndikatorCreatePage = () => {
                                         >
                                             {Object.values(KategoriPertanyaanKPI).map((kategori) => (
                                                 <option key={kategori} value={kategori}>
-                                                {kategori}
+                                                    {kategori}
                                                 </option>
                                             ))}
                                         </select>
@@ -333,7 +333,7 @@ const ManajemenIndikatorCreatePage = () => {
                                 <option value="">-- Pilih Penilai --</option>
                                 {dummyUsers.map((u) => (
                                     <option key={u.id} value={u.id}>
-                                        {u.nama} ({u.majorRole} - {u.minorRole})
+                                        {u.name} ({u.majorRole} - {u.minorRole})
                                     </option>
                                 ))}
                             </select>
@@ -349,7 +349,7 @@ const ManajemenIndikatorCreatePage = () => {
                                 {formData.pertanyaanUntuk.length > 0 ? (
                                     formData.pertanyaanUntuk.map((u) => (
                                         <div key={u.id} className="text-sm text-gray-700">
-                                        {u.nama} ({u.minorRole})
+                                        {u.name} ({u.minorRole})
                                         </div>
                                     ))
                                 ) : (
