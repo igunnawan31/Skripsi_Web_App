@@ -168,8 +168,8 @@ const ManajemenIndikatorCreatePage = () => {
                         </label>
                         <input
                             type="date"
-                            name="periodeMulai"
-                            value={formData.periodeMulai}
+                            name="startDate"
+                            value={formData.startDate}
                             className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                             required
                         />
@@ -180,8 +180,8 @@ const ManajemenIndikatorCreatePage = () => {
                         </label>
                         <input
                             type="date"
-                            name="periodeBerakhir"
-                            value={formData.periodeBerakhir}
+                            name="endDate"
+                            value={formData.endDate}
                             className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                             required
                         />
