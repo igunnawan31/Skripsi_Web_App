@@ -197,7 +197,7 @@ model IndikatorKPI {
   // Relasi ke pertanyaan
   pertanyaan PertanyaanKPI[] @relation("IndikatorPertanyaan")
 
-  evaluation Evaluations[] @relation("IndikatorEvaluation")
+  evaluations Evaluations[] @relation("IndikatorEvaluation")
 
   // Hasil penilaian
   jawaban JawabanKPI[] @relation("IndikatorJawaban")
