@@ -51,7 +51,17 @@ export class IndicatorController {
     @Query() filters: PertanyaanFilterDTO,
     @Req() req: Request & { user: UserRequest },
   ) {
-    return this.getAllPertanyaanIndikatorUseCase.execute(indikatorId, filters, req.user);
+    return this.getAllPertanyaanIndikatorUseCase.execute(
+      indikatorId,
+      filters,
+      req.user,
+    );
+  }
+  getRekap(
+    @Param('id') indikatorId: string,
+    @Req() req: Request & { user: UserRequest },
+  ) { 
+    return 
   }
   @Get('/:id')
   getOne(@Param('id') id: string, @Req() req: Request & { user: UserRequest }) {

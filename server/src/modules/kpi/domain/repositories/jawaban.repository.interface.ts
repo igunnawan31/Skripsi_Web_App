@@ -13,6 +13,7 @@ export abstract class IJawabanRepository {
   ): Promise<RetrieveAllJawabanResponseDTO | null>;
   abstract findById(id: string): Promise<RetrieveJawabanResponseDTO | null>;
   abstract findUnique(pertanyaanId: string, evaluatorId: string, evaluateeId: string): Promise<RetrieveJawabanResponseDTO | null>;
+  abstract getAllByIndicatorId(id: string): Promise<RetrieveJawabanResponseDTO[] | null>;
   abstract create(data: CreateJawabanDTO): Promise<CreateJawabanResponseDTO>;
   abstract remove(id: string): Promise<void>;
 }

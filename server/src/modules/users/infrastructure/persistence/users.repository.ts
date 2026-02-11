@@ -17,7 +17,7 @@ import { KontrakBaseDTO } from 'src/modules/kontrak/application/dtos/base.dto';
 import { ProjectBaseDTO } from 'src/modules/project/application/dtos/base.dto';
 import {
   IndikatorKPIBaseDTO,
-  IndikatorKPIPivotBaseDTO,
+  EvaluationKPIDTO,
 } from 'src/modules/kpi/application/dtos/indikatorKPI.dto';
 import { JawabanKPIBaseDTO } from 'src/modules/kpi/application/dtos/jawabanKPI.dto';
 import { RekapKPIBaseDTO } from 'src/modules/kpi/application/dtos/rekapKPI.dto';
@@ -133,11 +133,11 @@ export class UserRepository implements IUserRepository {
             dinilaiKPI: plainToInstance(JawabanKPIBaseDTO, user.dinilaiKPI),
             rekapKPI: plainToInstance(RekapKPIBaseDTO, user.rekapKPI),
             evaluatorOf: plainToInstance(
-              IndikatorKPIPivotBaseDTO,
+              EvaluationKPIDTO,
               user.evaluatorOf,
             ),
             evaluateeOf: plainToInstance(
-              IndikatorKPIPivotBaseDTO,
+              EvaluationKPIDTO,
               user.evaluateeOf,
             ),
           }),
@@ -195,11 +195,11 @@ export class UserRepository implements IUserRepository {
             dinilaiKPI: plainToInstance(JawabanKPIBaseDTO, user.dinilaiKPI),
             rekapKPI: plainToInstance(RekapKPIBaseDTO, user.rekapKPI),
             evaluatorOf: plainToInstance(
-              IndikatorKPIPivotBaseDTO,
+              EvaluationKPIDTO,
               user.evaluatorOf,
             ),
             evaluateeOf: plainToInstance(
-              IndikatorKPIPivotBaseDTO,
+              EvaluationKPIDTO,
               user.evaluateeOf,
             ),
           }

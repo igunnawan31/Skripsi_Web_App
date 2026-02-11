@@ -8,8 +8,14 @@ import {
   RetrieveAllIndikatorResponseDTO,
   RetrieveIndikatorResponseDTO,
 } from '../../application/dtos/response/indikator/read-response.dto';
-import { InternalCreateIndikatorDTO } from '../../application/dtos/request/indikator/create-indicator.dto';
-import { CreateIndikatorResponseDTO } from '../../application/dtos/response/indikator/create-response.dto';
+import {
+  InternalCreateEvaluationsDTO,
+  InternalCreateIndikatorDTO,
+} from '../../application/dtos/request/indikator/create-indicator.dto';
+import {
+  CreateEvaluationsResponseDTO,
+  CreateIndikatorResponseDTO,
+} from '../../application/dtos/response/indikator/create-response.dto';
 import { InternalUpdateIndikatorDTO } from '../../application/dtos/request/indikator/update-indicator.dto';
 import { UpdateIndikatorResponseDTO } from '../../application/dtos/response/indikator/update-response.dto';
 import { Prisma } from '@prisma/client';
@@ -20,7 +26,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { UserBaseDTO } from 'src/modules/users/application/dtos/base.dto';
 import { PertanyaanKPIBaseDTO } from '../../application/dtos/pertanyaanKPI.dto';
-import { IndikatorKPIPivotBaseDTO } from '../../application/dtos/indikatorKPI.dto';
+import { EvaluationKPIDTO } from '../../application/dtos/indikatorKPI.dto';
 import { JawabanKPIBaseDTO } from '../../application/dtos/jawabanKPI.dto';
 import { RekapKPIBaseDTO } from '../../application/dtos/rekapKPI.dto';
 
@@ -97,7 +103,7 @@ export class IndikatorRepository implements IIndikatorRepository {
           include: {
             createdBy: true,
             pertanyaan: true,
-            evaluation: true,
+            evaluations: true,
             jawaban: true,
             rekap: true,
           },
@@ -113,7 +119,7 @@ export class IndikatorRepository implements IIndikatorRepository {
             ...i,
             createdBy: plainToInstance(UserBaseDTO, i.createdBy),
             pertanyaan: plainToInstance(PertanyaanKPIBaseDTO, i.pertanyaan),
-            evaluation: plainToInstance(IndikatorKPIPivotBaseDTO, i.evaluation),
+            evaluations: plainToInstance(EvaluationKPIDTO, i.evaluations),
             jawaban: plainToInstance(JawabanKPIBaseDTO, i.jawaban),
             rekap: plainToInstance(RekapKPIBaseDTO, i.rekap),
           }),
@@ -132,15 +138,16 @@ export class IndikatorRepository implements IIndikatorRepository {
   async findById(id: string): Promise<RetrieveIndikatorResponseDTO | null> {
     try {
       const indikator = await this.prisma.indikatorKPI.findUnique({
-        where: {id},
+        where: { id },
         include: {
           createdBy: true,
           pertanyaan: true,
-          evaluation: true,
+          evaluations: true,
           jawaban: true,
           rekap: true,
         },
       });
+      console.log(indikator);
 
       if (!indikator) return null;
 
@@ -148,7 +155,7 @@ export class IndikatorRepository implements IIndikatorRepository {
         ...indikator,
         createdBy: plainToInstance(UserBaseDTO, indikator.createdBy),
         pertanyaan: plainToInstance(PertanyaanKPIBaseDTO, indikator.pertanyaan),
-        evaluation: plainToInstance(IndikatorKPIPivotBaseDTO, indikator.evaluation),
+        evaluations: plainToInstance(EvaluationKPIDTO, indikator.evaluations),
         jawaban: plainToInstance(JawabanKPIBaseDTO, indikator.jawaban),
         rekap: plainToInstance(RekapKPIBaseDTO, indikator.rekap),
       });
@@ -162,7 +169,14 @@ export class IndikatorRepository implements IIndikatorRepository {
     try {
       const query = await this.prisma.indikatorKPI.create({
         data: {
-          ...data,
+          name: data.name,
+          description: data.description,
+          category: data.category,
+          startDate: data.startDate,
+          endDate: data.endDate,
+          statusPublic: data.statusPublic,
+          status: data.status,
+          createdById: data.createdById,
         },
       });
       return plainToInstance(CreateIndikatorResponseDTO, query);
@@ -170,6 +184,46 @@ export class IndikatorRepository implements IIndikatorRepository {
       handlePrismaError(err, 'Indikator KPI', '', this.logger);
     }
   }
+  async createWithEval(
+    indikator: InternalCreateIndikatorDTO,
+    evaluations: InternalCreateEvaluationsDTO[],
+  ): Promise<CreateIndikatorResponseDTO> {
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        const createdIndikator = await tx.indikatorKPI.create({
+          data: indikator,
+        });
+
+        if (evaluations.length > 0) {
+          await tx.evaluations.createMany({
+            data: evaluations.map((e) => ({
+              ...e,
+              indikatorId: createdIndikator.id,
+            })),
+            skipDuplicates: true,
+          });
+          const evals = await tx.evaluations.findMany({
+            where: {
+              indikatorId: createdIndikator.id,
+            },
+          });
+          return plainToInstance(CreateIndikatorResponseDTO, {
+            ...createdIndikator,
+            evaluations: evals.map((e) =>
+              plainToInstance(EvaluationKPIDTO, e),
+            ),
+          });
+        }
+
+        return plainToInstance(CreateIndikatorResponseDTO, {
+          ...createdIndikator,
+        });
+      });
+    } catch (err) {
+      handlePrismaError(err, 'Indikator KPI', '', this.logger);
+    }
+  }
+
   async update(
     id: string,
     data: InternalUpdateIndikatorDTO,
