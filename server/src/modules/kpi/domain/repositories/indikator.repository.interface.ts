@@ -12,5 +12,6 @@ export abstract class IIndikatorRepository {
   abstract create(data: InternalCreateIndikatorDTO): Promise<CreateIndikatorResponseDTO>;
   abstract createWithEval(indikator: InternalCreateIndikatorDTO, evaluations: InternalCreateEvaluationsDTO[]): Promise<CreateIndikatorResponseDTO>;
   abstract update(id: string, data: InternalUpdateIndikatorDTO): Promise<UpdateIndikatorResponseDTO>;
+  abstract createEval(data: InternalCreateEvaluationsDTO[]): Promise<void>
   abstract remove(id: string): Promise<void>;
 }

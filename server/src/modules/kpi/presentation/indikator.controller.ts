@@ -20,10 +20,11 @@ import { IndikatorFilterDTO } from '../application/dtos/request/indikator/filter
 import { UserRequest } from 'src/common/types/UserRequest.dto';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
-import { CreateIndikatorDTO } from '../application/dtos/request/indikator/create-indicator.dto';
+import { CreateIndikatorDTO, EvalMapDTO } from '../application/dtos/request/indikator/create-indicator.dto';
 import { UpdateIndikatorDTO } from '../application/dtos/request/indikator/update-indicator.dto';
 import { GetAllPertanyaanIndikatorUseCase } from '../application/use-cases/pertanyaan/get-all-pertanyaan-indikator.use-case';
 import { PertanyaanFilterDTO } from '../application/dtos/request/pertanyaan/filter-question.dto';
+import { CreateEvaluationsUseCase } from '../application/use-cases/indikator/create-eval.use-case';
 
 @Controller('indicators')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -31,6 +32,7 @@ export class IndicatorController {
   constructor(
     private readonly logger: LoggerService,
     private readonly createIndicatorUseCase: CreateIndikatorUseCase,
+    private readonly createEvaluationsUseCase: CreateEvaluationsUseCase,
     private readonly deleteIndicatorUseCase: DeleteIndikatorUseCase,
     private readonly getAllIndicatorUseCase: GetAllIndikatorUseCase,
     private readonly getIndicatorUseCase: GetIndikatorUseCase,
@@ -73,6 +75,14 @@ export class IndicatorController {
     @Req() req: Request & { user: UserRequest },
   ) {
     return this.createIndicatorUseCase.execute(dto, req.user);
+  }
+  @Post('/:id')
+  createEval(
+    @Param('id') id: string,
+    @Body() dto: EvalMapDTO[],
+    @Req() req: Request & { user: UserRequest },
+  ) {
+    return this.createEvaluationsUseCase.execute(id, dto);
   }
   @Patch('/:id')
   update(@Param('id') id: string, @Body() dto: UpdateIndikatorDTO) {

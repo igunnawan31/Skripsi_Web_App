@@ -223,6 +223,16 @@ export class IndikatorRepository implements IIndikatorRepository {
       handlePrismaError(err, 'Indikator KPI', '', this.logger);
     }
   }
+  async createEval(data: InternalCreateEvaluationsDTO[]): Promise<void> {
+    try {
+      const query = await this.prisma.evaluations.createMany({
+        data,
+        skipDuplicates: true,
+      });
+    } catch (err) {
+      handlePrismaError(err, 'Indikator Evaluations KPI', '', this.logger);
+    }
+  }
 
   async update(
     id: string,
