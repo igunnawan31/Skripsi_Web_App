@@ -2,6 +2,7 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateIndikatorResponseDTO } from '../../dtos/response/indikator/create-response.dto';
 import {
   CreateIndikatorDTO,
+  InternalCreateEvaluationsDTO,
   InternalCreateIndikatorDTO,
 } from '../../dtos/request/indikator/create-indicator.dto';
 import { UserRequest } from 'src/common/types/UserRequest.dto';
@@ -38,7 +39,7 @@ export class CreateIndikatorUseCase {
         );
       }
 
-      const payload: InternalCreateIndikatorDTO = {
+      const indikatorPayload: InternalCreateIndikatorDTO = {
         name: dto.name,
         description: dto.description,
         category: dto.category,
@@ -49,8 +50,19 @@ export class CreateIndikatorUseCase {
         createdById: user.id,
       };
 
-      const indikator = await this.indikatorRepo.create(payload);
-      return indikator;
+      const evaluationData: InternalCreateEvaluationsDTO[] =
+        dto.evalMap?.flatMap((map) =>
+          map.evaluateeId.map((evaluateeId) => ({
+            indikatorId: '',
+            evaluatorId: map.evaluatorId,
+            evaluateeId,
+          })),
+        ) ?? [];
+
+      return await this.indikatorRepo.createWithEval(
+        indikatorPayload,
+        evaluationData,
+      );
     } catch (err) {
       this.logger.error(err, 'CreateIndikatorUseCase');
       throw err;

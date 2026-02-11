@@ -18,9 +18,10 @@ import {
 import { plainToInstance } from 'class-transformer';
 import {
   IndikatorKPIBaseDTO,
-  IndikatorKPIPivotBaseDTO,
+  EvaluationKPIDTO,
 } from '../../application/dtos/indikatorKPI.dto';
 import { PertanyaanKPIBaseDTO } from '../../application/dtos/pertanyaanKPI.dto';
+import { UserBaseDTO } from 'src/modules/users/application/dtos/base.dto';
 
 @Injectable()
 export class JawabanRepository implements IJawabanRepository {
@@ -113,8 +114,8 @@ export class JawabanRepository implements IJawabanRepository {
             ...r,
             indikator: plainToInstance(IndikatorKPIBaseDTO, r.indikator),
             pertanyaan: plainToInstance(PertanyaanKPIBaseDTO, r.pertanyaan),
-            evaluator: plainToInstance(IndikatorKPIPivotBaseDTO, r.evaluator),
-            evaluatee: plainToInstance(IndikatorKPIPivotBaseDTO, r.evaluatee),
+            evaluator: plainToInstance(EvaluationKPIDTO, r.evaluator),
+            evaluatee: plainToInstance(EvaluationKPIDTO, r.evaluatee),
           }),
         ),
         meta: {
@@ -144,8 +145,8 @@ export class JawabanRepository implements IJawabanRepository {
         ...answer,
         indikator: plainToInstance(IndikatorKPIBaseDTO, answer.indikator),
         pertanyaan: plainToInstance(PertanyaanKPIBaseDTO, answer.pertanyaan),
-        evaluator: plainToInstance(IndikatorKPIPivotBaseDTO, answer.evaluator),
-        evaluatee: plainToInstance(IndikatorKPIPivotBaseDTO, answer.evaluatee),
+        evaluator: plainToInstance(EvaluationKPIDTO, answer.evaluator),
+        evaluatee: plainToInstance(EvaluationKPIDTO, answer.evaluatee),
       });
     } catch (err) {
       handlePrismaError(err, 'Jawaban', id, this.logger);
@@ -177,9 +178,30 @@ export class JawabanRepository implements IJawabanRepository {
         ...answer,
         indikator: plainToInstance(IndikatorKPIBaseDTO, answer.indikator),
         pertanyaan: plainToInstance(PertanyaanKPIBaseDTO, answer.pertanyaan),
-        evaluator: plainToInstance(IndikatorKPIPivotBaseDTO, answer.evaluator),
-        evaluatee: plainToInstance(IndikatorKPIPivotBaseDTO, answer.evaluatee),
+        evaluator: plainToInstance(EvaluationKPIDTO, answer.evaluator),
+        evaluatee: plainToInstance(EvaluationKPIDTO, answer.evaluatee),
       });
+    } catch (err) {
+      handlePrismaError(err, 'Jawaban', '', this.logger);
+    }
+  }
+  async getAllByIndicatorId(
+    id: string,
+  ): Promise<RetrieveJawabanResponseDTO[] | null> {
+    try {
+      const answers = await this.prisma.jawabanKPI.findMany({
+        where: { indikatorId: id },
+        include: {
+          evaluator: true,
+        },
+      });
+      if (!answers) return null;
+      return answers.map((a) =>
+        plainToInstance(RetrieveJawabanResponseDTO, {
+          ...a,
+          evaluator: plainToInstance(UserBaseDTO, a.evaluator),
+        }),
+      );
     } catch (err) {
       handlePrismaError(err, 'Jawaban', '', this.logger);
     }

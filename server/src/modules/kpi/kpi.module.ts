@@ -24,11 +24,13 @@ import { UpdatePertanyaanUseCase } from './application/use-cases/pertanyaan/upda
 import { DateUtilService } from 'src/common/utils/dateUtil';
 import { PertanyaanController } from './presentation/pertanyaan.controller';
 import { GetAllPertanyaanIndikatorUseCase } from './application/use-cases/pertanyaan/get-all-pertanyaan-indikator.use-case';
+import { CreateEvaluationsUseCase } from './application/use-cases/indikator/create-eval.use-case';
 
 @Module({
   controllers: [IndicatorController, JawabanController, PertanyaanController],
   providers: [
     CreateIndikatorUseCase,
+    CreateEvaluationsUseCase,
     DeleteIndikatorUseCase,
     GetAllIndikatorUseCase,
     GetIndikatorUseCase,

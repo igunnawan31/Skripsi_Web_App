@@ -5,7 +5,7 @@ import { AbsensiBaseDTO } from 'src/modules/absensi/application/dtos/base.dto';
 import { CutiBaseDTO } from 'src/modules/cuti/application/dtos/base.dto';
 import { KontrakBaseDTO } from 'src/modules/kontrak/application/dtos/base.dto';
 import { ProjectTeamBaseDTO } from 'src/modules/project/application/dtos/base.dto';
-import { IndikatorKPIBaseDTO, IndikatorKPIPivotBaseDTO } from 'src/modules/kpi/application/dtos/indikatorKPI.dto';
+import { IndikatorKPIBaseDTO, EvaluationKPIDTO } from 'src/modules/kpi/application/dtos/indikatorKPI.dto';
 import { JawabanKPIBaseDTO } from 'src/modules/kpi/application/dtos/jawabanKPI.dto';
 import { RekapKPIBaseDTO } from 'src/modules/kpi/application/dtos/rekapKPI.dto';
 import { SalaryBaseDTO } from 'src/modules/salary/application/dtos/base.dto';
@@ -32,9 +32,9 @@ export class RetrieveUserResponseDTO extends CreateUserResponseDTO {
   @Expose()
   rekapKPI: RekapKPIBaseDTO[];
   @Expose()
-  evaluatorOf: IndikatorKPIPivotBaseDTO[];
+  evaluatorOf: EvaluationKPIDTO[];
   @Expose()
-  evaluateeOf: IndikatorKPIPivotBaseDTO[];
+  evaluateeOf: EvaluationKPIDTO[];
 }
 
 export class RetrieveAllUserResponseDTO {

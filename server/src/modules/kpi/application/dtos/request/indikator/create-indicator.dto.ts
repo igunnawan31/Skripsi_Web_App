@@ -1,6 +1,25 @@
-import { OmitType } from "@nestjs/mapped-types";
-import { StatusIndikatorKPI } from "@prisma/client";
-import { IsBoolean, IsDate, IsDateString, IsEnum, IsString } from "class-validator";
+import { OmitType } from '@nestjs/mapped-types';
+import { StatusIndikatorKPI } from '@prisma/client';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsDateString,
+  IsEnum,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+
+export class EvalMapDTO {
+  @IsString()
+  evaluatorId: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  evaluateeId: string[];
+}
 
 export class CreateIndikatorDTO {
   @IsString()
@@ -23,9 +42,19 @@ export class CreateIndikatorDTO {
 
   @IsEnum(StatusIndikatorKPI)
   status: StatusIndikatorKPI;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EvalMapDTO)
+  @IsOptional()
+  evalMap?: EvalMapDTO[];
 }
 
-export class InternalCreateIndikatorDTO extends OmitType(CreateIndikatorDTO, ['startDate', 'endDate']){
+export class InternalCreateIndikatorDTO extends OmitType(CreateIndikatorDTO, [
+  'startDate',
+  'endDate',
+  'evalMap',
+]) {
   @IsDate()
   startDate: Date;
 
@@ -34,4 +63,15 @@ export class InternalCreateIndikatorDTO extends OmitType(CreateIndikatorDTO, ['s
 
   @IsString()
   createdById: string;
+}
+
+export class InternalCreateEvaluationsDTO {
+  @IsString()
+  indikatorId: string;
+
+  @IsString()
+  evaluatorId: string;
+
+  @IsString()
+  evaluateeId: string;
 }
