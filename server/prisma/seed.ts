@@ -189,7 +189,7 @@ async function main() {
       endDate: new Date('2025-01-31'),
       status: 'ACTIVE',
       createdById: pm.id,
-      evaluation: {
+      evaluations: {
         create: [{ evaluatorId: pm.id, evaluateeId: frontend.id }],
       },
     },
