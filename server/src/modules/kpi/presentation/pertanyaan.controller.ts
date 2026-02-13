@@ -21,7 +21,6 @@ import { PertanyaanFilterDTO } from '../application/dtos/request/pertanyaan/filt
 import { UserRequest } from 'src/common/types/UserRequest.dto';
 import { CreatePertanyaanDTO } from '../application/dtos/request/pertanyaan/create-question.dto';
 import { UpdatePertanyaanDTO } from '../application/dtos/request/pertanyaan/update-question.dto';
-import { GetAllPertanyaanIndikatorUseCase } from '../application/use-cases/pertanyaan/get-all-pertanyaan-indikator.use-case';
 
 @Controller('questions')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -30,7 +29,6 @@ export class PertanyaanController {
     private readonly createPertanyaanUseCase: CreatePertanyaanUseCase,
     private readonly deletePertanyaanUseCase: DeletePertanyaanUseCase,
     private readonly getAllPertanyaanUseCase: GetAllPertanyaanUseCase,
-    private readonly getAllPertanyaanIndikatorUseCase: GetAllPertanyaanIndikatorUseCase,
     private readonly getPertanyaanUseCase: GetPertanyaanUseCase,
     private readonly updatePertanyaanUseCase: UpdatePertanyaanUseCase,
   ) { }
@@ -48,7 +46,7 @@ export class PertanyaanController {
   }
   @Post()
   create(
-    @Body() dto: CreatePertanyaanDTO,
+    @Body() dto: CreatePertanyaanDTO[],
     @Req() req: Request & { user: UserRequest },
   ) {
     return this.createPertanyaanUseCase.execute(dto, req.user);

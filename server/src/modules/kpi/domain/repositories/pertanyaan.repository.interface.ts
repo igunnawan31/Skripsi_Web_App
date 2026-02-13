@@ -10,7 +10,7 @@ export abstract class IPertanyaanRepository {
   abstract findAll (filters: PertanyaanFilterDTO): Promise<RetrieveAllPertanyaanResponseDTO | null>;
   abstract findAllByIndicatorId (id: string, filters: PertanyaanFilterDTO): Promise<RetrieveAllPertanyaanResponseDTO | null>;
   abstract findById (id: string): Promise<RetrievePertanyaanResponseDTO | null>;
-  abstract create(data: CreatePertanyaanDTO): Promise<CreatePertanyaanResponseDTO>;
+  abstract create(data: CreatePertanyaanDTO[]): Promise<number>;
   abstract update(id: string, data: UpdatePertanyaanDTO): Promise<UpdatePertanyaanResponseDTO>;
   abstract remove(id: string): Promise<void>;
 

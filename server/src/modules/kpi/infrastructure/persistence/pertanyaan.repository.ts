@@ -216,28 +216,31 @@ export class PertanyaanRepository implements IPertanyaanRepository {
     }
   }
   async create(
-    data: CreatePertanyaanDTO,
-  ): Promise<CreatePertanyaanResponseDTO> {
+    data: CreatePertanyaanDTO[],
+  ): Promise<number> {
     try {
-      const query = await this.prisma.pertanyaanKPI.create({
-        data: {
-          indikatorId: data.indikatorId,
-          kategori: data.kategori,
-          pertanyaan: data.pertanyaan,
-          bobot: data.bobot,
-          aktif: data.aktif,
-          urutanSoal: data.urutanSoal,
-        },
+      const query = await this.prisma.pertanyaanKPI.createMany({
+        data: data.map((item) => ({
+          indikatorId: item.indikatorId,
+          kategori: item.kategori,
+          pertanyaan: item.pertanyaan,
+          bobot: item.bobot,
+          aktif: item.aktif,
+          urutanSoal: item.urutanSoal,
+        })),
       });
-      return plainToInstance(CreatePertanyaanResponseDTO, query);
+      return query.count;
     } catch (err) {
       handlePrismaError(err, 'Pertanyaan', '', this.logger);
     }
   }
-  async update(id: string, data: UpdatePertanyaanDTO): Promise<UpdatePertanyaanResponseDTO> {
+  async update(
+    id: string,
+    data: UpdatePertanyaanDTO,
+  ): Promise<UpdatePertanyaanResponseDTO> {
     try {
       const query = await this.prisma.pertanyaanKPI.update({
-        where: {id},
+        where: { id },
         data: {
           ...data,
         },

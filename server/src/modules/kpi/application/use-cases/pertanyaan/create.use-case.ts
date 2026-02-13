@@ -14,9 +14,9 @@ export class CreatePertanyaanUseCase {
   ) { }
 
   async execute(
-    data: CreatePertanyaanDTO,
+    data: CreatePertanyaanDTO[],
     user: UserRequest,
-  ): Promise<CreatePertanyaanResponseDTO> {
+  ): Promise<number> {
     try {
       const pertanyaan = await this.pertanyaanRepo.create(data);
       return pertanyaan;
