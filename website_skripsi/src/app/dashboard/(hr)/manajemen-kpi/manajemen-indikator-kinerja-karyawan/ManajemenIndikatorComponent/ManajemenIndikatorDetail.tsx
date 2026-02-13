@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IndikatorKPI, KategoriPertanyaanKPI, pertanyaanKPI,  } from "@/app/lib/types/types";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -8,10 +8,32 @@ import { icons } from "@/app/lib/assets/assets";
 import { useKpi } from "@/app/lib/hooks/kpi/useKpi";
 import { SkalaNilai } from "@/app/lib/types/kpi/kpiTypes";
 import QuestionShow from "../QuestionIndikatorComponent/QuestionShow";
+import { useUser } from "@/app/lib/hooks/user/useUser";
 
 export default function ManajemenIndikatorDetail({ id }: { id: string }) {
     const { data: fetchedData, isLoading, error } = useKpi().fetchIndicatorById(id);
+    const { data: fetchedDataUser, isLoading: isLoadingUser, error: isErrorUser } = useUser().fetchAllUser();
     const router = useRouter();
+
+    const groupedEvaluations = useMemo(() => {
+        if (!fetchedData || !fetchedDataUser?.data) return [];
+
+        const allUsers = fetchedDataUser.data;
+
+        const map = fetchedData.evaluations.reduce((acc: any, curr: any) => {
+            const evaluatorId = curr.evaluatorId;
+            if (!acc[evaluatorId]) {
+                acc[evaluatorId] = {
+                    evaluatorId: evaluatorId,
+                    evaluateeIds: []
+                };
+            }
+            acc[evaluatorId].evaluateeIds.push(curr.evaluateeId);
+            return acc;
+        }, {});
+
+        return Object.values(map);
+    }, [fetchedData, fetchedDataUser]);
 
     // useEffect(() => {
     //     const timer = setTimeout(() => {
@@ -120,48 +142,62 @@ export default function ManajemenIndikatorDetail({ id }: { id: string }) {
                     </div>
 
                     <div className="mt-10 border-t border-gray-200 pt-6">
-                        <h2 className="text-md font-semibold mb-4">Pengaturan Penilai dan Target</h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <div className="flex flex-col">
-                                <label className="text-sm font-medium text-gray-600 mb-2">
-                                    Diisi Oleh (Penilai)
-                                </label>
-                                {Array.isArray(fetchedData.diisiOleh) && fetchedData.diisiOleh.length > 0 ? (
-                                    <div className="space-y-1">
-                                        {fetchedData.diisiOleh.map((u: any) => (
-                                            <div key={u.id} className="text-sm text-gray-700 border border-gray-200 rounded px-3 py-2 bg-white">
-                                                {u.nama} {u.minorRole ? `(${u.minorRole})` : ""}
+                        <h2 className="text-md font-semibold mb-4 text-(--color-textPrimary)">
+                            Pengaturan Penilai dan Target
+                        </h2>
+                        
+                        <div className="grid grid-cols-1 gap-4 mt-2">
+                            {groupedEvaluations.length > 0 ? (
+                                groupedEvaluations.map((item: any, index: number) => {
+                                    const penilaiObj = fetchedDataUser?.data.find((u: any) => u.id === item.evaluatorId);
+                                    
+                                    return (
+                                        <div key={item.evaluatorId} className="flex flex-col border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                                            <div className="px-4 py-3 bg-gray-50 flex justify-between items-center border-b border-gray-200">
+                                                <span className="font-semibold text-sm text-(--color-textPrimary)">
+                                                    Kelompok Penilai #{index + 1}: {penilaiObj?.name}
+                                                </span>
                                             </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <p className="text-sm text-gray-400 italic">Belum ada penilai yang ditentukan.</p>
-                                )}
-                            </div>
-                            <div className="flex flex-col">
-                                <label className="text-sm font-medium text-gray-600 mb-2">
-                                    Pertanyaan Untuk (Yang Dinilai)
-                                </label>
-                                <div className="bg-(--color-muted)/30 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 min-h-20">
-                                    {Array.isArray(fetchedData.pertanyaanUntuk) && fetchedData.pertanyaanUntuk.length > 0 ? (
-                                        <div className="space-y-1">
-                                            {fetchedData.pertanyaanUntuk.map((u: any) => (
-                                                <div key={u.id} className="text-sm text-gray-700 border border-gray-200 rounded px-3 py-2 bg-white">
-                                                    {u.nama} {u.minorRole ? `(${u.minorRole})` : ""}
+                                            
+                                            <div className="p-4 bg-white grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div>
+                                                    <p className="text-xs text-(--color-muted) font-medium tracking-wider">
+                                                        Penilai (Orang yang Menilai)
+                                                    </p>
+                                                    <div className="text-sm text-gray-700 border border-gray-200 rounded-lg px-3 py-3 bg-white shadow-sm flex flex-col mt-3 border-l-4 border-l-yellow-500">
+                                                        <span className="font-semibold">{penilaiObj?.name || "User tidak ditemukan"}</span>
+                                                        <span className="text-xs text-gray-500">
+                                                            {penilaiObj?.majorRole} — {penilaiObj?.minorRole}
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                            ))}
+                                                <div>
+                                                    <p className="text-xs text-(--color-muted) font-medium tracking-wider">
+                                                        Target yang Dinilai ({item.evaluateeIds.length})
+                                                    </p>
+                                                    <div className="space-y-2 mt-3">
+                                                        {item.evaluateeIds.map((id: string) => {
+                                                            const targetObj = fetchedDataUser?.data.find((u: any) => u.id === id);
+                                                            return (
+                                                                <div key={id} className="text-sm text-gray-700 border border-gray-200 rounded-lg px-3 py-3 bg-white shadow-sm flex flex-col border-l-4 border-l-blue-500">
+                                                                    <span className="font-semibold">{targetObj?.name || "User tidak ditemukan"}</span>
+                                                                    <span className="text-xs text-gray-500">
+                                                                        {targetObj?.majorRole} — {targetObj?.minorRole}
+                                                                    </span>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    ) : (
-                                        <p className="text-sm text-gray-400 italic">
-                                            Belum ada karyawan yang bisa dinilai.
-                                        </p>
-                                    )}
+                                    );
+                                })
+                            ) : (
+                                <div className="text-center py-10 border-2 border-dashed border-gray-200 rounded-xl text-gray-400 italic text-sm">
+                                    Tidak ada data penilai dan target.
                                 </div>
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Sistem otomatis memilih siapa saja yang dapat dinilai oleh penilai
-                                    berdasarkan <b>layer penilaian</b>.
-                                </p>
-                            </div>
+                            )}
                         </div>
                     </div>
     

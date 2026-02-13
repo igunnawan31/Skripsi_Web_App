@@ -10,14 +10,14 @@ export const useQuestion = () => {
         limit?: number;
         sortBy?: string;
         sortOrder?: "asc" | "desc";
-        statusPublic?: string;
-        status?: string;
+        kategori?: string;
+        aktif?: boolean;
         minStartDate?: string;
         maxEndDate?: string;
         searchTerm?: string;
     }) => {
         return useQuery({
-            queryKey: ["indicators", filters],
+            queryKey: ["questions", filters],
             queryFn: async () => {
                 const token =  Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
@@ -27,13 +27,13 @@ export const useQuestion = () => {
                 if (filters?.limit) queryParams.append("limit", filters.limit.toString());
                 if (filters?.sortBy) queryParams.append("sortBy", filters.sortBy);
                 if (filters?.sortOrder) queryParams.append("sortOrder", filters.sortOrder);
-                if (filters?.status) queryParams.append("status", filters.status);
-                if (filters?.statusPublic) queryParams.append("statusPublic", filters.statusPublic);
+                if (filters?.kategori) queryParams.append("kategori", filters.kategori);
+                if (filters?.aktif) queryParams.append("aktif", filters.aktif.toString());
                 if (filters?.minStartDate) queryParams.append("minStartDate", filters.minStartDate);
                 if (filters?.maxEndDate) queryParams.append("maxEndDate", filters.maxEndDate);
                 if (filters?.searchTerm) queryParams.append("searchTerm", filters.searchTerm);
 
-                const response = await fetch(`${API}/indicators?${queryParams.toString()}`, {
+                const response = await fetch(`${API}/questions?${queryParams.toString()}`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -43,7 +43,7 @@ export const useQuestion = () => {
                 });
 
                 if (!response.ok) {
-                    let errorMessage = "Failed to fetch indicators kpi"
+                    let errorMessage = "Failed to fetch questions kpi"
                     try {
                         const errorData = await response.json();
                         errorMessage = errorData.response?.message || errorData.message || errorMessage;
@@ -57,40 +57,6 @@ export const useQuestion = () => {
             },
             staleTime: 5 * 60 * 1000,
         })
-    }
-
-    const fetchIndicatorById = (id: string) => {
-        return useQuery ({
-            queryKey: ["indicator", id],
-            queryFn: async () => {
-                const token = Cookies.get("accessToken");
-                if (!token) throw new Error("No access token found");
-
-                const response = await fetch(`${API}/indicators/${id}`, {
-                    method: "GET",
-                    headers: { 
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`,
-                    },
-                    credentials: "include",
-                });
-
-                if (!response.ok) {
-                    let errorMessage = "Failed to fetch indicator by Id"
-                    try {
-                        const errorData = await response.json();
-                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
-                    } catch {
-                        errorMessage = response.statusText || errorMessage;
-                    }
-                    throw new Error(errorMessage);
-                }
-
-                return response.json();
-            },
-            enabled: !!id,
-            staleTime: 5 * 60 * 1000,
-        });
     }
 
     const createKontrak = () => {
@@ -240,7 +206,7 @@ export const useQuestion = () => {
             },
         });
     }
-    const deleteIndikator = () => {
+    const deleteQuestion = () => {
         const queryClient = useQueryClient();
 
         return useMutation<
@@ -252,7 +218,7 @@ export const useQuestion = () => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const response = await fetch(`${API}/indicators/${id}`, {
+                const response = await fetch(`${API}/questions/${id}`, {
                     method: "DELETE",
                     headers: {
                         "Authorization": `Bearer ${token}`,
@@ -262,22 +228,21 @@ export const useQuestion = () => {
 
                 if (!response.ok) {
                     const text = await response.text();
-                    throw new Error(text || "Failed to delete indikator");
+                    throw new Error(text || "Failed to delete question");
                 }
 
                 return true;
             },
 
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: ["indicators"] });
+                queryClient.invalidateQueries({ queryKey: ["questions"] });
             },
         });
     };
 
     return {
         fetchAllQuestion,
-        fetchIndicatorById,
-        deleteIndikator,
+        deleteQuestion,
         createKontrak,
         updateKontrak,
     }

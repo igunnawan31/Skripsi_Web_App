@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { CreateKontrakKerja, UpdateKontrakKerja } from "../../types/kontrak/kontrakTypes";
+import { EvalCreateForm, IndikatorCreateForm } from "../../types/kpi/kpiTypes";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -144,61 +145,30 @@ export const useKpi = () => {
         });
     }
 
-    const createKontrak = () => {
+    const createIndikator = () => {
         const queryClient = useQueryClient();
 
         return useMutation<
             any,
             Error,
-            CreateKontrakKerja
+            IndikatorCreateForm
         >({
-            mutationFn: async (kontrakData: CreateKontrakKerja) => {
+            mutationFn: async (indikatorData: IndikatorCreateForm) => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const fd = new FormData();
-
-                fd.append('userData[email]', kontrakData.userData.email || '');
-                fd.append('userData[name]', kontrakData.userData.name || '');
-                fd.append('userData[password]', kontrakData.userData.password || '');
-                fd.append('userData[majorRole]', kontrakData.userData.majorRole || '');
-                fd.append('userData[minorRole]', kontrakData.userData.minorRole || '');
-
-                if (kontrakData.userPhoto) {
-                    fd.append('userPhoto', kontrakData.userPhoto);
-                }
-
-                fd.append('projectData[id]', kontrakData.projectData.id || '');
-
-                fd.append('jenis', kontrakData.jenis || '');
-                fd.append('category', kontrakData.metodePembayaran || '');
-                fd.append('dpPercentage', String(kontrakData.dpPercentage || 0));
-                fd.append('finalPercentage', String(kontrakData.finalPercentage || 0));
-                fd.append('totalBayaran', String(kontrakData.totalBayaran));
-                fd.append('absensiBulanan', String(kontrakData.absensiBulanan));
-                fd.append('cutiBulanan', String(kontrakData.cutiBulanan));
-                fd.append('status', kontrakData.status || '');
-                fd.append('catatan', kontrakData.catatan || '');
-                fd.append('startDate', kontrakData.startDate || '');
-                fd.append('endDate', kontrakData.endDate || '');
-
-                if (kontrakData.contractDocuments?.length) {
-                    kontrakData.contractDocuments.forEach(file => {
-                        fd.append('contractDocuments', file);
-                    });
-                }
-
-                const response = await fetch(`${API}/kontrak`, {
+                const response = await fetch(`${API}/indicators`, {
                     method: "POST",
                     headers: {
+                        "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`,
                     },
                     credentials: "include",
-                    body: fd,
+                    body: JSON.stringify(indikatorData),
                 });
 
                 if (!response.ok) {
-                    let errorMessage = "Failed to create kontrak";
+                    let errorMessage = "Failed to create indicator";
                     try {
                         const errorData = await response.json();
                         errorMessage = errorData.message || errorMessage;
@@ -212,63 +182,73 @@ export const useKpi = () => {
             },
 
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: ["kontraks"] });
+                queryClient.invalidateQueries({ queryKey: ["indicators"] });
             },
         });
     }
 
-    const updateKontrak = () => {
+    const createEval = () => {
         const queryClient = useQueryClient();
 
         return useMutation<
             any,
             Error,
-            { id: string; kontrakData: Partial<UpdateKontrakKerja>; }
+            {id: string, evalData: EvalCreateForm}
         >({
-            mutationFn: async ({ id, kontrakData}) => {
+            mutationFn: async ({id, evalData}) => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const fd = new FormData();
-
-                fd.append('userData[email]', kontrakData?.userData?.email || '');
-                fd.append('userData[name]', kontrakData?.userData?.name || '');
-                fd.append('userData[password]', kontrakData?.userData?.password || '');
-                fd.append('userData[majorRole]', kontrakData?.userData?.majorRole || '');
-                fd.append('userData[minorRole]', kontrakData?.userData?.minorRole || '');
-
-                if (kontrakData.userPhoto) {
-                    fd.append('userPhoto', kontrakData.userPhoto);
-                }
-
-                fd.append('projectData[id]', kontrakData?.projectData?.id || '');
-
-                fd.append('jenis', kontrakData.jenis || '');
-                fd.append('metodePembayaran', kontrakData.metodePembayaran || '');
-                fd.append('dpPercentage', String(kontrakData.dpPercentage || 0));
-                fd.append('finalPercentage', String(kontrakData.finalPercentage || 0));
-                fd.append('totalBayaran', String(kontrakData.totalBayaran));
-                fd.append('absensiBulanan', String(kontrakData.absensiBulanan));
-                fd.append('cutiBulanan', String(kontrakData.cutiBulanan));
-                fd.append('status', kontrakData.status || '');
-                fd.append('catatan', kontrakData.catatan || '');
-                fd.append('startDate', kontrakData.startDate || '');
-                fd.append('endDate', kontrakData.endDate || '');
-                fd.append('removeDocuments', JSON.stringify(kontrakData.removeDocuments || []));
-
-                if (kontrakData.contractDocuments?.length) {
-                    kontrakData.contractDocuments.forEach(file => {
-                        fd.append('contractDocuments', file);
-                    });
-                }
-
-                const response = await fetch(`${API}/kontrak/${id}`,{
-                    method: "PATCH",
+                const response = await fetch(`${API}/indicators/${id}`, {
+                    method: "POST",
                     headers: {
+                        "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`,
                     },
                     credentials: "include",
-                    body: fd,
+                    body: JSON.stringify(evalData),
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Failed to create evaluation in indicator";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                return response.json();
+            },
+
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["indicators"] });
+            },
+        });
+    }
+
+    const updateIndikator = () => {
+        const queryClient = useQueryClient();
+
+        return useMutation<
+            any,
+            Error,
+            { id: string; indikatorData: Partial<IndikatorCreateForm>; }
+        >({
+            mutationFn: async ({ id, indikatorData}) => {
+                const token = Cookies.get("accessToken");
+                if (!token) throw new Error("No access token found");
+
+                const response = await fetch(`${API}/indicators/${id}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    credentials: "include",
+                    body: JSON.stringify(indikatorData),
                 });
 
                 if (!response.ok) {
@@ -286,11 +266,12 @@ export const useKpi = () => {
                 return result;
             },
             onSuccess: (data, variables) => {
-                queryClient.invalidateQueries({ queryKey: ["kontrak", variables.id]});
-                queryClient.invalidateQueries({ queryKey: ["kontraks"]})
+                queryClient.invalidateQueries({ queryKey: ["indicator", variables.id]});
+                queryClient.invalidateQueries({ queryKey: ["indicators"]})
             },
         });
     }
+    
     const deleteIndikator = () => {
         const queryClient = useQueryClient();
 
@@ -325,12 +306,47 @@ export const useKpi = () => {
         });
     };
 
+    const deleteEval = () => {
+        const queryClient = useQueryClient();
+
+        return useMutation<
+            any,
+            Error,
+            string
+        >({
+            mutationFn: async (id: string) => {
+                const token = Cookies.get("accessToken");
+                if (!token) throw new Error("No access token found");
+
+                const response = await fetch(`${API}/indicators/${id}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    credentials: "include",
+                });
+
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(text || "Failed to delete indikator");
+                }
+
+                return true;
+            },
+
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["indicators"] });
+            },
+        });
+    }
+
     return {
         fetchAllIndikator,
         fetchAllQuestionByIdIndikator,
         fetchIndicatorById,
         deleteIndikator,
-        createKontrak,
-        updateKontrak,
+        createIndikator,
+        createEval,
+        updateIndikator,
     }
 }

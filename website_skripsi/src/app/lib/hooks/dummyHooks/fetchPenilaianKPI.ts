@@ -1,8 +1,9 @@
 import { KinerjaData } from "../../dummyData/KinerjaData";
 import { dummyUsers } from "../../dummyData/dummyUsers";
 import { PenilaianKPIData } from "../../dummyData/PenilaianKPIData";
-import { layerPenilaian, User } from "../../types/types";
 import { dummyProject } from "../../dummyData/ProjectData";
+import { User } from "../../types/types";
+import { layerPenilaian } from "../../types/kpi/kpiTypes";
 
 export const fetchPenilaianKPI = async (
     currentPage: number,
