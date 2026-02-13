@@ -13,11 +13,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-interface QuestionShowProps {
+interface QuestionUpdateProps {
     fetchedData: string;
 }
 
-const QuestionShow = ({fetchedData}: QuestionShowProps) => {
+const QuestionUpdate = ({fetchedData}: QuestionUpdateProps) => {
     const searchParams = useSearchParams();
     const router = useRouter();
 
@@ -124,6 +124,18 @@ const QuestionShow = ({fetchedData}: QuestionShowProps) => {
                             />
                             Filter
                         </div>
+                        <button
+                            className="w-fit flex items-center justify-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 active:scale-[0.98] transition-all text-sm font-medium shadow-sm cursor-pointer"
+                        >
+                            <Image
+                                src={icons.addLogo}
+                                width={18}
+                                height={18}
+                                alt="Add Logo"
+                                className="opacity-90"
+                            />
+                            Buat Pertanyaan Baru
+                        </button>
                     </div>
                     {(selectedKategori !== "All" || searchQuery) && (
                         <>
@@ -293,4 +305,4 @@ const QuestionShow = ({fetchedData}: QuestionShowProps) => {
     )
 }
 
-export default QuestionShow;
+export default QuestionUpdate;

@@ -299,7 +299,7 @@ const ManajemenIndikatorList = () => {
                                         <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
                                             <Image
                                                 src={icons.dateIn}
-                                                alt="Tanggal Mulai Cuti"
+                                                alt="Tanggal Mulai Indikator"
                                                 width={24}
                                                 height={24}
                                             />
@@ -308,11 +308,20 @@ const ManajemenIndikatorList = () => {
                                         <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
                                             <Image
                                                 src={icons.dateOut}
-                                                alt="Tanggal Berakhir Cuti"
+                                                alt="Tanggal Berakhir Indikator"
                                                 width={24}
                                                 height={24}
                                             />
                                             {ikk.endDate ? format(new Date(ikk.endDate), "dd MMM yyyy") : "-"}
+                                        </div>
+                                        <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
+                                            <Image
+                                                src={icons.question}
+                                                alt="Jumlah Pertanyaan Cuti"
+                                                width={24}
+                                                height={24}
+                                            />
+                                            {ikk.pertanyaan?.length} Pertanyaan
                                         </div>
                                     </div>
                                     <p className="text-(--color-muted)">
@@ -388,8 +397,8 @@ const ManajemenIndikatorList = () => {
                 onAction={handleDelete}
                 onClose={() => setIsModalOpen(false)}
                 type="error"
-                title={"Konfirmasi Hapus Project"}
-                message={"Apakah Anda yakin ingin menghapus data project ini"}
+                title={"Konfirmasi Hapus Indikator"}
+                message={"Apakah Anda yakin ingin menghapus data indikator ini"}
                 activeText="Ya"
                 passiveText="Batal"
             />
