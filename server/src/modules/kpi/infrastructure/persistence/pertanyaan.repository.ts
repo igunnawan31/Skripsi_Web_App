@@ -168,10 +168,6 @@ export class PertanyaanRepository implements IPertanyaanRepository {
           orderBy,
           take: limit,
           skip: (page - 1) * limit,
-          include: {
-            indikator: true,
-            jawaban: true,
-          },
         }),
         this.prisma.pertanyaanKPI.count({ where }),
       ]);
@@ -181,8 +177,6 @@ export class PertanyaanRepository implements IPertanyaanRepository {
         data: questions.map((q) =>
           plainToInstance(RetrievePertanyaanResponseDTO, {
             ...q,
-            indikator: plainToInstance(IndikatorKPIBaseDTO, q.indikator),
-            jawaban: plainToInstance(JawabanKPIBaseDTO, q.jawaban),
           }),
         ),
         meta: {
