@@ -32,7 +32,22 @@ export class IndikatorRepository implements IIndikatorRepository {
   constructor(
     private readonly prisma: PrismaService,
     private readonly logger: LoggerService,
-  ) {}
+  ) { }
+
+  async countEvals(indikatorId: string, evaluateeId: string): Promise<number> {
+    try {
+      const evals = await this.prisma.evaluations.count({
+        where: {
+          indikatorId,
+          evaluateeId,
+        }
+      });
+
+      return evals;
+    } catch (err) {
+      handlePrismaError(err, 'Indikator KPI', '', this.logger);
+    }
+  }
 
   async findAll(
     filters: InternalIndikatorFilterDTO,

@@ -20,11 +20,15 @@ import { IndikatorFilterDTO } from '../application/dtos/request/indikator/filter
 import { UserRequest } from 'src/common/types/UserRequest.dto';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
-import { CreateIndikatorDTO, EvalMapDTO } from '../application/dtos/request/indikator/create-indicator.dto';
+import {
+  CreateIndikatorDTO,
+  EvalMapDTO,
+} from '../application/dtos/request/indikator/create-indicator.dto';
 import { UpdateIndikatorDTO } from '../application/dtos/request/indikator/update-indicator.dto';
 import { GetAllPertanyaanIndikatorUseCase } from '../application/use-cases/pertanyaan/get-all-pertanyaan-indikator.use-case';
 import { PertanyaanFilterDTO } from '../application/dtos/request/pertanyaan/filter-question.dto';
 import { CreateEvaluationsUseCase } from '../application/use-cases/indikator/create-eval.use-case';
+import { CreateIndikatorRecapUseCase } from '../application/use-cases/rekap/create.use-case';
 
 @Controller('indicators')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -38,6 +42,7 @@ export class IndicatorController {
     private readonly getIndicatorUseCase: GetIndikatorUseCase,
     private readonly updateIndicatorUseCase: UpdateIndikatorUseCase,
     private readonly getAllPertanyaanIndikatorUseCase: GetAllPertanyaanIndikatorUseCase,
+    private readonly createIndikatorRecapUseCase: CreateIndikatorRecapUseCase,
   ) { }
 
   @Get()
@@ -59,11 +64,17 @@ export class IndicatorController {
       req.user,
     );
   }
+  @Get('/:id/recap')
   getRekap(
     @Param('id') indikatorId: string,
+    @Body() userId: string,
     @Req() req: Request & { user: UserRequest },
-  ) { 
-    return 
+  ) {
+    return this.createIndikatorRecapUseCase.execute(
+      indikatorId,
+      userId,
+      req.user,
+    );
   }
   @Get('/:id')
   getOne(@Param('id') id: string, @Req() req: Request & { user: UserRequest }) {

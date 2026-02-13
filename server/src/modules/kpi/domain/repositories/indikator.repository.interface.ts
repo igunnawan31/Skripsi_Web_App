@@ -9,6 +9,7 @@ import { UpdateIndikatorResponseDTO } from "../../application/dtos/response/indi
 export abstract class IIndikatorRepository {
   abstract findAll(filters: InternalIndikatorFilterDTO): Promise<RetrieveAllIndikatorResponseDTO | null>;
   abstract findById(id: string): Promise<RetrieveIndikatorResponseDTO | null>;
+  abstract countEvals(indikatorId: string, evaluateeId: string): Promise<number>;
   abstract create(data: InternalCreateIndikatorDTO): Promise<CreateIndikatorResponseDTO>;
   abstract createWithEval(indikator: InternalCreateIndikatorDTO, evaluations: InternalCreateEvaluationsDTO[]): Promise<CreateIndikatorResponseDTO>;
   abstract update(id: string, data: InternalUpdateIndikatorDTO): Promise<UpdateIndikatorResponseDTO>;
