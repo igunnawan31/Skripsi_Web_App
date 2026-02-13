@@ -4,10 +4,6 @@ import { IsBoolean, IsDate, IsDateString, IsEnum, IsOptional, IsString } from "c
 import { FilterDTO } from "src/common/types/Filter.dto";
 
 export class IndikatorFilterDTO extends FilterDTO {
-  @IsString()
-  @IsOptional()
-  category?: string;
-
   @IsDateString()
   @IsOptional()
   minStartDate?: string;

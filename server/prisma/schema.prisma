@@ -183,7 +183,6 @@ model IndikatorKPI {
   id           String             @id @default(uuid())
   name         String
   description  String
-  category     String
   startDate    DateTime           @db.Date
   endDate      DateTime           @db.Date
   statusPublic Boolean            @default(false)

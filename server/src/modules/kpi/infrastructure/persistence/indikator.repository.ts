@@ -12,10 +12,7 @@ import {
   InternalCreateEvaluationsDTO,
   InternalCreateIndikatorDTO,
 } from '../../application/dtos/request/indikator/create-indicator.dto';
-import {
-  CreateEvaluationsResponseDTO,
-  CreateIndikatorResponseDTO,
-} from '../../application/dtos/response/indikator/create-response.dto';
+import { CreateIndikatorResponseDTO } from '../../application/dtos/response/indikator/create-response.dto';
 import { InternalUpdateIndikatorDTO } from '../../application/dtos/request/indikator/update-indicator.dto';
 import { UpdateIndikatorResponseDTO } from '../../application/dtos/response/indikator/update-response.dto';
 import { Prisma } from '@prisma/client';
@@ -35,7 +32,7 @@ export class IndikatorRepository implements IIndikatorRepository {
   constructor(
     private readonly prisma: PrismaService,
     private readonly logger: LoggerService,
-  ) { }
+  ) {}
 
   async findAll(
     filters: InternalIndikatorFilterDTO,
@@ -43,7 +40,6 @@ export class IndikatorRepository implements IIndikatorRepository {
     try {
       const {
         searchTerm,
-        category,
         minStartDate,
         maxEndDate,
         statusPublic,
@@ -55,7 +51,6 @@ export class IndikatorRepository implements IIndikatorRepository {
       } = filters;
 
       const where: Prisma.IndikatorKPIWhereInput = {
-        category: category ?? undefined,
         statusPublic: statusPublic ?? undefined,
         status: status ?? undefined,
         startDate: {
@@ -171,7 +166,6 @@ export class IndikatorRepository implements IIndikatorRepository {
         data: {
           name: data.name,
           description: data.description,
-          category: data.category,
           startDate: data.startDate,
           endDate: data.endDate,
           statusPublic: data.statusPublic,
@@ -209,9 +203,7 @@ export class IndikatorRepository implements IIndikatorRepository {
           });
           return plainToInstance(CreateIndikatorResponseDTO, {
             ...createdIndikator,
-            evaluations: evals.map((e) =>
-              plainToInstance(EvaluationKPIDTO, e),
-            ),
+            evaluations: evals.map((e) => plainToInstance(EvaluationKPIDTO, e)),
           });
         }
 

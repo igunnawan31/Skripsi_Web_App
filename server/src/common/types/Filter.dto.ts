@@ -43,7 +43,6 @@ export const ALLOWED_AGENDA_SORT_FIELDS = [
 export type AgendaSortField = typeof ALLOWED_AGENDA_SORT_FIELDS[number]
 
 export const ALLOWED_INDIKATOR_KPI_SORT_FIELDS = [
-  'category',
   'status',
   'startDate',
   'endDate',

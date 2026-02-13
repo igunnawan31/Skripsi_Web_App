@@ -184,7 +184,6 @@ async function main() {
     data: {
       name: 'Kualitas Kode & Kolaborasi',
       description: 'Penilaian terhadap kualitas kerja developer',
-      category: 'TEKNIS',
       startDate: new Date('2025-01-01'),
       endDate: new Date('2025-01-31'),
       status: 'ACTIVE',

@@ -28,9 +28,6 @@ export class CreateIndikatorDTO {
   @IsString()
   description: string;
 
-  @IsString()
-  category: string;
-
   @IsDateString()
   startDate: string;
 

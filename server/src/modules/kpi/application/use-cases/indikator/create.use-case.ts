@@ -42,7 +42,6 @@ export class CreateIndikatorUseCase {
       const indikatorPayload: InternalCreateIndikatorDTO = {
         name: dto.name,
         description: dto.description,
-        category: dto.category,
         startDate: formattedStartDate,
         endDate: formattedEndDate,
         statusPublic: dto.statusPublic ?? false,

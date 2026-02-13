@@ -12,9 +12,6 @@ export class IndikatorKPIBaseDTO {
   description: string;
 
   @Expose()
-  category: string;
-
-  @Expose()
   startDate: string;
 
   @Expose()
