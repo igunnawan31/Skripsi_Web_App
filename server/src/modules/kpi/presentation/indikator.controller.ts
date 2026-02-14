@@ -29,6 +29,8 @@ import { GetAllPertanyaanIndikatorUseCase } from '../application/use-cases/perta
 import { PertanyaanFilterDTO } from '../application/dtos/request/pertanyaan/filter-question.dto';
 import { CreateEvaluationsUseCase } from '../application/use-cases/indikator/create-eval.use-case';
 import { CreateIndikatorRecapUseCase } from '../application/use-cases/rekap/create.use-case';
+import { StatusIndikatorKPI } from '@prisma/client';
+import { UpdateStatusIndikatorUseCase } from '../application/use-cases/indikator/update-status.use-case';
 
 @Controller('indicators')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -41,6 +43,7 @@ export class IndicatorController {
     private readonly getAllIndicatorUseCase: GetAllIndikatorUseCase,
     private readonly getIndicatorUseCase: GetIndikatorUseCase,
     private readonly updateIndicatorUseCase: UpdateIndikatorUseCase,
+    private readonly updateStatusIndicatorUseCase: UpdateStatusIndikatorUseCase,
     private readonly getAllPertanyaanIndikatorUseCase: GetAllPertanyaanIndikatorUseCase,
     private readonly createIndikatorRecapUseCase: CreateIndikatorRecapUseCase,
   ) { }
@@ -100,16 +103,25 @@ export class IndicatorController {
     return this.updateIndicatorUseCase.execute(id, dto);
   }
   @Patch('/:id/activate')
-  activateIndicator(@Param('id') id: string, @Body() dto: UpdateIndikatorDTO) {
-    return this.updateIndicatorUseCase.execute(id, dto);
+  activateIndicator(@Param('id') id: string) {
+    return this.updateStatusIndicatorUseCase.execute(
+      id,
+      StatusIndikatorKPI.ACTIVE,
+    );
   }
   @Patch('/:id/archive')
-  archiveIndicator(@Param('id') id: string, @Body() dto: UpdateIndikatorDTO) {
-    return this.updateIndicatorUseCase.execute(id, dto);
+  archiveIndicator(@Param('id') id: string) {
+    return this.updateStatusIndicatorUseCase.execute(
+      id,
+      StatusIndikatorKPI.ARCHIVED,
+    );
   }
   @Patch('/:id/complete')
-  completeIndicator(@Param('id') id: string, @Body() dto: UpdateIndikatorDTO) {
-    return this.updateIndicatorUseCase.execute(id, dto);
+  completeIndicator(@Param('id') id: string) {
+    return this.updateStatusIndicatorUseCase.execute(
+      id,
+      StatusIndikatorKPI.COMPLETED,
+    );
   }
   @Delete('/:id')
   delete(@Param('id') id: string) {

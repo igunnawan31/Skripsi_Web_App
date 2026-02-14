@@ -7,7 +7,7 @@ import { UpdateIndikatorResponseDTO } from "../../dtos/response/indikator/update
 import { StatusIndikatorKPI } from "@prisma/client";
 
 @Injectable()
-export class UpdateIndikatorUseCase {
+export class UpdateStatusIndikatorUseCase {
   constructor(
     @Inject(IIndikatorRepository)
     private readonly indikatorRepo: IIndikatorRepository,
