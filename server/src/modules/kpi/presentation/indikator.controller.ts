@@ -99,6 +99,18 @@ export class IndicatorController {
   update(@Param('id') id: string, @Body() dto: UpdateIndikatorDTO) {
     return this.updateIndicatorUseCase.execute(id, dto);
   }
+  @Patch('/:id/activate')
+  activateIndicator(@Param('id') id: string, @Body() dto: UpdateIndikatorDTO) {
+    return this.updateIndicatorUseCase.execute(id, dto);
+  }
+  @Patch('/:id/archive')
+  archiveIndicator(@Param('id') id: string, @Body() dto: UpdateIndikatorDTO) {
+    return this.updateIndicatorUseCase.execute(id, dto);
+  }
+  @Patch('/:id/complete')
+  completeIndicator(@Param('id') id: string, @Body() dto: UpdateIndikatorDTO) {
+    return this.updateIndicatorUseCase.execute(id, dto);
+  }
   @Delete('/:id')
   delete(@Param('id') id: string) {
     return this.deleteIndicatorUseCase.execute(id);

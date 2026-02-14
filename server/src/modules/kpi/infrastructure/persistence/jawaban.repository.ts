@@ -16,10 +16,7 @@ import {
   JawabanKPISortField,
 } from 'src/common/types/Filter.dto';
 import { plainToInstance } from 'class-transformer';
-import {
-  IndikatorKPIBaseDTO,
-  EvaluationKPIDTO,
-} from '../../application/dtos/indikatorKPI.dto';
+import { IndikatorKPIBaseDTO } from '../../application/dtos/indikatorKPI.dto';
 import { PertanyaanKPIBaseDTO } from '../../application/dtos/pertanyaanKPI.dto';
 import { UserBaseDTO } from 'src/modules/users/application/dtos/base.dto';
 
@@ -114,8 +111,8 @@ export class JawabanRepository implements IJawabanRepository {
             ...r,
             indikator: plainToInstance(IndikatorKPIBaseDTO, r.indikator),
             pertanyaan: plainToInstance(PertanyaanKPIBaseDTO, r.pertanyaan),
-            evaluator: plainToInstance(EvaluationKPIDTO, r.evaluator),
-            evaluatee: plainToInstance(EvaluationKPIDTO, r.evaluatee),
+            evaluator: plainToInstance(UserBaseDTO, r.evaluator),
+            evaluatee: plainToInstance(UserBaseDTO, r.evaluatee),
           }),
         ),
         meta: {
@@ -145,8 +142,8 @@ export class JawabanRepository implements IJawabanRepository {
         ...answer,
         indikator: plainToInstance(IndikatorKPIBaseDTO, answer.indikator),
         pertanyaan: plainToInstance(PertanyaanKPIBaseDTO, answer.pertanyaan),
-        evaluator: plainToInstance(EvaluationKPIDTO, answer.evaluator),
-        evaluatee: plainToInstance(EvaluationKPIDTO, answer.evaluatee),
+        evaluator: plainToInstance(UserBaseDTO, answer.evaluator),
+        evaluatee: plainToInstance(UserBaseDTO, answer.evaluatee),
       });
     } catch (err) {
       handlePrismaError(err, 'Jawaban', id, this.logger);
@@ -178,8 +175,8 @@ export class JawabanRepository implements IJawabanRepository {
         ...answer,
         indikator: plainToInstance(IndikatorKPIBaseDTO, answer.indikator),
         pertanyaan: plainToInstance(PertanyaanKPIBaseDTO, answer.pertanyaan),
-        evaluator: plainToInstance(EvaluationKPIDTO, answer.evaluator),
-        evaluatee: plainToInstance(EvaluationKPIDTO, answer.evaluatee),
+        evaluator: plainToInstance(UserBaseDTO, answer.evaluator),
+        evaluatee: plainToInstance(UserBaseDTO, answer.evaluatee),
       });
     } catch (err) {
       handlePrismaError(err, 'Jawaban', '', this.logger);
