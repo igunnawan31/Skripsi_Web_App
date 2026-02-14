@@ -27,6 +27,7 @@ import { GetAllPertanyaanIndikatorUseCase } from './application/use-cases/pertan
 import { CreateEvaluationsUseCase } from './application/use-cases/indikator/create-eval.use-case';
 import { UsersModule } from '../users/users.module';
 import { CreateIndikatorRecapUseCase } from './application/use-cases/rekap/create.use-case';
+import { UpdateStatusIndikatorUseCase } from './application/use-cases/indikator/update-status.use-case';
 
 @Module({
   imports: [UsersModule],
@@ -39,6 +40,7 @@ import { CreateIndikatorRecapUseCase } from './application/use-cases/rekap/creat
     GetAllIndikatorUseCase,
     GetIndikatorUseCase,
     UpdateIndikatorUseCase,
+    UpdateStatusIndikatorUseCase,
     CreateJawabanUseCase,
     DeleteJawabanUseCase,
     GetAllJawabanUseCase,
