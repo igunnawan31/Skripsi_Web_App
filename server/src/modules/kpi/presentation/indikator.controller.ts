@@ -98,10 +98,6 @@ export class IndicatorController {
   ) {
     return this.createEvaluationsUseCase.execute(id, dto);
   }
-  @Patch('/:id')
-  update(@Param('id') id: string, @Body() dto: UpdateIndikatorDTO) {
-    return this.updateIndicatorUseCase.execute(id, dto);
-  }
   @Patch('/:id/activate')
   activateIndicator(@Param('id') id: string) {
     return this.updateStatusIndicatorUseCase.execute(
@@ -122,6 +118,10 @@ export class IndicatorController {
       id,
       StatusIndikatorKPI.COMPLETED,
     );
+  }
+  @Patch('/:id')
+  update(@Param('id') id: string, @Body() dto: UpdateIndikatorDTO) {
+    return this.updateIndicatorUseCase.execute(id, dto);
   }
   @Delete('/:id')
   delete(@Param('id') id: string) {
