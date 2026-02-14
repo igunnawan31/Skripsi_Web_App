@@ -18,11 +18,12 @@ import CustomToast from "@/app/rootComponents/CustomToast";
 import { User } from "@/app/lib/types/types";
 import { MajorRole, MinorRole } from "@/app/lib/types/enumTypes";
 import CreateEvalModal from "./CreateEvalModal";
+import ConfirmationPopUpModal from "@/app/dashboard/dashboardComponents/allComponents/ConfirmationPopUpModal";
 
 export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
     const router = useRouter();
 
-    const { data: fetchedData, isLoading, error } = useKpi().fetchIndicatorById(id);
+    const { data: fetchedData, isLoading, error, refetch } = useKpi().fetchIndicatorById(id);
     const { data: fetchedDataUser, isLoading: isLoadingUser, error: isErrorUser } = useUser().fetchAllUser();
     const { data: fetchedDataProject, isLoading: isLoadingProject, error: isErrorProject } = useProject().fetchAllProject();
     const { mutate, isPending } = useKpi().createEval();
@@ -161,7 +162,6 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
     };
 
     const handleOpenCreateEval = () => {
-        // Memasukkan data yang sudah ada ke dalam state modal
         const existingEvals = groupedEvaluations.map((item: any) => ({
             evaluatorId: item.evaluatorId,
             evaluateeId: item.evaluateeIds
@@ -172,14 +172,17 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
     };
 
     const handleCreateNewEval = (indikatorId: string) => {
+        console.log("formDataEval", formDataEval)
         mutate({id, evalData: formDataEval}, {
-            onSuccess: () => {
+            onSuccess: async () => {
                 toast.custom(
                     <CustomToast 
                         type="success" 
                         message={"Eval berhasil diperbarui"} 
                     />
                 );
+                
+                await refetch();
                 setIsModalCreateOpen(false);
             },
             onError: (error) => {
@@ -213,8 +216,7 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
         setIsModalUpdateOpen(true);
     }
 
-    const handleUpdateIndikator = (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleUpdateIndikator = () => {
         updateIndikator({id, indikatorData: formData}, {
             onSuccess: () => {
                 toast.custom(
@@ -247,8 +249,6 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
             });
         }
     }, [fetchedData]);
-
-    console.log(fetchedData)
 
     if (isLoading || isLoadingUser || isLoadingProject) {
         return <div className="text-center text-(--color-muted)">Memuat data...</div>;
@@ -303,7 +303,7 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
                             Deskripsi Indikator
                         </label>
                         <textarea
-                            name="deskripsi"
+                            name="description"
                             value={formData.description}
                             onChange={handleChange}
                             placeholder="Tuliskan deskripsi singkat indikator..."
@@ -467,15 +467,17 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
                             Batal
                         </button>
                         <button
-                            type="submit"
+                            type="button"
+                            onClick={handleOpenUpdateModal}
+                            disabled={isPendingUpdateIndikator}
                             className={`flex items-center gap-2 px-5 py-2 rounded-lg text-white transition cursor-pointer
-                                ${isPending
+                                ${isPendingUpdateIndikator
                                     ? "bg-gray-400 cursor-not-allowed"
                                     : "bg-yellow-500 hover:bg-yellow-600 active:scale-[0.98]"
                                 }`}
                         >
                             <Image src={icons.saveLogo} alt="Save Logo" width={18} height={18} />
-                            Simpan Indikator Kinerja Karyawan
+                            {isPending ? "Menyimpan..." : "Simpan Perubahan Indikator Kinerja Karyawan"}
                         </button>
                     </div>
                 </form>
@@ -495,6 +497,16 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
                 formDataEval={formDataEval}
                 fetchedDataUser={fetchedDataUser}
                 isPending={isPending}
+            />
+            <ConfirmationPopUpModal
+                isOpen={isModalUpdateOpen}
+                onAction={handleUpdateIndikator}
+                onClose={() => setIsModalUpdateOpen(false)}
+                type="success"
+                title={"Konfirmasi Perubahan Indikator"}
+                message={"Apakah Anda yakin sudah mengisi data dengan baik"}
+                activeText={"Simpan"}
+                passiveText="Batal"
             />
         </div>
     );

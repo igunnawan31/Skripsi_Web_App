@@ -29,7 +29,9 @@ export const useKpi = () => {
                 if (filters?.sortBy) queryParams.append("sortBy", filters.sortBy);
                 if (filters?.sortOrder) queryParams.append("sortOrder", filters.sortOrder);
                 if (filters?.status) queryParams.append("status", filters.status);
-                if (filters?.statusPublic) queryParams.append("statusPublic", filters.statusPublic);
+                if (filters?.statusPublic !== undefined) {
+                queryParams.append("statusPublic", filters.statusPublic);
+            }
                 if (filters?.minStartDate) queryParams.append("minStartDate", filters.minStartDate);
                 if (filters?.maxEndDate) queryParams.append("maxEndDate", filters.maxEndDate);
                 if (filters?.searchTerm) queryParams.append("searchTerm", filters.searchTerm);
@@ -206,7 +208,7 @@ export const useKpi = () => {
                         "Authorization": `Bearer ${token}`,
                     },
                     credentials: "include",
-                    body: JSON.stringify(evalData),
+                    body: JSON.stringify(evalData.evalMap),
                 });
 
                 if (!response.ok) {
@@ -223,8 +225,9 @@ export const useKpi = () => {
                 return response.json();
             },
 
-            onSuccess: () => {
+            onSuccess: (id: string) => {
                 queryClient.invalidateQueries({ queryKey: ["indicators"] });
+                queryClient.invalidateQueries({ queryKey: ["indicator", id] });
             },
         });
     }

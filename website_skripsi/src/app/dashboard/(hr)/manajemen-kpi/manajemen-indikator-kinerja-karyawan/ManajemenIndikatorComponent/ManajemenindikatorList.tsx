@@ -118,7 +118,7 @@ const ManajemenIndikatorList = () => {
     const filterFields = [
         { key: "minStartDate", label: "From", type: "date" as const },
         { key: "maxEndDate", label: "To", type: "date" as const },
-        { key: "statusPublic", label: "Status Publik", type: "select" as const, options: Object.values(Boolean) },
+        { key: "statusPublic", label: "Status Publik", type: "select" as const, options: ["true", "false"]},
         { key: "status", label: "Status Indikator", type: "select" as const, options: Object.values(StatusIndikatorKPI) },
     ];
     
@@ -181,7 +181,7 @@ const ManajemenIndikatorList = () => {
                             <span
                                 className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
                             >
-                                Status Public: {selectedStatusPublic}
+                                Status Publik: {selectedStatusPublic === "true" ? "Aktif" : "Non-Aktif"}
                                 <button
                                     className="text-red-500 hover:text-red-700 cursor-pointer"
                                     onClick={() => setSelectedStatusPublic("All")}

@@ -6,12 +6,15 @@ import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchB
 import { icons } from "@/app/lib/assets/assets";
 import { useKpi } from "@/app/lib/hooks/kpi/useKpi";
 import { useQuestion } from "@/app/lib/hooks/kpi/useQuestion";
-import { KategoriPertanyaanKPI, SkalaNilai } from "@/app/lib/types/kpi/kpiTypes";
+import { KategoriPertanyaanKPI, QuestionCreateForm, SkalaNilai } from "@/app/lib/types/kpi/kpiTypes";
 import CustomToast from "@/app/rootComponents/CustomToast";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import QuestionCreateModal from "./QuestionCreateModal";
+import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/PaginationBar";
+import QuestionUpdateModal from "./QuestionUpdateModal";
 
 interface QuestionUpdateProps {
     fetchedData: string;
@@ -21,23 +24,33 @@ const QuestionUpdate = ({fetchedData}: QuestionUpdateProps) => {
     const searchParams = useSearchParams();
     const router = useRouter();
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+
     const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
     const [selectedKategori, setSelectedKategori] = useState<string>(searchParams.get("kategori") || "All");
     const [searchQuery, setSearchQuery] = useState("");
 
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const handleSearch = (query: string) => {
         setSearchQuery(query);
+        setCurrentPage(1);
     };
 
-    const { data, isLoading, error} = useKpi().fetchAllQuestionByIdIndikator({
+    const { data, isLoading, error, refetch} = useKpi().fetchAllQuestionByIdIndikator({
         id: fetchedData,
         kategori: selectedKategori !== "All" ? selectedKategori : undefined,
         searchTerm: searchQuery || undefined,
     });
+    const { mutate: createQuestions, isPending } = useQuestion().createQuestion();
+    const { mutate: updateQuestion, isPending: isUpdatePending } = useQuestion().updateQuestion();
 
-    const questionData = data?.data || [];
+    const questionData = [...(data?.data || [])].sort((a, b) => a.urutanSoal - b.urutanSoal);
+    const existingQuestionCount = questionData.length;
+    const totalItems = data?.meta?.total || 0;
     const deleteQuestion = useQuestion().deleteQuestion();
 
     useEffect(() => {
@@ -49,6 +62,30 @@ const QuestionUpdate = ({fetchedData}: QuestionUpdateProps) => {
 
     const handleApplyFilters = (filters: Record<string, string | undefined>) => {
         setSelectedKategori(filters.kategori || "All");
+        setCurrentPage(1);
+    };
+
+    const handleEditModal = (id: string) => {
+        setSelectedQuestionId(id);
+        setIsEditModalOpen(true);
+    }
+
+    const handleSaveEdit = (updatedData: QuestionCreateForm) => {
+        if (!selectedQuestionId) return;
+
+        updateQuestion({ 
+            id: selectedQuestionId, 
+            questionData: updatedData 
+        }, {
+            onSuccess: async () => {
+                toast.custom(<CustomToast type="success" message="Pertanyaan berhasil diperbarui" />);
+                await refetch();
+                setIsEditModalOpen(false);
+            },
+            onError: (err) => {
+                toast.custom(<CustomToast type="error" message={err.message} />);
+            }
+        });
     };
 
     const handleOpenModal = (id: string) => {
@@ -60,13 +97,15 @@ const QuestionUpdate = ({fetchedData}: QuestionUpdateProps) => {
         if (!selectedQuestionId) return;
         
         deleteQuestion.mutate(selectedQuestionId, {
-            onSuccess: () => {
+            onSuccess: async () => {
                 toast.custom(
                     <CustomToast
                         type="success"
-                        message={"Indikator berhasil dihapus"}
+                        message={"Pertanyaan berhasil dihapus"}
                     />
                 );
+
+                await refetch();
                 setIsModalOpen(false);
                 setSelectedQuestionId("");
             },
@@ -74,13 +113,42 @@ const QuestionUpdate = ({fetchedData}: QuestionUpdateProps) => {
                 toast.custom(
                     <CustomToast
                         type="error"
-                        message={error?.message || "Terjadi kendala ketika ingin menghapus indikator"}
+                        message={error?.message || "Terjadi kendala ketika ingin menghapus pertanyaan"}
                     />
                 );
                 setIsModalOpen(false);
                 setSelectedQuestionId("");
             }
         })
+    };
+
+    const handleOpenSimpanModal = () => {
+        setIsCreateModalOpen(true);
+    };
+
+    const handleSimpanPertanyaan = (questionData: QuestionCreateForm[]) => {
+        createQuestions(questionData, {
+            onSuccess: async () => {
+                toast.custom(
+                    <CustomToast 
+                        type="success" 
+                        message="Pertanyaan berhasil dibuat" 
+                    />
+                );
+
+                await refetch();
+                setIsCreateModalOpen(false);
+            },
+            onError: (err) => {
+                toast.custom(
+                    <CustomToast 
+                        type="error"
+                        message={err.message} 
+                    />
+                );
+                setIsCreateModalOpen(false);
+            }
+        });
     };
 
     const filterFields = [
@@ -125,6 +193,8 @@ const QuestionUpdate = ({fetchedData}: QuestionUpdateProps) => {
                             Filter
                         </div>
                         <button
+                            type="button"
+                            onClick={handleOpenSimpanModal}
                             className="w-fit flex items-center justify-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 active:scale-[0.98] transition-all text-sm font-medium shadow-sm cursor-pointer"
                         >
                             <Image
@@ -256,7 +326,22 @@ const QuestionUpdate = ({fetchedData}: QuestionUpdateProps) => {
                                                 ))}
                                             </div>
                                         </div>
-                                        <div className="w-full flex justify-end items-end mt-5">
+                                        <div className="w-full flex justify-end items-end mt-5 gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleEditModal(p.id)}
+                                                className="text-sm flex px-3 py-2 bg-(--color-secondary) rounded-lg gap-2 cursor-pointer hover:bg-(--color-secondary)/60"
+                                            >
+                                                <Image
+                                                    src={icons.editLogo}
+                                                    alt="Delete Logo"
+                                                    width={16}
+                                                    height={16}
+                                                />
+                                                <span className="text-white">
+                                                    Edit
+                                                </span>
+                                            </button>
                                             <button
                                                 type="button"
                                                 onClick={() => handleOpenModal(p.id)}
@@ -283,6 +368,17 @@ const QuestionUpdate = ({fetchedData}: QuestionUpdateProps) => {
                         Belum ada daftar pertanyaan untuk indikator ini saat ini.
                     </p>
                 )}
+                {questionData.length > 0 && !isLoading && (
+                    <div className="mt-6">
+                        <PaginationBar
+                            totalItems={totalItems}
+                            itemsPerPage={itemsPerPage}
+                            currentPage={currentPage}
+                            onPageChange={(page) => setCurrentPage(page)}
+                            onItemsPerPageChange={(num) => setItemsPerPage(num)}
+                        />
+                    </div>
+                )}
             </div>
             <FilterModal
                 isOpen={isFilterOpen}
@@ -300,6 +396,21 @@ const QuestionUpdate = ({fetchedData}: QuestionUpdateProps) => {
                 message={"Apakah Anda yakin ingin menghapus data pertanyaan ini"}
                 activeText="Ya"
                 passiveText="Batal"
+            />
+            <QuestionUpdateModal
+                questionId={selectedQuestionId || ""}
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                onSave={handleSaveEdit}
+                isPending={isUpdatePending}
+            />
+            <QuestionCreateModal
+                indikatorId={fetchedData}
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                onSave={handleSimpanPertanyaan}
+                isPending={isPending}
+                existingCount={existingQuestionCount}
             />
         </div>
     )

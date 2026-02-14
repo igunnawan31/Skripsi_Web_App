@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { CreateKontrakKerja, UpdateKontrakKerja } from "../../types/kontrak/kontrakTypes";
+import { QuestionCreateForm } from "../../types/kpi/kpiTypes";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -59,57 +60,60 @@ export const useQuestion = () => {
         })
     }
 
-    const createKontrak = () => {
+    const fetchIdQuestion = (id: string) => {
+        return useQuery ({
+            queryKey: ["question", id],
+            queryFn: async () => {
+                const token = Cookies.get("accessToken");
+                if (!token) throw new Error("No access token found");
+
+                const response = await fetch(`${API}/questions/${id}`, {
+                    method: "GET",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    credentials: "include",
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Failed to fetch question by Id"
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                return response.json();
+            },
+            enabled: !!id,
+            staleTime: 5 * 60 * 1000,
+        });
+    }
+
+    const createQuestion = () => {
         const queryClient = useQueryClient();
 
         return useMutation<
             any,
             Error,
-            CreateKontrakKerja
+            QuestionCreateForm[]
         >({
-            mutationFn: async (kontrakData: CreateKontrakKerja) => {
+            mutationFn: async (questionData: QuestionCreateForm[]) => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const fd = new FormData();
-
-                fd.append('userData[email]', kontrakData.userData.email || '');
-                fd.append('userData[name]', kontrakData.userData.name || '');
-                fd.append('userData[password]', kontrakData.userData.password || '');
-                fd.append('userData[majorRole]', kontrakData.userData.majorRole || '');
-                fd.append('userData[minorRole]', kontrakData.userData.minorRole || '');
-
-                if (kontrakData.userPhoto) {
-                    fd.append('userPhoto', kontrakData.userPhoto);
-                }
-
-                fd.append('projectData[id]', kontrakData.projectData.id || '');
-
-                fd.append('jenis', kontrakData.jenis || '');
-                fd.append('category', kontrakData.metodePembayaran || '');
-                fd.append('dpPercentage', String(kontrakData.dpPercentage || 0));
-                fd.append('finalPercentage', String(kontrakData.finalPercentage || 0));
-                fd.append('totalBayaran', String(kontrakData.totalBayaran));
-                fd.append('absensiBulanan', String(kontrakData.absensiBulanan));
-                fd.append('cutiBulanan', String(kontrakData.cutiBulanan));
-                fd.append('status', kontrakData.status || '');
-                fd.append('catatan', kontrakData.catatan || '');
-                fd.append('startDate', kontrakData.startDate || '');
-                fd.append('endDate', kontrakData.endDate || '');
-
-                if (kontrakData.contractDocuments?.length) {
-                    kontrakData.contractDocuments.forEach(file => {
-                        fd.append('contractDocuments', file);
-                    });
-                }
-
-                const response = await fetch(`${API}/kontrak`, {
+                const response = await fetch(`${API}/questions`, {
                     method: "POST",
                     headers: {
+                        "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`,
                     },
                     credentials: "include",
-                    body: fd,
+                    body: JSON.stringify(questionData),
                 });
 
                 if (!response.ok) {
@@ -126,64 +130,37 @@ export const useQuestion = () => {
                 return response.json();
             },
 
-            onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: ["kontraks"] });
+            onSuccess: (variables) => {
+                const indikatorId = variables[0]?.indikatorId;
+                queryClient.invalidateQueries({ queryKey: ["indicators"] });
+                if (indikatorId) {
+                    queryClient.invalidateQueries({ queryKey: ["indicator", indikatorId] });
+                    queryClient.invalidateQueries({ queryKey: ["questions", indikatorId] });
+                }
             },
         });
     }
 
-    const updateKontrak = () => {
+    const updateQuestion = () => {
         const queryClient = useQueryClient();
 
         return useMutation<
             any,
             Error,
-            { id: string; kontrakData: Partial<UpdateKontrakKerja>; }
+            { id: string; questionData: QuestionCreateForm; }
         >({
-            mutationFn: async ({ id, kontrakData}) => {
+            mutationFn: async ({ id, questionData}) => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const fd = new FormData();
-
-                fd.append('userData[email]', kontrakData?.userData?.email || '');
-                fd.append('userData[name]', kontrakData?.userData?.name || '');
-                fd.append('userData[password]', kontrakData?.userData?.password || '');
-                fd.append('userData[majorRole]', kontrakData?.userData?.majorRole || '');
-                fd.append('userData[minorRole]', kontrakData?.userData?.minorRole || '');
-
-                if (kontrakData.userPhoto) {
-                    fd.append('userPhoto', kontrakData.userPhoto);
-                }
-
-                fd.append('projectData[id]', kontrakData?.projectData?.id || '');
-
-                fd.append('jenis', kontrakData.jenis || '');
-                fd.append('metodePembayaran', kontrakData.metodePembayaran || '');
-                fd.append('dpPercentage', String(kontrakData.dpPercentage || 0));
-                fd.append('finalPercentage', String(kontrakData.finalPercentage || 0));
-                fd.append('totalBayaran', String(kontrakData.totalBayaran));
-                fd.append('absensiBulanan', String(kontrakData.absensiBulanan));
-                fd.append('cutiBulanan', String(kontrakData.cutiBulanan));
-                fd.append('status', kontrakData.status || '');
-                fd.append('catatan', kontrakData.catatan || '');
-                fd.append('startDate', kontrakData.startDate || '');
-                fd.append('endDate', kontrakData.endDate || '');
-                fd.append('removeDocuments', JSON.stringify(kontrakData.removeDocuments || []));
-
-                if (kontrakData.contractDocuments?.length) {
-                    kontrakData.contractDocuments.forEach(file => {
-                        fd.append('contractDocuments', file);
-                    });
-                }
-
-                const response = await fetch(`${API}/kontrak/${id}`,{
+                const response = await fetch(`${API}/questions/${id}`,{
                     method: "PATCH",
                     headers: {
+                        "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`,
                     },
                     credentials: "include",
-                    body: fd,
+                    body: JSON.stringify(questionData),
                 });
 
                 if (!response.ok) {
@@ -200,9 +177,13 @@ export const useQuestion = () => {
                 const result = await response.json();
                 return result;
             },
-            onSuccess: (data, variables) => {
-                queryClient.invalidateQueries({ queryKey: ["kontrak", variables.id]});
-                queryClient.invalidateQueries({ queryKey: ["kontraks"]})
+            onSuccess: (variables) => {
+                const indikatorId = variables[0]?.indikatorId;
+                queryClient.invalidateQueries({ queryKey: ["indicators"] });
+                if (indikatorId) {
+                    queryClient.invalidateQueries({ queryKey: ["indicator", indikatorId] });
+                    queryClient.invalidateQueries({ queryKey: ["questions", indikatorId] });
+                }
             },
         });
     }
@@ -242,8 +223,9 @@ export const useQuestion = () => {
 
     return {
         fetchAllQuestion,
+        fetchIdQuestion,
         deleteQuestion,
-        createKontrak,
-        updateKontrak,
+        createQuestion,
+        updateQuestion,
     }
 }
