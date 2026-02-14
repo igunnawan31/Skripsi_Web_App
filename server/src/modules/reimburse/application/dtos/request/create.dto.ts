@@ -1,12 +1,14 @@
-import { IsArray, IsInt, IsString, Min } from "class-validator";
+import { Type } from "class-transformer";
+import { IsArray, IsInt, IsNumber, IsString, Min } from "class-validator";
 import { FileMetaData } from "src/common/types/FileMetaData.dto";
 
 export class CreateReimburseDTO { 
   @IsString()
   title: string;
 
-  @IsInt()
+  @IsNumber()
   @Min(0)
+  @Type(() => Number)
   totalExpenses: number;
 }
 
