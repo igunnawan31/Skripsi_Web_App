@@ -1,6 +1,6 @@
 import { OmitType } from '@nestjs/mapped-types';
 import { StatusIndikatorKPI } from '@prisma/client';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDate,
@@ -22,11 +22,6 @@ export class IndikatorFilterDTO extends FilterDTO {
 
   @IsBoolean()
   @IsOptional()
-  @Transform(({ value }) => {
-    if (value === 'true') return true;
-    if (value === 'false') return false;
-    return value;
-  })
   statusPublic?: boolean;
 
   @IsEnum(StatusIndikatorKPI)
