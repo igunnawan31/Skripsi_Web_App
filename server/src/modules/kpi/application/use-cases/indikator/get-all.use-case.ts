@@ -31,8 +31,6 @@ export class GetAllIndikatorUseCase {
           ? new Date(filters.maxEndDate)
           : undefined,
       };
-      console.log(payload);
-      console.log(filters);
 
       const indicators = await this.indikatorRepo.findAll(payload);
       if (!indicators)

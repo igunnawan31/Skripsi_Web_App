@@ -157,7 +157,6 @@ export class IndikatorRepository implements IIndikatorRepository {
           rekap: true,
         },
       });
-      console.log(indikator);
 
       if (!indikator) return null;
 
