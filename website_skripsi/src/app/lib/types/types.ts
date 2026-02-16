@@ -214,39 +214,6 @@ export type RekapKPIAll = {
     detailPeriode: RekapKPI[];      // detail setiap periode (misal Q1, Q2, Q3)
 };
 
-export type LayerPenilaian = {
-    id: string;
-    majorRolePenilai: MajorRole;       // Role yang memberi nilai
-    minorRolePenilai?: MinorRole;
-    menilaiRole: MinorRole[];     // Role yang bisa dinilai oleh rolePenilai
-    hanyaDalamProject?: boolean;  // true = hanya berlaku untuk anggota project
-};
-
-export const layerPenilaian: LayerPenilaian[] = [
-    {
-        id: "L1",
-        majorRolePenilai: MajorRole.OWNER,
-        menilaiRole: [MinorRole.HR, MinorRole.PROJECT_MANAGER],
-    },
-    {
-        id: "L2",
-        majorRolePenilai: MajorRole.KARYAWAN,
-        minorRolePenilai: MinorRole.HR,
-        menilaiRole: [MinorRole.ADMIN],
-    },
-    {
-        id: "L3",
-        majorRolePenilai: MajorRole.KARYAWAN,
-        minorRolePenilai: MinorRole.PROJECT_MANAGER,
-        menilaiRole: [
-            MinorRole.UI_UX,
-            MinorRole.FRONTEND,
-            MinorRole.BACKEND
-        ],
-        hanyaDalamProject: true,
-    },
-];
-
 // FORM
 export type IndikatorKPIForm = {
     namaIndikator: string;

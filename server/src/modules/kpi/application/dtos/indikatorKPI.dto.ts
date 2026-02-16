@@ -12,9 +12,6 @@ export class IndikatorKPIBaseDTO {
   description: string;
 
   @Expose()
-  category: string;
-
-  @Expose()
   startDate: string;
 
   @Expose()
@@ -36,12 +33,15 @@ export class IndikatorKPIBaseDTO {
   updatedAt: string;
 }
 
-export class IndikatorKPIPivotBaseDTO { // dto untuk pivot table indikator kpi penilai dan dinilai, strukturnya sama jadi pakai dto yang sama
+export class EvaluationKPIDTO { // dto untuk pivot table indikator kpi penilai dan dinilai, strukturnya sama jadi pakai dto yang sama
   @Expose()
   indikatorId: string;
 
   @Expose()
-  userId: string;
+  evaluatorId: string;
+
+  @Expose()
+  evaluateeId: string;
 
   @Expose()
   createdAt: string;

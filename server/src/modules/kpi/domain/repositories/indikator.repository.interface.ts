@@ -1,15 +1,18 @@
 import { UserRequest } from "src/common/types/UserRequest.dto";
-import { IndikatorFilterDTO } from "../../application/dtos/request/indikator/filter-indicator.dto";
-import { RetrieveAllIndikatorResponseDTO } from "../../application/dtos/response/indikator/read-response.dto";
-import { InternalCreateIndikatorDTO } from "../../application/dtos/request/indikator/create-indicator.dto";
-import { CreateIndikatorResponseDTO } from "../../application/dtos/response/indikator/create-response.dto";
-import { UpdateIndikatorDTO } from "../../application/dtos/request/indikator/update-indicator.dto";
+import { InternalIndikatorFilterDTO } from "../../application/dtos/request/indikator/filter-indicator.dto";
+import { RetrieveAllIndikatorResponseDTO, RetrieveIndikatorResponseDTO } from "../../application/dtos/response/indikator/read-response.dto";
+import { InternalCreateEvaluationsDTO, InternalCreateIndikatorDTO } from "../../application/dtos/request/indikator/create-indicator.dto";
+import { CreateEvaluationsResponseDTO, CreateIndikatorResponseDTO } from "../../application/dtos/response/indikator/create-response.dto";
+import { InternalUpdateIndikatorDTO } from "../../application/dtos/request/indikator/update-indicator.dto";
 import { UpdateIndikatorResponseDTO } from "../../application/dtos/response/indikator/update-response.dto";
 
 export abstract class IIndikatorRepository {
-  abstract findAll(filters: IndikatorFilterDTO, user: UserRequest): Promise<RetrieveAllIndikatorResponseDTO | null>;
-  abstract findById(id: string): Promise<RetrieveAllIndikatorResponseDTO | null>;
+  abstract findAll(filters: InternalIndikatorFilterDTO): Promise<RetrieveAllIndikatorResponseDTO | null>;
+  abstract findById(id: string): Promise<RetrieveIndikatorResponseDTO | null>;
+  abstract countEvals(indikatorId: string, evaluateeId: string): Promise<number>;
   abstract create(data: InternalCreateIndikatorDTO): Promise<CreateIndikatorResponseDTO>;
-  abstract update(id: string, data: UpdateIndikatorDTO): Promise<UpdateIndikatorResponseDTO>;
+  abstract createWithEval(indikator: InternalCreateIndikatorDTO, evaluations: InternalCreateEvaluationsDTO[]): Promise<CreateIndikatorResponseDTO>;
+  abstract update(id: string, data: InternalUpdateIndikatorDTO): Promise<UpdateIndikatorResponseDTO>;
+  abstract createEval(data: InternalCreateEvaluationsDTO[]): Promise<void>
   abstract remove(id: string): Promise<void>;
 }

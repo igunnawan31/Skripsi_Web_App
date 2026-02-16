@@ -36,6 +36,7 @@ export const icons = {
     clockOut: "/assets/icons/clock-out.svg",
     imageFormat: "/assets/icons/image.svg",
     pdfFormat: "/assets/icons/pdf.svg",
+    question: "/assets/icons/document.svg",
 
     homeLogo: "/assets/icons/home.svg",
     viewLogo: "/assets/icons/view.svg",

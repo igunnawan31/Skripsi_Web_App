@@ -1,5 +1,5 @@
 import { UserBaseDTO } from "src/modules/users/application/dtos/base.dto";
-import { IndikatorKPIBaseDTO, IndikatorKPIPivotBaseDTO } from "../../indikatorKPI.dto";
+import { IndikatorKPIBaseDTO, EvaluationKPIDTO} from "../../indikatorKPI.dto";
 import { PertanyaanKPIBaseDTO } from "../../pertanyaanKPI.dto";
 import { JawabanKPIBaseDTO } from "../../jawabanKPI.dto";
 import { RekapKPIBaseDTO } from "../../rekapKPI.dto";
@@ -14,10 +14,7 @@ export class RetrieveIndikatorResponseDTO extends IndikatorKPIBaseDTO {
   pertanyaan: PertanyaanKPIBaseDTO[];
 
   @Expose()
-  penilai: IndikatorKPIPivotBaseDTO[];
-
-  @Expose()
-  dinilai: IndikatorKPIPivotBaseDTO[];
+  evaluations: EvaluationKPIDTO[];
 
   @Expose()
   jawaban: JawabanKPIBaseDTO[];

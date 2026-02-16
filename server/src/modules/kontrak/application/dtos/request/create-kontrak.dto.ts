@@ -28,19 +28,24 @@ class BaseCreateKontrakDTO {
 
   @IsNumber()
   @IsOptional()
+  @Type(()=>Number)
   dpPercentage?: number;
 
   @IsNumber()
   @IsOptional()
+  @Type(()=>Number)
   finalPercentage?: number;
 
   @IsNumber()
+  @Type(()=>Number)
   totalBayaran: number;
 
   @IsNumber()
+  @Type(()=>Number)
   absensiBulanan: number;
 
   @IsNumber()
+  @Type(()=>Number)
   cutiBulanan: number;
 
   @IsEnum(KontrakKerjaStatus)

@@ -4,17 +4,17 @@ import { FilterDTO } from 'src/common/types/Filter.dto';
 export class RekapFilterDTO extends FilterDTO {
   @IsOptional()
   @IsNumber()
-  minTotalNilai: number;
+  minTotalNilai?: number;
 
   @IsOptional()
   @IsNumber()
-  maxTotalNilai: number;
+  maxTotalNilai?: number;
 
   @IsOptional()
   @IsNumber()
-  minRataRata: number;
+  minRataRata?: number;
 
   @IsOptional()
   @IsNumber()
-  maxRataRata: number;
+  maxRataRata?: number;
 }

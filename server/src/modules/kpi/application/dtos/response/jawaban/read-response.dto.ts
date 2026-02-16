@@ -13,10 +13,10 @@ export class RetrieveJawabanResponseDTO extends JawabanKPIBaseDTO {
   pertanyaan: PertanyaanKPIBaseDTO;
 
   @Expose()
-  penilai: UserBaseDTO;
+  evaluator: UserBaseDTO;
 
   @Expose()
-  dinilai: UserBaseDTO;
+  evaluatee: UserBaseDTO;
 }
 
 export class RetrieveAllJawabanResponseDTO {

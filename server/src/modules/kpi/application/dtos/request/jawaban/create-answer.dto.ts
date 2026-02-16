@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from "class-validator";
+import { IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateJawabanDTO {
   @IsString()
@@ -8,9 +8,17 @@ export class CreateJawabanDTO {
   pertanyaanId: string;
 
   @IsString()
-  dinilaiId: string;
+  evaluateeId: string;
 
   @IsString()
   @IsOptional()
   notes?: string;
+
+  @IsNumber()
+  nilai: number;
+}
+
+export class InternalCreateJawabanDTO extends CreateJawabanDTO {
+  @IsString()
+  evaluatorId: string;
 }

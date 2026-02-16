@@ -17,7 +17,7 @@ import { KontrakBaseDTO } from 'src/modules/kontrak/application/dtos/base.dto';
 import { ProjectBaseDTO } from 'src/modules/project/application/dtos/base.dto';
 import {
   IndikatorKPIBaseDTO,
-  IndikatorKPIPivotBaseDTO,
+  EvaluationKPIDTO,
 } from 'src/modules/kpi/application/dtos/indikatorKPI.dto';
 import { JawabanKPIBaseDTO } from 'src/modules/kpi/application/dtos/jawabanKPI.dto';
 import { RekapKPIBaseDTO } from 'src/modules/kpi/application/dtos/rekapKPI.dto';
@@ -106,8 +106,8 @@ export class UserRepository implements IUserRepository {
             penilaiKPI: true,
             dinilaiKPI: true,
             rekapKPI: true,
-            indikatorPenilai: true,
-            indikatorDinilai: true,
+            evaluatorOf: true,
+            evaluateeOf: true,
           },
         }),
         this.prisma.user.count({ where }),
@@ -132,13 +132,13 @@ export class UserRepository implements IUserRepository {
             penilaiKPI: plainToInstance(JawabanKPIBaseDTO, user.penilaiKPI),
             dinilaiKPI: plainToInstance(JawabanKPIBaseDTO, user.dinilaiKPI),
             rekapKPI: plainToInstance(RekapKPIBaseDTO, user.rekapKPI),
-            indikatorPenilai: plainToInstance(
-              IndikatorKPIPivotBaseDTO,
-              user.indikatorPenilai,
+            evaluatorOf: plainToInstance(
+              EvaluationKPIDTO,
+              user.evaluatorOf,
             ),
-            indikatorDinilai: plainToInstance(
-              IndikatorKPIPivotBaseDTO,
-              user.indikatorDinilai,
+            evaluateeOf: plainToInstance(
+              EvaluationKPIDTO,
+              user.evaluateeOf,
             ),
           }),
         ),
@@ -169,8 +169,8 @@ export class UserRepository implements IUserRepository {
           penilaiKPI: true,
           dinilaiKPI: true,
           rekapKPI: true,
-          indikatorPenilai: true,
-          indikatorDinilai: true,
+          evaluatorOf: true,
+          evaluateeOf: true,
         },
       });
 
@@ -194,13 +194,13 @@ export class UserRepository implements IUserRepository {
             penilaiKPI: plainToInstance(JawabanKPIBaseDTO, user.penilaiKPI),
             dinilaiKPI: plainToInstance(JawabanKPIBaseDTO, user.dinilaiKPI),
             rekapKPI: plainToInstance(RekapKPIBaseDTO, user.rekapKPI),
-            indikatorPenilai: plainToInstance(
-              IndikatorKPIPivotBaseDTO,
-              user.indikatorPenilai,
+            evaluatorOf: plainToInstance(
+              EvaluationKPIDTO,
+              user.evaluatorOf,
             ),
-            indikatorDinilai: plainToInstance(
-              IndikatorKPIPivotBaseDTO,
-              user.indikatorDinilai,
+            evaluateeOf: plainToInstance(
+              EvaluationKPIDTO,
+              user.evaluateeOf,
             ),
           }
           : {},

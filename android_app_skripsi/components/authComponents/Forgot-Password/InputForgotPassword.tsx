@@ -12,10 +12,10 @@ type InputLoginProps = {
 
 const InputForgotPassword: React.FC<InputLoginProps> = ({ title, placeholder, secureTextEntry, isOTP }) => {
     const [isSecure, setIsSecure] = useState(secureTextEntry ?? false);
+    const [isFocused, setIsFocused] = useState(false);
     const [otpCode, setOtpCode] = useState(["", "", "", ""]);
     const inputsRef = useRef<(TextInput | null)[]>([]);
 
-    // OTP Code
     const handleChange = (text: string, index: number) => {
         if (/^[0-9]?$/.test(text)) {
             const newOtp = [...otpCode];
@@ -42,11 +42,16 @@ const InputForgotPassword: React.FC<InputLoginProps> = ({ title, placeholder, se
 
 
             {!isOTP ? (
-                <View style={authStyles.input}>
+                <View style={{
+                    ...authStyles.input,
+                    borderColor: isFocused ? COLORS.primary : COLORS.border,
+                    borderWidth: isFocused ? 2 : 1,
+                    backgroundColor: 'transparent'
+                }}>
                     <TextInput
                         placeholder={placeholder}
                         secureTextEntry={isSecure}
-                        style={{ flex: 1, paddingVertical: 10, color: COLORS.text }}
+                        style={{ flex: 1, paddingHorizontal: 15, color: COLORS.textPrimary}}
                         placeholderTextColor={COLORS.textMuted}
                     />
                 </View>

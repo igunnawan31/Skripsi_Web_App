@@ -171,10 +171,9 @@ export class AbsensiRepository implements IAbsensiRepository {
       const where: Prisma.AbsensiWhereInput = {
         userId,
         workStatus: status ?? undefined,
-        checkOut: {
+        checkIn: {
           gte: new Date(year, month, 1),
           lt: new Date(year, month + 1, 1),
-          not: null,
         },
       };
       const orderBy: Prisma.AbsensiOrderByWithRelationInput = {};

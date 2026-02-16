@@ -17,7 +17,7 @@ export class JawabanKPIBaseDTO {
   dinilaiId: string;
 
   @Expose()
-  nilai: string;
+  nilai: number;
 
   @Expose()
   notes?: string;

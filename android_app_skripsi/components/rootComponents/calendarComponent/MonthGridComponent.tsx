@@ -64,7 +64,7 @@ const MonthGridComponent = ({selectedDay, setSelectedDay, setCurrentMonth, month
                     <Text style={{
                         fontSize: 14,
                         fontWeight: isSelected || isTodayDate ? 'bold' : '400',
-                        color: isSelected ? 'white' : isTodayDate ? COLORS.textPrimary : COLORS.textPrimary
+                        color: isSelected ? COLORS.white : isTodayDate ? COLORS.textPrimary : COLORS.textPrimary
                     }}>
                         {day}
                     </Text>

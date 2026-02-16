@@ -14,7 +14,7 @@ const HistoryAbsensiPage = () => {
     let current = new Date();
     const [selectedYear, setSelectedYear] = useState(current.getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(current.getMonth());
-    const { data, isLoading, error} = useAbsensi().fetchAbsensiByUserId(user.id, selectedYear, selectedMonth);
+    const { data, isLoading, error} = useAbsensi().fetchAbsensiByUserId(user?.id, selectedYear, selectedMonth);
     const [filteredData, setFilteredData] = useState<AbsensiResponse[]>([]);
 
     const [modalVisible, setModalVisible] = useState(false);
