@@ -11,7 +11,7 @@ export const useKpi = () => {
         limit?: number;
         sortBy?: string;
         sortOrder?: "asc" | "desc";
-        statusPublic?: string;
+        statusPublic?: boolean;
         status?: string;
         minStartDate?: string;
         maxEndDate?: string;
@@ -29,12 +29,12 @@ export const useKpi = () => {
                 if (filters?.sortBy) queryParams.append("sortBy", filters.sortBy);
                 if (filters?.sortOrder) queryParams.append("sortOrder", filters.sortOrder);
                 if (filters?.status) queryParams.append("status", filters.status);
-                if (filters?.statusPublic !== undefined) {
-                queryParams.append("statusPublic", filters.statusPublic);
-            }
+                if (filters?.statusPublic !== undefined) {queryParams.append("statusPublic", String(filters.statusPublic));}
                 if (filters?.minStartDate) queryParams.append("minStartDate", filters.minStartDate);
                 if (filters?.maxEndDate) queryParams.append("maxEndDate", filters.maxEndDate);
                 if (filters?.searchTerm) queryParams.append("searchTerm", filters.searchTerm);
+
+                console.log(filters?.minStartDate);
 
                 const response = await fetch(`${API}/indicators?${queryParams.toString()}`, {
                     method: "GET",

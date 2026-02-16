@@ -5,132 +5,103 @@ import { KinerjaData } from "@/app/lib/dummyData/KinerjaData";
 import { PenilaianKPIData } from "@/app/lib/dummyData/PenilaianKPIData";
 import { dummySkalaNilai, PertanyaanKPIData } from "@/app/lib/dummyData/PertanyaanKPIData";
 import { JawabanKPI } from "@/app/lib/types/types";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import PenilaianIndikatorForm from "./PenilaianIndikatorForm";
+import { useKpi } from "@/app/lib/hooks/kpi/useKpi";
+import { AnswerCreateForm, KategoriPertanyaanKPI, PertanyaanIndikatorResponse, SkalaNilai } from "@/app/lib/types/kpi/kpiTypes";
+import { useJawaban } from "@/app/lib/hooks/kpi/useJawaban";
+import Image from "next/image";
+import { icons } from "@/app/lib/assets/assets";
+import ConfirmationPopUpModal from "@/app/dashboard/dashboardComponents/allComponents/ConfirmationPopUpModal";
+import toast from "react-hot-toast";
+import CustomToast from "@/app/rootComponents/CustomToast";
 
 export default function PenilaianIndikatorDetail({ id }: {id: string}) {
     const router = useRouter();
-    const [data, setData] = useState<JawabanKPI | null>(null);
-    const [formJawaban, setFormJawaban] = useState<{ 
-        [key: string]: {nilai: number | null, notes: string} 
-    }>({});
-    const [loading, setLoading] = useState(true);
-    const selectedUser = dummyUsers.find((item) => item.id === id);
+    const searchParams = useSearchParams();
+    const evaluatee = searchParams.get("evaluatee") || "";
     
-    let indikatorIds = PenilaianKPIData
-        .filter(k => k.dinilai.id === selectedUser?.id)
-        .map(k => k.indikatorKPIId);
-
-    if (indikatorIds.length === 0) {
-        indikatorIds = KinerjaData
-            .filter(k => k.pertanyaanUntuk.some(u => u.id === selectedUser?.id))
-            .map(k => k.id);
-    };
-    indikatorIds = [...new Set(indikatorIds)];
-    const jawabanUser = PenilaianKPIData.filter(
-        (item) =>
-            item.dinilai.id === selectedUser?.id &&
-            indikatorIds.includes(item.indikatorKPIId)
-    );
-
-    const pertanyaanRelevan = PertanyaanKPIData.filter(
-        p => indikatorIds.includes(p.IndikatorKPIId)
-    );
-
-    const convertNilai = jawabanUser.map(item => {
-        const skala = dummySkalaNilai.find(skala => skala.nilai === item.nilai);
-
-        return {
-            ...item,
-            label: skala ? skala.label : "Tidak Diketahui"
-        };
-    });
+    const { data: detailDataPertanyaan, isLoading: isDetailPertanyaanLoading, error: detailPertanyaanError } = useKpi().fetchAllQuestionByIdIndikator({id: id});
+    const { data: detailDataJawaban, isLoading: isDetailJawabanLoading, error: detailJawabanError } = useJawaban().fetchAllJawaban();
+    const { mutate: createAnswer, isPending } = useJawaban().createAnswer();
     
-    const pertanyaanByCategory = PertanyaanKPIData
-        .filter(item => indikatorIds.includes(item.IndikatorKPIId))
-        .reduce((acc, p) => {
-        const kategori = p.kategoriPertanyaan;
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [formJawaban, setFormJawaban] = useState<{ [key: string]: { nilai: number | null, notes: string } }>({});
+
+    const jawabanMilikTarget = detailDataJawaban?.data?.filter((j: any) => j.evaluateeId === evaluatee && j.indikatorId === id) || [];
+    const sudahDinilai = jawabanMilikTarget.length > 0;
+
+    const pertanyaanByCategory = (detailDataPertanyaan?.data || []).reduce((acc: any, p: any) => {
+        const kategori = p.kategori || KategoriPertanyaanKPI.KINERJA; 
         if (!acc[kategori]) acc[kategori] = [];
         acc[kategori].push(p);
         return acc;
-    }, {} as Record<string, typeof PertanyaanKPIData>);
+    }, {});
 
-    const categoriesQuestion = Object.entries(pertanyaanByCategory);
-    const sudahDinilai = 
-        jawabanUser.length > 0 &&
-        pertanyaanRelevan.length > 0 &&
-        pertanyaanRelevan.every((p) => {
-            const jawab = jawabanUser.find(k => k.pertanyaanId === p.id)
-            return jawab && jawab.nilai != null;
-        });
+    const categoriesQuestion = Object.entries(pertanyaanByCategory) as [string, any[]][];
 
-    const allAnswered = categoriesQuestion.every(([_, list]) =>
-        list.every((item) => {
-            const ans = formJawaban?.[item.id];
-            return ans && ans.nilai !== null;
-        })
+    const allAnswered = (detailDataPertanyaan?.data || []).every((p: any) => 
+        formJawaban[p.id]?.nilai !== null && formJawaban[p.id]?.nilai !== undefined
     );
 
-    const nilaiAkhir = (() => {
-        if (!sudahDinilai) return null;
+    const handleOpenModal = () => {
+        if (!allAnswered) {
+            toast.custom(<CustomToast type="error" message="Mohon lengkapi semua penilaian" />);
+            return;
+        }
+        setIsModalOpen(true);
+    };
 
-        let total = 0;
-        let totalBobot = 0;
-
-        jawabanUser.forEach((jawab) => {
-            const p = PertanyaanKPIData.find(q => q.id === jawab.pertanyaanId);
-            if (p) {
-                total += jawab.nilai * p.bobot;
-                totalBobot += p.bobot;
-            }
-        });
-
-        if (totalBobot === 0) return null;
-        return (total / totalBobot).toFixed(2);
-    })();
+    const handleSubmit = () => {
+        const payload: AnswerCreateForm[] = Object.entries(formJawaban).map(([pertanyaanId, data]) => ({
+            indikatorId: id,            
+            pertanyaanId: pertanyaanId, 
+            evaluateeId: evaluatee,     
+            notes: data.notes || "",
+            nilai: data.nilai as number
+        }));
+    }
     
-    const handleInputChange = (pertanyaanId: string, nilai: number) => {
-        setFormJawaban((prev) => ({
-            ...prev,
-            [pertanyaanId]: {
-                ...prev[pertanyaanId],
-                nilai,
-            },
-        }));
-    };
-    const handleNotesChange = (pertanyaanId: string, notes: string) => {
-        setFormJawaban((prev) => ({
-            ...prev,
-            [pertanyaanId]: {
-                ...prev[pertanyaanId],
-                notes
-            },
-        }));
-    };
+    if (isDetailJawabanLoading || isDetailPertanyaanLoading) {
+        return <div className="text-center text-(--color-muted)">Memuat data...</div>;
+    }
 
-    useEffect(() => {
-        setTimeout(() => {
-            const jawabanPertama = PenilaianKPIData.find(
-                (item) => item.dinilai.id === id
-            );
+    if (detailJawabanError || detailPertanyaanError) {
+        return <div className="text-center text-red-500">Terjadi kesalahan.</div>;
+    }
 
-            setData(jawabanPertama || ({ id } as JawabanKPI));
-            setLoading(false);
-        }, 200);
-    }, [id]);
-
-
-    if (loading) return <div className="text-center text-(--color-muted)">Memuat data...</div>;
-    if (!data) return <div className="text-center text-red-500">Data tidak ditemukan.</div>;
+    if (!detailDataJawaban || !detailDataPertanyaan) {
+        return <div className="text-center text-red-500">Data tidak ditemukan.</div>;
+    }
 
     return (
         <div className="flex flex-col gap-6 w-full">
             {sudahDinilai ? (
                 <>
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                        <h1 className="text-2xl font-bold text-(--color-text-primary)">Detail Penilaian Indikator Kinerja Karyawan</h1>
-                        <span className="text-sm text-(--color-muted)">ID: {id}</span>
+                    <div className="flex flex-col gap-6 w-full">
+                        <button
+                            onClick={() => router.back()}
+                            className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                        >
+                            <Image
+                                src={icons.arrowLeftActive}
+                                alt="Back Arrow"
+                                width={20}
+                                height={20}
+                            />
+                            <p className="text-(--color-surface)">
+                                Kembali ke halaman sebelumnya
+                            </p>
+                        </button>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex flex-row gap-4 items-center">
+                                <h1 className="text-2xl font-bold text-(--color-text-primary)">
+                                    Detail Penilaian Indikator Kinerja Karyawan
+                                </h1>
+                            </div>
+                            <span className="text-sm text-(--color-muted)">ID: {evaluatee}</span>
+                        </div>
                     </div>
                     <div className="w-full bg-(--color-surface) rounded-2xl shadow-md p-6 border border-(--color-border) flex flex-col gap-6">
                         <div className="flex flex-col gap-2 p-4 bg-(--color-surface-variant) rounded-xl border border-(--color-border)">
@@ -138,15 +109,15 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
                                 Ringkasan Penilaian
                             </p>
                             <p className="text-sm text-(--color-text-secondary)">
-                                Total Pertanyaan Dinilai: {jawabanUser.length}
+                                Total Pertanyaan Dinilai: {jawabanMilikTarget.length}
                             </p>
                             <p className="text-sm text-(--color-text-secondary)">
-                                Rata-rata Nilai: <span className="font-bold">{nilaiAkhir ?? "-"}</span>
+                                {/* Rata-rata Nilai: <span className="font-bold">{nilaiAkhir ?? "-"}</span> */}
                             </p>
                         </div>
                         <PenilaianIndikatorForm
                             categoriesQuestion={categoriesQuestion}
-                            convertNilai={convertNilai}
+                            convertNilai={jawabanMilikTarget}
                             judul={"Penilaian yang telah dilakukan"}
                             sudahDinilai={true}
                         />
@@ -154,24 +125,53 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
                 </>
             ) : (
                 <>
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                        <h1 className="text-2xl font-bold text-(--color-text-primary)">Isi Penilaian Indikator Kinerja Karyawan</h1>
-                        <span className="text-sm text-(--color-muted)">ID: {id}</span>
+                    <div className="flex flex-col gap-6 w-full">
+                        <button
+                            onClick={() => router.back()}
+                            className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                        >
+                            <Image
+                                src={icons.arrowLeftActive}
+                                alt="Back Arrow"
+                                width={20}
+                                height={20}
+                            />
+                            <p className="text-(--color-surface)">
+                                Kembali ke halaman sebelumnya
+                            </p>
+                        </button>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex flex-row gap-4 items-center">
+                                <h1 className="text-2xl font-bold text-(--color-text-primary)">
+                                    Isi Penilaian Indikator Kinerja Karyawan
+                                </h1>
+                            </div>
+                            <span className="text-sm text-(--color-muted)">ID: {evaluatee}</span>
+                        </div>
                     </div>
-                    <div className="w-full bg-(--color-surface) rounded-2xl shadow-md p-6 border border-(--color-border) flex flex-col gap-6">
-                        <PenilaianIndikatorForm
-                            categoriesQuestion={categoriesQuestion}
-                            convertNilai={convertNilai}
-                            judul={`Form Penilaian ${selectedUser?.nama}`}
-                            sudahDinilai={false}
-                            formJawaban={formJawaban}
-                            handleInputChange={handleInputChange}
-                            handleNotesChange={handleNotesChange}
-                            allAnswered={allAnswered}
-                        />
-                    </div>
+                    <PenilaianIndikatorForm
+                        categoriesQuestion={categoriesQuestion}
+                        convertNilai={jawabanMilikTarget}
+                        judul={sudahDinilai ? "Hasil Penilaian" : "Form Penilaian"}
+                        sudahDinilai={sudahDinilai}
+                        formJawaban={formJawaban}
+                        handleInputChange={(id, nilai) => setFormJawaban(prev => ({...prev, [id]: {...prev[id], nilai}}))}
+                        handleNotesChange={(id, notes) => setFormJawaban(prev => ({...prev, [id]: {...prev[id], notes}}))}
+                        allAnswered={allAnswered}
+                        onSubmit={handleOpenModal}
+                    />
                 </>
             )}
+            <ConfirmationPopUpModal
+                isOpen={isModalOpen}
+                onAction={handleSubmit}
+                onClose={() => setIsModalOpen(false)}
+                type="info"
+                title={"Konfirmasi Simpan Penilaian"}
+                message={"Apakah Anda yakin ingin menghapus data pertanyaan ini"}
+                activeText="Ya"
+                passiveText="Batal"
+            />
         </div>   
     )
 }

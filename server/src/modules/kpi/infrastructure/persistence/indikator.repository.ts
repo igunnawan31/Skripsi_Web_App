@@ -32,7 +32,7 @@ export class IndikatorRepository implements IIndikatorRepository {
   constructor(
     private readonly prisma: PrismaService,
     private readonly logger: LoggerService,
-  ) { }
+  ) {}
 
   async countEvals(indikatorId: string, evaluateeId: string): Promise<number> {
     try {
@@ -40,7 +40,7 @@ export class IndikatorRepository implements IIndikatorRepository {
         where: {
           indikatorId,
           evaluateeId,
-        }
+        },
       });
 
       return evals;
@@ -68,12 +68,18 @@ export class IndikatorRepository implements IIndikatorRepository {
       const where: Prisma.IndikatorKPIWhereInput = {
         statusPublic: statusPublic ?? undefined,
         status: status ?? undefined,
-        startDate: {
-          gte: minStartDate ?? undefined,
-        },
-        endDate: {
-          lte: maxEndDate ?? undefined,
-        },
+        AND: [
+          {
+            startDate: {
+              lte: maxEndDate ?? undefined,
+            },
+          },
+          {
+            endDate: {
+              gte: minStartDate ?? undefined,
+            },
+          },
+        ],
       };
 
       if (
@@ -157,7 +163,6 @@ export class IndikatorRepository implements IIndikatorRepository {
           rekap: true,
         },
       });
-      console.log(indikator);
 
       if (!indikator) return null;
 

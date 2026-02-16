@@ -40,7 +40,7 @@ const ManajemenIndikatorList = () => {
     const { data, isLoading, error} = useKpi().fetchAllIndikator({
         page: currentPage,
         limit: itemsPerPage,
-        statusPublic: selectedStatusPublic !== "All" ? selectedStatusPublic : undefined,
+        statusPublic: selectedStatusPublic === "All" ? undefined : selectedStatusPublic === "true",
         status: selectedStatusIndikator !== "All" ? selectedStatusIndikator : undefined,
         minStartDate: selectedMinDate || undefined,
         maxEndDate: selectedMaxDate || undefined,
@@ -49,7 +49,6 @@ const ManajemenIndikatorList = () => {
 
     const deleteIndikator = useKpi().deleteIndikator();
     const indikator = data?.data || [];
-    console.log("indikator data:", indikator);
     const totalItems = data?.meta?.total || 0;
 
     useEffect(() => {

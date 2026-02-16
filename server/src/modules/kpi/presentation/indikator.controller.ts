@@ -70,7 +70,7 @@ export class IndicatorController {
   @Get('/:id/recap')
   getRekap(
     @Param('id') indikatorId: string,
-    @Body() userId: string,
+    @Body('userId') userId: string,
     @Req() req: Request & { user: UserRequest },
   ) {
     return this.createIndikatorRecapUseCase.execute(

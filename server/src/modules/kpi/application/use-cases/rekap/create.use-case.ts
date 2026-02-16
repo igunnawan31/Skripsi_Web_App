@@ -4,6 +4,9 @@ import { IJawabanRepository } from "src/modules/kpi/domain/repositories/jawaban.
 import { RetrieveRekapDTO } from "../../dtos/response/rekap/read-response.dto";
 import { IIndikatorRepository } from "src/modules/kpi/domain/repositories/indikator.repository.interface";
 import { IUserRepository } from "src/modules/users/domain/repositories/users.repository.interface";
+import { plainToInstance } from "class-transformer";
+import { UserBaseDTO } from "src/modules/users/application/dtos/base.dto";
+import { IndikatorKPIBaseDTO } from "../../dtos/indikatorKPI.dto";
 
 @Injectable()
 export class CreateIndikatorRecapUseCase {
@@ -26,7 +29,7 @@ export class CreateIndikatorRecapUseCase {
 
     if (!indikator) throw new NotFoundException(`Data indikator tidak ditemukan`)
 
-    const userData = await this.userRepo.findById(user.id);
+    const userData = await this.userRepo.findById(userId);
 
     if (!userData) throw new NotFoundException(`Data user tidak ditemukan`)
 
@@ -41,13 +44,13 @@ export class CreateIndikatorRecapUseCase {
     rataRata = totalNilai / answers.length
 
     const result: RetrieveRekapDTO = {
-      indikatorId,
-      userId,
+      indikatorId: indikatorId,
+      userId: userId,
       totalNilai,
       rataRata,
       jumlahPenilai,
-      indikator, 
-      user: userData, 
+      indikator: plainToInstance(IndikatorKPIBaseDTO, indikator), 
+      user: plainToInstance(UserBaseDTO, userData), 
     }
 
     return result;

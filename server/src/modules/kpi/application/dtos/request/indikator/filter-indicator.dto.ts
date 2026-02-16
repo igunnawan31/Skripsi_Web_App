@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import { OmitType } from '@nestjs/mapped-types';
 import { StatusIndikatorKPI } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
@@ -22,6 +23,11 @@ export class IndikatorFilterDTO extends FilterDTO {
 
   @IsBoolean()
   @IsOptional()
+  @Transform(({ value }) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    throw new BadRequestException('statusPublic must be true or false');
+  })
   statusPublic?: boolean;
 
   @IsEnum(StatusIndikatorKPI)
