@@ -12,12 +12,15 @@ import { useKpi } from "@/app/lib/hooks/kpi/useKpi";
 import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
 import Image from "next/image";
 import { icons } from "@/app/lib/assets/assets";
-import { StatusIndikatorKPI } from "@/app/lib/types/kpi/kpiTypes";
+import { EvalResponse, StatusIndikatorKPI } from "@/app/lib/types/kpi/kpiTypes";
 import FilterModal from "@/app/dashboard/dashboardComponents/allComponents/FilterModal";
+import { useUser } from "@/app/lib/hooks/user/useUser";
+import { format } from "date-fns";
 
 const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
     showButton = false,
     buttonText = "Aksi",
+    onButtonClick,
 }) => {
     const searchParams = useSearchParams();
     const user = useUserLogin();
@@ -26,7 +29,6 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     
-    const [selectedStatusPublic, setSelectedStatusPublic] = useState<string>(searchParams.get("statusPublic") || "All");
     const [selectedStatusIndikator, setSelectedStatusIndikator] = useState<string>(searchParams.get("status") || "All");
     const [selectedMinDate, setSelectedMinDate] = useState<string>(searchParams.get("minStartDate") || "");
     const [selectedMaxDate, setSelectedMaxDate] = useState<string>(searchParams.get("maxEndDate") || "");
@@ -42,25 +44,24 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
     const { data, isLoading, error} = useKpi().fetchAllIndikator({
         page: currentPage,
         limit: itemsPerPage,
-        statusPublic: selectedStatusPublic !== "All" ? selectedStatusPublic : undefined,
         status: selectedStatusIndikator !== "All" ? selectedStatusIndikator : undefined,
         minStartDate: selectedMinDate || undefined,
         maxEndDate: selectedMaxDate || undefined,
         searchTerm: searchQuery || undefined,
     });
 
+    const { data: fetchedDataUser, isLoading: isLoadingUser, error: isErrorUser } = useUser().fetchAllUser();
+
     useEffect(() => {
         const params = new URLSearchParams();
-        if (selectedStatusPublic && selectedStatusPublic !== "All") params.set("statusPublic", selectedStatusPublic);
         if (selectedStatusIndikator && selectedStatusIndikator !== "All") params.set("status", selectedStatusIndikator);
         if (selectedMinDate) params.set("minStartDate", selectedMinDate);
         if (selectedMaxDate) params.set("maxEndDate", selectedMaxDate);
         if (searchQuery) params.set("searchTerm", searchQuery);
         router.replace(`?${params.toString()}`);
-    }, [selectedStatusPublic, selectedStatusIndikator, selectedMinDate, selectedMaxDate, searchQuery, router]);
+    }, [selectedStatusIndikator, selectedMinDate, selectedMaxDate, searchQuery, router]);
 
     const handleApplyFilters = (filters: Record<string, string | undefined>) => {
-        setSelectedStatusPublic(filters.statusPublic || "All");
         setSelectedStatusIndikator(filters.status || "All");
         setSelectedMinDate(filters.minStartDate || "");
         setSelectedMaxDate(filters.maxEndDate || "");
@@ -70,6 +71,13 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
     const tasksToReview = React.useMemo(() => {
         if (!data?.data || !user?.id) return [];
 
+        const userMap = new Map();
+        if (fetchedDataUser?.data) {
+            fetchedDataUser.data.forEach((u: any) => {
+                userMap.set(u.id, u.name);
+            });
+        }
+
         return data.data
             .filter((indikator: any) => indikator.status === StatusIndikatorKPI.ACTIVE)
             .flatMap((indikator: any) => {
@@ -78,24 +86,29 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
                 ) || [];
 
                 return myEvaluations.map((ev: any) => {
-                    const sudahDinilai = indikator.jawaban?.some(
-                        (jwb: any) => jwb.evaluateeId === ev.evaluateeId
+                    const dataRekap = indikator.rekap?.find(
+                        (r: any) => r.userId === ev.evaluateeId
                     );
+
+                    const sudahDinilai = (dataRekap?.jumlahPenilai || 0) > 0;
+                    const namaTarget = userMap.get(ev.evaluateeId) || ev.evaluatee?.name || `Karyawan (${ev.evaluateeId.slice(0, 5)})`;
 
                     return {
                         idUnique: `${indikator.id}-${ev.evaluateeId}`,
                         indikatorId: indikator.id,
+                        indikatorPertanyaan: indikator.pertanyaan.length,
                         namaIndikator: indikator.name,
                         description: indikator.description,
                         startDate: indikator.startDate,
                         endDate: indikator.endDate,
                         evaluateeId: ev.evaluateeId,
-                        namaTarget: ev.evaluatee?.name || `Karyawan ID: ${ev.evaluateeId.slice(0, 5)}`,
+                        namaTarget: namaTarget,
                         sudahDinilai: sudahDinilai,
+                        totalNilai: dataRekap?.rataRata || 0
                     };
                 });
             });
-    }, [data, user?.id]);
+    }, [data, user?.id, fetchedDataUser]);
 
     const totalItems = tasksToReview.length || 0;
     
@@ -109,7 +122,6 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
     const initialValues = {
         minStartDate: selectedMinDate,
         maxEndDate: selectedMaxDate,
-        statusPublic: selectedStatusPublic,
         status: selectedStatusIndikator,
     };
 
@@ -146,7 +158,7 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
                         Filter
                     </div>
                 </div>
-                {(selectedStatusPublic !== "All" || selectedStatusIndikator !== "All" || selectedMinDate || selectedMaxDate || searchQuery) && (
+                {( selectedStatusIndikator !== "All" || selectedMinDate || selectedMaxDate || searchQuery) && (
                     <>
                         {searchQuery && (
                             <span
@@ -156,19 +168,6 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
                                 <button
                                     className="text-red-500 hover:text-red-700 cursor-pointer"
                                     onClick={() => setSearchQuery("")}
-                                >
-                                    ✕
-                                </button>
-                            </span>
-                        )}
-                        {selectedStatusPublic !== "All" && (
-                            <span
-                                className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
-                            >
-                                Status Publik: {selectedStatusPublic === "true" ? "Aktif" : "Non-Aktif"}
-                                <button
-                                    className="text-red-500 hover:text-red-700 cursor-pointer"
-                                    onClick={() => setSelectedStatusPublic("All")}
                                 >
                                     ✕
                                 </button>
@@ -229,9 +228,8 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
             ) : tasksToReview.length > 0 ? (
                 <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {tasksToReview.map((task: any) => (
-                        <Link
+                        <div
                             key={task.idUnique}
-                            href={`/dashboard/manajemen-kpi/penilaian-kinerja-karyawan/${task.evaluateeId}?indikator=${task.indikatorId}`}
                             className="group bg-(--color-surface) border border-(--color-border) rounded-2xl p-5 shadow-sm hover:shadow-md transition-all"
                         >
                             <div className="flex justify-between items-start mb-3">
@@ -239,9 +237,9 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
                                     {task.namaTarget}
                                 </span>
                                 <span className={`px-2 py-1 text-[10px] font-bold rounded-md uppercase ${
-                                    task.sudahDinilai ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                                    task.sudahDinilai ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                 }`}>
-                                    {task.sudahDinilai ? "Selesai" : "Perlu Dinilai"}
+                                    {task.sudahDinilai ? "Sudah Dinilai" : "Perlu Dinilai"}
                                 </span>
                             </div>
 
@@ -250,12 +248,67 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
                                 <p className="text-xs text-gray-500 line-clamp-2">{task.description}</p>
                             </div>
 
-                            <div className="mt-4 pt-4 border-t border-gray-100">
-                                <button className="w-full py-2 bg-yellow-500 text-white rounded-lg text-sm font-medium">
-                                    {task.sudahDinilai ? "Lihat Detail" : buttonText}
-                                </button>
+                            <div className="flex flex-col gap-3 mt-2">
+                                <div className="flex flex-col sm:flex-row sm:justify-between items-start">
+                                    <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
+                                        <Image
+                                            src={icons.dateIn}
+                                            alt="Tanggal Mulai Cuti"
+                                            width={24}
+                                            height={24}
+                                        />
+                                        {task.startDate ? format(new Date(task.startDate), "dd MMM yyyy") : "-"}
+                                    </div>
+                                    <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
+                                        <Image
+                                            src={icons.dateOut}
+                                            alt="Tanggal Berakhir Cuti"
+                                            width={24}
+                                            height={24}
+                                        />
+                                        {task.endDate ? format(new Date(task.endDate), "dd MMM yyyy") : "-"}
+                                    </div>
+                                </div>
                             </div>
-                        </Link>
+
+                            <div className="flex justify-between items-center  mt-2">
+                                <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
+                                    <Image
+                                        src={icons.question}
+                                        alt="Jumlah Pertanyaan Cuti"
+                                        width={24}
+                                        height={24}
+                                    />
+                                    {task.indikatorPertanyaan} Pertanyaan
+                                </div>
+                            </div>
+
+                            {showButton && (
+                                (!task.sudahDinilai) ? (
+                                    <button
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            onButtonClick?.(task.idUnique);
+                                            router.push(`/dashboard/manajemen-kpi/penilaian-kinerja-karyawan/${task.indikatorId}?evaluatee=${task.evaluateeId}`)
+                                        }}
+                                        className="mt-3 w-full py-2 rounded-lg text-sm font-semibold bg-(--color-primary) text-white hover:bg-(--color-tertiary) hover:text-(--color-secondary) transition cursor-pointer"
+                                    >
+                                        <p>{buttonText}</p>
+                                    </button>
+                                ): (
+                                    <button
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            onButtonClick?.(task.idUnique);
+                                            router.push(`/dashboard/manajemen-kpi/penilaian-kinerja-karyawan/${task.indikatorId}?evaluatee=${task.evaluateeId}`)
+                                        }}
+                                        className="mt-3 w-full py-2 rounded-lg text-sm font-semibold bg-(--color-success) text-white hover:bg-(--color-tertiary) hover:text-(--color-secondary) transition cursor-pointer"
+                                    >
+                                        <p>Lihat Detail Penilaian Karyawan</p>
+                                    </button>
+                                )
+                            )}
+                        </div>
                     ))}
                 </div>
             ) : (

@@ -90,6 +90,17 @@ export type EvalMapForm = {
     evaluateeId: string[],
 }
 
+export type EvalCreateForm = {
+    evalMap: EvalMapForm[],
+}
+
+export type EvalResponse = {
+    indikatorId: string,
+    evaluatorId: string,
+    evaluateeId: string,
+    createdAt : string,
+}
+
 export type IndikatorCreateForm = {
     name: string,
     description: string,
@@ -97,10 +108,6 @@ export type IndikatorCreateForm = {
     endDate: string,
     statusPublic: boolean | "",
     status: StatusIndikatorKPI | "",
-    evalMap: EvalMapForm[],
-}
-
-export type EvalCreateForm = {
     evalMap: EvalMapForm[],
 }
 
@@ -144,4 +151,12 @@ export type QuestionCreateForm = {
     aktif: boolean,
     urutanSoal: number,
     indikatorId: string,
+}
+
+export type AnswerCreateForm = {
+    indikatorId: string,
+    pertanyaanId: string,
+    evaluateeId: string,
+    notes: string,
+    nilai: number,
 }

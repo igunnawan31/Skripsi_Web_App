@@ -191,7 +191,6 @@ const ManajemenIndikatorCreatePage = () => {
 
         setIsModalOpen(true);
     }
-    console.log(formData);
 
     const handleSubmit = () => {
         mutate(formData, {
