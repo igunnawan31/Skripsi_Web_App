@@ -7,7 +7,10 @@ import { PrismaService } from 'src/modules/database/prisma/prisma.service';
 import { InternalCreateKontrakDTO } from '../../application/dtos/request/create-kontrak.dto';
 import { CreateKontrakResponseDTO } from '../../application/dtos/response/create-response.dto';
 import { KontrakFilterDTO } from '../../application/dtos/request/kontrak-filter.dto';
-import { RetrieveAllKontrakResponseDTO, RetrieveKontrakResponseDTO } from '../../application/dtos/response/read-response.dto';
+import {
+  RetrieveAllKontrakResponseDTO,
+  RetrieveKontrakResponseDTO,
+} from '../../application/dtos/response/read-response.dto';
 import { UserBaseDTO } from 'src/modules/users/application/dtos/base.dto';
 import { ProjectBaseDTO } from 'src/modules/project/application/dtos/base.dto';
 import { InternalUpdateKontrakDTO } from '../../application/dtos/request/update-kontrak.dto';
@@ -16,7 +19,7 @@ import { SalaryBaseDTO } from 'src/modules/salary/application/dtos/base.dto';
 
 @Injectable()
 export class KontrakRepository implements IKontrakRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(
     dto: InternalCreateKontrakDTO,
@@ -87,12 +90,18 @@ export class KontrakRepository implements IKontrakRepository {
           gte: minCuti ?? undefined,
           lte: maxCuti ?? undefined,
         },
-        startDate: {
-          gte: minStartDate ? new Date(minStartDate) : undefined,
-        },
-        endDate: {
-          lte: maxEndDate ? new Date(maxEndDate) : undefined,
-        },
+        AND: [
+          {
+            startDate: {
+              gte: minStartDate ? new Date(minStartDate) : undefined,
+            },
+          },
+          {
+            endDate: {
+              lte: maxEndDate ? new Date(maxEndDate) : undefined,
+            },
+          },
+        ],
       };
 
       if (
@@ -232,12 +241,18 @@ export class KontrakRepository implements IKontrakRepository {
           gte: minCuti ?? undefined,
           lte: maxCuti ?? undefined,
         },
-        startDate: {
-          gte: minStartDate ? new Date(minStartDate) : undefined,
-        },
-        endDate: {
-          lte: maxEndDate ? new Date(maxEndDate) : undefined,
-        },
+        AND: [
+          {
+            startDate: {
+              gte: minStartDate ? new Date(minStartDate) : undefined,
+            },
+          },
+          {
+            endDate: {
+              lte: maxEndDate ? new Date(maxEndDate) : undefined,
+            },
+          },
+        ],
       };
 
       const orderBy: Prisma.KontrakKerjaOrderByWithRelationInput = {};
