@@ -101,18 +101,6 @@ export const HRMenuProps = [
         ],
     },
     {
-        title: "Rekomendasi Freelance",
-        items: [
-            {
-                icon: icons.rekomendasiFreelancerLogo,
-                alt: "Rekomendasi Freelance",
-                label: "Rekomendasi Freelance",
-                description: "Dapatkan rekomendasi freelancer terbaik berdasarkan kinerja, keahlian, dan riwayat proyek.",
-                href: "/dashboard/rekomendasi-freelance",
-            }
-        ]
-    },
-    {
         title: "Manajemen Karyawan",
         items: [
             {

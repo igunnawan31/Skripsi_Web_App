@@ -7,63 +7,110 @@ import FilterBar from "@/app/dashboard/dashboardComponents/allComponents/FilterB
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { icons } from "@/app/lib/assets/assets";
-import { IndikatorKPI, KontrakKerja, StatusIndikatorKPI, StatusPublicKPI } from "@/app/lib/types/types";
-import { fetchKontrakKerja } from "@/app/lib/hooks/dummyHooks/fetchKontrakKerja";
-import { fetchIndikatorKPI } from "@/app/lib/hooks/dummyHooks/fetchIndikatorKPI";
 import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
 import FilterModal from "@/app/dashboard/dashboardComponents/allComponents/FilterModal";
 import { MinorRole } from "@/app/lib/types/enumTypes";
+import { useKpi } from "@/app/lib/hooks/kpi/useKpi";
+import { IndikatorResponse, StatusIndikatorKPI } from "@/app/lib/types/kpi/kpiTypes";
+import { format } from "date-fns";
+import { useJawaban } from "@/app/lib/hooks/kpi/useJawaban";
 
 const HasilKKList = () => {
     const searchParams = useSearchParams();
-    const [loading, setLoading] = useState(true);
-    const [indikatorKpi, setIndikatorKpi] = useState<IndikatorKPI[]>([]);
+    const router = useRouter();
+
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
-    const [totalItems, setTotalItems] = useState(0);
 
-    const [selectedStatus, setSelectedStatus] = useState<string>(searchParams.get("statusPublic") || "All");
+    const [selectedIndikatorId, setSelectedIndikatorId] = useState<string | null>(null);
+    const [selectedStatusPublic, setSelectedStatusPublic] = useState<string>(searchParams.get("statusPublic") || "All");
     const [selectedStatusIndikator, setSelectedStatusIndikator] = useState<string>(searchParams.get("status") || "All");
-    const [searchQuery, setSearchQuery] = useState<string>(searchParams.get("searchTerm") || "");
-    
+    const [selectedMinDate, setSelectedMinDate] = useState<string>(searchParams.get("minStartDate") || "");
+    const [selectedMaxDate, setSelectedMaxDate] = useState<string>(searchParams.get("maxEndDate") || "");
+    const [searchQuery, setSearchQuery] = useState("");
+
     const [isFilterOpen, setIsFilterOpen] = useState(false);
-
-    const fetchData = async () => {
-        setLoading(true);
-        const result = await fetchIndikatorKPI(
-            currentPage,
-            itemsPerPage,
-            selectedStatus,
-            selectedStatusIndikator,
-        );
-        setIndikatorKpi(result.data);
-        setTotalItems(result.total);
-        setLoading(false);
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, [currentPage, itemsPerPage, selectedStatus, selectedStatusIndikator]);
-
-    const handleApplyFilters = (filters: Record<string, string | undefined>) => {
-        setSelectedStatus(filters.status || "All");
-        setCurrentPage(1);
-    };
-
-    const filterFields = [
-        { key: "date", label: "Date", type: "date" as const },
-        { key: "status", label: "Status Indikator", type: "select" as const, options: Object.values(StatusIndikatorKPI) },
-        { key: "statusPublic", label: "Status Publik", type: "select" as const, options: Object.values(StatusPublicKPI) },
-    ];
-
-    const initialValues = {
-        status: selectedStatusIndikator,
-        statusPublic: selectedStatus
-    };
-
     const handleSearch = (query: string) => {
         setSearchQuery(query);
         setCurrentPage(1);
+    };
+
+    const { data, isLoading, error} = useKpi().fetchAllIndikator({
+        page: currentPage,
+        limit: itemsPerPage,
+        statusPublic: selectedStatusPublic === "All" ? undefined : selectedStatusPublic === "true",
+        status: selectedStatusIndikator !== "All" ? selectedStatusIndikator : undefined,
+        minStartDate: selectedMinDate || undefined,
+        maxEndDate: selectedMaxDate || undefined,
+        searchTerm: searchQuery || undefined,
+    });
+    const { data: allJawaban, isLoading: isLoadingJawaban } = useJawaban().fetchAllJawaban();
+
+    const indikator = data?.data || [];
+    const totalItems = data?.meta?.total || 0;
+
+    useEffect(() => {
+        const params = new URLSearchParams();
+        if (selectedStatusPublic && selectedStatusPublic !== "All") params.set("statusPublic", selectedStatusPublic);
+        if (selectedStatusIndikator && selectedStatusIndikator !== "All") params.set("status", selectedStatusIndikator);
+        if (selectedMinDate) params.set("minStartDate", selectedMinDate);
+        if (selectedMaxDate) params.set("maxEndDate", selectedMaxDate);
+        if (searchQuery) params.set("searchTerm", searchQuery);
+        router.replace(`?${params.toString()}`);
+    }, [selectedStatusPublic, selectedStatusIndikator, selectedMinDate, selectedMaxDate, searchQuery, router]);
+    
+    const handleApplyFilters = (filters: Record<string, string | undefined>) => {
+        setSelectedStatusPublic(filters.statusPublic || "All");
+        setSelectedStatusIndikator(filters.status || "All");
+        setSelectedMinDate(filters.minStartDate || "");
+        setSelectedMaxDate(filters.maxEndDate || "");
+        setCurrentPage(1);
+    };
+
+    const getProgressStats = (ikk: IndikatorResponse) => {
+        const totalEvaluatees = ikk.evaluations?.length || 0; 
+
+        const answeredUniqueIds = new Set(
+            allJawaban?.data
+                ?.filter((j: any) => j.indikatorId === ikk.id)
+                .map((j: any) => j.evaluateeId)
+        );
+        
+        const totalTerjawab = answeredUniqueIds.size;
+        const persentase = totalEvaluatees > 0 ? (totalTerjawab / totalEvaluatees) * 100 : 0;
+
+        return { totalTerjawab, totalEvaluatees, persentase };
+    };
+
+    const getStatusColor = (ikk: IndikatorResponse) => {
+        if (ikk.status === StatusIndikatorKPI.ACTIVE) return "bg-yellow-100 text-yellow-800";
+        if (ikk.status === StatusIndikatorKPI.COMPLETED) return "bg-green-100 text-green-800";
+        if (ikk.status === StatusIndikatorKPI.DRAFT) return "bg-red-100 text-red-800";
+        return "bg-gray-100 text-gray-700";
+    };
+
+    const getStatusPublicColor = (ikk: IndikatorResponse) => {
+        if (ikk.statusPublic === true) return "bg-green-100 text-green-800";
+        if (ikk.statusPublic === false) return "bg-red-100 text-red-800";
+        return "bg-gray-100 text-gray-700";
+    };
+
+    const filterFields = [
+        { key: "minStartDate", label: "From", type: "date" as const },
+        { key: "maxEndDate", label: "To", type: "date" as const },
+        { key: "statusPublic", label: "Status Publik", type: "select" as const, options: ["true", "false"]},
+        { key: "status", label: "Status Indikator", type: "select" as const, options: Object.values(StatusIndikatorKPI) },
+    ];
+    
+    const initialValues = {
+        minStartDate: selectedMinDate,
+        maxEndDate: selectedMaxDate,
+        statusPublic: selectedStatusPublic,
+        status: selectedStatusIndikator,
+    };
+
+    if (error) {
+        return <div className="text-center text-red-500 py-6">Error: {error.message}</div>;
     };
 
     const renderHtml = (
@@ -95,7 +142,7 @@ const HasilKKList = () => {
                         Filter
                     </div>
                 </div>
-                {(selectedStatus !== "All" || searchQuery) && (
+                {(selectedStatusPublic !== "All" || selectedStatusIndikator !== "All" || selectedMinDate || selectedMaxDate || searchQuery) && (
                     <>
                         {searchQuery && (
                             <span
@@ -110,14 +157,53 @@ const HasilKKList = () => {
                                 </button>
                             </span>
                         )}
-                        {selectedStatus !== "All" && (
+                        {selectedStatusPublic !== "All" && (
                             <span
                                 className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
                             >
-                                Status: {selectedStatus}
+                                Status Publik: {selectedStatusPublic === "true" ? "Aktif" : "Non-Aktif"}
                                 <button
                                     className="text-red-500 hover:text-red-700 cursor-pointer"
-                                    onClick={() => setSelectedStatus("All")}
+                                    onClick={() => setSelectedStatusPublic("All")}
+                                >
+                                    ✕
+                                </button>
+                            </span>
+                        )}
+                        {selectedStatusIndikator !== "All" && (
+                            <span
+                                className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
+                            >
+                                Metode Pembayaran: {selectedStatusIndikator}
+                                <button
+                                    className="text-red-500 hover:text-red-700 cursor-pointer"
+                                    onClick={() => setSelectedStatusIndikator("All")}
+                                >
+                                    ✕
+                                </button>
+                            </span>
+                        )}
+                        {selectedMinDate && (
+                            <span
+                                className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
+                            >
+                                From: {selectedMinDate}
+                                <button
+                                    className="text-red-500 hover:text-red-700 cursor-pointer"
+                                    onClick={() => setSelectedMinDate("")}
+                                >
+                                    ✕
+                                </button>
+                            </span>
+                        )}
+                        {selectedMaxDate && (
+                            <span
+                                className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
+                            >
+                                To: {selectedMaxDate}
+                                <button
+                                    className="text-red-500 hover:text-red-700 cursor-pointer"
+                                    onClick={() => setSelectedMaxDate("")}
                                 >
                                     ✕
                                 </button>
@@ -127,8 +213,8 @@ const HasilKKList = () => {
                 )}
             </div>
 
-            {loading ? (
-                <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {isLoading ? (
+                <div className="flex flex-col gap-6">
                     {Array.from({ length: itemsPerPage }).map((_, i) => (
                         <div
                             key={i}
@@ -136,51 +222,127 @@ const HasilKKList = () => {
                         ></div>
                     ))}
                 </div>
-            ) : indikatorKpi.length > 0 ? (
+            ) : indikator.length > 0 ? (
                 <>
-                    {indikatorKpi.map((ikk) => (
-                        <div
-                            key={ikk.id}
-                            className="flex flex-col p-4 group bg-(--color-surface) border border-(--color-border) rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200"
-                        >
-                            <div className="flex justify-between items-center text-sm text-(--color-textPrimary) border-b border-(--color-border) py-2">
-                                <div className="flex items-center gap-2">
-                                    <span className="font-semibold">Indikator Kinerja Karyawan</span>
-                                    <span className="text-(--color-muted)">{ikk.id}</span>
-                                    <p className="text-xs text-(--color-muted)">
-                                        {ikk.periodeMulai} s.d {ikk.periodeBerakhir}
-                                    </p>
+                    {indikator.map((ikk: IndikatorResponse) => {
+                        const { totalTerjawab, totalEvaluatees, persentase } = getProgressStats(ikk);
+
+                        return (
+                            <div
+                                key={ikk.id}
+                                className="flex flex-col p-4 group bg-(--color-surface) border border-(--color-border) rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200"
+                            >
+                                <div className="flex justify-between items-center text-sm text-(--color-textPrimary) border-b border-(--color-border) py-2">
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-semibold">{ikk.name}</span>
+                                        <p className="text-xs text-(--color-muted)">
+                                            {ikk.id}
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span
+                                            className={`px-3 py-1 text-xs font-semibold rounded-lg uppercase text-center w-fit 
+                                            ${getStatusPublicColor(
+                                                ikk
+                                            )}`}
+                                        >
+                                            Status Publish : {String(ikk.statusPublic)}
+                                        </span>
+                                        <span
+                                            className={`px-3 py-1 text-xs font-semibold rounded-lg uppercase text-center w-fit 
+                                            ${getStatusColor(
+                                                ikk
+                                            )}`}
+                                        >
+                                            Status Indikator : {ikk.status}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className="text-blue-900">
-                                    {ikk.status}
+                                <div className="flex justify-between items-center py-2 mb-4">
+                                    <div className="flex flex-col gap-2 items-start">
+                                        <p className="font-medium text-(--color-text-primary)">
+                                            {ikk.description}
+                                        </p>
+                                        <div className="flex flex-col sm:flex-row sm:justify-between items-start gap-5">
+                                            <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
+                                                <Image
+                                                    src={icons.dateIn}
+                                                    alt="Tanggal Mulai Indikator"
+                                                    width={24}
+                                                    height={24}
+                                                />
+                                                {ikk.startDate ? format(new Date(ikk.startDate), "dd MMM yyyy") : "-"}
+                                            </div>
+                                            <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
+                                                <Image
+                                                    src={icons.dateOut}
+                                                    alt="Tanggal Berakhir Indikator"
+                                                    width={24}
+                                                    height={24}
+                                                />
+                                                {ikk.endDate ? format(new Date(ikk.endDate), "dd MMM yyyy") : "-"}
+                                            </div>
+                                            <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
+                                                <Image
+                                                    src={icons.question}
+                                                    alt="Jumlah Pertanyaan Cuti"
+                                                    width={24}
+                                                    height={24}
+                                                />
+                                                {ikk.pertanyaan?.length} Pertanyaan
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col md:flex-row md:items-center gap-2">
+                                        <Link
+                                            href={`/dashboard/manajemen-kpi/hasil-kinerja-karyawan/${ikk.id}`}
+                                            className="flex items-center justify-center gap-2 py-2 px-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 cursor-pointer"
+                                        >
+                                            <Image
+                                                src={icons.viewLogo}
+                                                alt="View Logo"
+                                                width={20}
+                                                height={20}
+                                            />
+                                            See More
+                                        </Link>
+                                    </div>
+                                </div>
+                                <hr />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center bg-gray-100 p-4 rounded-xl w-full mt-4">
+                                    <div className="flex flex-col gap-1">
+                                        <h3 className="text-sm font-bold text-gray-900">Ringkasan Progres Penilaian</h3>
+                                        <p className="text-xs text-gray-500">Karyawan yang sudah dinilai dalam periode ini.</p>
+                                    </div>
+
+                                    <div className="flex flex-col gap-3">
+                                        <div className="w-full bg-gray-200 rounded-full h-2">
+                                            <div 
+                                                className="bg-yellow-500 h-2 rounded-full transition-all duration-500" 
+                                                style={{ width: `${persentase}%` }}
+                                            ></div>
+                                        </div>
+
+                                        <div className="flex justify-between items-center text-xs">
+                                            <div className="flex gap-4">
+                                                <span>
+                                                    <span className="text-gray-600">Terjawab: </span>
+                                                    <span className="font-bold text-gray-900">{totalTerjawab} / {totalEvaluatees}</span>
+                                                </span>
+                                                <span>
+                                                    <span className="text-gray-600">Status: </span>
+                                                    <span className={`font-bold ${persentase === 100 ? 'text-green-600' : 'text-orange-500'}`}>
+                                                        {persentase === 100 ? 'Lengkap' : 'Belum Selesai'}
+                                                    </span>
+                                                </span>
+                                            </div>
+                                            <span className="font-bold text-gray-900">{Math.round(persentase)}%</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="flex justify-between items-center py-2">
-                                <div className="flex flex-col gap-2 items-start">
-                                    <p className="font-medium text-(--color-text-primary)">
-                                        {ikk.namaIndikator} — {ikk.kategori}
-                                    </p>
-                                    <p className="text-sm text-(--color-muted)">
-                                        Status Public: {ikk.statusPublic}
-                                    </p>
-                                </div>
-                                <div className="flex flex-col md:flex-row md:items-center gap-2">
-                                    <Link
-                                        href={`/dashboard/manajemen-kpi/hasil-kinerja-karyawan/${ikk.id}`}
-                                        className="flex items-center justify-center gap-2 py-2 px-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 cursor-pointer"
-                                    >
-                                        <Image
-                                            src={icons.viewLogo}
-                                            alt="View Logo"
-                                            width={20}
-                                            height={20}
-                                        />
-                                        See More
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+                        )})
+                    }
                 </>
             ) : (
                 <p className="text-center text-gray-500 py-6">
@@ -188,7 +350,7 @@ const HasilKKList = () => {
                 </p>
             )}
 
-            {indikatorKpi.length > 0 && !loading && (
+            {indikator.length > 0 && !isLoading && (
                 <div className="mt-6">
                     <PaginationBar
                         totalItems={totalItems}
