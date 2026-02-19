@@ -15,7 +15,6 @@ import SkeletonBox from "@/components/rootComponents/SkeletonBox";
 const HomePage = () => {
     const [newNotification, setNewNotification] = useState(false);
     const [onClickNotification, setOnClickNotification] = useState(false);
-
     const [currentDate, setCurrentDate] = useState("");
     const [currentTime, setCurrentTime] = useState("");
     const [showSkeleton, setShowSkeleton] = useState(false);
@@ -23,6 +22,15 @@ const HomePage = () => {
 
     const user = useAuthStore((state) => state?.user);
     const userId = user?.id ? user.id : null;
+
+    const dateNow = useMemo(() => {
+        const now = new Date();
+        const utcPlus7 = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+        return utcPlus7.toISOString();
+    }, []);
+
+    const { data: dataAbsensi, isLoading: isLoadingAbsensi, refetch: refetchAbs, isFetching: isFetchingAbs } = useAbsensi().fetchAbsensiById(userId, dateNow);
+    const { data: dataReimburse, isLoading: isLoadingReimburse, refetch: refetchReim, isFetching: isFetchingReim } = useReimburse().fetchAllReimburse();
 
     useEffect(() => {
         const updateTime = () => {
@@ -45,45 +53,28 @@ const HomePage = () => {
         const interval = setInterval(updateTime, 1000);
         return () => clearInterval(interval);
     }, []);
-
+    
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setShowSkeleton(false);
-        }, 1000);
-
+        const timer = setTimeout(() => setShowSkeleton(false), 1000);
         return () => clearTimeout(timer);
     }, []);
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        setShowSkeleton(true);
+        await refetchAbs();
+        await refetchReim();
+        setShowSkeleton(false);
+        setRefreshing(false);
+    };
 
     if (!user) {
         return (
             <View style={{ padding: 20, alignItems: "center" }}>
                 <Text style={{ color: COLORS.textMuted }}>Data tidak ditemukan...</Text>
             </View>
-        )
+        );
     }
-
-    const dateNow = useMemo(() => {
-        const now = new Date();
-        const utcPlus7 = new Date(now.getTime() + 7 * 60 * 60 * 1000);
-        const today = utcPlus7.toISOString();
-        return today;
-    }, []);
-
-    const { data: dataAbsensi, isLoading: isLoadingAbsensi, error: errorAbsensi, refetch: refetchAbs, isFetching: isFetchingAbs } = useAbsensi().fetchAbsensiById(userId, dateNow);
-    const { data: dataReimburse, isLoading: isLoadingReimburse, error: errorReimburse, refetch: refetchReim, isFetching: isFetchingReim } = useReimburse().fetchAllReimburse();4
-
-    const onRefresh = async () => {
-        setRefreshing(true);
-        setShowSkeleton(true);
-
-        await refetchAbs();
-        await refetchReim();
-
-        setTimeout(() => {
-            setShowSkeleton(false);
-            setRefreshing(false);
-        }, 1000);
-    };
 
     if (isLoadingAbsensi || isLoadingReimburse || showSkeleton || isFetchingAbs || isFetchingReim) {
         return (
