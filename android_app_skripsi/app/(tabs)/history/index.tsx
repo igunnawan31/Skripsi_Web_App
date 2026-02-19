@@ -35,6 +35,14 @@ const HistoryAbsensiPage = () => {
         if (data) setFilteredData(data);
     }, [data]);
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowSkeleton(false);
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
     if (!user) {
         return (
             <View style={{ padding: 20, alignItems: "center" }}>

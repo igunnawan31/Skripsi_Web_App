@@ -1,5 +1,5 @@
-import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
+import { View, Text, ScrollView, Image, TouchableOpacity, RefreshControl } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
 import { Svg, Path } from "react-native-svg";
 import { homeStyles } from "@/assets/styles/rootstyles/home/home.styles";
 import ModalNotification from "@/components/rootComponents/homeComponent/ModalNotification";
@@ -7,16 +7,169 @@ import AbsenseComponent from "@/components/rootComponents/homeComponent/AbsenseC
 import FeatureComponent from "@/components/rootComponents/homeComponent/FeatureComponent";
 import ReimburseComponent from "@/components/rootComponents/homeComponent/ReimburseComponent";
 import { useAuthStore } from "@/lib/store/authStore";
+import { useAbsensi } from "@/lib/api/hooks/useAbsensi";
+import { useReimburse } from "@/lib/api/hooks/useReimburse";
+import COLORS from "@/constants/colors";
+import SkeletonBox from "@/components/rootComponents/SkeletonBox";
 
 const HomePage = () => {
-    const user = useAuthStore((state) => state.user);
     const [newNotification, setNewNotification] = useState(false);
     const [onClickNotification, setOnClickNotification] = useState(false);
+
+    const [currentDate, setCurrentDate] = useState("");
+    const [currentTime, setCurrentTime] = useState("");
+    const [showSkeleton, setShowSkeleton] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const user = useAuthStore((state) => state?.user);
+    const userId = user?.id ? user.id : null;
+
+    useEffect(() => {
+        const updateTime = () => {
+            const now = new Date();
+            const date = now.toLocaleDateString("id-ID", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+            });
+            const time = now.toLocaleTimeString("id-ID", {
+                hour: "2-digit",
+                minute: "2-digit",
+            });
+            setCurrentDate(date);
+            setCurrentTime(time);
+        };
+
+        updateTime();
+        const interval = setInterval(updateTime, 1000);
+        return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowSkeleton(false);
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (!user) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Text style={{ color: COLORS.textMuted }}>Data tidak ditemukan...</Text>
+            </View>
+        )
+    }
+
+    const dateNow = useMemo(() => {
+        const now = new Date();
+        const utcPlus7 = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+        const today = utcPlus7.toISOString();
+        return today;
+    }, []);
+
+    const { data: dataAbsensi, isLoading: isLoadingAbsensi, error: errorAbsensi, refetch: refetchAbs, isFetching: isFetchingAbs } = useAbsensi().fetchAbsensiById(userId, dateNow);
+    const { data: dataReimburse, isLoading: isLoadingReimburse, error: errorReimburse, refetch: refetchReim, isFetching: isFetchingReim } = useReimburse().fetchAllReimburse();4
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        setShowSkeleton(true);
+
+        await refetchAbs();
+        await refetchReim();
+
+        setTimeout(() => {
+            setShowSkeleton(false);
+            setRefreshing(false);
+        }, 1000);
+    };
+
+    if (isLoadingAbsensi || isLoadingReimburse || showSkeleton || isFetchingAbs || isFetchingReim) {
+        return (
+            <View style={homeStyles.container}>
+                <View style={homeStyles.header}>
+                    <View style={{ gap: 4 }}>
+                        <SkeletonBox width={80} height={16} />
+                        <SkeletonBox width={160} height={16} />
+                    </View>
+                    <SkeletonBox width={40} height={40} borderRadius={20} />
+                </View>
+
+                <View style={{ 
+                    position: "absolute",
+                    top: 80,
+                    width: "90%",
+                    height: "auto",
+                    justifyContent: "center",
+                    paddingVertical: 16,
+                    borderRadius: 10,
+                    overflow: "hidden",
+                }}>
+                    <SkeletonBox width={200} height={200} borderRadius={14} style={{ width: "100%" }}  />
+                </View>
+
+                <View style={[homeStyles.featureContainer, { paddingHorizontal: 10 }]}>
+                    <View style={{ gap: 4 }}>
+                        <SkeletonBox width={80} height={16} />
+                        <SkeletonBox width={160} height={16} />
+                    </View>
+                    <View style={{ flexDirection: "row", gap: 20, marginVertical: 16 }}>
+                        {[1, 2, 3, 4].map((_, i) => (
+                            <View
+                                key={i}
+                                style={{
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    gap: 10,
+                                    backgroundColor: "transparent",
+                                }}
+                            >
+                                <SkeletonBox width={70} height={70} borderRadius={10}/>
+                                <SkeletonBox width={40} height={10} borderRadius={10}/>
+                            </View>
+                        ))}
+                    </View>
+                </View>
+
+                <View style={homeStyles.reimburseContainer}>
+                    <View style={homeStyles.titleContainer}>
+                        <View style={{ gap: 4 }}>
+                            <SkeletonBox width={80} height={16} />
+                            <SkeletonBox width={160} height={16} />
+                        </View>
+                        <SkeletonBox width={120} height={36} />
+                    </View>
+                    {[1, 2, 3, 4].map((_, i) => (
+                        <View
+                            key={i}
+                            style={{
+                                flexDirection: "column",
+                                alignItems: "center",
+                                marginBottom: 20,
+                                backgroundColor: "transparent",
+                            }}
+                        >
+                            <SkeletonBox width={100} height={140} borderRadius={10} style={{ width: "100%" }} />
+                        </View>
+                    ))}
+                </View>
+            </View>
+        );
+    }
 
     return (
         <ScrollView
             contentContainerStyle={{ flexGrow: 1 }}
             keyboardShouldPersistTaps="handled"
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing || isFetchingAbs || isFetchingReim}
+                    onRefresh={onRefresh}
+                    colors={[COLORS.primary]}
+                    tintColor={COLORS.primary}
+                />
+            }
         >
             <View style={homeStyles.container}>
                 <View style={homeStyles.header}>
@@ -69,9 +222,13 @@ const HomePage = () => {
                         onClose={() => setOnClickNotification(false)}
                     />
                 </View>
-                <AbsenseComponent />
+                <AbsenseComponent 
+                    data={dataAbsensi}
+                    currentDate={currentDate}
+                    currentTime={currentTime}
+                />
                 <FeatureComponent />
-                <ReimburseComponent />
+                <ReimburseComponent data={dataReimburse}/>
             </View>
         </ScrollView>
     );
