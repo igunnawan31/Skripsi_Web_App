@@ -1,5 +1,9 @@
 import absenDetailStyles from "@/assets/styles/rootstyles/absen/absendetail.style";
+import { cutiStyles } from "@/assets/styles/rootstyles/cuti/cuti.styles";
+import { cutiDetailStyles } from "@/assets/styles/rootstyles/cuti/cutidetail.styles";
+import { gajiDetailStyles, HEADER_HEIGHT } from "@/assets/styles/rootstyles/gaji/gajidetail.styles";
 import AbsenseComponent from "@/components/rootComponents/homeComponent/AbsenseComponent";
+import SkeletonBox from "@/components/rootComponents/SkeletonBox";
 import COLORS from "@/constants/colors";
 import { dummyAbsensi } from "@/data/dummyAbsensi";
 import { useAbsensi } from "@/lib/api/hooks/useAbsensi";
@@ -9,11 +13,11 @@ import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Image, RefreshControl, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, Region } from "react-native-maps";
 
 export default function DetailAbsensi() {
-    const user = useAuthStore((state) => state.user);
+    const user = useAuthStore((state) => state?.user);
     const router = useRouter();
     const { id, date } = useLocalSearchParams();
     const idParam = Array.isArray(id) ? id[0] : id ?? "";
@@ -22,11 +26,12 @@ export default function DetailAbsensi() {
     const [currentDate, setCurrentDate] = useState("");
     const [currentTime, setCurrentTime] = useState("");
     const [photoUri, setPhotoUri] = useState<string[] | null>(null);
-    const dateNow = useMemo(() => {
-        const today = new Date().toISOString();
-        return today;
-    }, []);
-    const { data: detailData, isLoading: isDetailLoading, error: detailError } = useAbsensi().fetchAbsensiById(idParam, dateParam);
+
+    const [showSkeleton, setShowSkeleton] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const { data: detailData, isLoading: isDetailLoading, error: detailError, refetch, isFetching } = useAbsensi().fetchAbsensiById(idParam, dateParam);
+   
     const loadPhoto = async (path: string, index: number) => {
         if (!path) return;
         try {
@@ -83,17 +88,21 @@ export default function DetailAbsensi() {
         }
     }, [detailData]);
 
-    if (!detailData) {
-        return (
-            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                <Text>Data absensi tidak ditemukan.</Text>
-            </View>
-        );
-    };
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowSkeleton(false);
+        }, 3000);
 
-    const checkIn = detailData.checkIn ?? null;
-    const checkOut = detailData.checkOut ?? null;
-    const isAlreadyAbsent = Boolean(checkIn) && Boolean(checkOut);
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (!user) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Text style={{ color: COLORS.textMuted }}>Data tidak ditemukan...</Text>
+            </View>
+        )
+    }
 
     const toWIB = (dateString: string) => {
         const zoned = toZonedTime(dateString, "Asia/Jakarta");
@@ -110,6 +119,18 @@ export default function DetailAbsensi() {
             month: "long",
             year: "numeric",
         });
+    };
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        setShowSkeleton(true);
+
+        await refetch();
+
+        setTimeout(() => {
+            setShowSkeleton(false);
+            setRefreshing(false);
+        }, 1000);
     };
 
     const getCheckInStatus = (checkIn?: string) => {
@@ -131,9 +152,11 @@ export default function DetailAbsensi() {
         return checkOutWIB < limit ? "Terlalu Cepat" : "Tepat Waktu";
     }
 
+    const checkIn = detailData?.checkIn ?? null;
+    const checkOut = detailData?.checkOut ?? null;
+    const isAlreadyAbsent = Boolean(checkIn) && Boolean(checkOut);
     const isLate = checkIn ? getCheckInStatus(checkIn) === "Terlambat" : false;
     const isEarly = checkOut ? getCheckOutStatus(checkOut) === "Terlalu Cepat" : false;
-    const checkInColor = isLate ? COLORS.primary : checkIn ? COLORS.success : COLORS.textMutedOpacity20;
 
     const statusLabel =
         isAlreadyAbsent
@@ -142,8 +165,8 @@ export default function DetailAbsensi() {
         ? "Sudah Check-In, Belum Check-Out"
         : "Belum Check-In";
 
-    const isCheckedIn = detailData.checkIn !== "";
-    const isCheckedOut = detailData.checkOut !== "";
+    const isCheckedIn = detailData?.checkIn !== "";
+    const isCheckedOut = detailData?.checkOut !== "";
 
     const checkInBgColor = isLate
         ? COLORS.primary
@@ -157,19 +180,143 @@ export default function DetailAbsensi() {
         ? COLORS.success
         : COLORS.border;
     
-    if (isDetailLoading) {
+    if (isDetailLoading || showSkeleton) {
         return (
-            <View style={{ padding: 20, alignItems: "center" }}>
-                <Text style={{ color: COLORS.textMuted }}>Memuat data absen...</Text>
+            <View style={gajiDetailStyles.container}>
+                <View style={gajiDetailStyles.header}>
+                    <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <SkeletonBox width={40} height={40} borderRadius={20} />
+                        <SkeletonBox width={80} height={16} style={{ marginLeft: 12 }} />
+                    </View>
+                </View>
+
+                <View style={gajiDetailStyles.subHeaderDetail}>
+                    <View style={{ flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                        <SkeletonBox width={70} height={70} borderRadius={40} />
+                        <SkeletonBox width={100} height={18}/>
+                        <SkeletonBox width={170} height={10}/>
+                        <SkeletonBox width={150} height={30}/>
+                    </View>
+                </View>
+
+                <View style={cutiDetailStyles.dataContainer}>
+                    <SkeletonBox width={200} height={20} style={{ width: "100%" }}/>
+                    <View style={[cutiStyles.cutiAvailableContainer, {paddingHorizontal: 0}]}>
+                        <SkeletonBox width={120} height={100} style={{ width: "48%" }} />
+                        <SkeletonBox width={120} height={100} style={{ width: "48%" }} />
+                    </View>
+                </View>
+
+                <View style={{ width: "90%", paddingVertical: 16, gap:12 }}>
+                    {[1, 2, 3, 4].map((_, i) => (
+                        <View
+                            key={i}
+                            style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                backgroundColor: "transparent",
+                            }}
+                        >
+                            <SkeletonBox width={200} height={64} style={{ width: "100%" }}/>
+                        </View>
+                    ))}
+                </View>
             </View>
         );
+    };
+
+    if (!detailData) {
+        const renderNoData = (
+            <ScrollView
+                contentContainerStyle={[gajiDetailStyles.container, { justifyContent: "center", alignItems: "center", paddingTop: 0, paddingBottom: 0}]}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing || isFetching}
+                        onRefresh={onRefresh}
+                        colors={[COLORS.primary]}
+                        tintColor={COLORS.primary}
+                    />
+                }
+            >
+                <View style={gajiDetailStyles.header}>
+                    <TouchableOpacity 
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                        onPress={() => router.back()}
+                    >
+                        <View style={gajiDetailStyles.iconPlace}>
+                            <Image
+                                style={gajiDetailStyles.iconBack}
+                                source={require('../../../assets/icons/arrow-left.png')}
+                            />
+                        </View>
+                        <Text style={gajiDetailStyles.headerTitle}>
+                            Kembali
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 30 }}>
+                    <Image
+                        source={require("../../../assets/icons/not-found.png")}
+                        style={{ width: 72, height: 72, }}
+                    />
+                    <Text style={{ textAlign: "center", marginTop: 10, color: COLORS.textPrimary, fontWeight: "bold", fontSize: 16, }}>
+                        Tidak ditemukan data yang sesuai
+                    </Text>
+                    <Text style={{ textAlign: "center", marginTop: 5, color: COLORS.muted, fontSize: 12, }}>
+                        Mohon untuk mengecek kembali nanti
+                    </Text>
+                </View> 
+            </ScrollView>
+        );
+
+        return renderNoData;
     }
-    if (!user || !detailData) {
-        return (
-            <View style={{ padding: 20, alignItems: "center" }}>
-                <Text style={{ color: COLORS.textMuted }}>Data tidak ditemukan...</Text>
-            </View>
-        )
+
+    if (detailError) {
+        const renderError = (
+            <ScrollView
+                contentContainerStyle={[gajiDetailStyles.container, { justifyContent: "center", alignItems: "center", paddingTop: 0, paddingBottom: 0}]}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing || isFetching}
+                        onRefresh={onRefresh}
+                        colors={[COLORS.primary]}
+                        tintColor={COLORS.primary}
+                    />
+                }
+            >
+                <View style={gajiDetailStyles.header}>
+                    <TouchableOpacity 
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                        onPress={() => router.back()}
+                    >
+                        <View style={gajiDetailStyles.iconPlace}>
+                            <Image
+                                style={gajiDetailStyles.iconBack}
+                                source={require('../../../assets/icons/arrow-left.png')}
+                            />
+                        </View>
+                        <Text style={gajiDetailStyles.headerTitle}>
+                            Kembali
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 30 }}>
+                    <Image
+                        source={require("../../../assets/icons/error-logo.png")}
+                        style={{ width: 72, height: 72, }}
+                    />
+                    <Text style={{ textAlign: "center", marginTop: 10, color: COLORS.textPrimary, fontWeight: "bold", fontSize: 16, }}>
+                        Terdapat kendala pada sistem
+                    </Text>
+                    <Text style={{ textAlign: "center", marginTop: 5, color: COLORS.muted, fontSize: 12, }}>
+                        Mohon untuk mengecek kembali nanti
+                    </Text>
+                </View> 
+            </ScrollView>
+        );
+
+        return renderError;
     }
     
     return (
@@ -195,6 +342,15 @@ export default function DetailAbsensi() {
                 contentContainerStyle={absenDetailStyles.container}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing || isFetching}
+                        onRefresh={onRefresh}
+                        colors={[COLORS.primary]}
+                        tintColor={COLORS.primary}
+                        progressViewOffset={HEADER_HEIGHT}
+                    />
+                }
             >
 
                 <View style={absenDetailStyles.subHeader}>
@@ -209,7 +365,7 @@ export default function DetailAbsensi() {
                     <Text style={[
                         absenDetailStyles.textStatus, 
                         isAlreadyAbsent ? { backgroundColor: COLORS.success} :
-                        checkIn ? { backgroundColor: COLORS.tertiaryOpacity20} :
+                        checkIn ? { backgroundColor: COLORS.tertiary} :
                         {backgroundColor: COLORS.error}, 
                     ]}>{statusLabel}</Text>
                 </View>
@@ -230,7 +386,7 @@ export default function DetailAbsensi() {
                                     Check In
                                 </Text>
                                 <Text style={absenDetailStyles.textCheck}>
-                                    {isCheckedIn ? toWIB(detailData.checkIn) : "Belum"}
+                                    {detailData.checkIn ? toWIB(detailData.checkIn) : "Belum"}
                                 </Text>
                                 {isLate && (
                                     <Text style={{ color: COLORS.white, fontSize: 12 }}>
@@ -247,7 +403,7 @@ export default function DetailAbsensi() {
                                     Check-Out
                                 </Text>
                                 <Text style={absenDetailStyles.textCheck}>
-                                    {isCheckedOut ? toWIB(detailData.checkOut) : "Belum"}
+                                    {detailData.checkOut ? toWIB(detailData.checkOut) : "Belum"}
                                 </Text>
                                 {isEarly && (
                                     <Text style={{ color: COLORS.white, fontSize: 12 }}>

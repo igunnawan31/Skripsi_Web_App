@@ -5,11 +5,13 @@ import { Modal, Text, TouchableOpacity, View } from "react-native";
 type ConfirmationPopUpModalProps = {
     visible: boolean;
     onBack: () => void;
+    onSave: () => void;
 }
 
 const ConfirmationPopUpModal = ({
     visible,
     onBack,
+    onSave
 }: ConfirmationPopUpModalProps) => {
     return (
         <Modal
@@ -20,17 +22,25 @@ const ConfirmationPopUpModal = ({
             <View style={profileListDataStyles.modalContainer}>
                 <View style={profileListDataStyles.modal}>
                     <Text style={profileListDataStyles.titleModal} >
-                        Berhasil Absen
+                        Submit Absensi?
                     </Text>
                     <Text style={profileListDataStyles.descriptionModal}>
-                        Silahkan kembali ke page home
+                        Apakah anda sudah yakin terhadap pengajuan absensi anda?
                     </Text>
+                    <TouchableOpacity
+                        onPress={onSave}
+                        style={profileListDataStyles.activeButton}
+                    >
+                        <Text style={{ color: COLORS.white, textAlign: "center", fontWeight: "600" }}>
+                            Ya, Simpan
+                        </Text>
+                    </TouchableOpacity>
                     <TouchableOpacity
                         onPress={onBack}
                         style={profileListDataStyles.activeButton}
                     >
                         <Text style={{ color: COLORS.white, textAlign: "center", fontWeight: "600" }}>
-                            Kembali ke Home
+                            Batal
                         </Text>
                     </TouchableOpacity>
                 </View>

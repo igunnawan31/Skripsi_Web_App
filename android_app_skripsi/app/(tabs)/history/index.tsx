@@ -1,20 +1,22 @@
 import { historyStyles } from "@/assets/styles/rootstyles/history.styles";
 import COLORS from "@/constants/colors";
 import { useState, useEffect } from "react";
-import { Image, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Image, Platform, RefreshControl, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import Modal from "react-native-modal";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useAuthStore } from "@/lib/store/authStore";
 import { useAbsensi } from "@/lib/api/hooks/useAbsensi";
 import { AbsensiResponse } from "@/types/absensi/absensiTypes";
 import ListDataHistoryAbsenComponent from "@/components/rootComponents/absenComponent/ListDataHistoryAbsenComponent";
+import SkeletonBox from "@/components/rootComponents/SkeletonBox";
 
 const HistoryAbsensiPage = () => {
     const user = useAuthStore((state) => state.user);
+
     let current = new Date();
     const [selectedYear, setSelectedYear] = useState(current.getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(current.getMonth());
-    const { data, isLoading, error} = useAbsensi().fetchAbsensiByUserId(user?.id, selectedYear, selectedMonth);
+    const { data, isLoading, error, refetch, isFetching} = useAbsensi().fetchAbsensiByUserId(user?.id, selectedYear, selectedMonth);
     const [filteredData, setFilteredData] = useState<AbsensiResponse[]>([]);
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -23,12 +25,35 @@ const HistoryAbsensiPage = () => {
     const [showPicker, setShowPicker] = useState(false);
     const [pickerTarget, setPickerTarget] = useState("month");
 
+    const [showSkeleton, setShowSkeleton] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+
     const showHandlePopUpFilter = () => setModalVisible(true);
     const closeHandlePopUpFilter = () => setModalVisible(false);
 
     useEffect(() => {
         if (data) setFilteredData(data);
     }, [data]);
+
+    if (!user) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Text style={{ color: COLORS.textMuted }}>Data tidak ditemukan...</Text>
+            </View>
+        )
+    }
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        setShowSkeleton(true);
+
+        await refetch();
+
+        setTimeout(() => {
+            setShowSkeleton(false);
+            setRefreshing(false);
+        }, 1000);
+    };
 
     const handleFilter = () => {
         if (startDate) {
@@ -45,8 +70,6 @@ const HistoryAbsensiPage = () => {
         }
     };
 
-    console.log(data);
-
     const resetFilter = () => {
         setSelectedYear(current.getFullYear());
         setSelectedMonth(current.getMonth());
@@ -60,27 +83,99 @@ const HistoryAbsensiPage = () => {
         "Juli","Agustus","September","Oktober","November","Desember"
     ];
 
-    if (isLoading) {
+    if (isLoading || showSkeleton || isFetching) {
         return (
             <View style={historyStyles.container}>
-                <Text>Loading absensi data...</Text>
+                <View style={historyStyles.header}>
+                    <SkeletonBox width={40} height={40} borderRadius={20} />
+                    <View style={[historyStyles.textHeaderContainer, { gap: 6}]}>
+                        <SkeletonBox width={80} height={20} style={{ marginLeft: 12 }} />
+                        <SkeletonBox width={160} height={16} style={{ marginLeft: 12 }} />
+                    </View>
+                </View>
+
+                <View style={historyStyles.historyContainer}>
+                    <SkeletonBox width={80} height={25} borderRadius={14} />
+                </View>
+
+                <View style={[historyStyles.filterContainer, {backgroundColor: "transparent"}]}>
+                    <SkeletonBox width={120} height={40} style={{ width: "100%" }} />
+                </View>
+
+                {[1, 2, 3, 4].map((_, i) => (
+                    <View
+                        key={i}
+                        style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            marginBottom: 10,
+                            backgroundColor: "transparent",
+                        }}
+                    >
+                        <SkeletonBox width={100} height={120} borderRadius={10} style={{ width: "90%" }} />
+                    </View>
+                ))}
             </View>
         );
     }
 
-    if (!user) {
-        return (
-            <View style={{ padding: 20, alignItems: "center" }}>
-                <Text style={{ color: COLORS.textMuted }}>Data tidak ditemukan...</Text>
-            </View>
-        )
-    }
 
     if (error) {
         return (
-            <View style={historyStyles.container}>
-                <Text>Error: {error.message}</Text>
-            </View>
+            <ScrollView
+                contentContainerStyle={{ flexGrow: 1 }}
+                keyboardShouldPersistTaps="handled"
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing || isFetching}
+                        onRefresh={onRefresh}
+                        colors={[COLORS.primary]}
+                        tintColor={COLORS.primary}
+                    />
+                }
+            >
+                <View style={historyStyles.container}>
+                    <View style={historyStyles.header}>
+                        <View style={historyStyles.logoHeaderContainer}>
+                            <Image
+                                style={historyStyles.logoHeader}
+                                source={require("../../../assets/icons/history.png")}
+                            />
+                        </View>
+                        <View style={historyStyles.textHeaderContainer}>
+                            <Text style={historyStyles.headerTitle}>
+                                History
+                            </Text>
+                            <Text style={historyStyles.headerDescription}>
+                                Ini adalah history absensi yang kamu miliki per bulannya
+                            </Text>
+                        </View>
+                    </View>
+                    <View style={historyStyles.historyContainer}>
+                        <Text style={{ color: COLORS.textPrimary, fontWeight: "bold", fontSize: 18 }}>
+                            {selectedMonth !== null && selectedMonth !== undefined ? `Bulan ${MONTH_NAMES[selectedMonth]}` : "Semua Bulan"}
+                        </Text>
+                    </View>
+                    <TouchableOpacity
+                        style={historyStyles.filterContainer}
+                        onPress={showHandlePopUpFilter}
+                    >
+                        <Text style={historyStyles.filterText}>Terapkan Filter</Text>
+                    </TouchableOpacity>
+                    <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 30 }}>
+                        <Image
+                            source={require("../../../assets/icons/error-logo.png")}
+                            style={{ width: 72, height: 72, }}
+                        />
+                        <Text style={{ textAlign: "center", marginTop: 10, color: COLORS.textPrimary, fontWeight: "bold", fontSize: 16, }}>
+                            Terdapat kendala pada sistem
+                        </Text>
+                        <Text style={{ textAlign: "center", marginTop: 5, color: COLORS.muted, fontSize: 12, }}>
+                            Mohon untuk mengecek kembali nanti
+                        </Text>
+                    </View> 
+                </View>
+            </ScrollView>
         );
     }
 
@@ -88,6 +183,14 @@ const HistoryAbsensiPage = () => {
         <ScrollView
             contentContainerStyle={{ flexGrow: 1 }}
             keyboardShouldPersistTaps="handled"
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing || isFetching}
+                    onRefresh={onRefresh}
+                    colors={[COLORS.primary]}
+                    tintColor={COLORS.primary}
+                />
+            }
         >
             <View style={historyStyles.container}>
                 <View style={historyStyles.header}>
@@ -115,7 +218,7 @@ const HistoryAbsensiPage = () => {
                     style={historyStyles.filterContainer}
                     onPress={showHandlePopUpFilter}
                 >
-                    <Text style={historyStyles.filterText}>Filter Pilih Tanggal</Text>
+                    <Text style={historyStyles.filterText}>Terapkan Filter</Text>
                 </TouchableOpacity>
                 <Modal
                     isVisible={modalVisible}

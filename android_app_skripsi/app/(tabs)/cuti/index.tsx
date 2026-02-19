@@ -88,25 +88,25 @@ const CutiPage = () => {
     };
 
     const handleFilter = () => {
-    let filtered = activeData || [];
+        let filtered = activeData || [];
 
-    if (pickerMode === "month" && startDate) {
-        const selectedMonth = startDate.getMonth();
-        const selectedYear = startDate.getFullYear();
+        if (pickerMode === "month" && startDate) {
+            const selectedMonth = startDate.getMonth();
+            const selectedYear = startDate.getFullYear();
 
-        filtered = filtered.filter((item: CutiResponse) => {
-            const itemDate = new Date(item.createdAt);
-            return itemDate.getMonth() === selectedMonth && itemDate.getFullYear() === selectedYear;
-        });
-    }
+            filtered = filtered.filter((item: CutiResponse) => {
+                const itemDate = new Date(item.createdAt);
+                return itemDate.getMonth() === selectedMonth && itemDate.getFullYear() === selectedYear;
+            });
+        }
 
-    if (pickerMode === "status" && selectedStatus) {
-        filtered = filtered.filter((item: CutiResponse) => item.status === selectedStatus);
-    }
+        if (pickerMode === "status" && selectedStatus) {
+            filtered = filtered.filter((item: CutiResponse) => item.status === selectedStatus);
+        }
 
-    setFilteredData(filtered);
-    closeHandlePopUpFilter();
-};
+        setFilteredData(filtered);
+        closeHandlePopUpFilter();
+    };
 
     const onChangeDate = (event: any, selectedDate?: Date) => {
         setShowPicker(false);
