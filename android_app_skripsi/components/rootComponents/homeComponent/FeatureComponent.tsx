@@ -88,6 +88,30 @@ const featureNames = [
         ]
     },
     {
+        label: "Our Team",
+        value: "Lihat Status Tim Saya",
+        image: require("../../../assets/icons/our_team.png"),
+        linkTo: "/(team)/penilaian-kpi/penilaian-kpi",
+        accessedBy: [
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.FRONTEND,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.BACKEND,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.PROJECT_MANAGER,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.UI_UX,
+            },
+        ]
+    },
+    {
         label: "Hasil KPI",
         value: "Hasil KPI",
         image: require("../../../assets/icons/hasil-kpi.png"),
