@@ -1,65 +1,115 @@
 "use client";
 
-import { useState } from "react";
-import { User} from "@/app/lib/types/types";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { icons } from "@/app/lib/assets/assets";
+import { icons, logo } from "@/app/lib/assets/assets";
 import { useProject } from "@/app/lib/hooks/project/useProject";
-import { useQueries } from "@tanstack/react-query";
-import Cookies from "js-cookie";
-
-const API = process.env.NEXT_PUBLIC_API_URL;
+import { useUser } from "@/app/lib/hooks/user/useUser";
+import SkeletonDetail from "./ProjectSkeletonDetail";
 
 export default function ProjectShowsDetail({ id }: { id: string }) {
-    const { data: fetchedData, isLoading, error } = useProject().fetchProjectById(id);
+    const { data: fetchedData, isLoading: isLoadingProject, error: isErrorProject } = useProject().fetchProjectById(id);
+    const { data: fetchedDataUser, isLoading: isLoadingUser, error: isErrorUser } = useUser().fetchAllUser();
+    
     const [openHistory, setOpenHistory] = useState(false);
     const router = useRouter();
     const data = fetchedData;
-    const teams = fetchedData?.projectTeams ?? [];
-    const userIds = teams.map((pt: any) => pt.userId);
+    const projectTeamUserIds = useMemo(() => {
+        return fetchedData?.projectTeams?.map((pt: any) => pt.userId) ?? [];
+    }, [fetchedData]);
 
-    const userQueries = useQueries({
-        queries: userIds.map((userId: string) => ({
-            queryKey: ["user", userId],
-            queryFn: async (): Promise<User> => {
-                const token = Cookies.get("accessToken");
-                if (!token) throw new Error("No access token found");
+    const usersInTeam = useMemo(() => {
+        if (!fetchedDataUser?.data) return [];
+        
+        return fetchedDataUser.data.filter((user: any) => 
+            projectTeamUserIds.includes(user.id)
+        );
+    }, [fetchedDataUser, projectTeamUserIds]);
 
-                const res = await fetch(`${API}/users/${userId}`, {
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                    },
-                });
-
-                if (!res.ok) throw new Error("Failed to fetch user");
-
-                return res.json();
-            },
-            enabled: !!userId,
-            staleTime: 5 * 60 * 1000,
-        })),
-    });
-
-    const userMap = userQueries.reduce<Record<string, string>>(
-        (acc, q, index) => {
-            if (q.data) {
-                acc[userIds[index]] = (q.data as User).name;
-            }
-            return acc;
-        },
-        {}
-    );
-    
-    if (isLoading) {
-        return <div className="text-center text-(--color-muted)">Memuat data...</div>;
+    if (isLoadingProject || isLoadingUser) {
+        return <SkeletonDetail />;
     };
 
     if (!fetchedData) {
-        return <div className="text-center text-red-500">Data tidak ditemukan.</div>;
+        const noFetchedData = (
+            <div className="flex flex-col gap-6 w-full pb-8">
+                <button
+                    onClick={() => router.back()}
+                    className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                >
+                    <Image 
+                        src={icons.arrowLeftActive}
+                        alt="Back Arrow"
+                        width={20}
+                        height={20}
+                    />
+                    <p className="text-(--color-surface)">
+                        Kembali ke halaman sebelumnya
+                    </p>
+                </button>
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md px-6 py-12 border border-(--color-border) flex flex-col gap-6">
+                    <div className="flex flex-col items-center justify-between gap-4">
+                        <Image
+                            src={logo.notFound}
+                            width={240}
+                            height={240}
+                            alt="Not Found Data"
+                        />
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                Detail Project Tidak Ditemukan
+                            </h1>
+                            <span className="text-sm text-(--color-primary)">Mohon mengecek kembali detail project nanti</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return noFetchedData;
     };
 
-    return (
+    if (isErrorProject) {
+        const errorFetchedData = (
+            <div className="flex flex-col gap-6 w-full pb-8">
+                <button
+                    onClick={() => router.back()}
+                    className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                >
+                    <Image 
+                        src={icons.arrowLeftActive}
+                        alt="Back Arrow"
+                        width={20}
+                        height={20}
+                    />
+                    <p className="text-(--color-surface)">
+                        Kembali ke halaman sebelumnya
+                    </p>
+                </button>
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md px-6 py-12 border border-(--color-border) flex flex-col gap-6">
+                    <div className="flex flex-col items-center justify-between gap-4">
+                        <Image
+                            src={logo.error}
+                            width={240}
+                            height={240}
+                            alt="Not Found Data"
+                        />
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                {isErrorProject.message ? isErrorProject.message : "Terdapat kendala pada sistem"}
+                            </h1>
+                            <span className="text-sm text-(--color-primary)">Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return errorFetchedData;
+    };
+
+    const renderHtml = (
         <div className="flex flex-col gap-6 w-full pb-8">
             <button
                 onClick={() => router.back()}
@@ -78,7 +128,7 @@ export default function ProjectShowsDetail({ id }: { id: string }) {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-row gap-4 items-center">
                     <h1 className="text-2xl font-bold text-(--color-text-primary)">
-                        Detail Project
+                        Detail Project - {data?.name}
                     </h1>
                 </div>
                 <span className="text-sm text-(--color-muted)">{data.id}</span>
@@ -155,11 +205,11 @@ export default function ProjectShowsDetail({ id }: { id: string }) {
                         <h2 className="text-lg font-semibold text-(--color-text-primary) mb-4">
                             Data Anggota Project
                         </h2>
-                        {teams.length > 0 ? (
-                            teams.map((pt: any) => {
+                        {usersInTeam.length > 0 ? (
+                            usersInTeam.map((pt: any) => {
                                 return (
                                     <div
-                                        key={`${pt.projectId}-${pt.userId}`}
+                                        key={pt.id}
                                         className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-lg bg-gray-50"
                                     >
                                         <div className="flex flex-col mb-4">
@@ -169,7 +219,7 @@ export default function ProjectShowsDetail({ id }: { id: string }) {
                                             <input
                                                 type="string"
                                                 name="roles"
-                                                value={pt.role} 
+                                                value={pt.minorRole} 
                                                 className="bg-(--color-muted)/30 border border-gray-300 rounded-lg px-3 py-2"
                                                 disabled
                                             />
@@ -181,7 +231,7 @@ export default function ProjectShowsDetail({ id }: { id: string }) {
                                             <input
                                                 type="string"
                                                 name="userId"
-                                                value={userMap[pt.userId] ?? "Memuat user..."} 
+                                                value={pt.name} 
                                                 className="bg-(--color-muted)/30 border border-gray-300 rounded-lg px-3 py-2"
                                                 disabled
                                             />
@@ -246,4 +296,6 @@ export default function ProjectShowsDetail({ id }: { id: string }) {
             </div>
         </div>
     );
+
+    return renderHtml;
 }

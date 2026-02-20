@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/PaginationBar";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { icons } from "@/app/lib/assets/assets";
+import { icons, logo } from "@/app/lib/assets/assets";
 import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
 import { useProject } from "@/app/lib/hooks/project/useProject";
 import FilterModal from "@/app/dashboard/dashboardComponents/allComponents/FilterModal";
@@ -116,7 +116,24 @@ const ProjectShows = () => {
     };
 
     if (error) {
-        return <div className="text-center text-red-500 py-6">Error: {error.message}</div>;
+        const errorRender = (
+            <div className="flex flex-col items-center justify-between gap-4 py-4">
+                <Image
+                    src={logo.error}
+                    width={240}
+                    height={240}
+                    alt="Not Found Data"
+                />
+                <div className="flex flex-col items-center">
+                    <h1 className="text-2xl font-bold text-(--color-primary)">
+                        {error.message ? error.message : "Terdapat kendala pada sistem"}
+                    </h1>
+                    <span className="text-sm text-(--color-primary)">Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki</span>
+                </div>
+            </div>
+        );
+
+        return errorRender;
     };
 
     const renderHtml = (
@@ -315,9 +332,20 @@ const ProjectShows = () => {
                     ))}
                 </>
             ) : (
-                <p className="text-center text-gray-500 py-6">
-                    Tidak ada data project sesuai filter.
-                </p>
+                <div className="flex flex-col items-center justify-between gap-4 py-4">
+                    <Image
+                        src={logo.notFound}
+                        width={120}
+                        height={120}
+                        alt="Not Found Data"
+                    />
+                    <div className="flex flex-col items-center">
+                        <h1 className="text-xl font-bold text-(--color-text-primary)">
+                            Pencarian Project Tidak Ditemukan
+                        </h1>
+                        <span className="text-sm text-(--color-muted)">Ubah hasil pencarian kamu</span>
+                    </div>
+                </div>
             )}
 
             {project.length > 0 && !isLoading && (

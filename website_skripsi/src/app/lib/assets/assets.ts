@@ -12,6 +12,8 @@ export const illustrations = {
 
 export const logo = {
     logoBerinovasi: "/assets/images/logoBerinovasi.png",
+    notFound: "/assets/images/not-found.png",
+    error: "/assets/images/error-logo.png",
 };
 
 export const icons = {

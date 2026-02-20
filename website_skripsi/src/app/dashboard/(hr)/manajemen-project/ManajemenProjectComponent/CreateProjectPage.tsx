@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { icons } from "@/app/lib/assets/assets";
@@ -19,39 +19,62 @@ const CreateProjectPage = () => {
         startDate: "",
         endDate: "",
     });
+    const [errors, setErrors] = useState({
+        name: "",
+        description: "",
+        startDate: "",
+        endDate: "",
+    });
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         const { name, value } = e.target;
+        
         setFormData((prev) => ({
             ...prev,
             [name]: value, 
         }));
+
+        if (errors[name as keyof typeof errors]) {
+            setErrors((prev) => ({
+                ...prev,
+                [name]: "",
+            }));
+        }
     }
 
     const handleOpenModal = () => {
+        const newErrors = { name: "", description: "", startDate: "", endDate: "" };
+        let isValid = true;
+
         if (!formData.name.trim()) {
-            toast.custom(<CustomToast type="error" message="Nama project harus diisi" />)
-            return;
+            newErrors.name = "Nama project harus diisi";
+            isValid = false;
         }
-
         if (!formData.description.trim()) {
-            toast.custom(<CustomToast type="error" message="Deskripsi project harus diisi" />)
-            return;
-        }        
-
-        if (!formData.startDate || !formData.endDate) {
-            toast.custom(<CustomToast type="error" message="Tanggal mulai dan Tanggal selesai harus diisi" />)
-            return;
+            newErrors.description = "Deskripsi project harus diisi";
+            isValid = false;
+        }
+        if (!formData.startDate) {
+            newErrors.startDate = "Tanggal mulai harus diisi";
+            isValid = false;
+        }
+        if (!formData.endDate) {
+            newErrors.endDate = "Tanggal selesai harus diisi";
+            isValid = false;
+        } else if (new Date(formData.startDate) > new Date(formData.endDate)) {
+            newErrors.endDate = "Tanggal selesai tidak boleh sebelum tanggal mulai";
+            isValid = false;
         }
 
-        if (new Date(formData.startDate) > new Date(formData.endDate)) {
-            toast.custom(<CustomToast type="error" message="Tanggal selesai tidak boleh lebih dari tanggal mulai" />)
-            return;
-        }
+        setErrors(newErrors);
 
-        setIsModalOpen(true);
+        if (isValid) {
+            setIsModalOpen(true);
+        } else {
+            toast.custom(<CustomToast type="error" message="Mohon periksa kembali form Anda" />);
+        }
     }
 
     const handleSubmit = () => {
@@ -101,54 +124,73 @@ const CreateProjectPage = () => {
             <div className="w-full bg-(--color-surface) rounded-2xl shadow-md p-6 border border-(--color-border) flex flex-col gap-6">
                 <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
                     <div className="flex flex-col">
-                        <label className="text-sm font-medium text-gray-600 mb-1">Nama Project</label>
+                        <label className="text-sm font-medium text-gray-600 mb-1">Nama Project <span className="text-(--color-primary)">*</span></label>
                         <input
                             type="text"
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
                             placeholder="Masukkan nama project"
-                            className="border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                            required
+                            className={`border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors ${
+                                errors.name ? "border-(--color-primary)" : "border-(--color-border)"
+                            }`}
                         />
+                        {errors.name && (
+                            <p className="text-xs text-(--color-primary) mt-1 animate-in fade-in slide-in-from-top-1">
+                                {errors.name}
+                            </p>
+                        )}
                     </div>
+
                     <div className="flex flex-col">
-                        <label className="text-sm font-medium text-gray-600 mb-1">Deskripsi Project</label>
+                        <label className="text-sm font-medium text-gray-600 mb-1">Deskripsi Project <span className="text-(--color-primary)">*</span></label>
                         <textarea
                             name="description"
                             value={formData.description}
                             onChange={handleChange}
                             placeholder="Masukkan deskripsi project"
-                            className="border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                            required
+                            className={`border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors min-h-[100px] ${
+                                errors.description ? "border-(--color-primary)" : "border-(--color-border)"
+                            }`}
                         />
+                        {errors.description && (
+                            <p className="text-xs text-(--color-primary) mt-1">
+                                {errors.description}
+                            </p>
+                        )}
                     </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="flex flex-col">
-                            <label className="text-sm font-medium text-gray-600 mb-1">
-                                Tanggal Mulai
-                            </label>
+                            <label className="text-sm font-medium text-gray-600 mb-1">Tanggal Mulai <span className="text-(--color-primary)">*</span></label>
                             <input
                                 type="date"
                                 name="startDate"
                                 value={formData.startDate}
                                 onChange={handleChange}
-                                className="border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                required
+                                className={`border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors ${
+                                    errors.startDate ? "border-(--color-primary)" : "border-(--color-border)"
+                                }`}
                             />
+                            {errors.startDate && (
+                                <p className="text-xs text-(--color-primary) mt-1">{errors.startDate}</p>
+                            )}
                         </div>
+
                         <div className="flex flex-col">
-                            <label className="text-sm font-medium text-gray-600 mb-1">
-                                Tanggal Selesai
-                            </label>
+                            <label className="text-sm font-medium text-gray-600 mb-1">Tanggal Selesai <span className="text-(--color-primary)">*</span></label>
                             <input
                                 type="date"
                                 name="endDate"
                                 value={formData.endDate}
                                 onChange={handleChange}
-                                className="border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                required
+                                className={`border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors ${
+                                    errors.endDate ? "border-(--color-primary)" : "border-(--color-border)"
+                                }`}
                             />
+                            {errors.endDate && (
+                                <p className="text-xs text-(--color-primary) mt-1">{errors.endDate}</p>
+                            )}
                         </div>
                     </div>
 

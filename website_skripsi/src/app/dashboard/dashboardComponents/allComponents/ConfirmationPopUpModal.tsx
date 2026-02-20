@@ -47,20 +47,22 @@ const ConfirmationPopUpModal = ({
                     >
                         <div className="w-full flex flex-col justify-center items-center gap-2">
                             {type === "success" ? (
-                                <div className="flex justify-center w-fit p-4 bg-(--color-success)/30 rounded-lg mb-4">
-                                    <Image src={icons.successPop} alt="icon" width={40} height={40} />
+                                <div className="flex justify-center w-fit p-4 bg-(--color-success)/30 rounded-lg mb-6">
+                                    <Image src={icons.successPop} alt="icon" width={60} height={60} />
                                 </div>
                             ) : type === "error" ? (
-                                <div className="flex justify-center w-fit p-4 bg-(--color-primary)/30 rounded-lg mb-4">
-                                    <Image src={icons.errorPop} alt="icon" width={40} height={40} />
+                                <div className="flex justify-center w-fit p-4 bg-(--color-primary)/30 rounded-lg mb-6">
+                                    <Image src={icons.errorPop} alt="icon" width={60} height={60} />
                                 </div>
                             ) : (
-                                <div className="flex justify-center w-fit p-4 bg-(--color-info)/30 rounded-lg mb-4">
-                                    <Image src={icons.infoPop} alt="icon" width={30} height={30} />
+                                <div className="flex justify-center w-fit p-4 bg-(--color-info)/30 rounded-lg mb-6">
+                                    <Image src={icons.infoPop} alt="icon" width={50} height={50} />
                                 </div>
                             )}
-                            <h2 className="text-xl font-bold">{title}</h2>
-                            <p className="text-(--color-muted)">{message}</p>
+                            <div className="flex flex-col mb-8">
+                                <h2 className="text-xl font-bold">{title}</h2>
+                                <p className="text-(--color-muted)">{message}</p>
+                            </div>
 
                             {showButton && (
                                 <div className="w-full flex justify-between gap-4">
