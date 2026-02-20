@@ -81,13 +81,13 @@ export const useAbsensi = () => {
         const { location, photoUrl } = useAbsen();
 
         return useMutation({
-            mutationFn: async () => {
+            mutationFn: async (workStatus: string) => {
                 const token = await getTokens();
                 const jwt = token?.access_token;
                 if (!jwt) throw new Error("No access token found");
                 
                 const form = new FormData();
-                form.append("workStatus", "WFO");
+                form.append("workStatus", workStatus);
                 form.append("address", location.address);
                 form.append("latitude", String(location.latitude));
                 form.append("longitude", String(location.longitude));

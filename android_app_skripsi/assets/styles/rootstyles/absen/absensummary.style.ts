@@ -114,6 +114,45 @@ const absenSummaryStyles = StyleSheet.create({
         color: "#fff",
         fontWeight: "600",
     },
+    radioGroup: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginTop: 10,
+    },
+    radioButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: COLORS.border || "#ccc",
+        width: "31%",
+    },
+    radioButtonSelected: {
+        borderColor: COLORS.tertiary,
+        backgroundColor: (COLORS.tertiary + "10"),
+    },
+    radioCircle: {
+        height: 16,
+        width: 16,
+        borderRadius: 8,
+        borderWidth: 2,
+        borderColor: COLORS.textMuted,
+        marginRight: 8,
+    },
+    radioCircleSelected: {
+        borderColor: COLORS.tertiary,
+        backgroundColor: COLORS.tertiary,
+    },
+    radioText: {
+        fontSize: 12,
+        color: COLORS.textMuted,
+    },
+    radioTextSelected: {
+        color: COLORS.tertiary,
+        fontWeight: "bold",
+    },
 });
 
 export default absenSummaryStyles;

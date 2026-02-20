@@ -33,23 +33,27 @@ const PenilaianIndikatorForm = ({
         0
     );
 
-    const totalTerjawab = formJawaban 
-        ? Object.values(formJawaban).filter(ans => ans.nilai !== null).length 
-        : 0;
+    const totalTerjawab = sudahDinilai
+        ? convertNilai.length
+        : formJawaban 
+            ? Object.values(formJawaban).filter(ans => ans.nilai !== null).length 
+            : 0;
 
     const persentase = totalPertanyaan > 0 
         ? Math.round((totalTerjawab / totalPertanyaan) * 100) 
         : 0;
-    
-    return (
+
+        return (
         <div className="w-full flex gap-6 pb-8">
             <div className="w-3/4 bg-(--color-surface) rounded-2xl shadow-md p-6 border border-(--color-border) flex flex-col gap-6">
-                <h1 className="text-2xl font-semibold text-gray-900">{judul}</h1>
-                <p className="text-gray-600 mt-1">
-                    {sudahDinilai
-                        ? "Berikut hasil penilaian indikator kinerja yang telah dilakukan."
-                        : "Silahkan isi penilaian untuk setiap indikator yang tersedia."}
-                </p>
+                <div className="gap-2">
+                    <h1 className="text-2xl font-semibold text-gray-900">{judul}</h1>
+                    <p className="text-gray-600 mt-1">
+                        {sudahDinilai
+                            ? "Berikut hasil penilaian indikator kinerja yang telah dilakukan."
+                            : "Silahkan isi penilaian untuk setiap indikator yang tersedia."}
+                    </p>
+                </div>
                 {categoriesQuestion.map(([kategori, list]) => (
                     <div
                         key={kategori}
@@ -98,19 +102,28 @@ const PenilaianIndikatorForm = ({
                                         )}
                                         {sudahDinilai ? (
                                             <div className="flex flex-col gap-3">
-                                                <div className="flex gap-4">
+                                                <div className="flex flex-col md:flex-row justify-between md:items-center items-left">
+                                                    <p>Sangat Buruk</p>
                                                     {SkalaNilai.map((skala) => (
-                                                        <span
+                                                        <label
                                                             key={skala.nilai}
-                                                            className={`px-3 py-2 rounded-lg border text-sm ${
-                                                                readonlyValue?.nilai === skala.nilai
-                                                                    ? "bg-(--color-tertiary) text-white border-(--color-tertiary)"
-                                                                    : "bg-gray-100 text-gray-600 border-gray-300"
-                                                            }`}
+                                                            className="flex md:flex-col flex-row md:items-center items-left cursor-pointer gap-4 my-4"
                                                         >
-                                                            {skala.nilai}
-                                                        </span>
+                                                            <span
+                                                                key={skala.nilai}
+                                                                className={`w-5 h-5 rounded-full border text-sm ${
+                                                                    readonlyValue?.nilai === skala.nilai
+                                                                        ? "bg-(--color-tertiary) text-white border-(--color-tertiary)"
+                                                                        : "bg-gray-100 text-gray-600 border-gray-300"
+                                                                }`}
+                                                            >
+                                                            </span>
+                                                            <span className="text-xs mt-1 text-gray-700">
+                                                                {skala.nilai}
+                                                            </span>
+                                                        </label>
                                                     ))}
+                                                    <p>Sangat Baik</p>
                                                 </div>
 
                                                 <div>
@@ -127,7 +140,7 @@ const PenilaianIndikatorForm = ({
                                             <div className="flex flex-col gap-8">
                                                 <div className="flex flex-col md:flex-row justify-between md:items-center items-left">
                                                     <p>Sangat Buruk</p>
-                                                    {dummySkalaNilai.map((skala) => (
+                                                    {SkalaNilai.map((skala) => (
                                                         <label
                                                             key={skala.nilai}
                                                             className="flex md:flex-col flex-row md:items-center items-left cursor-pointer gap-4 my-4"

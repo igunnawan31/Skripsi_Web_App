@@ -167,7 +167,7 @@ const featureNames = [
 
 const FeatureComponent = () => {
     const router = useRouter();
-    const user = useAuthStore((state) => state.user);
+    const user = useAuthStore((state) => state?.user);
 
     const allowedFeatures = useMemo(() => {
         if (!user) return [];

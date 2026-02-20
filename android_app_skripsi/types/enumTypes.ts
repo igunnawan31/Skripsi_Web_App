@@ -13,9 +13,9 @@ export enum MinorRole {
 }
 
 export enum WorkStatus {
-    WFH = "Work From Home",
-    WFO = "Work From Office",
-    HYBRID = "Hybrid",
+    WFH = "WFH",
+    WFO = "WFO",
+    HYBRID = "HYBRID",
 }
 
 export enum CutiStatus {

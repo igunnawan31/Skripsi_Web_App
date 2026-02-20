@@ -1,10 +1,5 @@
 'use client';
 
-import { dummyUsers } from "@/app/lib/dummyData/dummyUsers";
-import { KinerjaData } from "@/app/lib/dummyData/KinerjaData";
-import { PenilaianKPIData } from "@/app/lib/dummyData/PenilaianKPIData";
-import { dummySkalaNilai, PertanyaanKPIData } from "@/app/lib/dummyData/PertanyaanKPIData";
-import { JawabanKPI } from "@/app/lib/types/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import PenilaianIndikatorForm from "./PenilaianIndikatorForm";
@@ -29,7 +24,9 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formJawaban, setFormJawaban] = useState<{ [key: string]: { nilai: number | null, notes: string } }>({});
 
-    const jawabanMilikTarget = detailDataJawaban?.data?.filter((j: any) => j.evaluateeId === evaluatee && j.indikatorId === id) || [];
+    const jawabanMilikTarget = detailDataJawaban?.data?.filter(
+        (j: any) => j.evaluatee?.id === evaluatee && j.indikatorId === id
+    ) || [];
     const sudahDinilai = jawabanMilikTarget.length > 0;
 
     const pertanyaanByCategory = (detailDataPertanyaan?.data || []).reduce((acc: any, p: any) => {
@@ -44,6 +41,64 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
     const allAnswered = (detailDataPertanyaan?.data || []).every((p: any) => 
         formJawaban[p.id]?.nilai !== null && formJawaban[p.id]?.nilai !== undefined
     );
+
+    const hitungNilaiAkhir = () => {
+        if (sudahDinilai) {
+            // 1. Hitung dari data database (jawabanMilikTarget)
+            // Kita perlu mencocokkan bobot dari detailDataPertanyaan
+            let totalWeightedScore = 0;
+            let totalBobot = 0;
+
+            jawabanMilikTarget.forEach((j: any) => {
+                const pertanyaan = detailDataPertanyaan?.data?.find((p: any) => p.id === j.pertanyaanId);
+                const bobot = pertanyaan?.bobot || 1;
+                totalWeightedScore += (j.nilai * bobot);
+                totalBobot += bobot;
+            });
+
+            return totalBobot > 0 ? (totalWeightedScore / totalBobot).toFixed(2) : "0";
+        } else {
+            // 2. Hitung real-time dari state formJawaban
+            let totalWeightedScore = 0;
+            let totalBobot = 0;
+
+            Object.entries(formJawaban).forEach(([pertanyaanId, data]) => {
+                if (data.nilai !== null) {
+                    const pertanyaan = detailDataPertanyaan?.data?.find((p: any) => p.id === pertanyaanId);
+                    const bobot = pertanyaan?.bobot || 1;
+                    totalWeightedScore += (data.nilai * bobot);
+                    totalBobot += bobot;
+                }
+            });
+
+            return totalBobot > 0 ? (totalWeightedScore / totalBobot).toFixed(2) : "0";
+        }
+    };
+
+    const nilaiAkhir = hitungNilaiAkhir();
+
+    useEffect(() => {
+        if (detailDataPertanyaan?.data && Object.keys(formJawaban).length === 0 && !sudahDinilai) {
+            const initialForm: { [key: string]: { nilai: number | null, notes: string } } = {};
+            detailDataPertanyaan.data.forEach((p: any) => {
+                initialForm[p.id] = { nilai: null, notes: "" };
+            });
+            setFormJawaban(initialForm);
+        }
+    }, [detailDataPertanyaan]);
+
+    useEffect(() => {
+        if (sudahDinilai && jawabanMilikTarget.length > 0) {
+            const existingAnswers: { [key: string]: { nilai: number | null, notes: string } } = {};
+            jawabanMilikTarget.forEach((j: any) => {
+                existingAnswers[j.pertanyaanId] = {
+                    nilai: j.nilai,
+                    notes: j.notes || ""
+                };
+            });
+            setFormJawaban(existingAnswers);
+        }
+    }, [detailDataJawaban]);
 
     const handleOpenModal = () => {
         if (!allAnswered) {
@@ -61,6 +116,31 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
             notes: data.notes || "",
             nilai: data.nilai as number
         }));
+
+        createAnswer(payload, {
+            onSuccess: async () => {
+                toast.custom(
+                    <CustomToast 
+                        type="success" 
+                        message="Pertanyaan berhasil dibuat" 
+                    />
+                );
+
+                setIsModalOpen(false);
+                setTimeout(() => {
+                    router.push(`/dashboard/manajemen-kpi/penilaian-kinerja-karyawan/`);
+                }, 2000);
+            },
+            onError: (err) => {
+                toast.custom(
+                    <CustomToast 
+                        type="error"
+                        message={err.message} 
+                    />
+                );
+                setIsModalOpen(false);
+            }
+        });
     }
     
     if (isDetailJawabanLoading || isDetailPertanyaanLoading) {
@@ -109,10 +189,10 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
                                 Ringkasan Penilaian
                             </p>
                             <p className="text-sm text-(--color-text-secondary)">
-                                Total Pertanyaan Dinilai: {jawabanMilikTarget.length}
+                                Total Pertanyaan Dinilai: {sudahDinilai ? jawabanMilikTarget.length : Object.values(formJawaban).filter(v => v.nilai !== null).length}
                             </p>
                             <p className="text-sm text-(--color-text-secondary)">
-                                {/* Rata-rata Nilai: <span className="font-bold">{nilaiAkhir ?? "-"}</span> */}
+                                Rata-rata Nilai (Tertimbang): <span className="font-bold text-(--color-primary)">{nilaiAkhir}</span>
                             </p>
                         </div>
                         <PenilaianIndikatorForm

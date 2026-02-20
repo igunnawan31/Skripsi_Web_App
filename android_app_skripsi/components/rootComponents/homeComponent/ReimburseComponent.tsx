@@ -9,29 +9,14 @@ import { dummyReimburse } from "@/data/dummyReimburse";
 import ListDataReimburseComponent from "../reimburseComponent/ListDataReimburseComponent";
 import { useReimburse } from "@/lib/api/hooks/useReimburse";
 import { cutiStyles } from "@/assets/styles/rootstyles/cuti/cuti.styles";
+import { ReimburseResponse } from "@/types/reimburse/reimburseTypes";
 
-const ReimburseComponent = () => {
-    const { data, isLoading, error } = useReimburse().fetchAllReimburse();
+const ReimburseComponent = ({ data }: any) => {
     const router = useRouter();
+    const reimburseArray = data?.data || []; 
+    const hasData = Array.isArray(reimburseArray) && reimburseArray.length > 0;
+    const latestReimburse = hasData ? [reimburseArray[0]] : [];
 
-    const displayedData = data?.data.slice(0,1);
-
-    if (isLoading) {
-        return (
-            <View style={cutiStyles.container}>
-                <Text>Loading reimburse data...</Text>
-            </View>
-        );
-    }
-
-    if (error) {
-        return (
-            <View style={cutiStyles.container}>
-                <Text>Error: {error.message}</Text>
-            </View>
-        );
-    }
-    
     return (
         <>
             <View style={homeStyles.reimburseContainer}>
@@ -53,7 +38,7 @@ const ReimburseComponent = () => {
                 </View>
             </View>
             <View style={homeStyles.container}>
-                <ListDataReimburseComponent data={displayedData} />
+                <ListDataReimburseComponent data={latestReimburse} />
             </View>
         </>
     );

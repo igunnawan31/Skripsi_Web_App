@@ -168,8 +168,7 @@ const CutiCreateFormComponent = ({ kontrakData }: Props) => {
                     visible: true,
                     status: "error",
                     title: "Pengajuan Gagal",
-                    description:
-                    err?.message || "Terjadi kesalahan saat mengirim pengajuan cuti.",
+                    description: err?.message || "Terjadi kesalahan saat mengirim pengajuan cuti.",
                 });
             },
         });

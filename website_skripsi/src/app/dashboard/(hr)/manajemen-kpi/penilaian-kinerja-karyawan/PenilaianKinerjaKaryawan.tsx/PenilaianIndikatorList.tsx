@@ -34,7 +34,6 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
     const [selectedMaxDate, setSelectedMaxDate] = useState<string>(searchParams.get("maxEndDate") || "");
     const [searchQuery, setSearchQuery] = useState("");
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const handleSearch = (query: string) => {
         setSearchQuery(query);
@@ -82,7 +81,7 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
             .filter((indikator: any) => indikator.status === StatusIndikatorKPI.ACTIVE)
             .flatMap((indikator: any) => {
                 const myEvaluations = indikator.evaluations?.filter(
-                    (ev: any) => ev.evaluatorId === user.id
+                    (ev: any) => ev.evaluatorId === "e011ba04-445a-4f28-9246-9e23d9d84120"
                 ) || [];
 
                 return myEvaluations.map((ev: any) => {

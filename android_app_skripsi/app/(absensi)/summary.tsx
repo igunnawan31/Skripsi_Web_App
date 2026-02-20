@@ -7,6 +7,8 @@ import absenSummaryStyles from "@/assets/styles/rootstyles/absen/absensummary.st
 import ConfirmationPopUpModal from "@/components/rootComponents/absenComponent/ConfirmationPopUpModal";
 import { useAbsensi } from "@/lib/api/hooks/useAbsensi";
 import { useAuthStore } from "@/lib/store/authStore";
+import NotificationModal from "@/components/rootComponents/NotificationModal";
+import { WorkStatus } from "@/types/enumTypes";
 
 const SummaryAbsensiPage = () => {
     const router = useRouter();
@@ -17,6 +19,18 @@ const SummaryAbsensiPage = () => {
     const [currentDate, setCurrentDate] = useState("");
     const [currentTime, setCurrentTime] = useState("");
     const [modalPop, setModalPop] = useState(false);
+    const [workStatus, setWorkStatus] = useState<WorkStatus | null>(null);
+
+    const [showModal, setShowModal] = useState(false);
+    const [notification, setNotification] = useState<{
+        visible: boolean;
+        status: "success" | "error";
+        title?: string;
+        description?: string;
+    }>({
+        visible: false,
+        status: "success",
+    });
     
     if (!user?.id) {
         return (
@@ -65,36 +79,94 @@ const SummaryAbsensiPage = () => {
 
     const handleSubmit = () => {
         if (!photoUrl) {
-            Alert.alert("Error", "Foto selfie diperlukan untuk absensi.");
+            setShowModal(false);
+
+            setNotification({
+                visible: true,
+                status: "error",
+                title: "Pengajuan Gagal",
+                description: "Foto absensi diperlukan untuk absensi.",
+            });
             return;
         }
 
         if (mode === "Check-In") {
-            if (!location.latitude || !location.longitude) {
-                Alert.alert("Error", "Lokasi diperlukan untuk Check-In.");
+            if (!workStatus) {
+                setNotification({
+                    visible: true,
+                    status: "error",
+                    title: "Data Tidak Lengkap",
+                    description: "Pilih tipe kehadiran (WFO/WFH/Hybrid).",
+                });
                 return;
             }
 
-            checkInMutate(undefined, {
-                onSuccess: () => setModalPop(true),
-                onError: (err: any) => Alert.alert("Error", err.message),
+            if (!location.latitude || !location.longitude) {
+                setNotification({
+                    visible: true,
+                    status: "error",
+                    title: "Lokasi Tidak Ditemukan",
+                    description: "Pastikan GPS aktif.",
+                });
+                return;
+            }
+
+            checkInMutate(workStatus, {
+                onSuccess: () => {
+                    setShowModal(false);
+
+                    setNotification({
+                        visible: true,
+                        status: "success",
+                        title: "Pengajuan Berhasil",
+                        description: "Pengajuan check-in anda berhasil dikirim.",
+                    });
+
+                    resetAbsen();
+                    router.replace("/(tabs)/home");
+                },
+                onError: (err: any) => {
+                    setShowModal(false);
+
+                    setNotification({
+                        visible: true,
+                        status: "error",
+                        title: "Pengajuan Gagal",
+                        description: err?.message || "Terjadi kesalahan saat check-in.",
+                    });
+                },
             });
         } 
         else {
             checkOutMutate(
                 { id: userId },
                 {
-                    onSuccess: () => setModalPop(true),
-                    onError: (err: any) => Alert.alert("Error", err.message),
+                    onSuccess: () => {
+                        setShowModal(false);
+
+                        setNotification({
+                            visible: true,
+                            status: "success",
+                            title: "Pengajuan Berhasil",
+                            description: "Pengajuan check-out anda berhasil dikirim.",
+                        });
+
+                        resetAbsen();
+                        router.replace("/(tabs)/home");
+                    },
+                    onError: (err: any) => {
+                        setShowModal(false);
+
+                        setNotification({
+                            visible: true,
+                            status: "error",
+                            title: "Pengajuan Gagal",
+                            description: err?.message || "Terjadi kesalahan saat check-out.",
+                        });
+                    },
                 }
             );
         }
-    };
-
-    const handleBackToHome = () => {
-        setModalPop(false);
-        resetAbsen();
-        router.replace("/(tabs)/home");
     };
 
     return (
@@ -116,6 +188,33 @@ const SummaryAbsensiPage = () => {
                         <Text style={absenSummaryStyles.headerDescription}>
                             Pastikan semua data sudah benar sebelum dikirim.
                         </Text>
+                    </View>
+                </View>
+
+                <View style={absenSummaryStyles.section}>
+                    <Text style={absenSummaryStyles.sectionTitle}>Tipe Kehadiran</Text>
+                    <View style={absenSummaryStyles.radioGroup}>
+                        {Object.values(WorkStatus).map((option) => (
+                            <TouchableOpacity
+                                key={option}
+                                style={[
+                                    absenSummaryStyles.radioButton,
+                                    workStatus === option && absenSummaryStyles.radioButtonSelected
+                                ]}
+                                onPress={() => setWorkStatus(option as any)}
+                            >
+                                <View style={[
+                                    absenSummaryStyles.radioCircle,
+                                    workStatus === option && absenSummaryStyles.radioCircleSelected
+                                ]} />
+                                <Text style={[
+                                    absenSummaryStyles.radioText,
+                                    workStatus === option && absenSummaryStyles.radioTextSelected
+                                ]}>
+                                    {option}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
                     </View>
                 </View>
                 <View style={{ paddingHorizontal: 20, width: "100%"}}>
@@ -170,7 +269,7 @@ const SummaryAbsensiPage = () => {
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[absenSummaryStyles.button, { backgroundColor: COLORS.tertiary || "#00AEEF" }]}
-                            onPress={handleSubmit}
+                            onPress={() => setShowModal(true)}
                             disabled={isUploadingCheckIn}
                         >
                             <Text style={absenSummaryStyles.buttonText}>
@@ -180,9 +279,25 @@ const SummaryAbsensiPage = () => {
                     </View>
                 </View>
             </View>
+
             <ConfirmationPopUpModal 
-                visible={modalPop}
-                onBack={handleBackToHome}
+                visible={showModal}
+                onBack={() => setShowModal(false)}
+                onSave={handleSubmit}
+            />
+
+            <NotificationModal
+                visible={notification.visible}
+                status={notification.status}
+                title={notification.title}
+                description={notification.description}
+                onContinue={() => {
+                    setNotification(prev => ({ ...prev, visible: false }));
+
+                    if (notification.status === "success") {
+                        router.back();
+                    }
+                }}
             />
         </ScrollView>
     );

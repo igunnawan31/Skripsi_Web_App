@@ -3,7 +3,7 @@ import COLORS from "@/constants/colors";
 import { AbsensiResponse } from "@/types/absensi/absensiTypes"
 import { WorkStatus } from "@/types/enumTypes";
 import { format } from "date-fns";
-import { fromZonedTime } from "date-fns-tz";
+import { fromZonedTime, toZonedTime } from "date-fns-tz";
 import { useRouter } from "expo-router";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
@@ -14,15 +14,20 @@ type ListDataAbsenseComponentProps = {
 const ListDataHistoryAbsenComponent = ({ data } : ListDataAbsenseComponentProps) => {
     const router = useRouter();
 
+    const toWIB = (dateString: string) => {
+        const zoned = toZonedTime(dateString, "Asia/Jakarta");
+        return format(zoned, "HH:mm");
+    }
+
     const getCheckInStatus = (checkIn?: string) => {
         if (!checkIn) return "-";
-
+        
         const checkInWIB = fromZonedTime(checkIn, "Asia/Jakarta");
         const limit = new Date(checkInWIB);
-        limit.setUTCHours(8, 30, 0, 0);
+        limit.setHours(8, 30, 0, 0);
 
         return checkInWIB > limit ? "Terlambat" : "Tepat Waktu";
-    }
+    };
 
     const getTimeFromISO = (iso?: string) => {
         if (!iso) return "-";
@@ -60,14 +65,14 @@ const ListDataHistoryAbsenComponent = ({ data } : ListDataAbsenseComponentProps)
                                     source={require("../../../assets/icons/clock-in.png")}
                                     style={historyStyles.icon}
                                 />
-                                <Text style={historyStyles.timeText}>Masuk: {getTimeFromISO(item.checkIn)}</Text>
+                                <Text style={historyStyles.timeText}>Masuk: {item.checkIn ? toWIB(item.checkIn) : "-"}</Text>
                             </View>
                             <View style={historyStyles.timeBox}>
                                 <Image
                                     source={require("../../../assets/icons/clock-out.png")}
                                     style={historyStyles.icon}
                                 />
-                                <Text style={historyStyles.timeText}>Pulang: {getTimeFromISO(item.checkOut)}</Text>
+                                <Text style={historyStyles.timeText}>Pulang: {item.checkOut ? toWIB(item.checkOut) : "-"}</Text>
                             </View>
                         </View>
                         <View style={{ height: 1, backgroundColor: COLORS.border, marginTop: 12 }} />
@@ -85,7 +90,7 @@ const ListDataHistoryAbsenComponent = ({ data } : ListDataAbsenseComponentProps)
                             <View
                                 style={[
                                     historyStyles.statusBadge,
-                                    { backgroundColor: item.checkIn === "Terlambat" ? COLORS.error : COLORS.success },
+                                    { backgroundColor: item.checkIn === "Terlambat" ? COLORS.success : COLORS.error },
                                 ]}
                             >
                                 <Text style={historyStyles.statusText}>{getCheckInStatus(item.checkIn)}</Text>

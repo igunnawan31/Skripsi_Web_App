@@ -1,59 +1,26 @@
 import { homeStyles } from "@/assets/styles/rootstyles/home/home.styles";
 import COLORS from "@/constants/colors";
-import { dummyAbsensi } from "@/data/dummyAbsensi";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useEffect, useState, useMemo } from "react";  // Add useMemo
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { RootTabParamList } from "../Tabs";
 import { useNavigation, useRouter } from "expo-router";
-import { useAbsensi } from "@/lib/api/hooks/useAbsensi";
-import { useAuthStore } from "@/lib/store/authStore";
-import { format, fromZonedTime } from "date-fns-tz";
+import { format } from "date-fns-tz";
 import { toZonedTime } from "date-fns-tz";
+import { AbsensiResponse } from "@/types/absensi/absensiTypes";
 
 type HomeNavigation = NativeStackNavigationProp<RootTabParamList, "Home Page">;
 
-const AbsenseComponent = () => {
+type AbsenseComponentProps = {
+    data: AbsensiResponse;
+    currentDate: any;
+    currentTime: any;
+};
+
+const AbsenseComponent = ({ data, currentDate, currentTime }: AbsenseComponentProps) => {
     const navigation = useNavigation<HomeNavigation>();
     const router = useRouter();
-    const user = useAuthStore((state) => state.user);
-    const userId = user?.id ? user.id : null;
-    const [currentDate, setCurrentDate] = useState("");
-    const [currentTime, setCurrentTime] = useState("");
 
-    useEffect(() => {
-        const updateTime = () => {
-            const now = new Date();
-            const date = now.toLocaleDateString("id-ID", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-            });
-            const time = now.toLocaleTimeString("id-ID", {
-                hour: "2-digit",
-                minute: "2-digit",
-            });
-            setCurrentDate(date);
-            setCurrentTime(time);
-        };
-
-        updateTime();
-        const interval = setInterval(updateTime, 1000);
-        return () => clearInterval(interval);
-    }, []);
-
-    const dateNow = useMemo(() => {
-        const now = new Date();
-        const utcPlus7 = new Date(now.getTime() + 7 * 60 * 60 * 1000);
-        const today = utcPlus7.toISOString();
-        console.log(today);
-        return today;
-    }, []);
-
-    const { data, isLoading } = useAbsensi().fetchAbsensiById(userId, dateNow);
     const absensi = data;
-
     const checkIn = absensi?.checkIn ?? null;
     const checkOut = absensi?.checkOut ?? null;
     const isAlreadyAbsent = Boolean(checkIn) && Boolean(checkOut);
@@ -76,14 +43,6 @@ const AbsenseComponent = () => {
     const isLate = checkIn ? getCheckInStatus(checkIn) === "Terlambat" : false;
     const checkInColor = isLate ? COLORS.primary : checkIn ? COLORS.success : COLORS.textMutedOpacity20;
     const checkInBgColor = isLate ? COLORS.primaryOpacity20 : checkIn ? COLORS.successOpacity20 : COLORS.textMutedOpacity20;
-
-    if (!user?.id) {
-        return (
-            <View style={{ padding: 20, alignItems: "center" }}>
-                <Text style={{ color: COLORS.textMuted }}>Memuat data user...</Text>
-            </View>
-        );
-    }
 
     return (
         <View style={homeStyles.absenseContainer}>
