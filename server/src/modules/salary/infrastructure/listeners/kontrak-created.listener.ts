@@ -7,7 +7,7 @@ import { KontrakCreatedEvent } from 'src/modules/kontrak/application/events/kont
 
 @Injectable()
 export class KontrakCreatedListener {
-  constructor(private readonly createSalaryUseCase: CreateSalaryUseCase) { }
+  constructor(private readonly createSalaryUseCase: CreateSalaryUseCase) {}
 
   @OnEvent('kontrak.created')
   async handleKontrakCreated(event: KontrakCreatedEvent) {
@@ -88,24 +88,49 @@ export class KontrakCreatedListener {
     start: Date,
     end: Date,
   ) {
+    let cursor = new Date(start);
+    let monthCount = 0;
+
+    while (isBefore(cursor, end) || isEqual(cursor, end)) {
+      monthCount++;
+      cursor = addMonths(cursor, 1);
+    }
+
+    if (monthCount === 0) {
+      throw new Error('Range tanggal invalid untuk membuat record salary');
+    }
+
+    const baseAmount = Math.floor(totalAmount / monthCount);
+    const remainder = totalAmount - baseAmount * monthCount;
+
+    // Reset cursor
     let current = new Date(start);
+    let index = 0;
+
     while (isBefore(current, end) || isEqual(current, end)) {
       const periode = format(current, 'yyyy-MM');
+
+      // Due date: 5th of next month
       const dueDate = new Date(
         current.getFullYear(),
         current.getMonth() + 1,
         5,
-      ); // Tenggatnya tanggal 5 tiap awal bulan selanjutnya
+      );
+
+      // remainder ditambahkan ke bulan terakhir
+      const amount =
+        index === monthCount - 1 ? baseAmount + remainder : baseAmount;
 
       await this.createSalaryUseCase.execute({
         userId,
         kontrakId,
         periode,
         dueDate,
-        amount: totalAmount,
+        amount: amount,
       });
 
       current = addMonths(current, 1);
+      index++;
     }
   }
 

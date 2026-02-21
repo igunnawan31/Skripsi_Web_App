@@ -11,6 +11,7 @@ import { GetUserSalariesUseCase } from './application/use-cases/get-user-salary.
 import { GetSalaryUseCase } from './application/use-cases/get-salary.use-case';
 import { PaySalaryUseCase } from './application/use-cases/pay-salary.use-case';
 import { DeleteSalaryUseCase } from './application/use-cases/delete-salary.use-case';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   controllers: [SalaryController],

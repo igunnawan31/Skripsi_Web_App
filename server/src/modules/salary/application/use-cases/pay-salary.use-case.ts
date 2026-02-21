@@ -10,6 +10,8 @@ import { LoggerService } from 'src/modules/logger/logger.service';
 import { InternalUpdateSalaryDTO } from '../dtos/request/update-salary.dto';
 import { UpdateSalaryResponseDTO } from '../dtos/response/update-response.dto';
 import { FileMetaData } from 'src/common/types/FileMetaData.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { SalaryUpdateEvent } from '../events/gaji.events';
 
 @Injectable()
 export class PaySalaryUseCase {
@@ -17,6 +19,7 @@ export class PaySalaryUseCase {
     @Inject(ISalaryRepository)
     private readonly salaryRepo: ISalaryRepository,
     private readonly logger: LoggerService,
+    private readonly eventEmitter: EventEmitter2,
   ) { }
 
   async execute(
@@ -37,6 +40,14 @@ export class PaySalaryUseCase {
       status: 'PAID',
     };
     const updatedSalary = await this.salaryRepo.update(id, payload);
+
+    this.eventEmitter.emit(
+      'salary.paid', new SalaryUpdateEvent(
+        id,
+        targetSalary.userId,
+        new Date(),
+      ),
+    )
     return updatedSalary;
   }
 }
