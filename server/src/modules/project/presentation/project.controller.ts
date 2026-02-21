@@ -65,14 +65,14 @@ export class ProjectController {
   )
   create(
     @Body() dto: CreateProjectDTO,
-    @UploadedFiles() files: { projectDocument: Express.Multer.File[] },
+    @UploadedFiles() files: { projectDocument?: Express.Multer.File[] },
   ) {
     const payload: InternalCreateProjectDTO = {
       name: dto.name,
       description: dto.description ?? undefined,
       startDate: new Date(dto.startDate),
       endDate: new Date(dto.endDate),
-      documents: files.projectDocument,
+      documents: files.projectDocument ?? undefined,
     }
     return this.createProjectUseCase.execute(payload);
   }
@@ -85,7 +85,7 @@ export class ProjectController {
 
   // GET project/personel/:id
   @Get('/personel/:id')
-  @RolesMinor(MinorRole.PROJECT_MANAGER)
+  @RolesMinor(MinorRole.PROJECT_MANAGER, MinorRole.BACKEND, MinorRole.FRONTEND, MinorRole.UI_UX)
   findTeam(@Param('id') id: string) {
     return this.projectRepo.findTeamById(id);
   }
