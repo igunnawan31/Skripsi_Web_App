@@ -9,17 +9,17 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useAbsensi } from "@/app/lib/hooks/absensi/useAbsensi";
 import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
 import Image from "next/image";
-import { icons } from "@/app/lib/assets/assets";
+import { icons, logo } from "@/app/lib/assets/assets";
 import FilterModal from "@/app/dashboard/dashboardComponents/allComponents/FilterModal";
 import { format } from "date-fns";
-import { fromZonedTime } from "date-fns-tz";
+import { fromZonedTime, toZonedTime } from "date-fns-tz";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
-
-const AbsensiShows: React.FC<AbsensiRequestProps> = ({
+const AbsensiShows: React.FC<AbsensiRequestProps & { externalDate?: string, onDateChange?: (d: string) => void }> = ({
     showButton = false,
     buttonText = "Aksi",
     onButtonClick,
+    externalDate,
+    onDateChange
 }) => {
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -28,11 +28,7 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
     const [itemsPerPage, setItemsPerPage] = useState<number>(10);
     const today = new Date().toISOString().split("T")[0];
 
-    const [selectedDate, setSelectedDate] = useState<string>(
-        searchParams.get("date") || today
-    );
-    const [selectedRole, setSelectedRole] = useState<string>(searchParams.get("role") || "All");
-    const [selectedStatus, setSelectedStatus] = useState<string>(searchParams.get("status") || "All");
+    const selectedDate = externalDate || today;
     const [selectedMinorRole, setSelectedMinorRole] = useState<string>(searchParams.get("minorRole") || "All");
     const [searchQuery, setSearchQuery] = useState<string>(searchParams.get("searchTerm") || "");
 
@@ -48,8 +44,6 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
         date: selectedDate
             ? new Date(`${selectedDate}T00:00:00`).toISOString()
             : undefined,
-        minorRole: selectedMinorRole !== "All" ? selectedMinorRole : undefined,
-        status: selectedStatus !== "All" ? selectedStatus : undefined,
         searchTerm: searchQuery || undefined,
     });
 
@@ -57,19 +51,25 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
     const totalItems = data?.meta?.total || 0;
 
     const getCheckInStatus = (checkIn?: string) => {
-        if (!checkIn) return "-";
+        if (!checkIn) return "Tidak Absen";
 
-        const checkInWIB = fromZonedTime(checkIn, "Asia/Jakarta");
-        const limit = new Date(checkInWIB);
-        limit.setUTCHours(8, 30, 0, 0);
+        const zonedCheckIn = toZonedTime(checkIn, "Asia/Jakarta");
+        
+        const limit = new Date(zonedCheckIn);
+        limit.setHours(8, 30, 0, 0);
 
-        return checkInWIB > limit ? "Terlambat" : "Tepat Waktu";
+        return zonedCheckIn > limit ? "Terlambat" : "Tepat Waktu";
     };
 
-    const getTimeFromISO = (iso?: string) => {
-        if (!iso) return "-";
-        return iso.split("T")[1]?.substring(0, 5);
-    };
+    const toWIB = (dateString?: string) => {
+        if (!dateString) return "-";
+        try {
+            const zoned = toZonedTime(dateString, "Asia/Jakarta");
+            return format(zoned, "HH:mm");
+        } catch (e) {
+            return "-";
+        }
+    }
 
     const getStatusColor = (absen: any) => {
         if (getCheckInStatus(absen.checkIn) === "Tepat Waktu") return "bg-green-100 text-green-800";
@@ -80,32 +80,44 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
     useEffect(() => {
         const params = new URLSearchParams();
         if (selectedDate) params.set("date", selectedDate);
-        if (selectedRole && selectedRole !== "All") params.set("role", selectedRole);
-        if (selectedStatus && selectedStatus !== "All") params.set("status", selectedStatus);
         if (searchQuery) params.set("searchTerm", searchQuery);
         router.replace(`?${params.toString()}`);
-    }, [selectedDate, selectedRole, selectedStatus, searchQuery, router]);
+    }, [selectedDate, searchQuery, router]);
 
     const handleApplyFilters = (filters: Record<string, string | undefined>) => {
-        setSelectedDate(filters.date || "");
-        setSelectedMinorRole(filters.minorRole || "All");
-        setSelectedStatus(filters.status || "All");
+        if (filters.date && onDateChange) {
+            onDateChange(filters.date);
+        }
         setCurrentPage(1);
     };
 
     const filterFields = [
         { key: "date", label: "Date", type: "date" as const },
-        { key: "minorRole", label: "Role", type: "select" as const, options: Object.values(MinorRole) },
     ];
 
     const initialValues = {
         date: today,
-        MinorRole: selectedMinorRole,
-        status: selectedStatus
     };
 
     if (error) {
-        return <div className="text-center text-red-500 py-6">Error: {error.message}</div>;
+        const errorRender = (
+            <div className="flex flex-col items-center justify-between gap-4 py-4">
+                <Image
+                    src={logo.error}
+                    width={240}
+                    height={240}
+                    alt="Not Found Data"
+                />
+                <div className="flex flex-col items-center">
+                    <h1 className="text-2xl font-bold text-(--color-primary)">
+                        {error.message ? error.message : "Terdapat kendala pada sistem"}
+                    </h1>
+                    <span className="text-sm text-(--color-primary)">Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki</span>
+                </div>
+            </div>
+        );
+
+        return errorRender;
     };
 
     const renderHtml = (
@@ -137,7 +149,7 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
                         Filter
                     </div>
                 </div>
-                {(selectedStatus !== "All" || selectedDate || selectedMinorRole || searchQuery) && (
+                {(selectedDate || searchQuery) && (
                     <>
                         {searchQuery && (
                             <span
@@ -152,40 +164,12 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
                                 </button>
                             </span>
                         )}
-                        {selectedStatus !== "All" && (
-                            <span
-                                className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
-                            >
-                                Status: {selectedStatus}
-                                <button
-                                    className="text-red-500 hover:text-red-700 cursor-pointer"
-                                    onClick={() => setSelectedStatus("All")}
-                                >
-                                    ✕
-                                </button>
-                            </span>
-                        )}
-                        {selectedMinorRole !== "All" && (
-                            <span
-                                className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
-                            >
-                                Role: {selectedMinorRole}
-                                <button
-                                    className="text-red-500 hover:text-red-700 cursor-pointer"
-                                    onClick={() => setSelectedMinorRole("All")}
-                                >
-                                    ✕
-                                </button>
-                            </span>
-                        )}
                         {selectedDate && (
-                            <span
-                                className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
-                            >
-                                Date: {selectedDate}
+                            <span className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm font-medium">
+                                Date: {format(new Date(selectedDate), "dd MMM yyyy")}
                                 <button
-                                    className="text-red-500 hover:text-red-700 cursor-pointer"
-                                    onClick={() => setSelectedDate(today)}
+                                    className="text-red-500 hover:text-red-700 cursor-pointer font-bold ml-1"
+                                    onClick={() => onDateChange?.(today)}
                                 >
                                     ✕
                                 </button>
@@ -214,7 +198,7 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
                         >
                             <div className="p-5 flex flex-col gap-3">
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-400 font-medium truncate max-w-[120px]">
+                                    <span className="text-gray-400 font-medium truncate max-w-[120px] sm:max-w-full">
                                         {abs.user.id}
                                     </span>
 
@@ -242,7 +226,7 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
                                                 width={24}
                                                 height={24}
                                             />
-                                            {getTimeFromISO(abs.checkIn)}
+                                            {toWIB(abs.checkIn)}
                                         </div>
                                         <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
                                             <Image
@@ -251,7 +235,7 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
                                                 width={24}
                                                 height={24}
                                             />
-                                            {getTimeFromISO(abs.checkOut)}
+                                            {toWIB(abs.checkOut)}
                                         </div>
                                     </div>
                                     <div className="flex justify-between items-center">
@@ -286,9 +270,20 @@ const AbsensiShows: React.FC<AbsensiRequestProps> = ({
                     ))}
                 </div>
             ) : (
-                <p className="text-center text-gray-500 py-6">
-                    Tidak ada data absensi sesuai filter.
-                </p>
+                <div className="flex flex-col items-center justify-between gap-4 py-4">
+                    <Image
+                        src={logo.notFound}
+                        width={120}
+                        height={120}
+                        alt="Not Found Data"
+                    />
+                    <div className="flex flex-col items-center">
+                        <h1 className="text-xl font-bold text-(--color-text-primary)">
+                            Pencarian Nama Karyawan Tidak Ditemukan
+                        </h1>
+                        <span className="text-sm text-(--color-muted)">Ubah hasil pencarian kamu</span>
+                    </div>
+                </div>
             )}
 
             {absen.length > 10 && !isLoading && (

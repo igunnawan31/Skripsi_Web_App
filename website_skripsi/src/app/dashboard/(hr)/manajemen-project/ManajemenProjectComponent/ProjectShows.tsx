@@ -348,7 +348,7 @@ const ProjectShows = () => {
                 </div>
             )}
 
-            {project.length > 0 && !isLoading && (
+            {project.length > 10 && !isLoading && (
                 <div className="mt-6">
                     <PaginationBar
                         totalItems={totalItems}

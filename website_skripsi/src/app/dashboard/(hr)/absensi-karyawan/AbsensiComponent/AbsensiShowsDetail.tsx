@@ -5,7 +5,7 @@ import { useAbsensi } from "@/app/lib/hooks/absensi/useAbsensi";
 import { useRouter, useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import Image from "next/image";
-import { icons, photo } from "@/app/lib/assets/assets";
+import { icons, logo, photo } from "@/app/lib/assets/assets";
 import { fetchFileBlob } from "@/app/lib/path";
 import toast from "react-hot-toast";
 import CustomToast from "@/app/rootComponents/CustomToast";
@@ -13,53 +13,57 @@ import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet"; 
 import Link from "next/link";
-import { fromZonedTime } from "date-fns-tz";
+import { toZonedTime } from "date-fns-tz";
+import AbsensiSkeletonDetail from "./AbsensiSkeletonDetail";
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+    iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+});
 
 export default function AbsensiShowsDetail({ id }: { id: string }) {
     const absensi = useAbsensi();
     const router = useRouter();
     const searchParams = useSearchParams();
+    
+    let current = new Date();
+    const year = current.getFullYear();
+    const month = current.getMonth();
+
     const date = searchParams.get("date") || "";
+    const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    
     const {
         data: detailData,
         isLoading: isDetailLoading,
         error: detailError,
     } = absensi.fetchAbsensiById(id, date);
-    console.log(detailData);
-
-    let current = new Date();
-    const year = current.getFullYear();
-    console.log(year);
-    const month = current.getMonth();
-
     const {
         data: historyData,
         isLoading: isHistoryLoading,
         error: historyError,
     } = absensi.fetchAbsensiByUserId(id, year, month);
 
-    console.log("history", historyData);
-
-    if (isDetailLoading || isHistoryLoading) {
-        return <div className="text-center text-(--color-muted)">Memuat data...</div>;
-    }
-
-    if (detailError || historyError) {
-        return <div className="text-center text-red-500">Terjadi kesalahan.</div>;
-    }
-
-    if (!detailData || !historyData) {
-        return <div className="text-center text-red-500">Data tidak ditemukan.</div>;
-    }
-
-    const photos = Array.isArray(detailData.photo) ? detailData.photo : [];
-    const history = historyData ?? [];
-
-    const getTimeFromISO = (iso?: string) => {
-        if (!iso) return "-";
-        return iso.split("T")[1]?.substring(0, 5);
+    const loadPhoto = async (photoPath: string) => {
+        try {
+            const blob = await fetchFileBlob(photoPath);
+            const reader = new FileReader();
+            reader.onload = () => setPreviewPhoto(reader.result as string);
+            reader.readAsDataURL(blob);
+        } catch (err) {
+            console.error("Load photo error:", err);
+            setPreviewPhoto(null);
+        }
     };
+
+    useEffect(() => {
+        if (detailData?.user?.photo?.path) {
+            loadPhoto(detailData.user?.photo.path);
+        }
+    }, [detailData?.user?.photo?.path]);
 
     const getFileIcon = (doc: any) => {
         const type = doc?.mimetype;
@@ -80,23 +84,137 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
         }
     };
 
-    const getCheckInStatus = (checkIn?: string) => {
-        if (!checkIn) return "-";
+    const getCheckInStatus = (checkIn?: string, checkOut?: string, recordDate?: string) => {
+        if (!checkIn) return "Tidak Absen";
 
-        const checkInWIB = fromZonedTime(checkIn, "Asia/Jakarta");
-        const limit = new Date(checkInWIB);
-        limit.setUTCHours(8, 30, 0, 0);
+        const today = new Date().toISOString().split("T")[0];
+        const zonedCheckIn = toZonedTime(checkIn, "Asia/Jakarta");
+        
+        const dateToCheck = recordDate || checkIn.split("T")[0];
+        const isPastDay = dateToCheck < today;
 
-        return checkInWIB > limit ? "Terlambat" : "Tepat Waktu";
+        const hasNoCheckOut = !checkOut || checkOut === "" || checkOut === "-";
+        if (isPastDay && hasNoCheckOut) {
+            return "Tidak Valid";
+        }
+
+        const limit = new Date(zonedCheckIn);
+        limit.setHours(8, 30, 0, 0);
+
+        return zonedCheckIn > limit ? "Terlambat" : "Tepat Waktu";
     };
 
-    const getStatusColor = (absen: any) => {
-        if (getCheckInStatus(absen.checkIn) === "Tepat Waktu") return "bg-green-100 text-green-800";
-        if (getCheckInStatus(absen.checkIn) === "Terlambat") return "bg-red-100 text-red-800";
-        return "bg-gray-100 text-gray-700";
+    const toWIB = (dateString?: string) => {
+        if (!dateString) return "-";
+        try {
+            const zoned = toZonedTime(dateString, "Asia/Jakarta");
+            return format(zoned, "HH:mm");
+        } catch (e) {
+            return "-";
+        }
+    }
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case "Tepat Waktu": return "bg-green-100 text-green-800";
+            case "Terlambat": return "bg-amber-100 text-amber-800";
+            case "Tidak Valid": return "bg-red-100 text-red-800";
+            default: return "bg-gray-100 text-gray-700";
+        }
     };
 
-    const lastShownHistory = history.slice(0, 7);
+    const photos = Array.isArray(detailData?.photo) ? detailData?.photo : [];
+    const lastShownHistory = (historyData?.data ?? []).filter((ct: any) => ct.checkIn !== detailData?.checkIn).slice(0, 7);
+
+    if (isDetailLoading || isHistoryLoading) {
+        return <AbsensiSkeletonDetail />;
+    }
+
+    if (!detailData) {
+        const noFetchedData = (
+            <div className="flex flex-col gap-6 w-full pb-8">
+                <button
+                    onClick={() => router.back()}
+                    className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                >
+                    <Image 
+                        src={icons.arrowLeftActive}
+                        alt="Back Arrow"
+                        width={20}
+                        height={20}
+                    />
+                    <p className="text-(--color-surface)">
+                        Kembali ke halaman sebelumnya
+                    </p>
+                </button>
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md px-6 py-12 border border-(--color-border) flex flex-col gap-6">
+                    <div className="flex flex-col items-center justify-between gap-4">
+                        <Image
+                            src={logo.notFound}
+                            width={240}
+                            height={240}
+                            alt="Not Found Data"
+                        />
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                Detail Absensi Tidak Ditemukan
+                            </h1>
+                            <span className="text-sm text-(--color-primary)">Mohon mengecek kembali detail absensi nanti</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return noFetchedData;
+    };
+
+    if (detailError) {
+        const errorFetchedData = (
+            <div className="flex flex-col gap-6 w-full pb-8">
+                <button
+                    onClick={() => router.back()}
+                    className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                >
+                    <Image 
+                        src={icons.arrowLeftActive}
+                        alt="Back Arrow"
+                        width={20}
+                        height={20}
+                    />
+                    <p className="text-(--color-surface)">
+                        Kembali ke halaman sebelumnya
+                    </p>
+                </button>
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md px-6 py-12 border border-(--color-border) flex flex-col gap-6">
+                    <div className="flex flex-col items-center justify-between gap-4">
+                        <Image
+                            src={logo.error}
+                            width={240}
+                            height={240}
+                            alt="Not Found Data"
+                        />
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                {detailError.message ? detailError.message : "Terdapat kendala pada sistem"}
+                            </h1>
+                            <span className="text-sm text-(--color-primary)">Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return errorFetchedData;
+    };
+
+    if (historyError) {
+        return <div className="text-center text-red-500">Terjadi kesalahan.</div>;
+    }
+
+    if (!historyData) {
+        return <div className="text-center text-red-500">Data tidak ditemukan.</div>;
+    }
 
     return (
         <div className="flex flex-col gap-6 w-full pb-8">
@@ -117,7 +235,7 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-row gap-4 items-center">
                     <h1 className="text-2xl font-bold text-(--color-text-primary)">
-                        Detail Absensi
+                        Detail Absensi - {detailData.user.name} - {detailData.checkIn ? format(new Date(detailData.checkIn), "dd MMM yyyy") : "-"}
                     </h1>
                 </div>
                 <span className="text-sm text-(--color-muted)">ID: {detailData.user.id} - {detailData.checkIn ? format(new Date(detailData.checkIn), "dd MMM yyyy") : "-"}</span>
@@ -128,7 +246,7 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
                     <div className="w-full md:w-1/2 flex flex-col items-center text-center gap-4">
                         <div className="relative w-full h-96 aspect-square bg-[--color-tertiary] rounded-xl overflow-hidden">
                             <Image
-                                src={photo.profilePlaceholder}
+                                src={previewPhoto || icons.userProfile}
                                 alt="Gambar"
                                 fill
                                 className="object-cover"
@@ -164,7 +282,7 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
                                 <div
                                     className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                 >
-                                    {getTimeFromISO(detailData.checkIn)}
+                                    {toWIB(detailData.checkIn)}
                                 </div>
                             </div>
 
@@ -175,7 +293,7 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
                                 <div
                                     className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                 >
-                                    {getTimeFromISO(detailData.checkOut)}
+                                    {toWIB(detailData.checkOut)}
                                 </div>
                             </div>
 
@@ -184,9 +302,9 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
                                     Status Kehadiran
                                 </label>
                                 <div
-                                    className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                    className={`border border-gray-300 rounded-lg px-3 py-2 font-semibold ${getStatusColor(getCheckInStatus(detailData.checkIn, detailData.checkOut, date))}`}
                                 >
-                                    {getCheckInStatus(detailData.checkIn)}
+                                    {getCheckInStatus(detailData.checkIn, detailData.checkOut, date)}
                                 </div>
                             </div>
                         </div>
@@ -224,7 +342,7 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
                                     </div>
                                 </div>
                                 {previewUrl && (
-                                    <div className="fixed inset-0 bg-black/60 flex justify-center items-center">
+                                    <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-9999">
                                         <div className="bg-white w-3/4 h-3/4 rounded-xl p-4 relative">
                                             <div className="items-center justify-between flex mb-5">
                                                 <p className="text-md font-bold">Detail Foto</p>
@@ -316,13 +434,8 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
                                     <span className="text-(--color-muted) break-all">
                                         {abs.user.id} - {abs.checkIn ? format(new Date(abs.checkIn), "dd MMM yyyy") : "-"}
                                     </span>
-                                    <span
-                                        className={`px-3 py-1 text-xs font-semibold rounded-lg uppercase text-center w-fit 
-                                        ${getStatusColor(
-                                            abs
-                                        )}`}
-                                    >
-                                        {getCheckInStatus(abs.checkIn)}
+                                    <span className={`px-3 py-1 text-xs font-semibold rounded-lg uppercase ${getStatusColor(status)}`}>
+                                        {status}
                                     </span>
                                 </div>
                                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 py-3">
@@ -344,7 +457,7 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
                                                     width={24}
                                                     height={24}
                                                 />
-                                                {getTimeFromISO(abs.checkIn)}
+                                                {toWIB(abs.checkIn)}
                                             </div>
                                             <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
                                                 <Image
@@ -353,7 +466,7 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
                                                     width={24}
                                                     height={24}
                                                 />
-                                                {getTimeFromISO(abs.checkOut)}
+                                                {toWIB(abs.checkOut)}
                                             </div>
                                         </div>
                                     </div>
@@ -374,7 +487,7 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
                             </div>
                         ))
                     ) : (
-                        <div className="text-center text-(--color-muted) py-6">
+                        <div className="text-center text-(--color-muted) py-6 italic">
                             Belum ada riwayat absensi lainnya.
                         </div>
                     )}
