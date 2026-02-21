@@ -12,6 +12,8 @@ import { IReimburseRepository } from '../../domain/repositories/reimburse.reposi
 import { ReimburseAuthorizationService } from '../../domain/services/reimburse-authorization.service';
 import { IUserRepository } from 'src/modules/users/domain/repositories/users.repository.interface';
 import { LoggerService } from 'src/modules/logger/logger.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ReimburseUpdateEvent } from '../events/reimburse.events';
 
 @Injectable()
 export class ApprovalReimburseUseCase {
@@ -22,6 +24,7 @@ export class ApprovalReimburseUseCase {
     @Inject(IUserRepository)
     private readonly userRepo: IUserRepository,
     private readonly logger: LoggerService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async execute(
@@ -67,7 +70,16 @@ export class ApprovalReimburseUseCase {
     });
 
     this.logger.log(
-      `${approverReq.email} ${dto.approvalStatus?.toLowerCase()} reimburse ${reimburseId}`,
+      `${approverReq.email} ${dto.approvalStatus.toLowerCase()} reimburse ${reimburseId}`,
+    );
+    this.eventEmitter.emit(
+      'reimburse.updated',
+      new ReimburseUpdateEvent(
+        reimburseId,
+        updatedReimburse.userId,
+        dto.approverId,
+        dto.approvalStatus,
+      ),
     );
     return updatedReimburse;
   }

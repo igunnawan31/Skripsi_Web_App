@@ -19,9 +19,12 @@ import { ProjectModule } from './modules/project/project.module';
 import { AgendaModule } from './modules/agenda/agenda.module';
 import { SalaryModule } from './modules/salary/salary.module';
 import { KpiModule } from './modules/kpi/kpi.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: [`.env.${process.env.NODE_ENV ?? 'development'}`, '.env'],
@@ -82,6 +85,7 @@ import { KpiModule } from './modules/kpi/kpi.module';
     KpiModule,
     ReimburseModule,
     AgendaModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

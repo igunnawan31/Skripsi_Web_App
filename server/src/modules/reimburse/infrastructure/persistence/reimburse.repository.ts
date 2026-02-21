@@ -44,7 +44,7 @@ export class ReimburseRepository implements IReimburseRepository {
       const where: Prisma.ReimburseWhereInput = {
         userId:
           user.majorRole === 'KARYAWAN'
-            ? user.minorRole === 'HR' || user.minorRole === 'ADMIN'
+            ? user.minorRole === 'ADMIN'
               ? undefined
               : user.id
             : undefined,
