@@ -25,7 +25,7 @@ export class JawabanRepository implements IJawabanRepository {
   constructor(
     private readonly prisma: PrismaService,
     private readonly logger: LoggerService,
-  ) { }
+  ) {}
   async findAll(
     filters: InternalJawabanFilterDTO,
   ): Promise<RetrieveAllJawabanResponseDTO | null> {
@@ -182,6 +182,26 @@ export class JawabanRepository implements IJawabanRepository {
       handlePrismaError(err, 'Jawaban', '', this.logger);
     }
   }
+  async findManyUnique(
+    pairs: { pertanyaanId: string; evaluateeId: string }[],
+    evaluatorId: string,
+  ): Promise<RetrieveJawabanResponseDTO[]> {
+    try {
+      const answers = await this.prisma.jawabanKPI.findMany({
+        where: {
+          evaluatorId,
+          OR: pairs.map((p) => ({
+            pertanyaanId: p.pertanyaanId,
+            evaluateeId: p.evaluateeId,
+          })),
+        },
+      });
+      if (!answers) return [];
+      return answers.map((a) => plainToInstance(RetrieveJawabanResponseDTO, a));
+    } catch (err) {
+      handlePrismaError(err, 'Jawaban', '', this.logger);
+    }
+  }
   async getAllByIndicatorId(
     id: string,
   ): Promise<RetrieveJawabanResponseDTO[] | null> {
@@ -213,6 +233,18 @@ export class JawabanRepository implements IJawabanRepository {
         },
       });
       return plainToInstance(CreateJawabanResponseDTO, query);
+    } catch (err) {
+      handlePrismaError(err, 'Jawaban', '', this.logger);
+    }
+  }
+  async createMany(
+    data: InternalCreateJawabanDTO[],
+  ): Promise<CreateJawabanResponseDTO[]> {
+    try {
+      const result = await this.prisma.jawabanKPI.createManyAndReturn({
+        data,
+      });
+      return plainToInstance(CreateJawabanResponseDTO, result);
     } catch (err) {
       handlePrismaError(err, 'Jawaban', '', this.logger);
     }

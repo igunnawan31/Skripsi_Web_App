@@ -11,10 +11,10 @@ export class JawabanKPIBaseDTO {
   pertanyaanId: string;
 
   @Expose()
-  penilaiId: string;
+  evaluatorId: string;
 
   @Expose()
-  dinilaiId: string;
+  evaluateeId: string;
 
   @Expose()
   nilai: number;

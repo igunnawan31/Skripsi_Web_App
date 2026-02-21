@@ -28,7 +28,7 @@ export class JawabanController {
     return this.getJawabanUseCase.execute(id);
   }
   @Post()
-  create(@Body() dto: CreateJawabanDTO, @Req() req: Request & {user: UserRequest}){
+  create(@Body() dto: CreateJawabanDTO[], @Req() req: Request & {user: UserRequest}){
     return this.createJawabanUseCase.execute(dto, req.user);
   }
   @Delete('/:id')

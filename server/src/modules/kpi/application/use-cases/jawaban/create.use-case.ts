@@ -22,38 +22,56 @@ export class CreateJawabanUseCase {
     @Inject(IPertanyaanRepository)
     private readonly pertanyaanRepo: IPertanyaanRepository,
     private readonly logger: LoggerService,
-  ) { }
+  ) {}
 
   async execute(
-    data: CreateJawabanDTO,
+    data: CreateJawabanDTO[],
     user: UserRequest,
-  ): Promise<CreateJawabanResponseDTO> {
+  ): Promise<CreateJawabanResponseDTO[]> {
     try {
-      const question = await this.pertanyaanRepo.findById(data.pertanyaanId);
+      const pertanyaanIds = data.map((item) => item.pertanyaanId);
 
-      if (!question)
-        throw new NotFoundException(
-          `Pertanyaan tidak ditemukan, gagal membuat jawaban`,
-        );
-      const answer = await this.jawabanRepo.findUnique(
-        data.pertanyaanId,
-        user.id,
-        data.evaluateeId,
+      // 1 query untuk semua pertanyaan
+      const questions = await this.pertanyaanRepo.findManyByIds(pertanyaanIds);
+      const questionMap = new Map(questions.map((q) => [q.id, q]));
+
+      // Validasi semua pertanyaan exist
+      for (const item of data) {
+        if (!questionMap.has(item.pertanyaanId))
+          throw new NotFoundException(
+            `Pertanyaan dengan id ${item.pertanyaanId} tidak ditemukan`,
+          );
+      }
+
+      const pairs = data.map((item) => ({
+        pertanyaanId: item.pertanyaanId,
+        evaluateeId: item.evaluateeId,
+      }));
+      const existingAnswers = await this.jawabanRepo.findManyUnique(pairs, user.id);
+
+      // Buat set dari kombinasi yang sudah ada
+      const existingSet = new Set(
+        existingAnswers.map((a) => `${a.pertanyaanId}_${a.evaluateeId}`),
       );
-      if (answer)
-        throw new BadRequestException(`Tidak dapat membuat jawaban lagi`);
 
-      const payload: InternalCreateJawabanDTO = {
-        indikatorId: data.indikatorId,
-        pertanyaanId: data.pertanyaanId,
+      // Filter hanya yang belum ada
+      const newData = data.filter(
+        (item) => !existingSet.has(`${item.pertanyaanId}_${item.evaluateeId}`),
+      );
+
+      if (newData.length === 0)
+        throw new BadRequestException(`Semua jawaban sudah ada`);
+
+      const payloads: InternalCreateJawabanDTO[] = newData.map((item) => ({
+        indikatorId: item.indikatorId,
+        pertanyaanId: item.pertanyaanId,
         evaluatorId: user.id,
-        evaluateeId: data.evaluateeId,
-        notes: data.notes ?? undefined,
-        nilai: data.nilai * question?.bobot,
-      };
+        evaluateeId: item.evaluateeId,
+        notes: item.notes ?? undefined,
+        nilai: item.nilai * questionMap.get(item.pertanyaanId)!.bobot,
+      }));
 
-      const jawaban = await this.jawabanRepo.create(payload);
-      return jawaban;
+      return await this.jawabanRepo.createMany(payloads);
     } catch (err) {
       this.logger.error(err, 'CreateJawabanUseCase');
       throw err;
