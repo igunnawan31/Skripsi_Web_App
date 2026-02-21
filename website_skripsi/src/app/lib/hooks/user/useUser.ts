@@ -77,10 +77,6 @@ export const useUser = () => {
         });
     }
 
-    const CreateUser = () => {
-
-    }
-
     const UpdateUser = () => {
         const queryClient = useQueryClient();
 
@@ -117,6 +113,50 @@ export const useUser = () => {
             },
         })
     }
+
+    const updatePhoto = () => {
+        const queryClient = useQueryClient();
+
+        return useMutation<
+            any,
+            Error,
+            { id: string, photo: any }
+        >({
+            mutationFn: async ({ id, photo }: { id: string; photo: any }) => {
+                const token = Cookies.get("accessToken");
+                if (!token) throw new Error("No access token found");
+
+                const form = new FormData();
+                form.append("userPhoto", photo);
+
+                const response = await fetch(`${API}/users/${id}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    credentials: "include",
+                    body: form,
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Failed to update photo user";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                return response.json();
+            },
+
+            onSuccess: (data, variables) => {
+                queryClient.invalidateQueries({ queryKey: ["user", variables.id] });
+            },
+        });
+    };
 
     const DeleteUser = () => {
         const queryClient = useQueryClient();
@@ -155,7 +195,7 @@ export const useUser = () => {
     return {
         fetchAllUser,
         fetchUserById,
-        CreateUser,
+        updatePhoto,
         UpdateUser,
         DeleteUser,
     }
