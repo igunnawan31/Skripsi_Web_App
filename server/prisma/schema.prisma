@@ -326,7 +326,7 @@ model Reimburse {
   title          String
   totalExpenses  Int
   approvalStatus ApprovalStatus @default(PENDING)
-  catatan        String?
+  notes          String?
   documents      Json?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt

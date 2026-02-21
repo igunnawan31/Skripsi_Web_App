@@ -47,7 +47,6 @@ export class ReimburseController {
     @Query() filters: ReimburseFilterDTO,
     @Req() req: Request & { user: UserRequest },
   ) {
-    console.log('Invoked');
     return this.getAllUseCase.execute(filters, req.user);
   }
   @Get(':id')
@@ -108,6 +107,7 @@ export class ReimburseController {
     @Body() dto: { notes: string },
   ) {
     const payload: InternalUpdateReimburseDTO = {
+      approverId: req.user.id,
       approvalStatus: 'APPROVED',
       notes: dto.notes,
     };
@@ -122,6 +122,7 @@ export class ReimburseController {
     @Body() dto: { notes: string },
   ) {
     const payload: InternalUpdateReimburseDTO = {
+      approverId: req.user.id,
       approvalStatus: 'REJECTED',
       notes: dto.notes,
     };

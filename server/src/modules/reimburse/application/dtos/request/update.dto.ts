@@ -4,13 +4,11 @@ import { ApprovalStatus } from '@prisma/client';
 import { PartialType } from '@nestjs/mapped-types';
 
 export class InternalUpdateReimburseDTO extends PartialType(InternalCreateReimburseDTO) { 
-  @IsOptional()
   @IsString()
-  approverId?: string;
+  approverId: string;
 
-  @IsOptional()
   @IsEnum(ApprovalStatus)
-  approvalStatus?: ApprovalStatus; 
+  approvalStatus: ApprovalStatus; 
 
   @IsOptional()
   @IsString()
