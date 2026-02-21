@@ -171,12 +171,12 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
                 <div className="flex flex-col md:flex-row items-start gap-6">
                     <div className="w-full md:w-1/2 flex flex-col items-center text-center gap-4">
                         <div className="relative w-full h-96 aspect-square bg-[--color-tertiary] rounded-xl overflow-hidden">
-                        <Image
-                            src={previewPhoto || photo.profilePlaceholder}
-                            alt="Gambar"
-                            fill
-                            className="object-cover"
-                        />
+                            <Image
+                                src={previewPhoto || photo.profilePlaceholder}
+                                alt="Gambar"
+                                fill
+                                className="object-cover"
+                            />
                         </div>
                         <div>
                             <h2 className="text-lg font-semibold text-(--color-text-primary)">
