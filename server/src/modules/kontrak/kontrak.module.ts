@@ -23,7 +23,6 @@ import { ProjectModule } from '../project/project.module';
     forwardRef(() => CutiModule),
     forwardRef(() => AbsensiModule),
     ProjectModule,
-    EventEmitterModule.forRoot(),
   ],
   controllers: [KontrakController],
   providers: [
