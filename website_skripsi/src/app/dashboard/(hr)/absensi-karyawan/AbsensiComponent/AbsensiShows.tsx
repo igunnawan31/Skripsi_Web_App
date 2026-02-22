@@ -277,9 +277,9 @@ const AbsensiShows: React.FC<AbsensiRequestProps & { externalDate?: string, onDa
                     />
                     <div className="flex flex-col items-center">
                         <h1 className="text-xl font-bold text-(--color-text-primary)">
-                            Pencarian Nama Karyawan Tidak Ditemukan
+                            Data Absensi Tidak Ditemukan
                         </h1>
-                        <span className="text-sm text-(--color-muted)">Ubah hasil pencarian kamu</span>
+                        <span className="text-sm text-(--color-muted)">Ubah hasil pencarian atau filter kamu</span>
                     </div>
                 </div>
             )}
