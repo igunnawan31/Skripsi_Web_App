@@ -6,12 +6,13 @@ import Link from "next/link";
 import { useCuti } from "@/app/lib/hooks/cuti/useCuti";
 import { format, parseISO } from "date-fns";
 import Image from "next/image";
-import { icons, photo } from "@/app/lib/assets/assets";
+import { icons, logo, photo } from "@/app/lib/assets/assets";
 import toast from "react-hot-toast";
 import CustomToast from "@/app/rootComponents/CustomToast";
 import ConfirmationPopUpModal from "@/app/dashboard/dashboardComponents/allComponents/ConfirmationPopUpModal";
 import { useRouter } from "next/navigation";
 import { fetchFileBlob } from "@/app/lib/path";
+import CutiSkeletonDetail from "./CutiSkeletonDetail";
 
 export default function CutiShowsDetail({ id }: { id: string }) {
     const cuti = useCuti();
@@ -29,11 +30,32 @@ export default function CutiShowsDetail({ id }: { id: string }) {
 
     const approveCuti = useCuti().approveCuti();
     const rejectCuti = useCuti().rejectCuti();
+
     const [catatan, setCatatan] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [actionType, setActionType] = useState<"approve" | "reject" | null>(null);
+
+    const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const router = useRouter();
+
+    const loadPhoto = async (photoPath: string) => {
+        try {
+            const blob = await fetchFileBlob(photoPath);
+            const reader = new FileReader();
+            reader.onload = () => setPreviewPhoto(reader.result as string);
+            reader.readAsDataURL(blob);
+        } catch (err) {
+            console.error("Load photo error:", err);
+            setPreviewPhoto(null);
+        }
+    };
+
+    useEffect(() => {
+        if (detailData?.user?.photo?.path) {
+            loadPhoto(detailData.user?.photo.path);
+        }
+    }, [detailData?.user?.photo?.path]);
 
     const computeTotalDays = (startStr?: string, endStr?: string) => {
         if (!startStr || !endStr) return 0;
@@ -64,22 +86,9 @@ export default function CutiShowsDetail({ id }: { id: string }) {
         return icons.pdfFormat;
     };
 
-    if (isDetailLoading || isHistoryLoading) {
-        return <div className="text-center text-(--color-muted)">Memuat data...</div>;
-    }
-
-    if (detailError || historyError) {
-        return <div className="text-center text-red-500">Terjadi kesalahan.</div>;
-    }
-
-    if (!detailData) {
-        return <div className="text-center text-red-500">Data tidak ditemukan.</div>;
-    }
-
-    const data = detailData;
-    const history = (historyData?.data ?? []).filter((ct: any) => ct.id !== data.id).slice(0,7);
-    const documents = data.dokumen ? [data.dokumen] : [];
-    const days = computeTotalDays(data.startDate, data.endDate);
+    const history = (historyData?.data ?? []).filter((ct: any) => ct.id !== detailData.id).slice(0,7);
+    const documents = detailData?.dokumen ? [detailData.dokumen] : [];
+    const days = computeTotalDays(detailData?.startDate, detailData?.endDate);
 
     const handleOpenModal = (type: "approve" | "reject") => {
         if (!catatan.trim()) {
@@ -92,11 +101,11 @@ export default function CutiShowsDetail({ id }: { id: string }) {
     };
 
     const handleConfirmAction = () => {
-        if (!data || !actionType) return;
+        if (!detailData || !actionType) return;
 
         const mutateFn = actionType === "approve" ? approveCuti : rejectCuti;
         mutateFn.mutate(
-            {id: data.id, catatan},
+            {id: detailData.id, catatan},
             {
                 onSuccess: () => {
                     toast.custom(
@@ -142,6 +151,96 @@ export default function CutiShowsDetail({ id }: { id: string }) {
         }
     };
 
+    if (isDetailLoading || isHistoryLoading) {
+        return <CutiSkeletonDetail />;
+    }
+
+    if (!detailData) {
+        const noFetchedData = (
+            <div className="flex flex-col gap-6 w-full pb-8">
+                <button
+                    onClick={() => router.back()}
+                    className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                >
+                    <Image 
+                        src={icons.arrowLeftActive}
+                        alt="Back Arrow"
+                        width={20}
+                        height={20}
+                    />
+                    <p className="text-(--color-surface)">
+                        Kembali ke halaman sebelumnya
+                    </p>
+                </button>
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md px-6 py-12 border border-(--color-border) flex flex-col gap-6">
+                    <div className="flex flex-col items-center justify-between gap-4">
+                        <Image
+                            src={logo.notFound}
+                            width={240}
+                            height={240}
+                            alt="Not Found Data"
+                        />
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                Detail Cuti Tidak Ditemukan
+                            </h1>
+                            <span className="text-sm text-(--color-primary)">Mohon mengecek kembali detail absensi nanti</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return noFetchedData;
+    };
+
+    if (detailError) {
+        const errorFetchedData = (
+            <div className="flex flex-col gap-6 w-full pb-8">
+                <button
+                    onClick={() => router.back()}
+                    className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                >
+                    <Image 
+                        src={icons.arrowLeftActive}
+                        alt="Back Arrow"
+                        width={20}
+                        height={20}
+                    />
+                    <p className="text-(--color-surface)">
+                        Kembali ke halaman sebelumnya
+                    </p>
+                </button>
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md px-6 py-12 border border-(--color-border) flex flex-col gap-6">
+                    <div className="flex flex-col items-center justify-between gap-4">
+                        <Image
+                            src={logo.error}
+                            width={240}
+                            height={240}
+                            alt="Not Found Data"
+                        />
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                {detailError.message ? detailError.message : "Terdapat kendala pada sistem"}
+                            </h1>
+                            <span className="text-sm text-(--color-primary)">Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return errorFetchedData;
+    };
+
+    if (historyError) {
+        return <div className="text-center text-red-500">Terjadi kesalahan.</div>;
+    }
+
+    if (!historyData) {
+        return <div className="text-center text-red-500">Data tidak ditemukan.</div>;
+    }
+
     return (
         <div className="flex flex-col gap-6 w-full pb-8">
             <button
@@ -165,7 +264,7 @@ export default function CutiShowsDetail({ id }: { id: string }) {
                         Detail Cuti
                     </h1>
                 </div>
-                <span className="text-sm text-(--color-muted)">{data.id}</span>
+                <span className="text-sm text-(--color-muted)">{detailData.id}</span>
             </div>
 
             <div className="w-full bg-(--color-surface) rounded-2xl shadow-md p-6 border border-(--color-border) flex flex-col gap-6">
@@ -173,7 +272,7 @@ export default function CutiShowsDetail({ id }: { id: string }) {
                     <div className="w-full md:w-1/2 flex flex-col items-center text-center gap-4">
                         <div className="relative w-full h-96 aspect-square bg-[--color-tertiary] rounded-xl overflow-hidden">
                             <Image
-                                src={photo.profilePlaceholder}
+                                src={previewPhoto || icons.userProfile}
                                 alt="Gambar"
                                 fill
                                 className="object-cover"
@@ -181,10 +280,10 @@ export default function CutiShowsDetail({ id }: { id: string }) {
                         </div>
                         <div>
                             <h2 className="text-lg font-semibold text-(--color-text-primary)">
-                                {data.user.name}
+                                {detailData.user.name}
                             </h2>
                             <p className="text-sm text-(--color-text-secondary)">
-                                {data.user.minorRole}
+                                {detailData.user.minorRole}
                             </p>
                         </div>
                     </div>
@@ -195,10 +294,10 @@ export default function CutiShowsDetail({ id }: { id: string }) {
                             <span
                                 className={`px-3 py-2 text-xs font-semibold rounded-lg uppercase text-center w-full
                                 ${getStatusColor(
-                                    data
+                                    detailData
                                 )}`}
                             >
-                                {data.status}
+                                {detailData.status}
                             </span>
 
                             <div className="w-full gap-2 flex flex-col">
@@ -208,7 +307,7 @@ export default function CutiShowsDetail({ id }: { id: string }) {
                                 <div
                                     className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                 >
-                                    {data.startDate ? format(new Date(data.startDate), "dd MMM yyyy") : "-"}
+                                    {detailData.startDate ? format(new Date(detailData.startDate), "dd MMM yyyy") : "-"}
                                 </div>
                             </div>
 
@@ -219,7 +318,7 @@ export default function CutiShowsDetail({ id }: { id: string }) {
                                 <div
                                     className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                 >
-                                    {data.endDate ? format(new Date(data.endDate), "dd MMM yyyy") : "-"}
+                                    {detailData.endDate ? format(new Date(detailData.endDate), "dd MMM yyyy") : "-"}
                                 </div>
                             </div>
 
@@ -230,7 +329,7 @@ export default function CutiShowsDetail({ id }: { id: string }) {
                                 <div
                                     className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                 >
-                                    {data.reason}
+                                    {detailData.reason}
                                 </div>
                             </div>
 
@@ -311,36 +410,62 @@ export default function CutiShowsDetail({ id }: { id: string }) {
                             </div>
                         ))
                     ) : (
-                        <div className="text-center text-(--color-muted) py-6">
-                            Belum ada dokumen.
+                        <div className="text-center text-(--color-muted) py-6 italic">
+                            Belum ada dokumen / lampiran pendukung.
                         </div>
                     )}
                 </div>
-                <div className="mt-6 border-t border-(--color-border) pt-6">
-                    <h2 className="text-lg font-semibold text-(--color-text-primary) mb-4">
-                        Form Persetujuan Cuti
-                    </h2>
-                    <form className="space-y-5">
-                        <div>
-                            <label
-                                htmlFor="catatan"
-                                className="block mb-2 text-sm font-medium text-(--color-text-secondary)"
-                            >
-                                Catatan <span className="text-(--color-primary)">*</span>
-                            </label>
-                            <textarea
-                                name="notes"
-                                id="catatan"
-                                onChange={(e) => setCatatan(e.target.value)}
-                                className="w-full p-2.5 border border-(--color-border) rounded-lg  text-(--color-text-primary) focus:ring-2 focus:ring-(--color-primary) focus:outline-none transition-all"
-                                placeholder="Anda diperbolehkan untuk cuti, jika ...."
-                                required
-                            />
-                        </div>
-                    </form>
-                </div>
+                {detailData.status === CutiStatus.MENUNGGU ? (
+                    <div className="mt-6 border-t border-(--color-border) pt-6">
+                        <h2 className="text-lg font-semibold text-(--color-text-primary) mb-4">
+                            Form Persetujuan Cuti
+                        </h2>
+                        <form className="space-y-5">
+                            <div>
+                                <label
+                                    htmlFor="catatan"
+                                    className="block mb-2 text-sm font-medium text-(--color-text-secondary)"
+                                >
+                                    Catatan <span className="text-(--color-primary)">*</span>
+                                </label>
+                                <textarea
+                                    name="notes"
+                                    id="catatan"
+                                    onChange={(e) => setCatatan(e.target.value)}
+                                    className="w-full p-2.5 border border-(--color-border) rounded-lg  text-(--color-text-primary) focus:ring-2 focus:ring-(--color-primary) focus:outline-none transition-all"
+                                    placeholder="Anda diperbolehkan untuk cuti, jika ...."
+                                    required
+                                />
+                            </div>
+                        </form>
+                    </div>
+                ) : (
+                    <div className="mt-6 border-t border-(--color-border) pt-6">
+                        <h2 className="text-lg font-semibold text-(--color-text-primary) mb-4">
+                            Form Persetujuan Cuti
+                        </h2>
+                        <form className="space-y-5">
+                            <div>
+                                <label
+                                    htmlFor="catatan"
+                                    className="block mb-2 text-sm font-medium text-(--color-text-secondary)"
+                                >
+                                    Catatan
+                                </label>
+                                <textarea
+                                    name="notes"
+                                    id="catatan"
+                                    onChange={(e) => setCatatan(e.target.value)}
+                                    value={detailData.catatan ? detailData.catatan : "-"}
+                                    className="w-full p-2.5 border border-(--color-border) rounded-lg bg-(--color-muted)/30 text-(--color-text-primary) focus:ring-2 focus:ring-(--color-primary) focus:outline-none transition-all"
+                                    disabled
+                                />
+                            </div>
+                        </form>
+                    </div>
+                )}
                 <div className="flex flex-row justify-end items-center gap-4">
-                    {data.status === CutiStatus.MENUNGGU && (
+                    {detailData.status === CutiStatus.MENUNGGU && (
                         <div className="flex justify-between gap-3">
                             <button
                                 onClick={() => handleOpenModal("approve")}
@@ -435,7 +560,7 @@ export default function CutiShowsDetail({ id }: { id: string }) {
                             </div>
                         ))
                     ) : (
-                        <div className="text-center text-(--color-muted) py-6">
+                        <div className="text-center text-(--color-muted) py-6 italic">
                             Belum ada riwayat cuti lainnya.
                         </div>
                     )}

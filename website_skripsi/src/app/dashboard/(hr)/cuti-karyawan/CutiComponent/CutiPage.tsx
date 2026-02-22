@@ -1,21 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
+import CutiData from "./CutiData";
 import CutiShows from "./CutiShows";
-
+import { motion } from "framer-motion";
 
 const CutiPage = () => {
     const renderHtml = (
         <div className="flex flex-col gap-4 pb-8 w-full">
-            {/* <div className="grid grid-cols-2">
-                <TableModal />
-            </div> */}
-            <div className="w-full bg-white rounded-2xl shadow-sm p-4 border border-slate-200">
+            <div className="w-full">
+                <CutiData />
+            </div>
+            <motion.div
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-all relative"
+            >
                 <div className="flex flex-col gap-4">
                     <CutiShows showButton={true} buttonText="Butuh Peninjauan Cuti" />
                 </div>
-            </div>
+            </motion.div>
         </div>
     )
 

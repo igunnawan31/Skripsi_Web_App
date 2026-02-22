@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/PaginationBar";
 import { CutiStatus } from "@/app/lib/types/types";
 import { useSearchParams, useRouter } from "next/navigation";
 import { CutiRequestProps } from "@/app/props/HRProps/cutiProps";
 import { useCuti } from "@/app/lib/hooks/cuti/useCuti";
 import FilterModal from "@/app/dashboard/dashboardComponents/allComponents/FilterModal";
-import { format, min, parseISO } from "date-fns";
-import { icons } from "@/app/lib/assets/assets";
+import { format, parseISO } from "date-fns";
+import { icons, logo } from "@/app/lib/assets/assets";
 import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
 import Image from "next/image";
 
@@ -96,8 +96,25 @@ const CutiShows: React.FC<CutiRequestProps> = ({
     };
 
     if (error) {
-        return <div className="text-center text-red-500 py-6">Error: {error.message}</div>;
-    }
+        const errorRender = (
+            <div className="flex flex-col items-center justify-between gap-4 py-4">
+                <Image
+                    src={logo.error}
+                    width={240}
+                    height={240}
+                    alt="Not Found Data"
+                />
+                <div className="flex flex-col items-center">
+                    <h1 className="text-2xl font-bold text-(--color-primary)">
+                        {error.message ? error.message : "Terdapat kendala pada sistem"}
+                    </h1>
+                    <span className="text-sm text-(--color-primary)">Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki</span>
+                </div>
+            </div>
+        );
+
+        return errorRender;
+    };
 
     return (
         <div className="flex flex-col gap-4 w-full relative">
@@ -191,7 +208,10 @@ const CutiShows: React.FC<CutiRequestProps> = ({
             {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {Array.from({ length: itemsPerPage }).map((_, i) => (
-                        <div key={i} className="animate-pulse w-full bg-slate-200 h-48 rounded-xl" />
+                        <div
+                            key={i}
+                            className="animate-pulse w-full bg-slate-200 h-48 rounded-xl"
+                        ></div>
                     ))}
                 </div>
             ) : cuti.length > 0 ? (
@@ -251,7 +271,7 @@ const CutiShows: React.FC<CutiRequestProps> = ({
                                         <div className="flex justify-between items-center">
                                             <p className="text-sm text-(--color-text-secondary)">Diajukan tanggal:</p>
                                             <span
-                                                className={"px-3 py-1 text-xs font-semibold rounded-lg uppercase text-center w-fit"}
+                                                className={"py-1 text-xs font-semibold rounded-lg uppercase text-center w-fit"}
                                             >
                                                 {ct.createdAt ? format(new Date(ct.createdAt), "dd MMM yyyy") : "-"}
                                             </span>
@@ -276,10 +296,23 @@ const CutiShows: React.FC<CutiRequestProps> = ({
                     })}
                 </div>
             ) : (
-                <p className="text-center text-gray-500 py-6">Tidak ada data cuti sesuai filter.</p>
+                <div className="flex flex-col items-center justify-between gap-4 py-4">
+                    <Image
+                        src={logo.notFound}
+                        width={120}
+                        height={120}
+                        alt="Not Found Data"
+                    />
+                    <div className="flex flex-col items-center">
+                        <h1 className="text-xl font-bold text-(--color-text-primary)">
+                            Pencarian Nama Karyawan Tidak Ditemukan
+                        </h1>
+                        <span className="text-sm text-(--color-muted)">Ubah hasil pencarian kamu</span>
+                    </div>
+                </div>
             )}
 
-            {cuti.length > 0 && !isLoading && (
+            {cuti.length > 10 && !isLoading && (
                 <div className="mt-6">
                     <PaginationBar
                         totalItems={totalItems}

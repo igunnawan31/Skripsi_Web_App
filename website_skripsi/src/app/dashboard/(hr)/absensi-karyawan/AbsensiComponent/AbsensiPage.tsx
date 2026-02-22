@@ -15,7 +15,7 @@ const AbsensiKaryawanPage = () => {
     );
 
     return (
-        <div className="flex flex-col gap-4 w-full">
+        <div className="flex flex-col gap-4 pb-8 w-full">
             <div className="w-full">
                 <AbsensiData selectedDate={selectedDate} />
             </div>

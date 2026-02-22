@@ -3,7 +3,6 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/PaginationBar";
-import { Absensi, MinorRole } from "@/app/lib/types/types";
 import { AbsensiRequestProps } from "@/app/props/HRProps/AbsensiProps";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAbsensi } from "@/app/lib/hooks/absensi/useAbsensi";
@@ -12,7 +11,7 @@ import Image from "next/image";
 import { icons, logo } from "@/app/lib/assets/assets";
 import FilterModal from "@/app/dashboard/dashboardComponents/allComponents/FilterModal";
 import { format } from "date-fns";
-import { fromZonedTime, toZonedTime } from "date-fns-tz";
+import { toZonedTime } from "date-fns-tz";
 
 const AbsensiShows: React.FC<AbsensiRequestProps & { externalDate?: string, onDateChange?: (d: string) => void }> = ({
     showButton = false,
@@ -29,7 +28,6 @@ const AbsensiShows: React.FC<AbsensiRequestProps & { externalDate?: string, onDa
     const today = new Date().toISOString().split("T")[0];
 
     const selectedDate = externalDate || today;
-    const [selectedMinorRole, setSelectedMinorRole] = useState<string>(searchParams.get("minorRole") || "All");
     const [searchQuery, setSearchQuery] = useState<string>(searchParams.get("searchTerm") || "");
 
     const [isFilterOpen, setIsFilterOpen] = useState(false);

@@ -1,9 +1,9 @@
 import PenilaianIndikatorPage from "./PenilaianKinerjaKaryawan.tsx/PenilaianIndikatorPage";
 
-const ManajemenIndikatorKinerjaKaryawanPage = () => {
+const PenilaianIndikatorKinerjaKaryawanPage = () => {
     return (
         <PenilaianIndikatorPage />
     )
 }
 
-export default ManajemenIndikatorKinerjaKaryawanPage;
+export default PenilaianIndikatorKinerjaKaryawanPage;
