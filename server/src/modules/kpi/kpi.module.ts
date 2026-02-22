@@ -28,10 +28,20 @@ import { CreateEvaluationsUseCase } from './application/use-cases/indikator/crea
 import { UsersModule } from '../users/users.module';
 import { CreateIndikatorRecapUseCase } from './application/use-cases/rekap/create.use-case';
 import { UpdateStatusIndikatorUseCase } from './application/use-cases/indikator/update-status.use-case';
+import { JawabanSubmittedListener } from './infrastructure/listeners/jawaban-submitted.listener';
+import { GetAllIndikatorRekapUseCase } from './application/use-cases/rekap/get.use-case';
+import { IndikatorRekapController } from './presentation/rekap.controller';
+import { RekapRepository } from './infrastructure/persistence/rekap.repository';
+import { IRekapRepository } from './domain/repositories/rekap.repository.interface';
 
 @Module({
   imports: [UsersModule],
-  controllers: [IndicatorController, JawabanController, PertanyaanController],
+  controllers: [
+    IndicatorController,
+    JawabanController,
+    PertanyaanController,
+    IndikatorRekapController,
+  ],
   providers: [
     CreateIndikatorUseCase,
     CreateEvaluationsUseCase,
@@ -52,9 +62,12 @@ import { UpdateStatusIndikatorUseCase } from './application/use-cases/indikator/
     GetPertanyaanUseCase,
     UpdatePertanyaanUseCase,
     DateUtilService,
+    JawabanSubmittedListener,
+    GetAllIndikatorRekapUseCase,
     { provide: IIndikatorRepository, useClass: IndikatorRepository },
     { provide: IJawabanRepository, useClass: JawabanRepository },
     { provide: IPertanyaanRepository, useClass: PertanyaanRepository },
+    { provide: IRekapRepository, useClass: RekapRepository },
   ],
 })
-export class KpiModule { }
+export class KpiModule {}

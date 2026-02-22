@@ -2,6 +2,9 @@ import { Expose } from "class-transformer";
 
 export class RekapKPIBaseDTO {
   @Expose()
+  id: string;
+
+  @Expose()
   indikatorId: string;
 
   @Expose()

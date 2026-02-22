@@ -13,6 +13,8 @@ import {
 } from '../../dtos/request/jawaban/create-answer.dto';
 import { UserRequest } from 'src/common/types/UserRequest.dto';
 import { IPertanyaanRepository } from 'src/modules/kpi/domain/repositories/pertanyaan.repository.interface';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { JawabanSubmitEvent } from '../../events/jawaban.events';
 
 @Injectable()
 export class CreateJawabanUseCase {
@@ -22,6 +24,7 @@ export class CreateJawabanUseCase {
     @Inject(IPertanyaanRepository)
     private readonly pertanyaanRepo: IPertanyaanRepository,
     private readonly logger: LoggerService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async execute(
@@ -29,6 +32,16 @@ export class CreateJawabanUseCase {
     user: UserRequest,
   ): Promise<CreateJawabanResponseDTO[]> {
     try {
+      const { evaluateeId, indikatorId } = data[0];
+      const isConsistent = data.every(
+        (item) =>
+          item.evaluateeId === evaluateeId && item.indikatorId === indikatorId,
+      );
+      if (!isConsistent)
+        throw new BadRequestException(
+          `Semua jawaban harus memiliki evaluateeId dan indikatorId yang sama`,
+        );
+
       const pertanyaanIds = data.map((item) => item.pertanyaanId);
 
       // 1 query untuk semua pertanyaan
@@ -47,7 +60,10 @@ export class CreateJawabanUseCase {
         pertanyaanId: item.pertanyaanId,
         evaluateeId: item.evaluateeId,
       }));
-      const existingAnswers = await this.jawabanRepo.findManyUnique(pairs, user.id);
+      const existingAnswers = await this.jawabanRepo.findManyUnique(
+        pairs,
+        user.id,
+      );
 
       // Buat set dari kombinasi yang sudah ada
       const existingSet = new Set(
@@ -71,7 +87,12 @@ export class CreateJawabanUseCase {
         nilai: item.nilai * questionMap.get(item.pertanyaanId)!.bobot,
       }));
 
-      return await this.jawabanRepo.createMany(payloads);
+      const jawaban = await this.jawabanRepo.createMany(payloads);
+      this.eventEmitter.emit(
+        'jawaban.submitted',
+        new JawabanSubmitEvent(indikatorId, evaluateeId),
+      );
+      return jawaban;
     } catch (err) {
       this.logger.error(err, 'CreateJawabanUseCase');
       throw err;

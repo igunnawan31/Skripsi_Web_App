@@ -1,4 +1,5 @@
-import { IsNumber, IsOptional } from 'class-validator';
+import { OmitType } from '@nestjs/mapped-types';
+import { IsDate, IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
 import { FilterDTO } from 'src/common/types/Filter.dto';
 
 export class RekapFilterDTO extends FilterDTO {
@@ -17,4 +18,27 @@ export class RekapFilterDTO extends FilterDTO {
   @IsOptional()
   @IsNumber()
   maxRataRata?: number;
+
+  @IsOptional()
+  @IsDateString()
+  minCreatedAt?: string;
+
+
+  @IsOptional()
+  @IsDateString()
+  maxCreatedAt?: string;
+}
+
+export class InternalRekapFilterDTO extends OmitType(RekapFilterDTO, ['minCreatedAt', 'maxCreatedAt']) {
+  @IsString()
+  @IsOptional()
+  userId?: string;
+
+  @IsDate()
+  @IsOptional()
+  minCreatedAt?: Date;
+
+  @IsDate()
+  @IsOptional()
+  maxCreatedAt?: Date;
 }
