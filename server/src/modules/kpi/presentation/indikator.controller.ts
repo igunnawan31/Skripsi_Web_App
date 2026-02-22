@@ -28,7 +28,6 @@ import { UpdateIndikatorDTO } from '../application/dtos/request/indikator/update
 import { GetAllPertanyaanIndikatorUseCase } from '../application/use-cases/pertanyaan/get-all-pertanyaan-indikator.use-case';
 import { PertanyaanFilterDTO } from '../application/dtos/request/pertanyaan/filter-question.dto';
 import { CreateEvaluationsUseCase } from '../application/use-cases/indikator/create-eval.use-case';
-import { CreateIndikatorRecapUseCase } from '../application/use-cases/rekap/create.use-case';
 import { StatusIndikatorKPI } from '@prisma/client';
 import { UpdateStatusIndikatorUseCase } from '../application/use-cases/indikator/update-status.use-case';
 
@@ -45,7 +44,6 @@ export class IndicatorController {
     private readonly updateIndicatorUseCase: UpdateIndikatorUseCase,
     private readonly updateStatusIndicatorUseCase: UpdateStatusIndikatorUseCase,
     private readonly getAllPertanyaanIndikatorUseCase: GetAllPertanyaanIndikatorUseCase,
-    private readonly createIndikatorRecapUseCase: CreateIndikatorRecapUseCase,
   ) { }
 
   @Get()
@@ -64,18 +62,6 @@ export class IndicatorController {
     return this.getAllPertanyaanIndikatorUseCase.execute(
       indikatorId,
       filters,
-      req.user,
-    );
-  }
-  @Get('/:id/recap')
-  getRekap(
-    @Param('id') indikatorId: string,
-    @Body('userId') userId: string,
-    @Req() req: Request & { user: UserRequest },
-  ) {
-    return this.createIndikatorRecapUseCase.execute(
-      indikatorId,
-      userId,
       req.user,
     );
   }

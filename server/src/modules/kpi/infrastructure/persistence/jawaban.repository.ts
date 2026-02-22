@@ -202,12 +202,16 @@ export class JawabanRepository implements IJawabanRepository {
       handlePrismaError(err, 'Jawaban', '', this.logger);
     }
   }
-  async getAllByIndicatorId(
-    id: string,
+  async getAllByIndicatorIdAndEvaluateeId(
+    indikatorId: string,
+    evaluateeId: string,
   ): Promise<RetrieveJawabanResponseDTO[] | null> {
     try {
       const answers = await this.prisma.jawabanKPI.findMany({
-        where: { indikatorId: id },
+        where: { 
+          indikatorId: indikatorId, 
+          evaluateeId: evaluateeId,
+        },
         include: {
           evaluator: true,
         },

@@ -1,20 +1,12 @@
-import { Expose } from "class-transformer";
-import { RekapKPIBaseDTO } from "../../rekapKPI.dto";
-import { IndikatorKPIBaseDTO } from "../../indikatorKPI.dto";
-import { UserBaseDTO } from "src/modules/users/application/dtos/base.dto";
-import { meta } from "src/common/types/QueryMeta.dto";
+import { Expose } from 'class-transformer';
+import { meta } from 'src/common/types/QueryMeta.dto';
+import { CreateIndikatorRekapResponseDTO } from './create-response.dto';
 
-export class RetrieveRekapDTO extends RekapKPIBaseDTO {
-  @Expose()
-  indikator: IndikatorKPIBaseDTO;
+export class RetrieveIndikatorRekapResponseDTO extends CreateIndikatorRekapResponseDTO {}
 
+export class RetrieveAllIndikatorRekapResponseDTO {
   @Expose()
-  user: UserBaseDTO;
-}
-
-export class RetrieveAllRekapDTO {
-  @Expose()
-  data: RetrieveRekapDTO[];
+  data: RetrieveIndikatorRekapResponseDTO[];
 
   @Expose()
   meta: meta;

@@ -20,8 +20,9 @@ export abstract class IJawabanRepository {
     pairs: { pertanyaanId: string; evaluateeId: string }[],
     evaluatorId: string,
   ): Promise<RetrieveJawabanResponseDTO[]>;
-  abstract getAllByIndicatorId(
-    id: string,
+  abstract getAllByIndicatorIdAndEvaluateeId(
+    indikatorId: string,
+    evaluateeId: string,
   ): Promise<RetrieveJawabanResponseDTO[] | null>;
   abstract create(data: InternalCreateJawabanDTO): Promise<CreateJawabanResponseDTO>;
   abstract createMany(
