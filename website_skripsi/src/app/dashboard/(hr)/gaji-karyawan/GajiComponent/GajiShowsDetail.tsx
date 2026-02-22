@@ -4,19 +4,20 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useGaji } from "@/app/lib/hooks/gaji/useGaji";
 import { PaySalary, SalaryResponse, SalaryStatus } from "@/app/lib/types/gaji/gajiTypes";
-import { icons, photo } from "@/app/lib/assets/assets";
+import { icons, logo, photo } from "@/app/lib/assets/assets";
 import { fetchFileBlob } from "@/app/lib/path";
 import toast from "react-hot-toast";
 import CustomToast from "@/app/rootComponents/CustomToast";
 import Image from "next/image";
 import { format } from "date-fns";
 import ConfirmationPopUpModal from "@/app/dashboard/dashboardComponents/allComponents/ConfirmationPopUpModal";
+import GajiSkeletonDetail from "./GajiSkeletonDetail";
 
 export default function GajiShowsDetail({ id }: { id: string }) {
     const salary = useGaji();
     const router = useRouter();
     
-    const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+    const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { mutate, isPending } = useGaji().paySalary();
 
@@ -32,28 +33,23 @@ export default function GajiShowsDetail({ id }: { id: string }) {
         paychecks: null,
     });
 
-    const data = detailData;
-    console.log(data);
+    const loadPhoto = async (photoPath: string) => {
+        try {
+            const blob = await fetchFileBlob(photoPath);
+            const reader = new FileReader();
+            reader.onload = () => setPreviewPhoto(reader.result as string);
+            reader.readAsDataURL(blob);
+        } catch (err) {
+            console.error("Load photo error:", err);
+            setPreviewPhoto(null);
+        }
+    };
 
     useEffect(() => {
-        const loadPhoto = async () => {
-            try {
-                if (!data?.user?.photo?.path) return;
-
-                const blob = await fetchFileBlob(data.user.photo.path);
-                const url = URL.createObjectURL(blob);
-                setPhotoUrl(url);
-            } catch {
-                toast.custom(<CustomToast type="error" message="Gagal memuat foto user" />);
-            }
-        };
-
-        loadPhoto();
-
-        return () => {
-            if (photoUrl) URL.revokeObjectURL(photoUrl);
-        };
-    }, [data?.user?.photo?.path]);
+        if (detailData?.user?.photo?.path) {
+            loadPhoto(detailData.user?.photo.path);
+        }
+    }, [detailData?.user?.photo?.path]);
 
     const handleDownloadFile = (index: number) => {
         const file = documentFiles[index];
@@ -213,11 +209,11 @@ export default function GajiShowsDetail({ id }: { id: string }) {
 
     useEffect(() => {
         const loadData = async () => {
-            if (!data?.paychecks || data.paychecks.length === 0) return;
+            if (!detailData?.paychecks || detailData.paychecks.length === 0) return;
 
             try {
                 const loadedFiles = await Promise.all(
-                    data.paychecks.map(async (doc: any) => {
+                    detailData.paychecks.map(async (doc: any) => {
                         const blob = await fetchFileBlob(doc.path);
                         return new File([blob], doc.originalname || "document", {
                             type: doc.mimetype,
@@ -233,19 +229,90 @@ export default function GajiShowsDetail({ id }: { id: string }) {
         };
 
         loadData();
-    }, [data?.paychecks]);
+    }, [detailData?.paychecks]);
 
     if (isDetailLoading) {
-        return <div className="text-center text-(--color-muted)">Memuat data...</div>;
-    }
-
-    if (detailError) {
-        return <div className="text-center text-red-500">Terjadi kesalahan.</div>;
+        return <GajiSkeletonDetail />;
     }
 
     if (!detailData) {
-        return <div className="text-center text-red-500">Data tidak ditemukan.</div>;
-    }
+        const noFetchedData = (
+            <div className="flex flex-col gap-6 w-full pb-8">
+                <button
+                    onClick={() => router.back()}
+                    className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                >
+                    <Image 
+                        src={icons.arrowLeftActive}
+                        alt="Back Arrow"
+                        width={20}
+                        height={20}
+                    />
+                    <p className="text-(--color-surface)">
+                        Kembali ke halaman sebelumnya
+                    </p>
+                </button>
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md px-6 py-12 border border-(--color-border) flex flex-col gap-6">
+                    <div className="flex flex-col items-center justify-between gap-4">
+                        <Image
+                            src={logo.notFound}
+                            width={240}
+                            height={240}
+                            alt="Not Found Data"
+                        />
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                Detail Gaji Tidak Ditemukan
+                            </h1>
+                            <span className="text-sm text-(--color-primary)">Mohon mengecek kembali detail absensi nanti</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return noFetchedData;
+    };
+
+    if (detailError) {
+        const errorFetchedData = (
+            <div className="flex flex-col gap-6 w-full pb-8">
+                <button
+                    onClick={() => router.back()}
+                    className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                >
+                    <Image 
+                        src={icons.arrowLeftActive}
+                        alt="Back Arrow"
+                        width={20}
+                        height={20}
+                    />
+                    <p className="text-(--color-surface)">
+                        Kembali ke halaman sebelumnya
+                    </p>
+                </button>
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md px-6 py-12 border border-(--color-border) flex flex-col gap-6">
+                    <div className="flex flex-col items-center justify-between gap-4">
+                        <Image
+                            src={logo.error}
+                            width={240}
+                            height={240}
+                            alt="Not Found Data"
+                        />
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                {detailError.message ? detailError.message : "Terdapat kendala pada sistem"}
+                            </h1>
+                            <span className="text-sm text-(--color-primary)">Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return errorFetchedData;
+    };
+
 
     return (
         <div className="flex flex-col gap-6 w-full pb-8">
@@ -267,37 +334,30 @@ export default function GajiShowsDetail({ id }: { id: string }) {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-row gap-4 items-center">
                     <h1 className="text-2xl font-bold text-(--color-text-primary)">
-                        Detail Gaji - {data.user.name}
+                        Detail Gaji - {detailData.user.name}
                     </h1>
                 </div>
-                <span className="text-sm text-(--color-muted)">{data.id}</span>
+                <span className="text-sm text-(--color-muted)">{detailData.id}</span>
             </div>
 
             <div className="w-full bg-(--color-surface) rounded-2xl shadow-md p-6 border border-(--color-border) flex flex-col gap-6">
                 <div className="flex flex-col md:flex-row items-start gap-6">
                     <div className="w-full md:w-1/2 flex flex-col items-center text-center gap-4">
                         <div className="relative w-full h-96 aspect-square bg-[--color-tertiary] rounded-xl overflow-hidden">
-                            {photoUrl ? (
-                                <Image
-                                    src={photoUrl}
-                                    alt="Foto Karyawan"
-                                    fill
-                                    unoptimized
-                                    className="object-cover"
-                                />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-sm text-gray-400">
-                                    No Photo
-                                </div>
-                            )}
+                            <Image
+                                src={previewPhoto || icons.userProfile}
+                                alt="Gambar"
+                                fill
+                                className="object-cover"
+                            />
                         </div>
 
                         <div>
                             <h2 className="text-lg font-semibold text-(--color-text-primary)">
-                                {data.user.name}
+                                {detailData.user.name}
                             </h2>
                             <p className="text-sm text-(--color-text-secondary)">
-                                {data.user.minorRole}
+                                {detailData.user.minorRole}
                             </p>
                         </div>
                     </div>
@@ -308,10 +368,10 @@ export default function GajiShowsDetail({ id }: { id: string }) {
                             <span
                                 className={`px-3 py-2 text-xs font-semibold rounded-lg uppercase text-center w-full
                                 ${getStatusColor(
-                                    data
+                                    detailData
                                 )}`}
                             >
-                                {getStatusReal(data)}
+                                {getStatusReal(detailData)}
                             </span>
 
                             <div className="w-full gap-2 flex flex-col">
@@ -321,7 +381,7 @@ export default function GajiShowsDetail({ id }: { id: string }) {
                                 <div
                                     className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                 >
-                                    {data.dueDate ? format(new Date(data.dueDate), "dd MMMMMMM yyyy") : "-"}
+                                    {detailData.dueDate ? format(new Date(detailData.dueDate), "dd MMMMMMM yyyy") : "-"}
                                 </div>
                             </div>
 
@@ -332,14 +392,14 @@ export default function GajiShowsDetail({ id }: { id: string }) {
                                 <div
                                     className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                 >
-                                    {data.amount.toLocaleString("id-ID", {
+                                    {detailData.amount.toLocaleString("id-ID", {
                                         style: "currency",
                                         currency: "IDR",
                                     })}
                                 </div>
                             </div>
                             
-                            {data.paymentDate && (
+                            {detailData.paymentDate && (
                                 <div className="w-full gap-2 flex flex-col">
                                     <label className="text-sm font-medium text-gray-600 mb-1">
                                         Tanggal Pembayaran
@@ -347,7 +407,7 @@ export default function GajiShowsDetail({ id }: { id: string }) {
                                     <div
                                         className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                     >
-                                        {data.paymentDate ? format(new Date(data.paymentDate), "dd MMM yyyy") : "-"}
+                                        {detailData.paymentDate ? format(new Date(detailData.paymentDate), "dd MMM yyyy") : "-"}
                                     </div>
                                 </div>
                             )}
@@ -359,7 +419,7 @@ export default function GajiShowsDetail({ id }: { id: string }) {
                         Form Pembayaran
                     </h2>
                     <form onSubmit={handleSubmit} className="space-y-5">
-                        <div>
+                        {/* <div>
                             <label
                                 htmlFor="jumlah"
                                 className="block mb-2 text-sm font-medium text-(--color-text-secondary)"
@@ -369,20 +429,20 @@ export default function GajiShowsDetail({ id }: { id: string }) {
                             <input
                                 type="text"
                                 disabled
-                                value={data.amount.toLocaleString("id-ID", {
+                                value={detailData.amount.toLocaleString("id-ID", {
                                     style: "currency",
                                     currency: "IDR",
                                 })}
                                 className="w-full border border-(--color-border) rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 bg-(--color-muted)/30"
                             />
-                        </div>
+                        </div> */}
 
                         <div>
                             <label
                                 htmlFor="buktiPembayaran"
                                 className="block mb-2 text-sm font-medium text-(--color-text-secondary)"
                             >
-                                Upload Bukti Pembayaran (jpg/png/pdf)
+                                Upload Bukti Pembayaran (jpg/png/pdf) <span className="text-(--color-primary)">*</span>
                             </label>
                                 {documentFiles.length > 0 ? (
                                     documentFiles.map((file, index) => (
@@ -409,7 +469,7 @@ export default function GajiShowsDetail({ id }: { id: string }) {
                                                 </div>
                                             </div>
                                             <div className="flex justify-center items-center gap-4">
-                                                {data.status !== SalaryStatus.PAID && (
+                                                {detailData.status !== SalaryStatus.PAID && (
                                                     <>
                                                         <input
                                                             type="file"
@@ -479,7 +539,7 @@ export default function GajiShowsDetail({ id }: { id: string }) {
                                     </div>
                                 </div>
                             )}
-                            {data.status !== SalaryStatus.PAID && (
+                            {detailData.status !== SalaryStatus.PAID && (
                                 <>
                                     <input
                                         type="file"
@@ -497,7 +557,7 @@ export default function GajiShowsDetail({ id }: { id: string }) {
                                 </>
                             )}
                         </div>
-                        {data.status !== SalaryStatus.PAID && (
+                        {detailData.status !== SalaryStatus.PAID && (
                             <div className="flex justify-end gap-4 pt-4">
                                 <button
                                     type="button"

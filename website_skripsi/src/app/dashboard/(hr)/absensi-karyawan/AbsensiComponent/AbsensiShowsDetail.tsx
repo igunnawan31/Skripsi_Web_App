@@ -67,11 +67,10 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
 
     const getFileIcon = (doc: any) => {
         const type = doc?.mimetype;
-        if (!type) return icons.pdfFormat;
-        if (type === "application/pdf") return icons.pdfFormat;
+        if (!type) return icons.imageFormat;
         if (type.startsWith("image/")) return icons.imageFormat;
 
-        return icons.pdfFormat;
+        return icons.imageFormat;
     };
 
     const handlePreview = async (path: string) => {
@@ -325,10 +324,10 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
                                 <div className="flex flex-row gap-4">
                                     <div className="w-20 h-20 bg-(--color-secondary) rounded-lg items-center justify-center relative">
                                         <Image
-                                            src={getFileIcon(pt.photo)}
+                                            src={getFileIcon(pt.type)}
                                             fill
-                                            alt="Format"
-                                            className="object-cover p-4"
+                                            alt="Photo Format"
+                                            className="object-cover p-1 rounded-lg"
                                         />
                                     </div>
                                     <div className="flex flex-col justify-center gap-1">
@@ -355,7 +354,11 @@ export default function AbsensiShowsDetail({ id }: { id: string }) {
                                                     />
                                                 </button>
                                             </div>
-                                            <iframe src={previewUrl} className="w-full h-[90%]" />
+                                            {photos.type === "application/pdf" ? (
+                                                <iframe src={previewUrl} className="w-full h-[90%] object-contain rounded-lg" />
+                                            ) : (
+                                                <img src={previewUrl} className="w-full h-[90%] object-contain rounded-lg" />
+                                            )}
                                         </div>
                                     </div>
                                 )}

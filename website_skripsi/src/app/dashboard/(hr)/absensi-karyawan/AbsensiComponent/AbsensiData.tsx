@@ -61,7 +61,7 @@ const AbsensiData = ({ selectedDate }: { selectedDate: string }) => {
                             {item.value}
                         </h3>
                         {item.id === 4 && item.value > 0 && (
-                            <p className="text-[10px] text-red-500 mt-1 font-medium">⚠️ {item.note} terdeteksi</p>
+                            <p className="text-[10px] text-red-500 mt-1 font-medium">{item.note} terdeteksi</p>
                         )}
                         <p className="text-xs text-slate-500 mt-1">
                             Untuk tanggal {format(new Date(selectedDate), "dd MMM yyyy")}

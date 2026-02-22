@@ -5,21 +5,20 @@ import React, { useEffect, useState } from "react";
 import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/PaginationBar";
 import { useSearchParams, useRouter } from "next/navigation";
 import { GajiRequestProps } from "@/app/props/HRProps/GajiProps";
-import { Gaji, GajiStatus } from "@/app/lib/types/types";
-import { fetchGaji } from "@/app/lib/hooks/dummyHooks/fetchGaji";
-import FilterBar from "@/app/dashboard/dashboardComponents/allComponents/FilterBar";
 import { useGaji } from "@/app/lib/hooks/gaji/useGaji";
 import { SalaryResponse, SalaryStatus } from "@/app/lib/types/gaji/gajiTypes";
 import FilterModal from "@/app/dashboard/dashboardComponents/allComponents/FilterModal";
 import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
 import Image from "next/image";
-import { icons } from "@/app/lib/assets/assets";
+import { icons, logo } from "@/app/lib/assets/assets";
 import { format } from "date-fns";
 
-const GajiShows: React.FC<GajiRequestProps> = ({
+const GajiShows: React.FC<GajiRequestProps & { externalBulan?: string, onBulanChange?: (d: string) => void }> = ({
     showButton = false,
     buttonText = "Aksi",
     onButtonClick,
+    externalBulan,
+    onBulanChange
 }) => {
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -33,7 +32,7 @@ const GajiShows: React.FC<GajiRequestProps> = ({
     const [selectedStatus, setSelectedStatus] = useState<string>(searchParams.get("status") || "All");
     const [selectedMinDueDate, setSelectedMinDueDate] = useState<string>(searchParams.get("minDueDate") || today);
     const [selectedMaxDueDate, setSelectedMaxDueDate] = useState<string>(searchParams.get("minDueDate") || today);
-    const [selectedBulan, setSelectedBulan] = useState<string>(searchParams.get("bulan") || currentYearMonth);
+    const selectedBulan = externalBulan || currentYearMonth;
     const [searchQuery, setSearchQuery] = useState<string>(searchParams.get("searchTerm") || "");
 
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -70,15 +69,38 @@ const GajiShows: React.FC<GajiRequestProps> = ({
     const totalItems = data?.meta?.total || 0;
 
     const getStatusColor = (sl: SalaryResponse) => {
-        if (sl.status === SalaryStatus.PENDING) return "bg-yellow-100 text-yellow-800";
-        if (sl.status === SalaryStatus.PAID) return "bg-green-100 text-green-800";
         const today = new Date();
         const due = new Date(sl.dueDate);
-        if (sl.status === SalaryStatus.OVERDUE && due < today) {
+
+        if (sl.status === SalaryStatus.PENDING && due > today) 
+            return "bg-yellow-100 text-yellow-800";
+
+        if (sl.status === SalaryStatus.PAID) 
+            return "bg-green-100 text-green-800";
+
+        if (sl.status === SalaryStatus.OVERDUE) 
             return "bg-red-100 text-red-800";
-        }
+
+        if (sl.status === SalaryStatus.PENDING && due < today)
+            return "bg-red-100 text-red-800";
+
         return "bg-gray-100 text-gray-700";
     };
+
+    const getStatusReal = (sl: SalaryResponse) => {
+        const today = new Date();
+        const due = new Date(sl.dueDate);
+
+        if (sl.status === SalaryStatus.PENDING && due < today) {
+            return SalaryStatus.OVERDUE
+        }
+        if (sl.status === SalaryStatus.PENDING && due > today) {
+            return SalaryStatus.PENDING
+        }
+        if (sl.status === SalaryStatus.PAID) {
+            return SalaryStatus.PAID
+        }
+    }
 
     useEffect(() => {
         const params = new URLSearchParams();
@@ -95,18 +117,44 @@ const GajiShows: React.FC<GajiRequestProps> = ({
         ).padStart(2, "0")}`;
 
         setSelectedStatus(filters.status || "All");
-        setSelectedBulan(filters.bulan || currentYearMonth);
+        const newBulan = filters.bulan || currentYearMonth;
+        setSelectedStatus(filters.status || "All");
+        
+        if (onBulanChange) {
+            onBulanChange(newBulan);
+        }
         setCurrentPage(1);
     };
 
     const filterFields = [
         { key: "bulan", label: "Pilih Bulan", type: "month" as const },
-        { key: "status", label: "Status Pembayaran", type: "select" as const, options: Object.values(SalaryStatus) },
+        { key: "status", label: "Status Pembayaran", type: "select" as const, options: Object.values(SalaryStatus).filter(status => status !== SalaryStatus.OVERDUE) },
     ];
 
     const initialValues = {
         bulan: selectedBulan,
         status: selectedStatus
+    };
+
+    if (error) {
+        const errorRender = (
+            <div className="flex flex-col items-center justify-between gap-4 py-4">
+                <Image
+                    src={logo.error}
+                    width={240}
+                    height={240}
+                    alt="Not Found Data"
+                />
+                <div className="flex flex-col items-center">
+                    <h1 className="text-2xl font-bold text-(--color-primary)">
+                        {error.message ? error.message : "Terdapat kendala pada sistem"}
+                    </h1>
+                    <span className="text-sm text-(--color-primary)">Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki</span>
+                </div>
+            </div>
+        );
+
+        return errorRender;
     };
 
     const renderHtml = (
@@ -168,10 +216,10 @@ const GajiShows: React.FC<GajiRequestProps> = ({
                         )}
                         {selectedBulan && (
                             <span className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm">
-                                Bulan: {selectedBulan}
+                                Bulan:  {format(new Date(selectedBulan), "MMM yyyy")}
                                 <button
                                     className="text-red-500 hover:text-red-700 cursor-pointer"
-                                    onClick={() => setSelectedBulan(currentYearMonth)}
+                                    onClick={() => onBulanChange?.(currentYearMonth)}
                                 >
                                     ✕
                                 </button>
@@ -200,7 +248,7 @@ const GajiShows: React.FC<GajiRequestProps> = ({
                         >
                             <div className="p-5 flex flex-col gap-3">
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-400 font-medium truncate max-w-[120px]">
+                                    <span className="text-gray-400 font-medium truncate max-w-[120px] sm:max-w-full">
                                         {sl.id}
                                     </span>
 
@@ -227,10 +275,10 @@ const GajiShows: React.FC<GajiRequestProps> = ({
                                         <span
                                             className={`px-3 py-1 text-xs font-semibold rounded-lg uppercase text-center w-fit 
                                             ${getStatusColor(
-                                                sl
-                                            )}`}
-                                        >
-                                            {sl.status}
+                                                    sl
+                                                )}`}
+                                            >
+                                                {getStatusReal(sl)}
                                         </span>
                                     </div>
                                     <p className="text-2xl">
@@ -271,9 +319,20 @@ const GajiShows: React.FC<GajiRequestProps> = ({
                     ))}
                 </div>
             ) : (
-                <p className="text-center text-gray-500 py-6">
-                    Tidak ada data gaji sesuai filter.
-                </p>
+                <div className="flex flex-col items-center justify-between gap-4 py-4">
+                    <Image
+                        src={logo.notFound}
+                        width={120}
+                        height={120}
+                        alt="Not Found Data"
+                    />
+                    <div className="flex flex-col items-center">
+                        <h1 className="text-xl font-bold text-(--color-text-primary)">
+                            Data Gaji Karyawan Tidak Ditemukan
+                        </h1>
+                        <span className="text-sm text-(--color-muted)">Ubah hasil pencarian atau filter kamu</span>
+                    </div>
+                </div>
             )}
 
             {salaries.length > 10 && !isLoading && (
