@@ -75,7 +75,7 @@ export class RejectCutiUseCase {
     }
 
     const payload: ApprovalCutiInput = {
-      status: StatusCuti.BATAL,
+      status: StatusCuti.DITOLAK,
       catatan: `Ditolak oleh ${approver.name}: ${dto.catatan}`,
     };
     const updatedCuti = await this.cutiRepo.cutiApproval(
