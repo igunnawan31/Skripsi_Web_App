@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { icons } from "@/app/lib/assets/assets";
@@ -8,23 +8,136 @@ import { useProject } from "@/app/lib/hooks/project/useProject";
 import toast from "react-hot-toast";
 import CustomToast from "@/app/rootComponents/CustomToast";
 import ConfirmationPopUpModal from "@/app/dashboard/dashboardComponents/allComponents/ConfirmationPopUpModal";
+import { ProjectCreateRequest } from "@/app/lib/types/project/projectTypes";
 
 const CreateProjectPage = () => {
     const router = useRouter();
     const { mutate, isPending } = useProject().CreateProject();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<ProjectCreateRequest>({
         name: "",
         description: "",
         startDate: "",
         endDate: "",
+        projectDocument: null,
     });
     const [errors, setErrors] = useState({
         name: "",
         description: "",
         startDate: "",
         endDate: "",
+        projectDocument: null,
     });
+
+    const [documentFiles, setDocumentFiles] = useState<File[]>([]);
+    const [previewDocumentUrl, setPreviewDocumentUrl] = useState<string | null>(null);
+    const [activePreviewIndex, setActivePreviewIndex] = useState<number | null>(null);
+
+    useEffect(() => {
+        return () => {
+            documentFiles.forEach(file => URL.revokeObjectURL(file as any));
+            if (previewDocumentUrl) URL.revokeObjectURL(previewDocumentUrl);
+        };
+    }, [documentFiles, previewDocumentUrl]);
+
+    const getFileIcon = (mimetype: any) => {
+        if (!mimetype) return icons.pdfFormat;
+
+        const typeString = typeof mimetype === 'object' ? mimetype.mimetype : mimetype;
+        if (typeof typeString !== 'string') return icons.pdfFormat;
+        if (typeString.includes("image/")) return icons.imageFormat;
+        if (typeString.includes("application/pdf")) return icons.pdfFormat;
+
+        return icons.pdfFormat;
+    };
+
+    const handleAddDocuments = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+
+        if (files.some(file => file.type !== "application/pdf")) {
+            toast.custom(<CustomToast type="error" message="Hanya file PDF yang diperbolehkan" />);
+            return;
+        }
+        if (files.some(file => file.size > 10 * 1024 * 1024)) {
+            toast.custom(<CustomToast type="error" message="Ukuran file maksimal 10MB" />);
+            return;
+        }
+
+        setDocumentFiles(prev => [...prev, ...files]);
+
+        setFormData(prev => ({
+            ...prev,
+            projectDocument: [...(prev.projectDocument || []), ...files]
+        }));
+    };
+
+    const handleChangeDocument = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+
+        if (file.type !== "application/pdf") {
+            toast.custom(<CustomToast type="error" message="Hanya file PDF yang diperbolehkan" />);
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            toast.custom(<CustomToast type="error" message="Ukuran file maksimal 10MB" />);
+            return;
+        }
+
+        setDocumentFiles(prev => {
+            const copy = [...prev];
+            copy[index] = file;
+            return copy;
+        });
+
+        setFormData(prev => {
+            const copy = [...(prev.projectDocument || [])];
+            copy[index] = file;
+            return { ...prev, projectDocument: copy };
+        });
+
+        toast.custom(<CustomToast type="success" message="Dokumen berhasil diganti" />);
+    };
+
+    const handleDeleteDocument = (index: number) => {
+        setDocumentFiles(prev => {
+            const copy = [...prev];
+            copy.splice(index, 1);
+            return copy;
+        });
+
+        setFormData(prev => {
+            const copy = [...(prev.projectDocument || [])];
+            copy.splice(index, 1);
+            return { ...prev, projectDocument: copy };
+        });
+
+        toast.custom(<CustomToast type="success" message="Dokumen berhasil dihapus" />);
+    };
+
+    const handlePreviewFile = (index: number) => {
+        const file = documentFiles[index];
+        if (!file) return;
+
+        const url = URL.createObjectURL(file);
+        setPreviewDocumentUrl(url);
+        setActivePreviewIndex(index);
+    };
+
+    const handleDownloadFile = (index: number) => {
+        const file = documentFiles[index];
+        if (!file) return;
+
+        const url = URL.createObjectURL(file);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.name;
+        a.click();
+
+        URL.revokeObjectURL(url);
+    };
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -45,7 +158,13 @@ const CreateProjectPage = () => {
     }
 
     const handleOpenModal = () => {
-        const newErrors = { name: "", description: "", startDate: "", endDate: "" };
+        const newErrors = { 
+            name: "", 
+            description: "", 
+            startDate: "", 
+            endDate: "",
+            projectDocument: ""
+        };
         let isValid = true;
 
         if (!formData.name.trim()) {
@@ -68,7 +187,12 @@ const CreateProjectPage = () => {
             isValid = false;
         }
 
-        setErrors(newErrors);
+        if (documentFiles.length === 0) {
+            newErrors.projectDocument = "Minimal satu dokumen project harus diunggah";
+            isValid = false;
+        }
+
+        setErrors(newErrors as any);
 
         if (isValid) {
             setIsModalOpen(true);
@@ -192,6 +316,117 @@ const CreateProjectPage = () => {
                                 <p className="text-xs text-(--color-primary) mt-1">{errors.endDate}</p>
                             )}
                         </div>
+                    </div>
+
+                    <div className="flex flex-col gap-4">
+                        <label className="text-sm font-medium text-gray-600 mb-1">Upload Dokumen Pendukung <span className="text-(--color-primary)">*</span></label>
+                        {documentFiles.length > 0 ? (
+                            documentFiles.map((file, index) => (
+                                <div key={index} className="flex justify-between items-center rounded-lg p-4 border border-(--color-border) shadow-sm hover:shadow-md transition-shadow bg-white">
+                                    <div className="flex flex-row gap-4">
+                                        <div className="w-20 h-20 bg-(--color-secondary) rounded-lg items-center justify-center relative">
+                                            <Image
+                                                src={getFileIcon(file.type)}
+                                                fill
+                                                alt="Document Format"
+                                                className="object-cover p-1 rounded-lg"
+                                            />
+                                        </div>
+
+                                        <div className="flex flex-col justify-center gap-1">
+                                            <p className="text-md font-bold">{file.name}</p>
+                                            <p className="text-sm font-medium text-(--color-text-secondary)">{file.type}</p>
+                                            <span
+                                                onClick={() => handlePreviewFile(index)}
+                                                className="text-xs cursor-pointer hover:underline text-(--color-muted)"
+                                            >
+                                                See File
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-center items-center gap-4">
+                                        <input
+                                            type="file"
+                                            id={`changeDoc-${index}`}
+                                            accept="application/pdf"
+                                            onChange={(e) => handleChangeDocument(index, e)}
+                                            className="hidden"
+                                        />
+                                        <label
+                                            htmlFor={`changeDoc-${index}`}
+                                            className="text-sm rounded-lg text-white bg-(--color-tertiary) px-3 py-2 cursor-pointer"
+                                        >
+                                            Change
+                                        </label>
+                                        <button
+                                            onClick={() => handleDeleteDocument(index)}
+                                            className="text-sm rounded-lg text-white bg-(--color-primary) px-3 py-2 cursor-pointer hover:bg-red-800"
+                                        >
+                                            Delete
+                                        </button>
+                                        <button
+                                            onClick={() => handleDownloadFile(index)}
+                                            className="p-4 bg-(--color-primary) rounded-lg justify-center items-center cursor-pointer hover:bg-red-800"
+                                        >
+                                            <Image
+                                                src={icons.download}
+                                                alt="Download File"
+                                                height={24}
+                                                width={24}
+                                            />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="text-center text-(--color-muted) py-6 italic">
+                                Belum ada dokumen / lampiran pendukung.
+                            </div>
+                        )}
+                        {previewDocumentUrl && activePreviewIndex !== null && (
+                            <div className="fixed inset-0 bg-black/60 flex justify-center items-center">
+                                <div className="bg-white w-3/4 h-3/4 rounded-xl p-4 relative">
+                                    <div className="flex justify-between mb-4">
+                                        <p className="text-md font-bold">{documentFiles[activePreviewIndex].name}</p>
+                                        <button
+                                            onClick={() => {
+                                                setPreviewDocumentUrl(null);
+                                                setActivePreviewIndex(null);
+                                            }}
+                                            className="rounded-lg p-2 bg-(--color-primary) hover:bg-red-800 cursor-pointer"
+                                        >
+                                            <Image src={icons.closeMenu} width={24} height={24} alt="Close" />
+                                        </button>
+                                    </div>
+
+                                    <iframe src={previewDocumentUrl ?? undefined} className="w-full h-[90%] rounded-lg" />
+                                </div>
+                            </div>
+                        )}
+                        <input
+                            type="file"
+                            id="addDocuments"
+                            multiple
+                            accept="application/pdf"
+                            onChange={handleAddDocuments}
+                            className="hidden"
+                        />
+                        <label
+                            htmlFor="addDocuments"
+                            className={`mt-2 flex items-center justify-center text-sm rounded-lg text-(--color-textPrimary) bg-(--color-surface) border-2 px-4 py-2 cursor-pointer transition-colors
+                                ${errors.projectDocument 
+                                    ? "border-(--color-primary) bg-red-50" 
+                                    : "border-(--color-border) hover:border-(--color-tertiary)"
+                                }`}
+                        >
+                            Tambah Dokumen
+                        </label>
+
+                        {errors.projectDocument && (
+                            <p className="text-xs text-(--color-primary) mt-1 animate-in fade-in slide-in-from-top-1">
+                                {errors.projectDocument}
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex justify-end gap-4 pt-4">

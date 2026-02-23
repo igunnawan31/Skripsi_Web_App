@@ -3,40 +3,31 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { icons } from "@/app/lib/assets/assets";
+import { icons, logo } from "@/app/lib/assets/assets";
 import { KontrakKerjaStatus } from "@/app/lib/types/types";
 import { useKontrak } from "@/app/lib/hooks/kontrak/useKontrak";
-import { CreateKontrakKerja, UpdateKontrakKerja } from "@/app/lib/types/kontrak/kontrakTypes";
-import { MajorRole, MetodePembayaran, MinorRole } from "@/app/lib/types/enumTypes";
+import { UpdateKontrakKerja } from "@/app/lib/types/kontrak/kontrakTypes";
+import { MetodePembayaran } from "@/app/lib/types/enumTypes";
 import toast from "react-hot-toast";
 import CustomToast from "@/app/rootComponents/CustomToast";
-import { useProject } from "@/app/lib/hooks/project/useProject";
 import ConfirmationPopUpModal from "@/app/dashboard/dashboardComponents/allComponents/ConfirmationPopUpModal";
 import { fetchFileBlob } from "@/app/lib/path";
+import KontrakKerjaSkeletonDetail from "./KontrakKerjaSkeletonDetail";
 
 export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
     const router = useRouter();
+
     const [openUserData, setOpenUserData] = useState(true);
     const [openProject, setOpenProject] = useState(true);
     const [openAbsensi, setOpenAbsensi] = useState(true);
     const [openPembayaran, setOpenPembayaran] = useState(true);
+
     const { data: fetchedData, isLoading, error} = useKontrak().fetchKontrakById(id);
     const updateKontrak = useKontrak().updateKontrak();
     const { mutate, isPending } = updateKontrak;
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState<Partial<UpdateKontrakKerja>>({
-        userData: {
-            email: "",
-            name: "",
-            password: "Rahasia123",
-            majorRole: "",
-            minorRole: "",
-        },
-        projectData: {
-            id: "",
-        },
-
-        jenis: "",
         metodePembayaran: "",
         dpPercentage: 0,
         finalPercentage: 0,
@@ -54,16 +45,31 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
 
         removeDocuments: []
     });
+
+    const [errors, setErrors] = useState({
+        metodePembayaran: "",
+        totalBayaran: "",
+        absensiBulanan: "",
+        cutiBulanan: "",
+        status: "",
+        startDate: "",
+        endDate: "",
+    });
+
     const data = fetchedData;
     const [projectStartDate, setProjectStartDate] = useState("");
     const [projectEndDate, setProjectEndDate] = useState("");
+
     const [monthlyPercentages, setMonthlyPercentages] = useState<number[]>([]);
     const [monthlyPresence, setMonthlyPresence] = useState<{ bulan: string; absensi: number; cuti: number }[]>([]);
+    
     const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
     const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+    
     const [documentFiles, setDocumentFiles] = useState<File[]>([]);
     const [previewDocumentUrl, setPreviewDocumentUrl] = useState<string | null>(null);
     const [activePreviewIndex, setActivePreviewIndex] = useState<number | null>(null);
+
     const [lockDate, setLockDate] = useState(false);
     
     useEffect(() => {
@@ -142,23 +148,6 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
         const years = end.getFullYear() - start.getFullYear();
         const months = end.getMonth() - start.getMonth();
         return years * 12 + months + 1;
-    };
-    
-    
-    const handleUserChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-
-        setFormData((prev): Partial<CreateKontrakKerja> => ({
-            ...prev,
-            userData: {
-                email: prev.userData?.email ?? "",      
-                name: prev.userData?.name ?? "",        
-                password: prev.userData?.password ?? "",
-                majorRole: prev.userData?.majorRole ?? "",
-                minorRole: prev.userData?.minorRole ?? "",
-                [name]: value,
-            },
-        }));
     };
 
     const handleDPChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -317,40 +306,75 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
         };
     }, [documentFiles, previewDocumentUrl]);
     
-    const getFileIcon = (type: any) => {
-        if (!type) return icons.pdfFormat;
-        if (type === "application/pdf") return icons.pdfFormat;
-        if (type.startsWith("image/")) return icons.imageFormat;
+    const getFileIcon = (mimetype: any) => {
+        if (!mimetype) return icons.pdfFormat;
+
+        const typeString = typeof mimetype === 'object' ? mimetype.mimetype : mimetype;
+        if (typeof typeString !== 'string') return icons.pdfFormat;
+        if (typeString.includes("image/")) return icons.imageFormat;
+        if (typeString.includes("application/pdf")) return icons.pdfFormat;
 
         return icons.pdfFormat;
     };
 
     const handleOpenModal = () => {
-        // if (!formData..trim()) {
-        //     toast.custom(<CustomToast type="error" message="Nama project harus diisi" />)
-        //     return;
-        // }
+        const newErrors = {
+            metodePembayaran: "",
+            totalBayaran: "",
+            absensiBulanan: "",
+            cutiBulanan: "",
+            status: "",
+            startDate: "",
+            endDate: "",
+        };
+        let isValid = true;
 
-        // if (!formData.description.trim()) {
-        //     toast.custom(<CustomToast type="error" message="Deskripsi project harus diisi" />)
-        //     return;
-        // }        
+        if (!formData.startDate) {
+            newErrors.startDate = "Tanggal mulai harus diisi";
+            isValid = false;
+        }
+        if (!formData.endDate) {
+            newErrors.endDate = "Tanggal selesai harus diisi";
+            isValid = false;
+        } else if (formData.startDate && new Date(formData.startDate) > new Date(formData.endDate)) {
+            newErrors.endDate = "Tanggal selesai tidak boleh sebelum tanggal mulai";
+            isValid = false;
+        }
 
-        // if (!formData.startDate || !formData.endDate) {
-        //     toast.custom(<CustomToast type="error" message="Tanggal mulai dan Tanggal selesai harus diisi" />)
-        //     return;
-        // }
+        if (formData.cutiBulanan === undefined || formData.cutiBulanan === null || formData.cutiBulanan < 0) {
+            newErrors.cutiBulanan = "Jumlah cuti bulanan harus diisi (minimal 0)";
+            isValid = false;
+        }
 
-        // if (new Date(formData.startDate) > new Date(formData.endDate)) {
-        //     toast.custom(<CustomToast type="error" message="Tanggal selesai tidak boleh lebih dari tanggal mulai" />)
-        //     return;
-        // }
+        if (!formData.metodePembayaran) {
+            newErrors.metodePembayaran = "Metode pembayaran harus dipilih";
+            isValid = false;
+        }
+        if (!formData.totalBayaran || formData.totalBayaran <= 0) {
+            newErrors.totalBayaran = "Nominal pembayaran harus diisi dan lebih dari 0";
+            isValid = false;
+        }
+        if (!formData.status) {
+            newErrors.status = "Status kontrak harus dipilih";
+            isValid = false;
+        }
+
+        setErrors(newErrors);
+
+        if (!isValid) {
+            toast.custom(
+                <CustomToast 
+                    type="error" 
+                    message="Mohon lengkapi semua field yang wajib diisi" 
+                />
+            );
+            return;
+        }
 
         setIsModalOpen(true);
     }
 
     const handleSubmit = () => {
-        console.log(formData);
         mutate({id, kontrakData: formData}, {
             onSuccess: () => {
                 toast.custom(
@@ -455,16 +479,91 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
     const finalNominal = formData.totalBayaran ? (formData.totalBayaran * finalPercent) / 100 : 0;
 
     if (isLoading) {
-        return <div className="text-center text-(--color-muted)">Memuat data...</div>;
-    };
+        return <KontrakKerjaSkeletonDetail />;
+    }
 
     if (!fetchedData) {
-        return <div className="text-center text-red-500">Data tidak ditemukan.</div>;
+        const noFetchedData = (
+            <div className="flex flex-col gap-6 w-full pb-8">
+                <button
+                    onClick={() => router.back()}
+                    className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                >
+                    <Image 
+                        src={icons.arrowLeftActive}
+                        alt="Back Arrow"
+                        width={20}
+                        height={20}
+                    />
+                    <p className="text-(--color-surface)">
+                        Kembali ke halaman sebelumnya
+                    </p>
+                </button>
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md px-6 py-12 border border-(--color-border) flex flex-col gap-6">
+                    <div className="flex flex-col items-center justify-between gap-4">
+                        <Image
+                            src={logo.notFound}
+                            width={240}
+                            height={240}
+                            alt="Not Found Data"
+                        />
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                Detail Kontrak Kerja Tidak Ditemukan
+                            </h1>
+                            <span className="text-sm text-(--color-primary)">Mohon mengecek kembali detail kontrak kerja nanti</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return noFetchedData;
+    };
+
+    if (error) {
+        const errorFetchedData = (
+            <div className="flex flex-col gap-6 w-full pb-8">
+                <button
+                    onClick={() => router.back()}
+                    className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                >
+                    <Image 
+                        src={icons.arrowLeftActive}
+                        alt="Back Arrow"
+                        width={20}
+                        height={20}
+                    />
+                    <p className="text-(--color-surface)">
+                        Kembali ke halaman sebelumnya
+                    </p>
+                </button>
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md px-6 py-12 border border-(--color-border) flex flex-col gap-6">
+                    <div className="flex flex-col items-center justify-between gap-4">
+                        <Image
+                            src={logo.error}
+                            width={240}
+                            height={240}
+                            alt="Not Found Data"
+                        />
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                {error.message ? error.message : "Terdapat kendala pada sistem"}
+                            </h1>
+                            <span className="text-sm text-(--color-primary)">Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return errorFetchedData;
     };
 
     const renderHtml = (
         <div className="flex flex-col gap-6 w-full pb-8">
             <button
+                type="button"
                 onClick={() => router.back()}
                 className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
             >
@@ -481,7 +580,7 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-row gap-4 items-center">
                     <h1 className="text-2xl font-bold text-(--color-text-primary)">
-                        Update Kontrak Kerja
+                        Update Kontrak Kerja - {data.user.name} - {data.project.name}
                     </h1>
                 </div>
                 <span className="text-sm text-(--color-muted)">{data.id}</span>
@@ -515,11 +614,9 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                                     <input
                                         type="text"
                                         name="name"
-                                        value={formData.userData?.name}
-                                        onChange={handleUserChange}
-                                        placeholder="Masukkan nama karyawan"
-                                        className="border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                        required
+                                        defaultValue={formData.userData?.name}
+                                        className="bg-(--color-muted)/30 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                        disabled
                                     />
                                 </div>
                                 <div className="flex flex-col">
@@ -527,47 +624,33 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                                     <input
                                         type="text"
                                         name="email"
-                                        value={formData.userData?.email}
-                                        onChange={handleUserChange}
-                                        placeholder="Masukkan email karyawan"
-                                        className="border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                        required
+                                        defaultValue={formData.userData?.email}
+                                        className="bg-(--color-muted)/30 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                        disabled
                                     />
                                 </div>
                                 <div className="flex flex-col">
                                     <label className="text-sm font-medium text-gray-600 mb-1">Major Role</label>
-                                    <select
+                                    <input
                                         name="majorRole"
-                                        value={formData.userData?.majorRole}
-                                        onChange={handleUserChange}
-                                        className="border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                        required
-                                    >
-                                        <option value="">-- Major Role --</option>
-                                        {Object.values(MajorRole).map(role => (
-                                            <option key={role} value={role}>{role}</option>
-                                        ))}
-                                    </select>
+                                        defaultValue={formData.userData?.majorRole}
+                                        className="bg-(--color-muted)/30 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                        disabled
+                                    />
                                 </div>
                                 <div className="flex flex-col">
                                     <label className="text-sm font-medium text-gray-600 mb-1">Minor Role</label>
-                                    <select
+                                    <input
                                         name="minorRole"
-                                        value={formData.userData?.minorRole}
-                                        onChange={handleUserChange}
-                                        className="border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                        required
-                                    >
-                                        <option value="">-- Minor Role --</option>
-                                        {Object.values(MinorRole).map(role => (
-                                            <option key={role} value={role}>{role}</option>
-                                        ))}
-                                    </select>
+                                        defaultValue={formData.userData?.minorRole}
+                                        className="bg-(--color-muted)/30 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                        disabled
+                                    />
                                 </div>
                                 <div className="flex flex-col">
                                     <label className="text-sm font-medium text-gray-600 mb-1">Upload Foto Karyawan (png, jpeg, jpg)</label>
 
-                                    {previewPhoto && (
+                                    {previewPhoto ? (
                                         <div className="flex justify-between items-center rounded-lg p-4 border border-(--color-border) shadow-sm hover:shadow-md transition-shadow bg-white">
                                             <div className="flex flex-row gap-4">
                                                 <div className="w-20 h-20 bg-(--color-secondary) rounded-lg items-center justify-center relative">
@@ -592,6 +675,7 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                                             </div>
                                             <div className="flex justify-center items-center gap-4">
                                                 <button
+                                                    type="button"
                                                     onClick={handleDownloadPhoto}
                                                     className="p-4 bg-(--color-primary) rounded-lg justify-center items-center cursor-pointer hover:bg-red-800"
                                                 >
@@ -604,13 +688,17 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                                                 </button>
                                             </div>
                                         </div>
+                                    ) : (
+                                        <div className="text-center text-(--color-muted) py-6 italic">
+                                            Belum ada dokumen / lampiran pendukung.
+                                        </div>
                                     )}
                                     {isPhotoModalOpen && previewPhoto && (
                                         <div className="fixed inset-0 bg-black/60 flex justify-center items-center">
                                             <div className="bg-white w-3/4 h-3/4 rounded-xl p-4 relative">
                                                 <div className="items-center justify-between flex mb-5">
                                                     <p className="text-md font-bold">{data.user?.photo?.name}</p>
-                                                    <button onClick={handleClosePhotoPreview} className="bg-(--color-primary) rounded-lg p-2 hover:bg-red-800 cursor-pointer">
+                                                    <button type="button" onClick={handleClosePhotoPreview} className="bg-(--color-primary) rounded-lg p-2 hover:bg-red-800 cursor-pointer">
                                                         <Image
                                                             src={icons.closeMenu}
                                                             alt="Close Preview"
@@ -692,35 +780,55 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="flex flex-col">
                                         <label className="text-sm font-medium text-gray-600 mb-1">
-                                            Tanggal Mulai
+                                            Tanggal Mulai <span className="text-(--color-primary)">*</span>
                                         </label>
                                         <input
                                             type="date"
                                             name="startDate"
                                             value={formData.startDate}
                                             onChange={(e) => {
-                                                if (!lockDate) setFormData(prev => ({ ...prev, startDate: e.target.value }));
+                                                if (!lockDate) {
+                                                    setFormData(prev => ({ ...prev, startDate: e.target.value }));
+                                                    setErrors(prev => ({ ...prev, startDate: "" }));
+                                                }
                                             }}
                                             disabled={lockDate}
-                                            className="border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                            className={`border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors ${
+                                                errors.startDate ? "border-(--color-primary)" : "border-(--color-border)"
+                                            }`}
                                             required
                                         />
+                                        {errors.startDate && (
+                                            <p className="text-xs text-(--color-primary) mt-1 animate-in fade-in slide-in-from-top-1">
+                                                {errors.startDate}
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="flex flex-col">
                                         <label className="text-sm font-medium text-gray-600 mb-1">
-                                            Tanggal Selesai
+                                            Tanggal Selesai <span className="text-(--color-primary)">*</span>
                                         </label>
                                         <input
                                             type="date"
                                             name="endDate"
                                             value={formData.endDate}
                                             onChange={(e) => {
-                                                if (!lockDate) setFormData(prev => ({ ...prev, endDate: e.target.value }));
+                                                if (!lockDate) {
+                                                    setFormData(prev => ({ ...prev, endDate: e.target.value }));
+                                                    setErrors(prev => ({ ...prev, endDate: "" }));
+                                                }
                                             }}
                                             disabled={lockDate}
-                                            className="border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                            className={`border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors ${
+                                                errors.endDate ? "border-(--color-primary)" : "border-(--color-border)"
+                                            }`}
                                             required
                                         />
+                                        {errors.endDate && (
+                                            <p className="text-xs text-(--color-primary) mt-1 animate-in fade-in slide-in-from-top-1">
+                                                {errors.endDate}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </>
@@ -750,14 +858,26 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                         {openAbsensi && (
                             <>
                                 <div className="flex flex-col">
-                                    <label className="text-sm text-gray-600">Jumlah Cuti (per bulan)</label>
+                                    <label className="text-sm text-gray-600">
+                                        Jumlah Cuti (per bulan) <span className="text-(--color-primary)">*</span>
+                                    </label>
                                     <input
                                         type="number"
                                         min={0}
                                         value={formData.cutiBulanan}
-                                        onChange={(e) => setFormData({ ...formData, cutiBulanan: Number(e.target.value) })}
-                                        className="w-full border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                        onChange={(e) => {
+                                            setFormData({ ...formData, cutiBulanan: Number(e.target.value) });
+                                            setErrors(prev => ({ ...prev, cutiBulanan: "" }));
+                                        }}
+                                        className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors ${
+                                            errors.cutiBulanan ? "border-(--color-primary)" : "border-(--color-border)"
+                                        }`}
                                     />
+                                    {errors.cutiBulanan && (
+                                        <p className="text-xs text-(--color-primary) mt-1 animate-in fade-in slide-in-from-top-1">
+                                            {errors.cutiBulanan}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="flex flex-col gap-4">
                                     <div className="w-full flex flex-row font-semibold text-sm text-gray-600">
@@ -802,12 +922,16 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                         {openPembayaran && (
                             <>
                                 <div className="flex flex-col">
-                                    <label className="text-sm font-medium text-gray-600 mb-1">Tipe Pembayaran</label>
+                                    <label className="text-sm font-medium text-gray-600 mb-1">
+                                        Tipe Pembayaran <span className="text-(--color-primary)">*</span>
+                                    </label>
                                     <select
                                         name="metodePembayaran"
                                         value={formData.metodePembayaran}
                                         onChange={handleChange}
-                                        className="border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                        className={`border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors ${
+                                            errors.metodePembayaran ? "border-(--color-primary)" : "border-(--color-border)"
+                                        }`}
                                         required
                                     >
                                         <option value="">-- Metode Pembayaran --</option>
@@ -815,16 +939,21 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                                             <option key={role} value={role}>{role}</option>
                                         ))}
                                     </select>
+                                    {errors.metodePembayaran && (
+                                        <p className="text-xs text-(--color-primary) mt-1 animate-in fade-in slide-in-from-top-1">
+                                            {errors.metodePembayaran}
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div className="flex flex-col">
                                     <label className="text-sm font-medium text-gray-600 mb-1">
-                                        Nominal Pembayaran (Rp)
+                                        Nominal Pembayaran (Rp) <span className="text-(--color-primary)">*</span>
                                     </label>
-                                    <div className="w-full border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 flex items-center">
-                                        <span className="text-gray-600">
-                                            Rp
-                                        </span>
+                                    <div className={`w-full border rounded-lg px-3 py-2 flex items-center transition-colors ${
+                                        errors.totalBayaran ? "border-(--color-primary)" : "border-(--color-border)"
+                                    }`}>
+                                        <span className="text-gray-600">Rp</span>
                                         <input
                                             type="text"
                                             name="totalBayaran"
@@ -837,6 +966,11 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                                             required
                                         />
                                     </div>
+                                    {errors.totalBayaran && (
+                                        <p className="text-xs text-(--color-primary) mt-1 animate-in fade-in slide-in-from-top-1">
+                                            {errors.totalBayaran}
+                                        </p>
+                                    )}
                                 </div>
 
                                 {formData.metodePembayaran === MetodePembayaran.TERMIN && (
@@ -946,7 +1080,7 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                         )}
                     </div>
 
-                    <div className="flex flex-col">
+                    <div className="flex flex-col gap-4">
                         <label className="text-sm font-medium text-gray-600 mb-1">Upload Document Asli (pdf)</label>
                         {documentFiles.length > 0 ? (
                             documentFiles.map((file, index) => (
@@ -987,12 +1121,14 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                                             Change
                                         </label>
                                         <button
+                                            type="button"
                                             onClick={() => handleDeleteDocument(index)}
                                             className="text-sm rounded-lg text-white bg-(--color-primary) px-3 py-2 cursor-pointer hover:bg-red-800"
                                         >
                                             Delete
                                         </button>
                                         <button
+                                            type="button"
                                             onClick={() => handleDownloadFile(index)}
                                             className="p-4 bg-(--color-primary) rounded-lg justify-center items-center cursor-pointer hover:bg-red-800"
                                         >
@@ -1007,13 +1143,8 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                                 </div>
                             ))
                         ) : (
-                            <div className="flex justify-between items-center rounded-lg p-4 border border-(--color-border) shadow-sm hover:shadow-md transition-shadow bg-white">
-                                <div className="flex flex-row gap-4">
-                                    <div className="w-20 h-20 bg-(--color-secondary) rounded-lg items-center justify-center relative"></div>
-                                    <div className="flex flex-col justify-center gap-1">
-                                        <p className="text-md font-bold">Belum ada dokumen yang diunggah</p>
-                                    </div>
-                                </div>
+                            <div className="text-center text-(--color-muted) py-6 italic">
+                                Belum ada dokumen / lampiran pendukung.
                             </div>
                         )}
                         {previewDocumentUrl && activePreviewIndex !== null && (
@@ -1022,6 +1153,7 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                                     <div className="flex justify-between mb-4">
                                         <p className="text-md font-bold">{documentFiles[activePreviewIndex].name}</p>
                                         <button
+                                            type="button"
                                             onClick={() => {
                                                 setPreviewDocumentUrl(null);
                                                 setActivePreviewIndex(null);
@@ -1053,12 +1185,16 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                     </div>
 
                     <div className="flex flex-col">
-                        <label className="text-sm font-medium text-gray-600 mb-1">Status Kontrak</label>
+                        <label className="text-sm font-medium text-gray-600 mb-1">
+                            Status Kontrak <span className="text-(--color-primary)">*</span>
+                        </label>
                         <select
                             name="status"
                             value={formData.status}
                             onChange={handleChange}
-                            className="border border-(--color-border) rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                            className={`border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors ${
+                                errors.status ? "border-(--color-primary)" : "border-(--color-border)"
+                            }`}
                             required
                         >
                             <option value="">-- Status Kontrak --</option>
@@ -1066,6 +1202,11 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                                 <option key={role} value={role}>{role}</option>
                             ))}
                         </select>
+                        {errors.status && (
+                            <p className="text-xs text-(--color-primary) mt-1 animate-in fade-in slide-in-from-top-1">
+                                {errors.status}
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex flex-col">

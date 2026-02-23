@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/PaginationBar";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { icons } from "@/app/lib/assets/assets";
+import { icons, logo } from "@/app/lib/assets/assets";
 import { KontrakKerjaStatus, MetodePembayaran } from "@/app/lib/types/types";
 import { useKontrak } from "@/app/lib/hooks/kontrak/useKontrak";
 import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
@@ -24,7 +24,6 @@ const KontrakKerjaShows = () => {
     const [itemsPerPage, setItemsPerPage] = useState(10);
     
     const [selectedKontrakId, setSelectedKontrakId] = useState<string | null>(null);
-    const [selectedMetodePembayaran, setSelectedMetodePembayaran] = useState<string>(searchParams.get("metodePembayaran") || "All")
     const [selectedStatus, setSelectedStatus] = useState<string>(searchParams.get("status") || "All");
     const [selectedMinDate, setSelectedMinDate] = useState<string>(searchParams.get("minStartDate") || "");
     const [selectedMaxDate, setSelectedMaxDate] = useState<string>(searchParams.get("maxEndDate") || "");
@@ -40,7 +39,6 @@ const KontrakKerjaShows = () => {
     const { data, isLoading, error} = useKontrak().fetchAllKontrak({
         page: currentPage,
         limit: itemsPerPage,
-        metodePembayaran: selectedMetodePembayaran !== "All" ? selectedMetodePembayaran : undefined,
         status: selectedStatus !== "All" ? selectedStatus : undefined,
         minStartDate: selectedMinDate || undefined,
         maxEndDate: selectedMaxDate || undefined,
@@ -54,16 +52,14 @@ const KontrakKerjaShows = () => {
 
     useEffect(() => {
         const params = new URLSearchParams();
-        if (selectedMetodePembayaran && selectedMetodePembayaran !== "All") params.set("metodePembayaran", selectedMetodePembayaran);
         if (selectedStatus && selectedStatus !== "All") params.set("status", selectedStatus);
         if (selectedMinDate) params.set("minStartDate", selectedMinDate);
         if (selectedMaxDate) params.set("maxEndDate", selectedMaxDate);
         if (searchQuery) params.set("searchTerm", searchQuery);
         router.replace(`?${params.toString()}`);
-    }, [selectedMetodePembayaran ,selectedStatus, selectedMinDate, selectedMaxDate, searchQuery, router]);
+    }, [selectedStatus, selectedMinDate, selectedMaxDate, searchQuery, router]);
 
     const handleApplyFilters = (filters: Record<string, string | undefined>) => {
-        setSelectedMetodePembayaran(filters.metodePembayaran || "All");
         setSelectedStatus(filters.status || "All");
         setSelectedMinDate(filters.minStartDate || "");
         setSelectedMaxDate(filters.maxEndDate || "");
@@ -113,20 +109,34 @@ const KontrakKerjaShows = () => {
         { key: "minStartDate", label: "From", type: "date" as const },
         { key: "maxEndDate", label: "To", type: "date" as const },
         { key: "status", label: "Status", type: "select" as const, options: Object.values(KontrakKerjaStatus) },
-        { key: "metodePembayaran", label: "Metode Pembayaran", type: "select" as const, options: Object.values(MetodePembayaran) },
     ];
     
     const initialValues = {
         minStartDate: selectedMinDate,
         maxEndDate: selectedMaxDate,
         status: selectedStatus,
-        metodePembayaran: selectedMetodePembayaran,
     };
 
     if (error) {
-        return <div className="text-center text-red-500 py-6">Error: {error.message}</div>;
-    };
+        const errorRender = (
+            <div className="flex flex-col items-center justify-between gap-4 py-4">
+                <Image
+                    src={logo.error}
+                    width={240}
+                    height={240}
+                    alt="Not Found Data"
+                />
+                <div className="flex flex-col items-center">
+                    <h1 className="text-2xl font-bold text-(--color-primary)">
+                        {error.message ? error.message : "Terdapat kendala pada sistem"}
+                    </h1>
+                    <span className="text-sm text-(--color-primary)">Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki</span>
+                </div>
+            </div>
+        );
 
+        return errorRender;
+    };
 
     const renderHtml = (
         <div className="flex flex-col gap-4 w-full relative">
@@ -157,7 +167,7 @@ const KontrakKerjaShows = () => {
                         Filter
                     </div>
                 </div>
-                {(selectedStatus !== "All" || selectedMetodePembayaran !== "All" || selectedMinDate || selectedMaxDate || searchQuery) && (
+                {(selectedStatus !== "All" || selectedMinDate || selectedMaxDate || searchQuery) && (
                     <>
                         {searchQuery && (
                             <span
@@ -180,19 +190,6 @@ const KontrakKerjaShows = () => {
                                 <button
                                     className="text-red-500 hover:text-red-700 cursor-pointer"
                                     onClick={() => setSelectedStatus("All")}
-                                >
-                                    ✕
-                                </button>
-                            </span>
-                        )}
-                        {selectedMetodePembayaran !== "All" && (
-                            <span
-                                className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
-                            >
-                                Metode Pembayaran: {selectedMetodePembayaran}
-                                <button
-                                    className="text-red-500 hover:text-red-700 cursor-pointer"
-                                    onClick={() => setSelectedMetodePembayaran("All")}
                                 >
                                     ✕
                                 </button>
@@ -263,9 +260,6 @@ const KontrakKerjaShows = () => {
                                 <div className="flex items-center gap-2">
                                     <span className="font-semibold">Kontrak Kerja</span>
                                     <span className="text-(--color-muted)">{kk.id}</span>
-                                    <p className="text-xs text-(--color-muted)">
-                                        {kk.startDate ? format(new Date(kk.startDate), "dd MMM yyyy") : "-"} s.d {kk.endDate ? format(new Date(kk.endDate), "dd MMM yyyy") : "-"}
-                                    </p>
                                 </div>
                                 <span
                                     className={`px-3 py-1 text-xs font-semibold rounded-lg uppercase text-center w-fit 
@@ -281,12 +275,32 @@ const KontrakKerjaShows = () => {
                                     <p className="font-medium text-(--color-text-primary)">
                                         {kk.user?.name} — {kk.user?.minorRole}
                                     </p>
-                                    <p className="text-[10px] sm:text-xs bg-(--color-tertiary) px-2.5 py-1 rounded-md whitespace-nowrap">
+                                    <p className="text-sm sm:text-xs border border-(--color-tertiary) hover:bg-(--color-tertiary) hover:text-white px-2.5 py-1 rounded-md whitespace-nowrap">
                                         Project: {kk.project?.name ? kk.project.name : "-"}
                                     </p>
-                                    <p className="text-sm font-medium px-4 py-2 bg-(--color-primary) rounded-lg text-(--color-surface)">
-                                        Total: Rp {kk.totalBayaran.toLocaleString("id-ID")}
-                                    </p>
+                                    <div className="flex flex-col sm:flex-row sm:justify-between items-center gap-4">
+                                        <p className="text-sm font-medium px-4 py-2 bg-(--color-primary) rounded-lg text-(--color-surface)">
+                                            Total: Rp {kk.totalBayaran.toLocaleString("id-ID")}
+                                        </p>
+                                        <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
+                                            <Image
+                                                src={icons.dateIn}
+                                                alt="Tanggal Mulai Cuti"
+                                                width={24}
+                                                height={24}
+                                            />
+                                            {kk.startDate ? format(new Date(kk.startDate), "dd MMM yyyy") : "-"}
+                                        </div>
+                                        <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
+                                            <Image
+                                                src={icons.dateOut}
+                                                alt="Tanggal Berakhir Cuti"
+                                                width={24}
+                                                height={24}
+                                            />
+                                            {kk.endDate ? format(new Date(kk.endDate), "dd MMM yyyy") : "-"}
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="flex flex-col md:flex-row md:items-center gap-2">
                                     <Link
@@ -329,12 +343,23 @@ const KontrakKerjaShows = () => {
                     ))}
                 </>
             ) : (
-                <p className="text-center text-gray-500 py-6">
-                    Tidak ada data kontrak sesuai filter.
-                </p>
+                <div className="flex flex-col items-center justify-between gap-4 py-4">
+                    <Image
+                        src={logo.notFound}
+                        width={120}
+                        height={120}
+                        alt="Not Found Data"
+                    />
+                    <div className="flex flex-col items-center">
+                        <h1 className="text-xl font-bold text-(--color-text-primary)">
+                            Pencarian Nama Karyawan Tidak Ditemukan
+                        </h1>
+                        <span className="text-sm text-(--color-muted)">Ubah hasil pencarian kamu</span>
+                    </div>
+                </div>
             )}
 
-            {kontrak.length > 0 && !isLoading && (
+            {kontrak.length > 10 && !isLoading && (
                 <div className="mt-6">
                     <PaginationBar
                         totalItems={totalItems}

@@ -43,8 +43,8 @@ const ProjectShows = () => {
         maxEndDate: selectedMaxDate || undefined,
         searchTerm: searchQuery || undefined,
     });
+    
     const deleteProject = useProject().DeleteProject();
-
     const project = data?.data || [];
     const totalItems = data?.meta?.total || 0;
 

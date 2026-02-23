@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
+import { ProjectCreateRequest, ProjectPatchRequest } from "../../types/project/projectTypes";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -84,25 +85,42 @@ export const useProject = () => {
         return useMutation<
             any,
             Error,
-            { name: string; description?: string; startDate: string; endDate: string;}
+            ProjectCreateRequest
         >({
-            mutationFn: async ({ name, description, startDate, endDate }) => {
+            mutationFn: async (projectData: ProjectCreateRequest) => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
+                const fd = new FormData();
+
+                fd.append('name', projectData.name || '');
+                fd.append('description', projectData.description || '');
+                fd.append('startDate', projectData.startDate || '');
+                fd.append('endDate', projectData.endDate || '');
+
+                if (projectData.projectDocument?.length) {
+                    projectData.projectDocument.forEach(file => {
+                        fd.append('projectDocument', file);
+                    });
+                }
 
                 const response = await fetch(`${API}/project`, {
                     method: "POST",
-                    headers: { 
-                        "Content-Type": "application/json",
+                    headers: {
                         "Authorization": `Bearer ${token}`,
                     },
                     credentials: "include",
-                    body: JSON.stringify({ name, description, startDate, endDate }),
+                    body: fd,
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || "Failed to create new project");
+                    let errorMessage = "Failed to create kontrak";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
                 }
 
                 return response.json();
@@ -120,28 +138,48 @@ export const useProject = () => {
         return useMutation<
             any,
             Error,
-            { id: string; status: string, name: string; description?: string; startDate: string; endDate: string; }
+            { id: string; projectData: Partial<ProjectPatchRequest>; }
         >({
-            mutationFn: async ({ id, status, name, description, startDate, endDate }) => {
+            mutationFn: async ({ id, projectData }) => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
+                const fd = new FormData();
+
+                fd.append('name', projectData.name || '');
+                fd.append('description', projectData.description || '');
+                fd.append('status', projectData.status || '');
+                fd.append('startDate', projectData.startDate || '');
+                fd.append('endDate', projectData.endDate || '');
+                fd.append('removeDocuments', JSON.stringify(projectData.removeDocuments || []));
+
+                if (projectData.projectDocument?.length) {
+                    projectData.projectDocument.forEach(file => {
+                        fd.append('projectDocument', file);
+                    });
+                }
 
                 const response = await fetch(`${API}/project/${id}`, {
                     method: "PATCH",
                     headers: { 
-                        "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`,
                     },
                     credentials: "include",
-                    body: JSON.stringify({ status, name, description, startDate, endDate }),
+                    body: fd,
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || "Failed to update project");
+                    let errorMessage = "Failed to update kontrak";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
                 }
-
-                return response.json();
+                
+                const result = await response.json();
+                return result;
             },
 
             onSuccess: (data, variables) => {

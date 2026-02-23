@@ -1,25 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
+import { motion } from "framer-motion";
 import KontrakKerjaShows from "./KontrakKerjaShows";
+import KontrakKerjaData from "./KontrakKerjaData";
 
 const KontrakKerjaPage = () => {
-    const [searchQuery, setSearchQuery] = useState("");
-    const handleSearch = (query: string) => {
-        setSearchQuery(query);
-    };
-
     const renderHtml = (
-        <div className="flex flex-col gap-4 w-full">
-            {/* <div className="grid grid-cols-2">
-                <TableModal />
-            </div> */}
-            <div className="w-full bg-white rounded-2xl shadow-sm p-4 border border-slate-200 mb-10">
+        <div className="flex flex-col gap-4 pb-8 w-full">
+            <div className="w-full">
+                <KontrakKerjaData />
+            </div>
+            <motion.div
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-all relative"
+            >
                 <div className="flex flex-col gap-4">
                     <KontrakKerjaShows />
                 </div>
-            </div>
+            </motion.div>
         </div>
     )
 
