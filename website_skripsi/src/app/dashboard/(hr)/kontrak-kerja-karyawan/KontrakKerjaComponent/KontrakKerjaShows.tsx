@@ -352,7 +352,7 @@ const KontrakKerjaShows = () => {
                     />
                     <div className="flex flex-col items-center">
                         <h1 className="text-xl font-bold text-(--color-text-primary)">
-                            Pencarian Nama Karyawan Tidak Ditemukan
+                            Pencarian Tidak Ditemukan
                         </h1>
                         <span className="text-sm text-(--color-muted)">Ubah hasil pencarian kamu</span>
                     </div>
