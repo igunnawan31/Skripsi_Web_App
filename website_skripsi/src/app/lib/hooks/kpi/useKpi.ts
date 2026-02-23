@@ -274,6 +274,129 @@ export const useKpi = () => {
             },
         });
     }
+
+    const activateIndicator = () => {
+        const queryClient = useQueryClient();
+
+        return useMutation<
+            any,
+            Error,
+            { id: string; }
+        >({
+            mutationFn: async ({ id }) => {
+                const token = Cookies.get("accessToken");
+                if (!token) throw new Error("No access token found");
+
+                const response = await fetch(`${API}/indicators/${id}/activate`, {
+                    method: "PATCH",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    credentials: "include",
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Failed to update indikator status";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+                
+                const result = await response.json();
+                return result;
+            },
+            onSuccess: (data, variables) => {
+                queryClient.invalidateQueries({ queryKey: ["indicator", variables.id]});
+                queryClient.invalidateQueries({ queryKey: ["indicators"]})
+            },
+        });
+    }
+
+    const archiveIndicator = () => {
+        const queryClient = useQueryClient();
+
+        return useMutation<
+            any,
+            Error,
+            { id: string; }
+        >({
+            mutationFn: async ({ id }) => {
+                const token = Cookies.get("accessToken");
+                if (!token) throw new Error("No access token found");
+
+                const response = await fetch(`${API}/indicators/${id}/archive`, {
+                    method: "PATCH",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    credentials: "include",
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Failed to update indikator status";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+                
+                const result = await response.json();
+                return result;
+            },
+            onSuccess: (data, variables) => {
+                queryClient.invalidateQueries({ queryKey: ["indicator", variables.id]});
+                queryClient.invalidateQueries({ queryKey: ["indicators"]})
+            },
+        });
+    }
+
+    const completeIndicator = () => {
+        const queryClient = useQueryClient();
+
+        return useMutation<
+            any,
+            Error,
+            { id: string; }
+        >({
+            mutationFn: async ({ id }) => {
+                const token = Cookies.get("accessToken");
+                if (!token) throw new Error("No access token found");
+
+                const response = await fetch(`${API}/indicators/${id}/complete`, {
+                    method: "PATCH",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    credentials: "include",
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Failed to update indikator status";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+                
+                const result = await response.json();
+                return result;
+            },
+            onSuccess: (data, variables) => {
+                queryClient.invalidateQueries({ queryKey: ["indicator", variables.id]});
+                queryClient.invalidateQueries({ queryKey: ["indicators"]})
+            },
+        });
+    }
     
     const deleteIndikator = () => {
         const queryClient = useQueryClient();
@@ -351,5 +474,8 @@ export const useKpi = () => {
         createIndikator,
         createEval,
         updateIndikator,
+        activateIndicator,
+        archiveIndicator,
+        completeIndicator,
     }
 }

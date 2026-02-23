@@ -3,7 +3,7 @@
 import ConfirmationPopUpModal from "@/app/dashboard/dashboardComponents/allComponents/ConfirmationPopUpModal";
 import FilterModal from "@/app/dashboard/dashboardComponents/allComponents/FilterModal";
 import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
-import { icons } from "@/app/lib/assets/assets";
+import { icons, logo } from "@/app/lib/assets/assets";
 import { useKpi } from "@/app/lib/hooks/kpi/useKpi";
 import { useQuestion } from "@/app/lib/hooks/kpi/useQuestion";
 import { KategoriPertanyaanKPI, QuestionCreateForm, SkalaNilai } from "@/app/lib/types/kpi/kpiTypes";
@@ -160,7 +160,28 @@ const QuestionUpdate = ({fetchedData}: QuestionUpdateProps) => {
     };
 
     if (error) {
-        return <div className="text-center text-red-500 py-6">Error: {error.message}</div>;
+        const errorRender = (
+            <div className="flex flex-col gap-4 w-full relative">
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md p-6 border border-(--color-border) flex flex-col gap-4">
+                    <div className="flex flex-col items-center justify-between gap-4">
+                        <Image
+                            src={logo.notFound}
+                            width={240}
+                            height={240}
+                            alt="Not Found Data"
+                        />
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                {error.message ? error.message : "Terdapat kendala pada sistem"}
+                            </h1>
+                            <span className="text-sm text-(--color-primary)">Mohon mengecek kembali detail kontrak kerja nanti</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return errorRender;
     };
 
     return (
@@ -364,11 +385,22 @@ const QuestionUpdate = ({fetchedData}: QuestionUpdateProps) => {
                         </div>
                     </form>
                 ) : (
-                    <p className="text-center text-gray-500 py-6">
-                        Belum ada daftar pertanyaan untuk indikator ini saat ini.
-                    </p>
+                    <div className="flex flex-col items-center justify-between gap-4 py-4">
+                        <Image
+                            src={logo.notFound}
+                            width={120}
+                            height={120}
+                            alt="Not Found Data"
+                        />
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-xl font-bold text-(--color-text-primary)">
+                                Data Pertanyaan Tidak Ditemukan
+                            </h1>
+                            <span className="text-sm text-(--color-muted)">Ubah hasil pencarian kamu</span>
+                        </div>
+                    </div>
                 )}
-                {questionData.length > 0 && !isLoading && (
+                {questionData.length > 10 && !isLoading && (
                     <div className="mt-6">
                         <PaginationBar
                             totalItems={totalItems}

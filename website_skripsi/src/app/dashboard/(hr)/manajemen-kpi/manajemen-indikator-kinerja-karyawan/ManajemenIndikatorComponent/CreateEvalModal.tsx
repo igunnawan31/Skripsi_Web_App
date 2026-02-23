@@ -32,10 +32,20 @@ const CreateEvalModal = ({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="bg-white w-full max-w-4xl rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="bg-white w-full max-w-[80%] rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
                 <div className="p-6 border-b flex justify-between items-center bg-gray-50">
                     <h3 className="text-lg font-bold text-gray-800">Manajemen Penilai</h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600">✕</button>
+                    <div
+                        className="p-2 rounded-lg bg-(--color-primary) hover:bg-(--color-primary)/80 cursor-pointer transition"
+                        onClick={onClose}
+                    >
+                        <Image
+                            src={icons.closeMenu}
+                            alt="Close Filter"
+                            width={24}
+                            height={24}
+                        />
+                    </div>
                 </div>
                 
                 <div className="p-6 overflow-y-auto space-y-6">

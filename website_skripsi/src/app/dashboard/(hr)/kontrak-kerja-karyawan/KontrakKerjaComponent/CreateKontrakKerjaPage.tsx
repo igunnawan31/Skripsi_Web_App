@@ -565,7 +565,7 @@ const CreateKontrakKerjaPage = () => {
                         />
                         <div className="flex flex-col items-center">
                             <h1 className="text-2xl font-bold text-(--color-primary)">
-                                Detail Kontrak Kerja Tidak Ditemukan
+                                Terdapat Kesalahan Dalam Memproses Data
                             </h1>
                             <span className="text-sm text-(--color-primary)">Mohon mengecek kembali detail kontrak kerja nanti</span>
                         </div>

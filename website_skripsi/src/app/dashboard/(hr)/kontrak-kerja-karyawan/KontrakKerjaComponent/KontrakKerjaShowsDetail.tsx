@@ -397,8 +397,8 @@ export default function KontrakKerjaDetail({ id }: { id: string }) {
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="text-center text-(--color-muted) py-6 italic">
-                                            Belum ada dokumen / lampiran pendukung.
+                                        <div className="text-center py-10 border-2 border-dashed border-gray-200 rounded-xl text-gray-400 italic text-sm">
+                                            Tidak ada data penilai dan target.
                                         </div>
                                     )}
                                     {isPhotoModalOpen && previewPhoto && (
