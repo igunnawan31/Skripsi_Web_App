@@ -45,16 +45,6 @@ export class ProjectRepository implements IProjectRepository {
 
       const where: Prisma.ProjectWhereInput = {
         status: status ?? undefined,
-        projectTeams: {
-          some: {
-            userId:
-              user.majorRole === 'KARYAWAN'
-                ? user.minorRole === 'HR'
-                  ? undefined
-                  : user.id
-                : undefined,
-          },
-        },
         AND: [
           {
             startDate: {
@@ -66,6 +56,13 @@ export class ProjectRepository implements IProjectRepository {
           },
         ],
       };
+      if (user.majorRole === 'KARYAWAN' && user.minorRole !== 'HR') {
+        where.projectTeams = {
+          some: {
+            userId: user.id,
+          },
+        };
+      }
       if (
         searchTerm !== undefined &&
         searchTerm !== null &&
