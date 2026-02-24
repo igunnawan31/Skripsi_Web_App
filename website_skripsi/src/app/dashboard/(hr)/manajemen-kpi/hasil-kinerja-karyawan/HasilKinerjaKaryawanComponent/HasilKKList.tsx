@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/PaginationBar";
 import FilterBar from "@/app/dashboard/dashboardComponents/allComponents/FilterBar";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { icons } from "@/app/lib/assets/assets";
+import { icons, logo } from "@/app/lib/assets/assets";
 import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
 import FilterModal from "@/app/dashboard/dashboardComponents/allComponents/FilterModal";
 import { MinorRole } from "@/app/lib/types/enumTypes";
@@ -22,7 +22,7 @@ const HasilKKList = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
 
-    const [selectedIndikatorId, setSelectedIndikatorId] = useState<string | null>(null);
+    const [selectedProgress, setSelectedProgress] = useState<string>(searchParams.get("progress") || "All");
     const [selectedStatusPublic, setSelectedStatusPublic] = useState<string>(searchParams.get("statusPublic") || "All");
     const [selectedStatusIndikator, setSelectedStatusIndikator] = useState<string>(searchParams.get("status") || "All");
     const [selectedMinDate, setSelectedMinDate] = useState<string>(searchParams.get("minStartDate") || "");
@@ -44,26 +44,28 @@ const HasilKKList = () => {
         maxEndDate: selectedMaxDate || undefined,
         searchTerm: searchQuery || undefined,
     });
-    const { data: allJawaban, isLoading: isLoadingJawaban } = useJawaban().fetchAllJawaban();
+    const { data: allJawaban, isLoading: isLoadingJawaban, error: errorJawaban } = useJawaban().fetchAllJawaban({ limit: 1000 });
 
     const indikator = data?.data || [];
     const totalItems = data?.meta?.total || 0;
 
     useEffect(() => {
         const params = new URLSearchParams();
+        if (selectedProgress && selectedProgress !== "All") params.set("progress", selectedProgress);
         if (selectedStatusPublic && selectedStatusPublic !== "All") params.set("statusPublic", selectedStatusPublic);
         if (selectedStatusIndikator && selectedStatusIndikator !== "All") params.set("status", selectedStatusIndikator);
         if (selectedMinDate) params.set("minStartDate", selectedMinDate);
         if (selectedMaxDate) params.set("maxEndDate", selectedMaxDate);
         if (searchQuery) params.set("searchTerm", searchQuery);
         router.replace(`?${params.toString()}`);
-    }, [selectedStatusPublic, selectedStatusIndikator, selectedMinDate, selectedMaxDate, searchQuery, router]);
+    }, [selectedProgress, selectedStatusPublic, selectedStatusIndikator, selectedMinDate, selectedMaxDate, searchQuery, router]);
     
     const handleApplyFilters = (filters: Record<string, string | undefined>) => {
         setSelectedStatusPublic(filters.statusPublic || "All");
         setSelectedStatusIndikator(filters.status || "All");
         setSelectedMinDate(filters.minStartDate || "");
         setSelectedMaxDate(filters.maxEndDate || "");
+        setSelectedProgress(filters.progress || "All");
         setCurrentPage(1);
     };
 
@@ -95,11 +97,25 @@ const HasilKKList = () => {
         return "bg-gray-100 text-gray-700";
     };
 
+    const filteredIndikator = useMemo(() => {
+        if (!indikator) return [];
+        
+        return indikator.filter((ikk: IndikatorResponse) => {
+            const { persentase } = getProgressStats(ikk);
+            
+            if (selectedProgress === "Lengkap") return persentase === 100;
+            if (selectedProgress === "Belum Selesai") return persentase < 100;
+            
+            return true;
+        });
+    }, [indikator, selectedProgress, allJawaban]);
+
     const filterFields = [
         { key: "minStartDate", label: "From", type: "date" as const },
         { key: "maxEndDate", label: "To", type: "date" as const },
         { key: "statusPublic", label: "Status Publik", type: "select" as const, options: ["true", "false"]},
         { key: "status", label: "Status Indikator", type: "select" as const, options: Object.values(StatusIndikatorKPI) },
+        { key: "progress", label: "Progres Penilaian", type: "select" as const, options: ["Lengkap", "Belum Selesai"] },
     ];
     
     const initialValues = {
@@ -107,10 +123,36 @@ const HasilKKList = () => {
         maxEndDate: selectedMaxDate,
         statusPublic: selectedStatusPublic,
         status: selectedStatusIndikator,
+        progress: selectedProgress,
     };
 
+    const getErrorMessage = () => {
+        if (error?.message) return error.message;
+        if (errorJawaban?.message) return errorJawaban.message;
+        return "Terdapat kendala pada sistem";
+    };
+
+    const errorMessage = getErrorMessage();
+
     if (error) {
-        return <div className="text-center text-red-500 py-6">Error: {error.message}</div>;
+        const errorRender = (
+            <div className="flex flex-col items-center justify-between gap-4 py-4">
+                <Image
+                    src={logo.error}
+                    width={240}
+                    height={240}
+                    alt="Not Found Data"
+                />
+                <div className="flex flex-col items-center">
+                    <h1 className="text-2xl font-bold text-(--color-primary)">
+                        {errorMessage}
+                    </h1>
+                    <span className="text-sm text-(--color-primary)">Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki</span>
+                </div>
+            </div>
+        );
+
+        return errorRender;
     };
 
     const renderHtml = (
@@ -142,7 +184,7 @@ const HasilKKList = () => {
                         Filter
                     </div>
                 </div>
-                {(selectedStatusPublic !== "All" || selectedStatusIndikator !== "All" || selectedMinDate || selectedMaxDate || searchQuery) && (
+                {(selectedProgress !== "All" || selectedStatusPublic !== "All" || selectedStatusIndikator !== "All" || selectedMinDate || selectedMaxDate || searchQuery) && (
                     <>
                         {searchQuery && (
                             <span
@@ -183,6 +225,17 @@ const HasilKKList = () => {
                                 </button>
                             </span>
                         )}
+                        {selectedProgress !== "All" && (
+                            <span className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm">
+                                Progres: {selectedProgress}
+                                <button
+                                    className="text-red-500 hover:text-red-700 cursor-pointer"
+                                    onClick={() => setSelectedProgress("All")}
+                                >
+                                    ✕
+                                </button>
+                            </span>
+                        )}
                         {selectedMinDate && (
                             <span
                                 className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
@@ -213,7 +266,7 @@ const HasilKKList = () => {
                 )}
             </div>
 
-            {isLoading ? (
+            {isLoading || isLoadingJawaban ? (
                 <div className="flex flex-col gap-6">
                     {Array.from({ length: itemsPerPage }).map((_, i) => (
                         <div
@@ -222,9 +275,9 @@ const HasilKKList = () => {
                         ></div>
                     ))}
                 </div>
-            ) : indikator.length > 0 ? (
+            ) : filteredIndikator.length > 0 ? (
                 <>
-                    {indikator.map((ikk: IndikatorResponse) => {
+                    {filteredIndikator.map((ikk: IndikatorResponse) => {
                         const { totalTerjawab, totalEvaluatees, persentase } = getProgressStats(ikk);
 
                         return (
@@ -332,7 +385,7 @@ const HasilKKList = () => {
                                                 <span>
                                                     <span className="text-gray-600">Status: </span>
                                                     <span className={`font-bold ${persentase === 100 ? 'text-green-600' : 'text-orange-500'}`}>
-                                                        {persentase === 100 ? 'Lengkap' : 'Belum Selesai'}
+                                                        {persentase === 100 ? 'Lengkap' : 'Belum Lengkap'}
                                                     </span>
                                                 </span>
                                             </div>
@@ -345,12 +398,23 @@ const HasilKKList = () => {
                     }
                 </>
             ) : (
-                <p className="text-center text-gray-500 py-6">
-                    Tidak ada data manajemen indikator sesuai filter.
-                </p>
+                <div className="flex flex-col items-center justify-between gap-4 py-4">
+                    <Image
+                        src={logo.notFound}
+                        width={120}
+                        height={120}
+                        alt="Not Found Data"
+                    />
+                    <div className="flex flex-col items-center">
+                        <h1 className="text-xl font-bold text-(--color-text-primary)">
+                            Pencarian Tidak Ditemukan
+                        </h1>
+                        <span className="text-sm text-(--color-muted)">Ubah hasil pencarian kamu</span>
+                    </div>
+                </div>
             )}
 
-            {indikator.length > 0 && !isLoading && (
+            {filteredIndikator.length > 0 && !isLoading && (
                 <div className="mt-6">
                     <PaginationBar
                         totalItems={totalItems}

@@ -7,11 +7,11 @@ import { KontrakResponse } from "@/app/lib/types/kontrak/kontrakTypes";
 import { KontrakKerjaStatus } from "@/app/lib/types/enumTypes";
 
 const KontrakKerjaData = () => {
-    const { data } = useKontrak().fetchAllKontrak();
+    const { data } = useKontrak().fetchAllKontrak({ limit: 1000 });
 
     const stats = useMemo(() => {
         const kontraks: KontrakResponse[] = data?.data || [];
-        const totalCuti = kontraks.length;
+        const totalCuti = data?.meta.total || 0;
         
         return [
             { id: 1, label: "Total Kontrak", value: totalCuti, color: "bg-blue-100 text-blue-700" },

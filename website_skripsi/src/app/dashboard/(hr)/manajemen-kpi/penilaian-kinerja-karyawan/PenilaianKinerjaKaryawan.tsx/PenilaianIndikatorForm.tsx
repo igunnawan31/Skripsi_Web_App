@@ -41,7 +41,7 @@ const PenilaianIndikatorForm = ({
         ? Math.round((totalTerjawab / totalPertanyaan) * 100) 
         : 0;
 
-        return (
+    return (
         <div className="w-full flex gap-6 pb-8">
             <div className="w-3/4 bg-(--color-surface) rounded-2xl shadow-md p-6 border border-(--color-border) flex flex-col gap-6">
                 <div className="gap-2">

@@ -451,7 +451,7 @@ const ManajemenIndikatorList = () => {
                 </div>
             )}
 
-            {indikator.length > 10 && !isLoading && (
+            {indikator.length > 0 && !isLoading && (
                 <div className="mt-6">
                     <PaginationBar
                         totalItems={totalItems}

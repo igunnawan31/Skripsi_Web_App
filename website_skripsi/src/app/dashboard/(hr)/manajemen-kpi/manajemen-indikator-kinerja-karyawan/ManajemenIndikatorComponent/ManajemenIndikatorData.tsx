@@ -6,15 +6,15 @@ import { useKpi } from "@/app/lib/hooks/kpi/useKpi";
 import { IndikatorResponse, StatusIndikatorKPI } from "@/app/lib/types/kpi/kpiTypes";
 
 const ManajemenIndikatorData = () => {
-    const { data } = useKpi().fetchAllIndikator();
+    const { data } = useKpi().fetchAllIndikator({ limit: 1000 });
     const [seeFull, setSeeFull] = useState(false);
 
     const stats = useMemo(() => {
         const indikators: IndikatorResponse[] = data?.data || [];
-        const totalCuti = indikators.length;
-        
+        const totalItems = data?.meta?.total || 0;
+
         return [
-            { id: 1, label: "Total Indikator", value: totalCuti, color: "bg-blue-100 text-blue-700" },
+            { id: 1, label: "Total Indikator", value: totalItems, color: "bg-blue-100 text-blue-700" },
             { id: 2, label: "Indikator Aktif", value: indikators.filter(i => i.status === StatusIndikatorKPI.ACTIVE).length, color: "bg-amber-100 text-amber-700" },
             { id: 3, label: "Indikator Selesai", value: indikators.filter(i => i.status === StatusIndikatorKPI.COMPLETED).length, color: "bg-emerald-100 text-emerald-700" },
             { id: 4, label: "Indikator Draft", value: indikators.filter(i => i.status === StatusIndikatorKPI.DRAFT).length, color: "bg-red-100 text-red-700" },

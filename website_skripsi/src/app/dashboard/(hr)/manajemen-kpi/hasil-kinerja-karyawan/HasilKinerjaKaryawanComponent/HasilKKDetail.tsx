@@ -1,13 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { IndikatorKPI, KategoriPertanyaanKPI, pertanyaanKPI,  } from "@/app/lib/types/types";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { icons } from "@/app/lib/assets/assets";
-import { PertanyaanKPIData } from "@/app/lib/dummyData/PertanyaanKPIData";
-import { KinerjaData } from "@/app/lib/dummyData/KinerjaData";
-import { dummyUsers } from "@/app/lib/dummyData/dummyUsers";
+import { icons, logo } from "@/app/lib/assets/assets";
 import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
 import { useKpi } from "@/app/lib/hooks/kpi/useKpi";
 import { useUserLogin } from "@/app/context/UserContext";
@@ -119,9 +115,54 @@ export default function HasilKKDetail({ id }: { id: string }) {
         statusNilai: selectedStatusNilai,
     };
 
-    if (isErrorIndicator || isErrorUser) {
-        return <div className="text-center text-red-500 py-6">Error: {isErrorIndicator?.message ? isErrorIndicator.message : isErrorUser?.message}</div>;
+    const getErrorMessage = () => {
+        if (isErrorIndicator?.message) return isErrorIndicator.message;
+        if (isErrorUser?.message) return isErrorUser.message;
+        return "Terdapat kendala pada sistem";
     };
+
+    const errorMessage = getErrorMessage();
+
+    if (isErrorIndicator || isErrorUser) {
+        const errorFetchedData = (
+            <div className="flex flex-col gap-6 w-full pb-8">
+                <button
+                    onClick={() => router.back()}
+                    className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                >
+                    <Image 
+                        src={icons.arrowLeftActive}
+                        alt="Back Arrow"
+                        width={20}
+                        height={20}
+                    />
+                    <p className="text-(--color-surface)">
+                        Kembali ke halaman sebelumnya
+                    </p>
+                </button>
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md px-6 py-12 border border-(--color-border) flex flex-col gap-6">
+                    <div className="flex flex-col items-center text-center gap-4">
+                        <Image
+                            src={logo.error}
+                            width={240}
+                            height={240}
+                            alt="Error Illustration"
+                        />
+                        <div className="flex flex-col items-center max-w-md">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                {errorMessage}
+                            </h1>
+                            <p className="text-sm text-gray-500 mt-2">
+                                Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return errorFetchedData;
+    }
 
     const renderHtml = (
         <div className="flex flex-col gap-4 w-full relative">
@@ -142,7 +183,7 @@ export default function HasilKKDetail({ id }: { id: string }) {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-row gap-4 items-center">
                     <h1 className="text-2xl font-bold text-(--color-text-primary)">
-                        Hasil Penilaian Indikator {fetchedDataIndicator?.name}
+                        Hasil Penilaian Indikator - {fetchedDataIndicator?.name}
                     </h1>
                 </div>
                 <span className="text-sm text-(--color-muted) uppercase">ID: {fetchedDataIndicator?.id}</span>
@@ -235,7 +276,7 @@ export default function HasilKKDetail({ id }: { id: string }) {
                                             <span className={`px-2 py-1 text-[10px] font-bold rounded-md uppercase ${
                                                 task.sudahDinilai ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                             }`}>
-                                                {task.sudahDinilai ? "Sudah Dinilai" : "Perlu Dinilai"}
+                                                {task.sudahDinilai ? "Sudah Dinilai" : "Belum Dinilai"}
                                             </span>
                                         </div>
 
@@ -357,9 +398,20 @@ export default function HasilKKDetail({ id }: { id: string }) {
                             })}
                         </div>
                     ) : (
-                        <p className="text-center text-gray-500 py-6">
-                            Tidak ada data penilaian sesuai filter.
-                        </p>
+                        <div className="flex flex-col items-center justify-between gap-4 py-4">
+                            <Image
+                                src={logo.notFound}
+                                width={120}
+                                height={120}
+                                alt="Not Found Data"
+                            />
+                            <div className="flex flex-col items-center">
+                                <h1 className="text-xl font-bold text-(--color-text-primary)">
+                                    Pencarian Tidak Ditemukan
+                                </h1>
+                                <span className="text-sm text-(--color-muted)">Ubah hasil pencarian kamu</span>
+                            </div>
+                        </div>
                     )}
                 </div>
                 {tasksToDisplay.length > 0 && (!isLoadingIndicator || isLoadingUser) && (
@@ -380,6 +432,7 @@ export default function HasilKKDetail({ id }: { id: string }) {
                 initialValues={initialValues}
                 onClose={() => setIsFilterOpen(false)}
                 onApply={handleApplyFilters}
+                className="absolute sm:left-28 sm:top-48 top-84 left-4 z-50"
             />
         </div>
     )

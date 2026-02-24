@@ -400,7 +400,7 @@ const QuestionUpdate = ({fetchedData}: QuestionUpdateProps) => {
                         </div>
                     </div>
                 )}
-                {questionData.length > 10 && !isLoading && (
+                {questionData.length > 0 && !isLoading && (
                     <div className="mt-6">
                         <PaginationBar
                             totalItems={totalItems}

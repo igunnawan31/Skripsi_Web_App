@@ -1,10 +1,7 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { motion } from "framer-motion";
-import { useCuti } from "@/app/lib/hooks/cuti/useCuti";
-import { CutiResponse } from "@/app/lib/types/cuti/cutiTypes";
-import { CutiStatus } from "@/app/lib/types/enumTypes";
 import { useKpi } from "@/app/lib/hooks/kpi/useKpi";
 import { useUser } from "@/app/lib/hooks/user/useUser";
 import { useUserLogin } from "@/app/context/UserContext";
@@ -12,10 +9,9 @@ import { StatusIndikatorKPI } from "@/app/lib/types/kpi/kpiTypes";
 import { useSearchParams } from "next/navigation";
 
 const PenilaianIndikatorData = () => {
-    const searchParams = useSearchParams();
     const user = useUserLogin();
-    const { data } = useKpi().fetchAllIndikator({});
-    const { data: fetchedDataUser } = useUser().fetchAllUser();
+    const { data } = useKpi().fetchAllIndikator({ limit: 1000 });
+    const { data: fetchedDataUser } = useUser().fetchAllUser({ limit: 1000 });
 
     const tasksToReview = React.useMemo(() => {
         if (!data?.data || !user?.id) return [];
@@ -64,8 +60,8 @@ const PenilaianIndikatorData = () => {
         
         return [
             { id: 1, label: "Total Karyawan Yang Harus Dinilai", value: totalPenilaian, color: "bg-blue-100 text-blue-700" },
-            { id: 3, label: "Total Karyawan Yang Sudah Dinilai", value: penilaian.filter((p: any) => p.sudahDinilai === true).length, color: "bg-emerald-100 text-emerald-700" },
-            { id: 4, label: "Total Karyawan Yang Belum Dinilai", value: penilaian.filter((p: any) => p.sudahDinilai === false).length, color: "bg-red-100 text-red-700" },
+            { id: 2, label: "Total Karyawan Yang Sudah Dinilai", value: penilaian.filter((p: any) => p.sudahDinilai === true).length, color: "bg-emerald-100 text-emerald-700" },
+            { id: 3, label: "Total Karyawan Yang Belum Dinilai", value: penilaian.filter((p: any) => p.sudahDinilai === false).length, color: "bg-red-100 text-red-700" },
         ];
     }, [tasksToReview]);
 

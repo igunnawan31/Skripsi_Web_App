@@ -312,7 +312,7 @@ const CutiShows: React.FC<CutiRequestProps> = ({
                 </div>
             )}
 
-            {cuti.length > 10 && !isLoading && (
+            {cuti.length > 0 && !isLoading && (
                 <div className="mt-6">
                     <PaginationBar
                         totalItems={totalItems}

@@ -359,7 +359,7 @@ const KontrakKerjaShows = () => {
                 </div>
             )}
 
-            {kontrak.length > 10 && !isLoading && (
+            {kontrak.length > 0 && !isLoading && (
                 <div className="mt-6">
                     <PaginationBar
                         totalItems={totalItems}

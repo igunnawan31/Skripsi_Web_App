@@ -335,7 +335,7 @@ const GajiShows: React.FC<GajiRequestProps & { externalBulan?: string, onBulanCh
                 </div>
             )}
 
-            {salaries.length > 10 && !isLoading && (
+            {salaries.length > 0 && !isLoading && (
                 <div className="mt-6">
                     <PaginationBar
                         totalItems={totalItems}

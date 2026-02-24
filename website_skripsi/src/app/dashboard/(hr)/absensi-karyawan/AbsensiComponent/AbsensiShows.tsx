@@ -284,7 +284,7 @@ const AbsensiShows: React.FC<AbsensiRequestProps & { externalDate?: string, onDa
                 </div>
             )}
 
-            {absen.length > 10 && !isLoading && (
+            {absen.length > 0 && !isLoading && (
                 <div className="mt-6">
                     <PaginationBar
                         totalItems={totalItems}

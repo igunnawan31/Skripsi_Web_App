@@ -11,6 +11,7 @@ const AbsensiData = ({ selectedDate }: { selectedDate: string }) => {
 
     const { data } = useAbsensi().fetchAllAbsensi({
         date: new Date(`${selectedDate}T00:00:00`).toISOString(),
+        limit: 1000,
     });
 
     const stats = useMemo(() => {
@@ -24,7 +25,7 @@ const AbsensiData = ({ selectedDate }: { selectedDate: string }) => {
             return zoned > limit ? "late" : "ontime";
         };
 
-        const totalAbsen = list.length;
+        const totalAbsen = data?.meta.total || 0;
         const onTimeCount = list.filter((a: any) => checkStatus(a.checkIn) === "ontime").length;
         const lateCount = list.filter((a: any) => checkStatus(a.checkIn) === "late").length;
         
