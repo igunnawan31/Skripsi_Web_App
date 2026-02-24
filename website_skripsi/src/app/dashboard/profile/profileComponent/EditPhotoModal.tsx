@@ -1,8 +1,12 @@
 import { icons } from "@/app/lib/assets/assets";
+import CustomToast from "@/app/rootComponents/CustomToast";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 const EditPhotoModal = ({ id, currentPhoto, isPending, onClose, mutate }: any) => {
+    const router = useRouter();
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [preview, setPreview] = useState(currentPhoto);
 
@@ -16,8 +20,29 @@ const EditPhotoModal = ({ id, currentPhoto, isPending, onClose, mutate }: any) =
 
     const handleSave = () => {
         if (!selectedFile) return;
+        
         mutate({ id, photo: selectedFile }, {
-            onSuccess: () => onClose()
+            onSuccess: () => {
+                toast.custom(
+                    <CustomToast 
+                        type="success" 
+                        message="Foto profil berhasil diperbarui" 
+                    />
+                );
+                onClose();
+                
+                setTimeout(() => {
+                    router.refresh();
+                }, 500);
+            },
+            onError: (error: any) => {
+                toast.custom(
+                    <CustomToast 
+                        type="error" 
+                        message={error.message || "Gagal memperbarui foto profil"} 
+                    />
+                );
+            }
         });
     };
 

@@ -143,13 +143,6 @@ export const HRMenuProps = [
                 description: "Pantau performa keseluruhan karyawan berdasarkan hasil KPI dan evaluasi manajerial.",
                 href: "/dashboard/rekap-kinerja-karyawan",
             },
-            {
-                icon: icons.rekapReimbursePengeluaranLogo,
-                alt: "Rekap Reimburse Pengeluaran",
-                label: "Rekap Reimburse Pengeluaran",
-                description: "Kelola laporan reimburse dan pengeluaran karyawan untuk transparansi serta kontrol anggaran.",
-                href: "/dashboard/rekap-reimburse-pengeluaran",
-            },
         ],
     },
     {
@@ -194,7 +187,19 @@ export const OwnerMenuProps = [
                 alt: "Cuti",
                 label: "Cuti Karyawan",
                 description: "Atur dan pantau pengajuan cuti karyawan berdasarkan hak cuti, tanggal, serta status persetujuan.",
-                href: "/dashboard/cuti-karyawan",
+                href: "/dashboard/cuti-karyawan-owner",
+            },
+        ],
+    },
+    {
+        title: "Manage Gaji",
+        items: [
+            {
+                icon: icons.gajiLogo,
+                alt: "Gaji",
+                label: "Gaji Karyawan",
+                description: "Kelola data penggajian, potongan, tunjangan, dan riwayat pembayaran untuk seluruh karyawan.",
+                href: "/dashboard/gaji-karyawan-owner",
             },
         ],
     },
@@ -206,7 +211,7 @@ export const OwnerMenuProps = [
                 alt: "Kontrak Kerja",
                 label: "Kontrak Kerja Karyawan",
                 description: "Pantau masa berlaku kontrak, perpanjangan, dan riwayat status kerja karyawan dalam satu tempat.",
-                href: "/dashboard/kontrak-kerja-karyawan",
+                href: "/dashboard/kontrak-kerja-karyawan-owner",
             },
         ],
     },
@@ -218,28 +223,16 @@ export const OwnerMenuProps = [
                 alt: "Penilaian Kinerja Karyawan",
                 label: "Penilaian Kinerja Karyawan",
                 description: "Lakukan penilaian kinerja berdasarkan indikator yang telah ditetapkan untuk setiap karyawan.",
-                href: "/dashboard/manajemen-kpi/penilaian-kinerja-karyawan-owner",
+                href: "/dashboard/manajemen-kpi-owner/penilaian-kinerja-karyawan",
             },
             {
                 icon: icons.hasilKPILogo,
                 alt: "Hasil Kinerja Karyawan",
                 label: "Hasil Kinerja Karyawan",
                 description: "Lihat hasil evaluasi kinerja karyawan dalam bentuk laporan dan grafik perkembangan performa.",
-                href: "/dashboard/manajemen-kpi/hasil-kinerja-karyawan-owner",
+                href: "/dashboard/manajemen-kpi-owner/hasil-kinerja-karyawan",
             },
         ],
-    },
-    {
-        title: "Rekomendasi Freelance",
-        items: [
-            {
-                icon: icons.rekomendasiFreelancerLogo,
-                alt: "Rekomendasi Freelance",
-                label: "Rekomendasi Freelance",
-                description: "Dapatkan rekomendasi freelancer terbaik berdasarkan kinerja, keahlian, dan riwayat proyek.",
-                href: "/dashboard/rekomendasi-freelance-owner",
-            }
-        ]
     },
     {
         title: "Manajemen Karyawan",
@@ -249,7 +242,7 @@ export const OwnerMenuProps = [
                 alt: "Manajemen Karyawan",
                 label: "Manajemen Karyawan",
                 description: "Kelola profil, jabatan, status kerja, dan riwayat data karyawan secara terpusat dan efisien.",
-                href: "/dashboard/manajemen-karyawan",
+                href: "/dashboard/manajemen-karyawan-owner",
             },
         ],
     },
@@ -302,6 +295,18 @@ export const OwnerMenuProps = [
                 label: "Rekap Reimburse Pengeluaran",
                 description: "Kelola laporan reimburse dan pengeluaran karyawan untuk transparansi serta kontrol anggaran.",
                 href: "/dashboard/rekap-reimburse-pengeluaran-owner",
+            },
+        ],
+    },
+    {
+        title: "Lain-lainnya",
+        items: [
+            {
+                icon: icons.penilaianKPILogo,
+                alt: "My Profile",
+                label: "My Profile",
+                description: "",
+                href: "/dashboard/profile",
             },
         ],
     },

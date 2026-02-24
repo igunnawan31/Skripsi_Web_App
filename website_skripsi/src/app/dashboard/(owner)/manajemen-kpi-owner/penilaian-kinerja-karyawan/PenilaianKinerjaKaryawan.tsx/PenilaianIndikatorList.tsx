@@ -1,22 +1,23 @@
 "use client";
 
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/PaginationBar";
-import FilterBar from "@/app/dashboard/dashboardComponents/allComponents/FilterBar";
 import { useSearchParams, useRouter } from "next/navigation";
-import { fetchPenilaianKPI } from "@/app/lib/hooks/dummyHooks/fetchPenilaianKPI";
 import { PenilaianProps } from "@/app/props/HRProps/PenilaianProps";
 import { useUserLogin } from "@/app/context/UserContext";
 import { useKpi } from "@/app/lib/hooks/kpi/useKpi";
 import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
 import Image from "next/image";
-import { icons } from "@/app/lib/assets/assets";
+import { icons, logo } from "@/app/lib/assets/assets";
 import { StatusIndikatorKPI } from "@/app/lib/types/kpi/kpiTypes";
+import FilterModal from "@/app/dashboard/dashboardComponents/allComponents/FilterModal";
+import { useUser } from "@/app/lib/hooks/user/useUser";
+import { format } from "date-fns";
 
 const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
     showButton = false,
     buttonText = "Aksi",
+    onButtonClick,
 }) => {
     const searchParams = useSearchParams();
     const user = useUserLogin();
@@ -24,16 +25,12 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
 
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
-    
-    const [loading, setLoading] = useState(true);
-    const [usersToReview, setUsersToReview] = useState<any[]>([]);
-    const [selectedStatusPublic, setSelectedStatusPublic] = useState<string>(searchParams.get("statusPublic") || "All");
-    const [selectedStatusIndikator, setSelectedStatusIndikator] = useState<string>(searchParams.get("status") || "All");
+
+    const [assessmentStatus, setAssessmentStatus] = useState<string>(searchParams.get("assessmentStatus") || "All");
     const [selectedMinDate, setSelectedMinDate] = useState<string>(searchParams.get("minStartDate") || "");
     const [selectedMaxDate, setSelectedMaxDate] = useState<string>(searchParams.get("maxEndDate") || "");
     const [searchQuery, setSearchQuery] = useState("");
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const handleSearch = (query: string) => {
         setSearchQuery(query);
@@ -43,28 +40,24 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
     const { data, isLoading, error} = useKpi().fetchAllIndikator({
         page: currentPage,
         limit: itemsPerPage,
-        statusPublic: selectedStatusPublic !== "All" ? selectedStatusPublic : undefined,
-        status: selectedStatusIndikator !== "All" ? selectedStatusIndikator : undefined,
         minStartDate: selectedMinDate || undefined,
         maxEndDate: selectedMaxDate || undefined,
         searchTerm: searchQuery || undefined,
     });
-
-    const totalItems = data?.meta?.total || 0;
+    
+    const { data: fetchedDataUser, isLoading: isLoadingUser } = useUser().fetchAllUser();
 
     useEffect(() => {
         const params = new URLSearchParams();
-        if (selectedStatusPublic && selectedStatusPublic !== "All") params.set("statusPublic", selectedStatusPublic);
-        if (selectedStatusIndikator && selectedStatusIndikator !== "All") params.set("status", selectedStatusIndikator);
+        if (assessmentStatus && assessmentStatus !== "All") params.set("assessmentStatus", assessmentStatus);
         if (selectedMinDate) params.set("minStartDate", selectedMinDate);
         if (selectedMaxDate) params.set("maxEndDate", selectedMaxDate);
         if (searchQuery) params.set("searchTerm", searchQuery);
         router.replace(`?${params.toString()}`);
-    }, [selectedStatusPublic, selectedStatusIndikator, selectedMinDate, selectedMaxDate, searchQuery, router]);
+    }, [assessmentStatus, selectedMinDate, selectedMaxDate, searchQuery, router]);
 
     const handleApplyFilters = (filters: Record<string, string | undefined>) => {
-        setSelectedStatusPublic(filters.statusPublic || "All");
-        setSelectedStatusIndikator(filters.status || "All");
+        setAssessmentStatus(filters.assessmentStatus || "All");
         setSelectedMinDate(filters.minStartDate || "");
         setSelectedMaxDate(filters.maxEndDate || "");
         setCurrentPage(1);
@@ -73,53 +66,91 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
     const tasksToReview = React.useMemo(() => {
         if (!data?.data || !user?.id) return [];
 
-        return data.data
+        const userMap = new Map();
+        if (fetchedDataUser?.data) {
+            fetchedDataUser.data.forEach((u: any) => {
+                userMap.set(u.id, u.name);
+            });
+        }
+
+        const allTasks = data.data
             .filter((indikator: any) => indikator.status === StatusIndikatorKPI.ACTIVE)
             .flatMap((indikator: any) => {
                 const myEvaluations = indikator.evaluations?.filter(
-                    (ev: any) => ev.evaluatorId === user.id
+                    (ev: any) => ev.evaluatorId === user?.id
                 ) || [];
 
                 return myEvaluations.map((ev: any) => {
-                    const sudahDinilai = indikator.jawaban?.some(
-                        (jwb: any) => jwb.evaluateeId === ev.evaluateeId
+                    const dataRekap = indikator.rekap?.find(
+                        (r: any) => r.userId === ev.evaluateeId
                     );
-
+                    const sudahDinilai = (dataRekap?.jumlahPenilai || 0) > 0;
+                    
                     return {
                         idUnique: `${indikator.id}-${ev.evaluateeId}`,
                         indikatorId: indikator.id,
+                        indikatorPertanyaan: indikator.pertanyaan.length,
                         namaIndikator: indikator.name,
                         description: indikator.description,
+                        startDate: indikator.startDate,
+                        endDate: indikator.endDate,
                         evaluateeId: ev.evaluateeId,
-                        namaTarget: ev.evaluatee?.name || `Karyawan ID: ${ev.evaluateeId.slice(0, 5)}`,
+                        namaTarget: userMap.get(ev.evaluateeId) || ev.evaluatee?.name || "Karyawan",
                         sudahDinilai: sudahDinilai,
                     };
                 });
             });
-    }, [data, user?.id]);
 
+        if (assessmentStatus === "Sudah Dinilai") {
+            return allTasks.filter((task: any) => task.sudahDinilai);
+        } 
+        if (assessmentStatus === "Perlu Dinilai") {
+            return allTasks.filter((task: any) => !task.sudahDinilai);
+        }
+
+        return allTasks;
+    }, [data, user?.id, fetchedDataUser, assessmentStatus]);
+
+    const totalItems = tasksToReview.length || 0;
+    
     const filterFields = [
         { key: "minStartDate", label: "From", type: "date" as const },
         { key: "maxEndDate", label: "To", type: "date" as const },
-        { key: "statusPublic", label: "Status Publik", type: "select" as const, options: ["true", "false"]},
-        { key: "status", label: "Status Indikator", type: "select" as const, options: Object.values(StatusIndikatorKPI) },
+        { key: "assessmentStatus", label: "Status Penilaian", type: "select" as const, options: ["Perlu Dinilai", "Sudah Dinilai"] },
     ];
     
     const initialValues = {
         minStartDate: selectedMinDate,
         maxEndDate: selectedMaxDate,
-        statusPublic: selectedStatusPublic,
-        status: selectedStatusIndikator,
+        assessmentStatus: assessmentStatus
+
     };
 
     if (error) {
-        return <div className="text-center text-red-500 py-6">Error: {error.message}</div>;
+        const errorRender = (
+            <div className="flex flex-col items-center justify-between gap-4 py-4">
+                <Image
+                    src={logo.error}
+                    width={240}
+                    height={240}
+                    alt="Not Found Data"
+                />
+                <div className="flex flex-col items-center">
+                    <h1 className="text-2xl font-bold text-(--color-primary)">
+                        {error.message ? error.message : "Terdapat kendala pada sistem"}
+                    </h1>
+                    <span className="text-sm text-(--color-primary)">Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki</span>
+                </div>
+            </div>
+        );
+
+        return errorRender;
     };
 
     const renderHtml = (
         <div className="flex flex-col gap-4 w-full relative">
             <SearchBar
-                placeholder="Cari nama indikator KPI..."
+                placeholder="Cari nama karyawan yang dinilai..."
                 onSearch={handleSearch}
             />
             <div className="flex flex-wrap md:items-center gap-3">
@@ -145,7 +176,7 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
                         Filter
                     </div>
                 </div>
-                {(selectedStatusPublic !== "All" || selectedStatusIndikator !== "All" || selectedMinDate || selectedMaxDate || searchQuery) && (
+                {( assessmentStatus || selectedMinDate || selectedMaxDate || searchQuery) && (
                     <>
                         {searchQuery && (
                             <span
@@ -160,27 +191,14 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
                                 </button>
                             </span>
                         )}
-                        {selectedStatusPublic !== "All" && (
+                        {assessmentStatus !== "All" && (
                             <span
                                 className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
                             >
-                                Status Publik: {selectedStatusPublic === "true" ? "Aktif" : "Non-Aktif"}
+                                Status Assesment: {assessmentStatus}
                                 <button
                                     className="text-red-500 hover:text-red-700 cursor-pointer"
-                                    onClick={() => setSelectedStatusPublic("All")}
-                                >
-                                    ✕
-                                </button>
-                            </span>
-                        )}
-                        {selectedStatusIndikator !== "All" && (
-                            <span
-                                className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
-                            >
-                                Metode Pembayaran: {selectedStatusIndikator}
-                                <button
-                                    className="text-red-500 hover:text-red-700 cursor-pointer"
-                                    onClick={() => setSelectedStatusIndikator("All")}
+                                    onClick={() => setAssessmentStatus("All")}
                                 >
                                     ✕
                                 </button>
@@ -216,7 +234,7 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
                 )}
             </div>
 
-            {isLoading ? (
+            {isLoading || isLoadingUser ? (
                 <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {Array.from({ length: itemsPerPage }).map((_, i) => (
                         <div
@@ -228,9 +246,8 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
             ) : tasksToReview.length > 0 ? (
                 <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {tasksToReview.map((task: any) => (
-                        <Link
+                        <div
                             key={task.idUnique}
-                            href={`/dashboard/manajemen-kpi/penilaian-kinerja-karyawan/${task.evaluateeId}?indikator=${task.indikatorId}`}
                             className="group bg-(--color-surface) border border-(--color-border) rounded-2xl p-5 shadow-sm hover:shadow-md transition-all"
                         >
                             <div className="flex justify-between items-start mb-3">
@@ -238,32 +255,98 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
                                     {task.namaTarget}
                                 </span>
                                 <span className={`px-2 py-1 text-[10px] font-bold rounded-md uppercase ${
-                                    task.sudahDinilai ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                                    task.sudahDinilai ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                 }`}>
-                                    {task.sudahDinilai ? "Selesai" : "Perlu Dinilai"}
+                                    {task.sudahDinilai ? "Sudah Dinilai" : "Belum Dinilai"}
                                 </span>
                             </div>
 
                             <div className="space-y-1">
-                                <h3 className="font-bold text-gray-800 line-clamp-1">{task.namaIndikator}</h3>
+                                <h3 className="font-bold text-gray-800 line-clamp-1">Indikator - {task.namaIndikator}</h3>
                                 <p className="text-xs text-gray-500 line-clamp-2">{task.description}</p>
                             </div>
 
-                            <div className="mt-4 pt-4 border-t border-gray-100">
-                                <button className="w-full py-2 bg-yellow-500 text-white rounded-lg text-sm font-medium">
-                                    {task.sudahDinilai ? "Lihat Detail" : buttonText}
-                                </button>
+                            <div className="flex flex-col gap-3 mt-2">
+                                <div className="flex flex-col sm:flex-row sm:justify-between items-start">
+                                    <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
+                                        <Image
+                                            src={icons.dateIn}
+                                            alt="Tanggal Mulai Cuti"
+                                            width={24}
+                                            height={24}
+                                        />
+                                        {task.startDate ? format(new Date(task.startDate), "dd MMM yyyy") : "-"}
+                                    </div>
+                                    <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
+                                        <Image
+                                            src={icons.dateOut}
+                                            alt="Tanggal Berakhir Cuti"
+                                            width={24}
+                                            height={24}
+                                        />
+                                        {task.endDate ? format(new Date(task.endDate), "dd MMM yyyy") : "-"}
+                                    </div>
+                                </div>
                             </div>
-                        </Link>
+
+                            <div className="flex justify-between items-center  mt-2">
+                                <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
+                                    <Image
+                                        src={icons.question}
+                                        alt="Jumlah Pertanyaan Cuti"
+                                        width={24}
+                                        height={24}
+                                    />
+                                    {task.indikatorPertanyaan} Pertanyaan
+                                </div>
+                            </div>
+
+                            {showButton && (
+                                (!task.sudahDinilai) ? (
+                                    <button
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            onButtonClick?.(task.idUnique);
+                                            router.push(`/dashboard/manajemen-kpi/penilaian-kinerja-karyawan/${task.indikatorId}?evaluatee=${task.evaluateeId}`)
+                                        }}
+                                        className="mt-3 w-full py-2 rounded-lg text-sm font-semibold bg-(--color-primary) text-white hover:bg-(--color-tertiary) hover:text-(--color-secondary) transition cursor-pointer"
+                                    >
+                                        <p>{buttonText}</p>
+                                    </button>
+                                ): (
+                                    <button
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            onButtonClick?.(task.idUnique);
+                                            router.push(`/dashboard/manajemen-kpi/penilaian-kinerja-karyawan/${task.indikatorId}?evaluatee=${task.evaluateeId}`)
+                                        }}
+                                        className="mt-3 w-full py-2 rounded-lg text-sm font-semibold bg-(--color-success) text-white hover:bg-(--color-tertiary) hover:text-(--color-secondary) transition cursor-pointer"
+                                    >
+                                        <p>Lihat Detail Penilaian Karyawan</p>
+                                    </button>
+                                )
+                            )}
+                        </div>
                     ))}
                 </div>
             ) : (
-                <p className="text-center text-gray-500 py-6">
-                    Tidak ada data penilaian sesuai filter.
-                </p>
+                <div className="flex flex-col items-center justify-between gap-4 py-4">
+                    <Image
+                        src={logo.notFound}
+                        width={120}
+                        height={120}
+                        alt="Not Found Data"
+                    />
+                    <div className="flex flex-col items-center">
+                        <h1 className="text-xl font-bold text-(--color-text-primary)">
+                            Pencarian Tidak Ditemukan
+                        </h1>
+                        <span className="text-sm text-(--color-muted)">Ubah hasil pencarian kamu</span>
+                    </div>
+                </div>
             )}
 
-            {usersToReview.length > 0 && !loading && (
+            {tasksToReview.length > 0 && !isLoading && (
                 <div className="mt-6">
                     <PaginationBar
                         totalItems={totalItems}
@@ -274,6 +357,13 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
                     />
                 </div>
             )}
+            <FilterModal
+                isOpen={isFilterOpen}
+                filterFields={filterFields}
+                initialValues={initialValues}
+                onClose={() => setIsFilterOpen(false)}
+                onApply={handleApplyFilters}
+            />
         </div>
     );
 

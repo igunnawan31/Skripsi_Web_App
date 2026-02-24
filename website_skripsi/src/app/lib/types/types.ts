@@ -101,7 +101,16 @@ export type User = {
     name: string;
     majorRole: MajorRole;
     minorRole?: MinorRole;
-    photo: JSON;
+    photo: {
+        path: string;
+        size: string;
+        encoding: string;
+        filename: string;
+        mimetype: string;
+        fieldname: string;
+        destination: string;
+        originalname: string;
+    };
 }
 
 export type Gaji = {
