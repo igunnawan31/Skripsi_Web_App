@@ -7,10 +7,11 @@ import { useKpi } from "@/app/lib/hooks/kpi/useKpi";
 import { AnswerCreateForm, KategoriPertanyaanKPI, PertanyaanIndikatorResponse, SkalaNilai } from "@/app/lib/types/kpi/kpiTypes";
 import { useJawaban } from "@/app/lib/hooks/kpi/useJawaban";
 import Image from "next/image";
-import { icons } from "@/app/lib/assets/assets";
+import { icons, logo } from "@/app/lib/assets/assets";
 import ConfirmationPopUpModal from "@/app/dashboard/dashboardComponents/allComponents/ConfirmationPopUpModal";
 import toast from "react-hot-toast";
 import CustomToast from "@/app/rootComponents/CustomToast";
+import PenilaianIndikatorSkeletonDetail from "./PenilaianIndikatorSkeletonDetail";
 
 export default function PenilaianIndikatorDetail({ id }: {id: string}) {
     const router = useRouter();
@@ -44,8 +45,6 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
 
     const hitungNilaiAkhir = () => {
         if (sudahDinilai) {
-            // 1. Hitung dari data database (jawabanMilikTarget)
-            // Kita perlu mencocokkan bobot dari detailDataPertanyaan
             let totalWeightedScore = 0;
             let totalBobot = 0;
 
@@ -58,7 +57,6 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
 
             return totalBobot > 0 ? (totalWeightedScore / totalBobot).toFixed(2) : "0";
         } else {
-            // 2. Hitung real-time dari state formJawaban
             let totalWeightedScore = 0;
             let totalBobot = 0;
 
@@ -143,16 +141,96 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
         });
     }
     
+    const getErrorMessage = () => {
+        if (detailJawabanError?.message) return detailJawabanError.message;
+        if (detailPertanyaanError?.message) return detailPertanyaanError.message;
+        return "Terdapat kendala pada sistem";
+    };
+
+    const errorMessage = getErrorMessage();
+    
     if (isDetailJawabanLoading || isDetailPertanyaanLoading) {
-        return <div className="text-center text-(--color-muted)">Memuat data...</div>;
+        return <PenilaianIndikatorSkeletonDetail />;
     }
 
     if (detailJawabanError || detailPertanyaanError) {
-        return <div className="text-center text-red-500">Terjadi kesalahan.</div>;
+        const errorFetchedData = (
+            <div className="flex flex-col gap-6 w-full pb-8">
+                <button
+                    onClick={() => router.back()}
+                    className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                >
+                    <Image 
+                        src={icons.arrowLeftActive}
+                        alt="Back Arrow"
+                        width={20}
+                        height={20}
+                    />
+                    <p className="text-(--color-surface)">
+                        Kembali ke halaman sebelumnya
+                    </p>
+                </button>
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md px-6 py-12 border border-(--color-border) flex flex-col gap-6">
+                    <div className="flex flex-col items-center text-center gap-4">
+                        <Image
+                            src={logo.error}
+                            width={240}
+                            height={240}
+                            alt="Error Illustration"
+                        />
+                        <div className="flex flex-col items-center max-w-md">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                {errorMessage}
+                            </h1>
+                            <p className="text-sm text-gray-500 mt-2">
+                                Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return errorFetchedData;
     }
 
     if (!detailDataJawaban || !detailDataPertanyaan) {
-        return <div className="text-center text-red-500">Data tidak ditemukan.</div>;
+        const noFetchedData = (
+            <div className="flex flex-col gap-6 w-full pb-8">
+                <button
+                    onClick={() => router.back()}
+                    className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                >
+                    <Image 
+                        src={icons.arrowLeftActive}
+                        alt="Back Arrow"
+                        width={20}
+                        height={20}
+                    />
+                    <p className="text-(--color-surface)">
+                        Kembali ke halaman sebelumnya
+                    </p>
+                </button>
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md px-6 py-12 border border-(--color-border) flex flex-col gap-6">
+                    <div className="flex flex-col items-center justify-between gap-4">
+                        <Image
+                            src={logo.notFound}
+                            width={240}
+                            height={240}
+                            alt="Not Found Data"
+                        />
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                Detail Pertanyaan / Jawaban Tidak Ditemukan
+                            </h1>
+                            <span className="text-sm text-(--color-primary)">Mohon mengecek kembali detail absensi nanti</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return noFetchedData
     }
 
     return (

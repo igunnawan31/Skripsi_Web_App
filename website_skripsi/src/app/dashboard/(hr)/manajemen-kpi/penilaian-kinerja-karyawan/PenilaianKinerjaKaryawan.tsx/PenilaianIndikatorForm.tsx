@@ -1,8 +1,6 @@
 import { icons } from "@/app/lib/assets/assets";
-import { dummySkalaNilai } from "@/app/lib/dummyData/PertanyaanKPIData";
 import { SkalaNilai } from "@/app/lib/types/kpi/kpiTypes";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import React from "react";
 
 type PenilaianKPIComponentProps = {
