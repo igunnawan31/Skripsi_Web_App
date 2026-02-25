@@ -127,6 +127,96 @@ export class ReimburseRepository implements IReimburseRepository {
       handlePrismaError(err, 'Reimburse', '', this.logger);
     }
   }
+  async findAllByUserId(
+    filters: InternalReimburseFilterDTO,
+    userId: string,
+  ): Promise<RetrieveAllReimburseResponseDTO | null> {
+    const {
+      searchTerm,
+      minExpenses,
+      maxExpenses,
+      minSubmittedDate,
+      maxSubmittedDate,
+      approvalStatus,
+      page = 1,
+      limit = 10,
+      sortOrder = 'desc',
+      sortBy = 'createdAt',
+    } = filters;
+    try {
+      const where: Prisma.ReimburseWhereInput = {
+        userId,
+        totalExpenses: {
+          gte: minExpenses ?? undefined,
+          lte: maxExpenses ?? undefined,
+        },
+        approvalStatus: approvalStatus ?? undefined,
+        createdAt: {
+          gte: minSubmittedDate ?? undefined,
+          lte: maxSubmittedDate ?? undefined,
+        },
+      };
+      if (
+        searchTerm !== undefined &&
+        searchTerm !== null &&
+        searchTerm.trim() !== ''
+      ) {
+        const searchValue = searchTerm.trim();
+        where.OR = [
+          {
+            title: {
+              contains: searchValue,
+              mode: 'insensitive',
+            },
+          },
+        ];
+      }
+
+      const orderBy: Prisma.ReimburseOrderByWithRelationInput = {};
+      if (
+        sortBy &&
+        ALLOWED_REIMBURSE_SORT_FIELDS.includes(sortBy as ReimburseSortField)
+      ) {
+        orderBy[sortBy] = sortOrder === 'desc' ? 'desc' : 'asc';
+      } else {
+        orderBy.title = 'asc';
+      }
+
+      const [reimburses, total] = await this.prisma.$transaction([
+        this.prisma.reimburse.findMany({
+          where,
+          orderBy,
+          take: limit,
+          skip: (page - 1) * limit,
+          include: {
+            requester: true,
+            approver: true,
+          },
+        }),
+        this.prisma.reimburse.count({ where }),
+      ]);
+
+      if (!reimburses) return null;
+
+      return plainToInstance(RetrieveAllReimburseResponseDTO, {
+        data: reimburses.map((r) =>
+          plainToInstance(RetrieveReimburseResponseDTO, {
+            ...r,
+            requester: plainToInstance(UserBaseDTO, r.requester),
+            approver: plainToInstance(UserBaseDTO, r.approver),
+          }),
+        ),
+        meta: {
+          total,
+          page,
+          limit,
+          totalPage: Math.ceil(total / limit),
+        },
+      });
+    } catch (err) {
+      handlePrismaError(err, 'Reimburse', '', this.logger);
+    }
+  }
   async findById(id: string): Promise<RetrieveReimburseResponseDTO | null> {
     try {
       const reimburse = await this.prisma.reimburse.findUnique({
