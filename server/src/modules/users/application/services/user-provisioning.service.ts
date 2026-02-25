@@ -17,7 +17,7 @@ export class UserProvisionService {
     @Inject(IUserRepository)
     private readonly repo: IUserRepository,
     private readonly validationService: UserValidationService,
-  ) { }
+  ) {}
 
   async resolve(input: UserProvisionInputDTO, rollback: RollbackManager) {
     if (input.id) {
@@ -31,28 +31,28 @@ export class UserProvisionService {
         throw new NotFoundException('User tidak ditemukan');
       }
       return user;
-    }
-
-    const passwordValidation = this.validationService.validatePasswordStrength(
-      input.password,
-    );
-    if (!passwordValidation.valid) {
-      if (input.photo) {
-        await deleteFile(input.photo.path);
+    } else {
+      const passwordValidation =
+        this.validationService.validatePasswordStrength(input.password);
+      if (!passwordValidation.valid) {
+        if (input.photo) {
+          await deleteFile(input.photo.path);
+        }
+        throw new BadRequestException(
+          `User data: ${passwordValidation.message}`,
+        );
       }
-      throw new BadRequestException(`User data: ${passwordValidation.message}`);
+      const hashedPassword = await bcrypt.hash(input.password, 10);
+      const user = await this.repo.create({
+        name: input.name,
+        email: input.email,
+        password: hashedPassword,
+        majorRole: 'KARYAWAN',
+        minorRole: input.minorRole,
+        photo: input.photo,
+      });
+      rollback.register(() => this.repo.remove(user.id));
+      return user;
     }
-
-    const hashedPassword = await bcrypt.hash(input.password, 10);
-    const user = await this.repo.create({
-      name: input.name,
-      email: input.email,
-      password: hashedPassword,
-      majorRole: 'KARYAWAN',
-      minorRole: input.minorRole,
-      photo: input.photo,
-    });
-    rollback.register(() => this.repo.remove(user.id));
-    return user;
   }
 }
