@@ -11,6 +11,7 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
 import { SubmitCutiUseCase } from '../application/use-cases/submit-cuti.use-case';
 import { ICutiRepository } from '../domain/repositories/cuti.repository.interface';
@@ -73,6 +74,10 @@ export class CutiController {
     @Req() req: Request & { user: UserRequest },
     @UploadedFile() file: Express.Multer.File,
   ) {
+    if (!file) {
+      throw new BadRequestException('Dokumen cuti wajib ada');
+    }
+
     return this.submitCutiUseCase.execute(req.user.id, data, file);
   }
 
@@ -138,7 +143,7 @@ export class CutiController {
     @Param('id') id: string,
     @Body() updateCutiDto: UpdateCutiDTO,
     @UploadedFile() file: Express.Multer.File,
-    @Req() req: Request & {user: UserRequest},
+    @Req() req: Request & { user: UserRequest },
   ) {
     return this.UpdateCutiUseCase.execute(id, req.user.id, updateCutiDto, file);
   }
