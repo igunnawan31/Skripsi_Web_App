@@ -104,12 +104,12 @@ export class KontrakController {
           ...dto.userData,
           photo: userPhoto ? userPhoto[0] : undefined,
         },
-        projectData: {
+        projectData: dto.projectData ? {
           ...dto.projectData,
           startDate: new Date(dto.projectData.startDate),
           endDate: new Date(dto.projectData.endDate),
           documents: projectDocuments,
-        },
+        } : undefined,
         documents: contractDocuments,
       };
       return await this.createKontrakUseCase.execute(payload, req.user.id);

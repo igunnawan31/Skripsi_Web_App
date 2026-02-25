@@ -57,9 +57,11 @@ class BaseCreateKontrakDTO {
   catatan?: string;
 
   @IsDateString()
+  @Type(() => String)
   startDate: string;
 
   @IsDateString()
+  @Type(() => String)
   endDate: string;
 
   @IsEnum(EmployeeType)
@@ -97,12 +99,12 @@ export class CreateKontrakDTO extends BaseCreateKontrakDTO {
 }
 
 export class InternalCreateKontrakDTO extends OmitType(BaseCreateKontrakDTO, ['startDate', 'endDate']) {
-  @Type(() => Date)
   @IsDate()
+  @Type(() => Date)
   startDate: Date;
 
-  @Type(() => Date)
   @IsDate()
+  @Type(() => Date)
   endDate: Date;
 
   @ValidateNested()
@@ -111,7 +113,7 @@ export class InternalCreateKontrakDTO extends OmitType(BaseCreateKontrakDTO, ['s
 
   @ValidateNested()
   @Type(() => ProjectProvisionInputDTO)
-  projectData: ProjectProvisionInputDTO;
+  projectData?: ProjectProvisionInputDTO;
 
   @ValidateNested()
   @Type(() => FileMetaData)

@@ -11,7 +11,10 @@ import { IKontrakRepository } from '../../domain/repositories/kontrak.repository
 import { KontrakValidationService } from '../../domain/services/kontrak-validation.service';
 import { ProjectProvisionService } from 'src/modules/project/application/services/project-provisioning.service';
 import { UserProvisionService } from 'src/modules/users/application/services/user-provisioning.service';
-import { ProjectBaseDTO, ProjectTeamBaseDTO } from 'src/modules/project/application/dtos/base.dto';
+import {
+  ProjectBaseDTO,
+  ProjectTeamBaseDTO,
+} from 'src/modules/project/application/dtos/base.dto';
 import { ProjectTeamProvisionService } from 'src/modules/project/application/services/projectTeam-provisioning.service';
 import { ProjectTeamProvisionInputDTO } from 'src/modules/project/application/dtos/request/create-project.dto';
 
@@ -48,23 +51,25 @@ export class CreateKontrakUseCase {
 
       let project: ProjectBaseDTO | undefined;
       let projectTeam: ProjectTeamBaseDTO | undefined;
-      if (dto.jenis === 'CONTRACT') {
-        project = await this.projectProvision.resolve(
-          dto.projectData,
-          rollback,
-        );
-        const projectTeamPayload: ProjectTeamProvisionInputDTO = {
-          userId: user.id,
-          projectId: project.id,
-        } 
-        projectTeam = await this.projectTeamProvision.resolve(
-          projectTeamPayload,
-          rollback
-        );
-      } else {
-        // CONTRACT, BUT USER PROVIDED PROJECT DOCUMENT HENCE SHOULD BE CLEANED UP
-        if (dto.projectData.documents) {
-          await deleteFileArray(dto.projectData.documents, 'Dokumen Proyek');
+      if (dto.projectData) {
+        if (dto.jenis === 'CONTRACT') {
+          project = await this.projectProvision.resolve(
+            dto.projectData,
+            rollback,
+          );
+          const projectTeamPayload: ProjectTeamProvisionInputDTO = {
+            userId: user.id,
+            projectId: project.id,
+          };
+          projectTeam = await this.projectTeamProvision.resolve(
+            projectTeamPayload,
+            rollback,
+          );
+        } else {
+          // CONTRACT, BUT USER PROVIDED PROJECT DOCUMENT HENCE SHOULD BE CLEANED UP
+          if (dto.projectData.documents) {
+            await deleteFileArray(dto.projectData.documents, 'Dokumen Proyek');
+          }
         }
       }
 

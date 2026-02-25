@@ -38,7 +38,7 @@ export class KontrakRepository implements IKontrakRepository {
           catatan: dto.catatan ?? null,
           startDate: dto.startDate,
           endDate: dto.endDate,
-          projectId: dto.projectData.id!, // validate di use case, disini selalu available. harusnya gapernah undefined
+          projectId: dto.projectData ? dto.projectData.id! : undefined, // validate di use case, disini selalu available. harusnya gapernah undefined
           userId: dto.userData.id!,
           documents: dto.documents as any[], // [{FileMetaData}]
         },
