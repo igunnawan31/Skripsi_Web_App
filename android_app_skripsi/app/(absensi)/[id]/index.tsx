@@ -352,7 +352,6 @@ export default function DetailAbsensi() {
                     />
                 }
             >
-
                 <View style={absenDetailStyles.subHeader}>
                     <Image
                         source={require("../../../assets/icons/absence.png")}

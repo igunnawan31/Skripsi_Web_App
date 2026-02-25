@@ -98,7 +98,7 @@ const FilterModalKPIComponent = ({
                         <Text style={reimburseStyles.modalLabel}>Pilih Status KPI</Text>
 
                         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-                            {Object.values(["Sudah Dinilai", "Belum Dinilai"]).map((status) => (
+                            {Object.values(["All", "Sudah Dinilai", "Belum Dinilai"]).map((status) => (
                                 <TouchableOpacity
                                     key={status}
                                     onPress={() => setSelectedStatus(status)}

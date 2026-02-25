@@ -1,7 +1,7 @@
 import penilaianKpiStyles from "@/assets/styles/rootstyles/kpi/penilaiankpi.styles";
 import COLORS from "@/constants/colors";
 import { dummySkalaNilai } from "@/data/dummySkalaNilai";
-import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import PagerView from "react-native-pager-view";
 
 type PenilaianKPIComponentProps = {
@@ -17,6 +17,7 @@ type PenilaianKPIComponentProps = {
     allAnswered?: boolean;
     showModal?: boolean;
     setShowModal?: (value: boolean) => void;
+    isPending?: boolean;
 }
 
 const PenilaianKPIComponent = ({ 
@@ -32,9 +33,50 @@ const PenilaianKPIComponent = ({
     allAnswered,
     showModal,
     setShowModal,
+    isPending = false,
 }: PenilaianKPIComponentProps) => {
     return (
         <>
+        {isPending && (
+                <View 
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 1000,
+                    }}
+                >
+                    <View 
+                        style={{
+                            backgroundColor: COLORS.white,
+                            padding: 24,
+                            borderRadius: 12,
+                            alignItems: 'center',
+                        }}
+                    >
+                        <ActivityIndicator size="large" color={COLORS.primary} />
+                        <Text style={{ 
+                            marginTop: 12, 
+                            fontSize: 16, 
+                            fontWeight: '600',
+                            color: COLORS.textPrimary 
+                        }}>
+                            Mengirim Penilaian...
+                        </Text>
+                        <Text style={{ 
+                            marginTop: 4, 
+                            fontSize: 12, 
+                            color: COLORS.textMuted 
+                        }}>
+                            Mohon tunggu sebentar
+                        </Text>
+                    </View>
+                </View>
+            )}
             <View style={penilaianKpiStyles.headerDetailContainer}>
                 <Text style={penilaianKpiStyles.headerDetailTitle}>
                     {judul}
@@ -48,13 +90,15 @@ const PenilaianKPIComponent = ({
             <PagerView
                 style={{ flex: 1 }}
                 initialPage={0}
-                onPageSelected={(e) => setPage(e.nativeEvent.position)}    
+                onPageSelected={(e) => setPage(e.nativeEvent.position)}
+                scrollEnabled={!isPending}   
             >
                 {categoriesQuestion.map(([kategori, list]) => (
                     <View key={kategori} style={{ flex: 1 }}>
                         <ScrollView
                             contentContainerStyle={{ flexGrow: 1, paddingTop: 15, paddingBottom: 24, alignItems: "center" }}
                             keyboardShouldPersistTaps="handled"
+                            scrollEnabled={!isPending}
                         >
                             <View style={penilaianKpiStyles.categoryContainer}>
                                 <Text style={penilaianKpiStyles.categoryTitle}>
@@ -92,7 +136,10 @@ const PenilaianKPIComponent = ({
                                 list.map((item) => (
                                     <View
                                         key={item.id}
-                                        style={penilaianKpiStyles.cardContainer}
+                                        style={[
+                                            penilaianKpiStyles.cardContainer,
+                                            { opacity: isPending ? 0.5 : 1 }
+                                        ]}
                                     >
                                         <Text style={penilaianKpiStyles.titleCard}>
                                             {item.pertanyaan} <Text style={penilaianKpiStyles.errorText}>*</Text>
@@ -110,9 +157,11 @@ const PenilaianKPIComponent = ({
                                                     <TouchableOpacity
                                                         key={skala.nilai}
                                                         onPress={() => handleInputChange?.(item.id, skala.nilai)}
+                                                        disabled={isPending}
                                                         style={[penilaianKpiStyles.radioButton, { 
                                                             borderColor: selected ? COLORS.primary : COLORS.tertiary, 
-                                                            backgroundColor: selected ? COLORS.primary : COLORS.white
+                                                            backgroundColor: selected ? COLORS.primary : COLORS.white,
+                                                            opacity: isPending ? 0.5 : 1,
                                                         }]}
                                                     >
                                                         <Text style={[penilaianKpiStyles.textCard, {
@@ -132,6 +181,7 @@ const PenilaianKPIComponent = ({
                                             multiline
                                             value={formJawaban?.[item.id]?.notes || ""}
                                             onChangeText={(text) => handleNotesChange?.(item.id, text)}
+                                            editable={!isPending}
                                         />
                                     </View>
                                 ))
@@ -143,11 +193,18 @@ const PenilaianKPIComponent = ({
             {!sudahDinilai && allAnswered && (
                 <View style={{ padding: 16 }}>
                     <TouchableOpacity
-                        style={penilaianKpiStyles.buttonSubmit}
+                        style={[
+                            penilaianKpiStyles.buttonSubmit,
+                            {
+                                backgroundColor: isPending ? COLORS.muted : COLORS.primary,
+                                opacity: isPending ? 0.6 : 1,
+                            }
+                        ]}
                         onPress={() => setShowModal?.(true)}
+                        disabled={isPending}
                     >
                         <Text style={penilaianKpiStyles.headerPageText}>
-                            Submit
+                            {isPending ? "Mengirim..." : "Submit"}
                         </Text>
                     </TouchableOpacity>
                 </View>
