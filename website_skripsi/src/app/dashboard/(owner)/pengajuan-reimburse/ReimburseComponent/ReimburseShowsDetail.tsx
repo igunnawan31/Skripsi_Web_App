@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { useCuti } from "@/app/lib/hooks/cuti/useCuti";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import Image from "next/image";
-import { icons, photo } from "@/app/lib/assets/assets";
+import { icons, logo, photo } from "@/app/lib/assets/assets";
 import toast from "react-hot-toast";
 import CustomToast from "@/app/rootComponents/CustomToast";
 import ConfirmationPopUpModal from "@/app/dashboard/dashboardComponents/allComponents/ConfirmationPopUpModal";
@@ -13,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { fetchFileBlob } from "@/app/lib/path";
 import { useReimburse } from "@/app/lib/hooks/reimburse/useReimburse";
 import { ApprovalStatus } from "@/app/lib/types/reimburse/reimburseTypes";
+import ReimburseSkeletonDetail from "./ReimburseSkeletonDetail";
 
 export default function ReimburseShowsDetail({ id }: { id: string }) {
     const reimburse = useReimburse();
@@ -30,7 +29,6 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
     const [actionType, setActionType] = useState<"approve" | "reject" | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const router = useRouter();
-    const data = detailData;
     
     const loadPhoto = async (photoPath: string) => {
         try {
@@ -45,24 +43,12 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
     };
 
     useEffect(() => {
-        if (data?.requester?.photo?.path) {
-            loadPhoto(data.requester.photo.path);
+        if (detailData?.requester?.photo?.path) {
+            loadPhoto(detailData.requester.photo.path);
         }
-    }, [data?.requester?.photo?.path]);
-
-    if (isDetailLoading) {
-        return <div className="text-center text-(--color-muted)">Memuat data...</div>;
-    }
-
-    if (detailError) {
-        return <div className="text-center text-red-500">Terjadi kesalahan.</div>;
-    }
-
-    if (!detailData) {
-        return <div className="text-center text-red-500">Data tidak ditemukan.</div>;
-    }
+    }, [detailData?.requester?.photo?.path]);
     
-    const documents = Array.isArray(data.documents) ? data.documents : [];
+    const documents = Array.isArray(detailData?.documents) ? detailData.documents : [];
     
     const getStatusColor = (ct: any) => {
         if (ct.approvalStatus === ApprovalStatus.PENDING) return "bg-yellow-100 text-yellow-800";
@@ -91,22 +77,22 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
     };
 
     const handleConfirmAction = () => {
-        if (!data || !actionType) return;
+        if (!detailData || !actionType) return;
 
         const mutateFn = actionType === "approve" ? approveReimburse : rejectReimburse;
         mutateFn.mutate(
-            {id: data.id, catatan},
+            {id, catatan},
             {
                 onSuccess: () => {
                     toast.custom(
                         <CustomToast 
                             type="success" 
-                            message={`Cuti berhasil ${actionType === "approve" ? "disetujui" : "ditolak"}`} 
+                            message={`Reimburse berhasil ${actionType === "approve" ? "disetujui" : "ditolak"}`} 
                         />
                     );
                     setIsModalOpen(false);
                     setTimeout(() => {
-                        router.push("/dashboard/cuti-karyawan");
+                        router.push("/dashboard/pengajuan-reimburse");
                     }, 2000);
                 },
                 onError: (err: any) => {
@@ -141,6 +127,88 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
         }
     };
 
+    if (isDetailLoading) {
+        return <ReimburseSkeletonDetail />
+    }
+
+    if (detailError) {
+        const errorFetchedData = (
+            <div className="flex flex-col gap-6 w-full pb-8">
+                <button
+                    onClick={() => router.back()}
+                    className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                >
+                    <Image 
+                        src={icons.arrowLeftActive}
+                        alt="Back Arrow"
+                        width={20}
+                        height={20}
+                    />
+                    <p className="text-(--color-surface)">
+                        Kembali ke halaman sebelumnya
+                    </p>
+                </button>
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md px-6 py-12 border border-(--color-border) flex flex-col gap-6">
+                    <div className="flex flex-col items-center justify-between gap-4">
+                        <Image
+                            src={logo.error}
+                            width={240}
+                            height={240}
+                            alt="Not Found Data"
+                        />
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                {detailError.message ? detailError.message : "Terdapat kendala pada sistem"}
+                            </h1>
+                            <span className="text-sm text-(--color-primary)">Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return errorFetchedData;
+    };
+
+    if (!detailData) {
+        const noFetchedData = (
+            <div className="flex flex-col gap-6 w-full pb-8">
+                <button
+                    onClick={() => router.back()}
+                    className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                >
+                    <Image 
+                        src={icons.arrowLeftActive}
+                        alt="Back Arrow"
+                        width={20}
+                        height={20}
+                    />
+                    <p className="text-(--color-surface)">
+                        Kembali ke halaman sebelumnya
+                    </p>
+                </button>
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md px-6 py-12 border border-(--color-border) flex flex-col gap-6">
+                    <div className="flex flex-col items-center justify-between gap-4">
+                        <Image
+                            src={logo.notFound}
+                            width={240}
+                            height={240}
+                            alt="Not Found Data"
+                        />
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                Detail Reimburse Tidak Ditemukan
+                            </h1>
+                            <span className="text-sm text-(--color-primary)">Mohon mengecek kembali detail absensi nanti</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return noFetchedData;
+    };
+
     return (
         <div className="flex flex-col gap-6 w-full pb-8">
             <button
@@ -161,10 +229,10 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-row gap-4 items-center">
                     <h1 className="text-2xl font-bold text-(--color-text-primary)">
-                        Detail Reimburse
+                        Detail Reimburse - {detailData.requester.name}
                     </h1>
                 </div>
-                <span className="text-sm text-(--color-muted)">{data.id}</span>
+                <span className="text-sm text-(--color-muted)">{detailData.id}</span>
             </div>
 
             <div className="w-full bg-(--color-surface) rounded-2xl shadow-md p-6 border border-(--color-border) flex flex-col gap-6">
@@ -180,10 +248,10 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
                         </div>
                         <div>
                             <h2 className="text-lg font-semibold text-(--color-text-primary)">
-                                {data.requester.name}
+                                {detailData.requester.name}
                             </h2>
                             <p className="text-sm text-(--color-text-secondary)">
-                                {data.requester.minorRole}
+                                {detailData.requester.minorRole}
                             </p>
                         </div>
                     </div>
@@ -194,10 +262,10 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
                             <span
                                 className={`px-3 py-2 text-xs font-semibold rounded-lg uppercase text-center w-full
                                 ${getStatusColor(
-                                    data
+                                    detailData
                                 )}`}
                             >
-                                {data.approvalStatus}
+                                {detailData.approvalStatus}
                             </span>
 
                             <div className="w-full gap-2 flex flex-col">
@@ -207,7 +275,7 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
                                 <div
                                     className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                 >
-                                    {data.title}
+                                    {detailData.title}
                                 </div>
                             </div>
 
@@ -218,7 +286,7 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
                                 <div
                                     className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                 >
-                                    {data.createdAt ? format(new Date(data.createdAt), "dd MMM yyyy") : "-"}
+                                    {detailData.createdAt ? format(new Date(detailData.createdAt), "dd MMM yyyy") : "-"}
                                 </div>
                             </div>
 
@@ -229,13 +297,13 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
                                 <div
                                     className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                 >
-                                    {data.totalExpenses.toLocaleString("id-ID", { style: "currency", currency: "IDR" })}
+                                    {detailData.totalExpenses.toLocaleString("id-ID", { style: "currency", currency: "IDR" })}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                {!(data.approvalStatus === ApprovalStatus.APPROVED && data.approvalStatus === ApprovalStatus.REJECTED) ? (
+                {!(detailData.approvalStatus === ApprovalStatus.APPROVED && detailData.approvalStatus === ApprovalStatus.REJECTED) ? (
                     <div className="flex flex-col gap-4">
                         <div className="flex justify-between items-center">
                             <h2 className="font-semibold text-lg text-(--color-text-primary)">
@@ -249,7 +317,7 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
                             <div
                                 className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                             >
-                                {data.approver ?? "-"}
+                                {detailData.approver?.name ?? "-"}
                             </div>
                         </div>
                         <div className="w-full gap-2 flex flex-col">
@@ -259,7 +327,7 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
                             <div
                                 className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                             >
-                                {data.catatan ?? "-"}
+                                {detailData.catatan ?? "-"}
                             </div>
                         </div>
                         <div className="w-full gap-2 flex flex-col">
@@ -269,7 +337,7 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
                             <div
                                 className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                             >
-                                {data.updatedAt ? format(new Date(data.updatedAt), "dd MMM yyyy") : "-"}
+                                {detailData.updatedAt ? format(new Date(detailData.updatedAt), "dd MMM yyyy") : "-"}
                             </div>
                         </div>
                     </div>
@@ -340,36 +408,43 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
                             </div>
                         ))
                     ) : (
-                        <div className="text-center text-(--color-muted) py-6">
-                            Belum ada dokumen.
+                        <div className="flex justify-between items-center rounded-lg p-4 border border-(--color-border) shadow-sm hover:shadow-md transition-shadow bg-white">
+                            <div className="flex flex-row gap-4">
+                                <div className="w-20 h-20 bg-(--color-secondary) rounded-lg items-center justify-center relative"></div>
+                                <div className="flex flex-col justify-center gap-1">
+                                    <p className="text-md font-bold">Belum ada dokumen yang diunggah</p>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>
-                <div className="mt-6 border-t border-(--color-border) pt-6">
-                    <h2 className="text-lg font-semibold text-(--color-text-primary) mb-4">
-                        Form Persetujuan Reimburse
-                    </h2>
-                    <form className="space-y-5">
-                        <div>
-                            <label
-                                htmlFor="catatan"
-                                className="block mb-2 text-sm font-medium text-(--color-text-secondary)"
-                            >
-                                Catatan Penolakan
-                            </label>
-                            <textarea
-                                name="catatan"
-                                id="catatan"
-                                onChange={(e) => setCatatan(e.target.value)}
-                                className="w-full p-2.5 border border-(--color-border) rounded-lg  text-(--color-text-primary) focus:ring-2 focus:ring-(--color-primary) focus:outline-none transition-all"
-                                placeholder="Anda dapat menyetujui status reimburse dengan memberikan catatan atau (-), atau tolak dengan catatan alasan penolakan"
-                                required
-                            />
-                        </div>
-                    </form>
-                </div>
+                {detailData.approvalStatus === ApprovalStatus.PENDING && (
+                    <div className="mt-6 border-t border-(--color-border) pt-6">
+                        <h2 className="text-lg font-semibold text-(--color-text-primary) mb-4">
+                            Form Persetujuan Reimburse
+                        </h2>
+                        <form className="space-y-5">
+                            <div>
+                                <label
+                                    htmlFor="catatan"
+                                    className="block mb-2 text-sm font-medium text-(--color-text-secondary)"
+                                >
+                                    Catatan Penolakan
+                                </label>
+                                <textarea
+                                    name="catatan"
+                                    id="catatan"
+                                    onChange={(e) => setCatatan(e.target.value)}
+                                    className="w-full p-2.5 border border-(--color-border) rounded-lg  text-(--color-text-primary) focus:ring-2 focus:ring-(--color-primary) focus:outline-none transition-all"
+                                    placeholder="Anda dapat menyetujui status reimburse dengan memberikan catatan atau (-), atau tolak dengan catatan alasan penolakan"
+                                    required
+                                />
+                            </div>
+                        </form>
+                    </div>
+                )}
                 <div className="flex flex-row justify-end items-center gap-4">
-                    {data.approvalStatus === ApprovalStatus.PENDING && (
+                    {detailData.approvalStatus === ApprovalStatus.PENDING && (
                         <div className="flex justify-between gap-3">
                             <button
                                 onClick={() => handleOpenModal("approve")}

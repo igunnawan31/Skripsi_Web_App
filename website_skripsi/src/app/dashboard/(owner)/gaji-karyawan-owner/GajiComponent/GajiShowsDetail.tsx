@@ -419,24 +419,6 @@ export default function GajiShowsDetail({ id }: { id: string }) {
                         Form Pembayaran
                     </h2>
                     <form onSubmit={handleSubmit} className="space-y-5">
-                        {/* <div>
-                            <label
-                                htmlFor="jumlah"
-                                className="block mb-2 text-sm font-medium text-(--color-text-secondary)"
-                            >
-                                Jumlah Pembayaran
-                            </label>
-                            <input
-                                type="text"
-                                disabled
-                                value={detailData.amount.toLocaleString("id-ID", {
-                                    style: "currency",
-                                    currency: "IDR",
-                                })}
-                                className="w-full border border-(--color-border) rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 bg-(--color-muted)/30"
-                            />
-                        </div> */}
-
                         <div>
                             <label
                                 htmlFor="buktiPembayaran"

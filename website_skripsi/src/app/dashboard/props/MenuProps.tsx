@@ -294,7 +294,7 @@ export const OwnerMenuProps = [
                 alt: "Rekap Reimburse Pengeluaran",
                 label: "Rekap Reimburse Pengeluaran",
                 description: "Kelola laporan reimburse dan pengeluaran karyawan untuk transparansi serta kontrol anggaran.",
-                href: "/dashboard/rekap-reimburse-pengeluaran-owner",
+                href: "/dashboard/rekap-reimburse-karyawan-owner",
             },
         ],
     },

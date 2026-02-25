@@ -4,29 +4,35 @@ import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/PaginationBar";
 import { useSearchParams, useRouter } from "next/navigation";
-import { CutiRequestProps } from "@/app/props/HRProps/cutiProps";
 import FilterModal from "@/app/dashboard/dashboardComponents/allComponents/FilterModal";
-import { format, parseISO } from "date-fns";
-import { icons } from "@/app/lib/assets/assets";
+import { format, } from "date-fns";
+import { icons, logo } from "@/app/lib/assets/assets";
 import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
 import Image from "next/image";
 import { useReimburse } from "@/app/lib/hooks/reimburse/useReimburse";
 import { ApprovalStatus } from "@/app/lib/types/reimburse/reimburseTypes";
+import { GajiRequestProps } from "@/app/props/HRProps/GajiProps";
 
-const ReimburseShows: React.FC<CutiRequestProps> = ({
+const ReimburseShows: React.FC<GajiRequestProps & { externalBulan?: string, onBulanChange?: (d: string) => void }> = ({
     showButton = false,
     buttonText = "Aksi",
     onButtonClick,
+    externalBulan,
+    onBulanChange
 }) => {
     const searchParams = useSearchParams();
     const router = useRouter();
 
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+    const today = new Date().toISOString().split("T")[0];
+    const now = new Date();
+    const currentYearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
     const [selectedStatus, setSelectedStatus] = useState<string>(searchParams.get("approvalStatus") || "All");
     const [selectedMinDate, setSelectedMinDate] = useState<string>(searchParams.get("minSubmittedDate") || "");
     const [selectedMaxDate, setSelectedMaxDate] = useState<string>(searchParams.get("maxSubmittedDate") || "");
+    const selectedBulan = externalBulan || currentYearMonth;
     const [searchQuery, setSearchQuery] = useState<string>(searchParams.get("searchTerm") || "");
 
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -35,12 +41,28 @@ const ReimburseShows: React.FC<CutiRequestProps> = ({
         setCurrentPage(1);
     };
 
+    const getMonthRange = (monthString: string) => {
+        if (!monthString) return { min: undefined, max: undefined };
+        
+        const [year, month] = monthString.split('-').map(Number);
+        const firstDay = new Date(year, month - 1, 1);
+        const lastDay = new Date(year, month, 0, 23, 59, 59);
+        
+        return {
+            min: firstDay.toISOString(),
+            max: lastDay.toISOString()
+        };
+    };
+
+    const safeBulan = selectedBulan || currentYearMonth;
+    const { min: monthMin, max: monthMax } = getMonthRange(safeBulan);
+
     const { data, isLoading, error } = useReimburse().fetchAllReimburse({
         page: currentPage,
         limit: itemsPerPage,
         approvalStatus: selectedStatus !== "All" ? selectedStatus : undefined,
-        minSubmittedDate: selectedMinDate || undefined,
-        maxSubmittedDate: selectedMaxDate || undefined,
+        minSubmittedDate: monthMin || (selectedMinDate ? new Date(selectedMinDate).toISOString() : undefined),
+        maxSubmittedDate: monthMax || (selectedMaxDate ? new Date(selectedMaxDate).toISOString() : undefined),
         searchTerm: searchQuery || undefined,
     });
 
@@ -57,34 +79,56 @@ const ReimburseShows: React.FC<CutiRequestProps> = ({
     useEffect(() => {
         const params = new URLSearchParams();
         if (selectedStatus && selectedStatus !== "All") params.set("approvalStatus", selectedStatus);
-        if (selectedMinDate) params.set("minSubmittedDate", selectedMinDate);
-        if (selectedMaxDate) params.set("maxSubmittedDate", selectedMaxDate);
+        if (selectedBulan) params.set("bulan", selectedBulan);
         if (searchQuery) params.set("searchTerm", searchQuery);
         router.replace(`?${params.toString()}`);
     }, [selectedStatus, selectedMinDate, selectedMaxDate, searchQuery, router]);
 
     const handleApplyFilters = (filters: Record<string, string | undefined>) => {
-        setSelectedMinDate(filters.minSubmittedDate || "");
-        setSelectedMaxDate(filters.maxSubmittedDate || "");
+        const now = new Date();
+        const currentYearMonth = `${now.getFullYear()}-${String(
+            now.getMonth() + 1
+        ).padStart(2, "0")}`;
+        
+        const newBulan = filters.bulan || currentYearMonth;
+        if (onBulanChange) {
+            onBulanChange(newBulan);
+        }
+
         setSelectedStatus(filters.approvalStatus || "All");
         setCurrentPage(1);
     };
 
     const filterFields = [
-        { key: "minSubmittedDate", label: "From", type: "date" as const },
-        { key: "maxSubmittedDate", label: "To", type: "date" as const },
+        { key: "bulan", label: "Pilih Bulan", type: "month" as const },
         { key: "approvalStatus", label: "Approval Status", type: "select" as const, options: Object.values(ApprovalStatus) },
     ];
     
     const initialValues = {
-        minSubmittedDate: selectedMinDate,
-        maxSubmittedDate: selectedMaxDate,
+        bulan: selectedBulan,
         approvalStatus: selectedStatus,
     };
 
     if (error) {
-        return <div className="text-center text-red-500 py-6">Error: {error.message}</div>;
-    }
+        const errorRender = (
+            <div className="flex flex-col items-center justify-between gap-4 py-4">
+                <Image
+                    src={logo.error}
+                    width={240}
+                    height={240}
+                    alt="Not Found Data"
+                />
+                <div className="flex flex-col items-center">
+                    <h1 className="text-2xl font-bold text-(--color-primary)">
+                        {error.message ? error.message : "Terdapat kendala pada sistem"}
+                    </h1>
+                    <span className="text-sm text-(--color-primary)">Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki</span>
+                </div>
+            </div>
+        );
+
+        return errorRender;
+    };
 
     return (
         <div className="flex flex-col gap-4 w-full relative">
@@ -115,7 +159,7 @@ const ReimburseShows: React.FC<CutiRequestProps> = ({
                         Filter
                     </div>
                 </div>
-                {(selectedStatus !== "All" || selectedMinDate || selectedMaxDate || searchQuery) && (
+                {(selectedStatus !== "All" || selectedBulan || searchQuery) && (
                     <>
                         {searchQuery && (
                             <span
@@ -144,28 +188,12 @@ const ReimburseShows: React.FC<CutiRequestProps> = ({
                             </span>
                         )}
 
-                        {selectedMinDate && (
-                            <span
-                                className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
-                            >
-                                From: {selectedMinDate}
+                        {selectedBulan && (
+                            <span className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm">
+                                Bulan:  {format(new Date(selectedBulan), "MMM yyyy")}
                                 <button
                                     className="text-red-500 hover:text-red-700 cursor-pointer"
-                                    onClick={() => setSelectedMinDate("")}
-                                >
-                                    ✕
-                                </button>
-                            </span>
-                        )}
-
-                        {selectedMaxDate && (
-                            <span
-                                className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
-                            >
-                                To: {selectedMaxDate}
-                                <button
-                                    className="text-red-500 hover:text-red-700 cursor-pointer"
-                                    onClick={() => setSelectedMaxDate("")}
+                                    onClick={() => onBulanChange?.(currentYearMonth)}
                                 >
                                     ✕
                                 </button>
@@ -249,7 +277,20 @@ const ReimburseShows: React.FC<CutiRequestProps> = ({
                     })}
                 </div>
             ) : (
-                <p className="text-center text-gray-500 py-6">Tidak ada data reimburse sesuai filter.</p>
+                <div className="flex flex-col items-center justify-between gap-4 py-4">
+                    <Image
+                        src={logo.notFound}
+                        width={120}
+                        height={120}
+                        alt="Not Found Data"
+                    />
+                    <div className="flex flex-col items-center">
+                        <h1 className="text-xl font-bold text-(--color-text-primary)">
+                            Data Reimburse Karyawan Tidak Ditemukan
+                        </h1>
+                        <span className="text-sm text-(--color-muted)">Ubah hasil pencarian atau filter kamu</span>
+                    </div>
+                </div>
             )}
 
             {reimburse.length > 0 && !isLoading && (
