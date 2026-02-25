@@ -1,15 +1,21 @@
-import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, Image, TouchableOpacity, ScrollView, RefreshControl } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { cutiDetailStyles } from "@/assets/styles/rootstyles/cuti/cutidetail.styles";
 import COLORS from "@/constants/colors";
 import { useReimburse } from "@/lib/api/hooks/useReimburse";
 import { ApprovalStatus } from "@/types/reimburse/reimburseTypes";
 import { format } from "date-fns";
+import { useEffect, useState } from "react";
+import { gajiDetailStyles, HEADER_HEIGHT } from "@/assets/styles/rootstyles/gaji/gajidetail.styles";
+import SkeletonBox from "@/components/rootComponents/SkeletonBox";
 
 export default function DetailReimburse() {
     const { id } = useLocalSearchParams();
     const idParam = Array.isArray(id) ? id[0] : id ?? "";
-    const { data: detailData, isLoading: isDetailLoading, error: detailError } = useReimburse().fetchReimburseById(idParam);
+    const { data: detailData, isLoading: isDetailLoading, error: detailError, refetch, isFetching } = useReimburse().fetchReimburseById(idParam);
+    
+    const [showSkeleton, setShowSkeleton] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const router = useRouter();
 
     const getStatusColor = (approvalStatus: string) => {
@@ -37,21 +43,163 @@ export default function DetailReimburse() {
         });
     };
 
-    if (isDetailLoading) {
-        return (
-            <View style={{ padding: 20, alignItems: "center" }}>
-                <Text style={{ color: COLORS.textMuted }}>Memuat data reimburse...</Text>
-            </View>
-        );
-    }
+    const onRefresh = async () => {
+        setRefreshing(true);
+        setShowSkeleton(true);
 
-    if (!detailData) {
+        await refetch();
+
+        setTimeout(() => {
+            setShowSkeleton(false);
+            setRefreshing(false);
+        }, 1000);
+    };
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowSkeleton(false);
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (isDetailLoading || showSkeleton) {
         return (
-            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                <Text>Data reimburse tidak ditemukan.</Text>
+            <View style={gajiDetailStyles.container}>
+                <View style={gajiDetailStyles.header}>
+                    <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <SkeletonBox width={40} height={40} borderRadius={20} />
+                        <SkeletonBox width={80} height={16} style={{ marginLeft: 12 }} />
+                    </View>
+                </View>
+
+                <View style={gajiDetailStyles.subHeaderDetail}>
+                    <View style={{ flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                        <SkeletonBox width={70} height={70} borderRadius={40} />
+                        <SkeletonBox width={100} height={18}/>
+                        <SkeletonBox width={170} height={10}/>
+                        <SkeletonBox width={100} height={30}/>
+                    </View>
+                </View>
+
+                <View style={cutiDetailStyles.dataContainer}>
+                    <SkeletonBox width={200} height={80} style={{ width: "100%" }}/>
+                </View>
+
+                <View style={{ width: "90%", paddingVertical: 16, gap:12 }}>
+                    <View style={{ flex: 1, width: "100%", justifyContent: "center", alignItems: "center", marginTop: 20, marginBottom: 10}}>
+                        <SkeletonBox width={100} height={24}/>
+                    </View>
+                    {[1, 2, 3, 4].map((_, i) => (
+                        <View
+                            key={i}
+                            style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                backgroundColor: "transparent",
+                            }}
+                        >
+                            <SkeletonBox width={200} height={64} style={{ width: "100%" }}/>
+                        </View>
+                    ))}
+                </View>
             </View>
         );
     };
+
+    if (!detailData) {
+        const renderNoData = (
+            <ScrollView
+                contentContainerStyle={[gajiDetailStyles.container, { justifyContent: "center", alignItems: "center", paddingTop: 0, paddingBottom: 0}]}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing || isFetching}
+                        onRefresh={onRefresh}
+                        colors={[COLORS.primary]}
+                        tintColor={COLORS.primary}
+                    />
+                }
+            >
+                <View style={gajiDetailStyles.header}>
+                    <TouchableOpacity 
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                        onPress={() => router.back()}
+                    >
+                        <View style={gajiDetailStyles.iconPlace}>
+                            <Image
+                                style={gajiDetailStyles.iconBack}
+                                source={require('../../../../assets/icons/arrow-left.png')}
+                            />
+                        </View>
+                        <Text style={gajiDetailStyles.headerTitle}>
+                            Kembali
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 30 }}>
+                    <Image
+                        source={require("../../../../assets/icons/not-found.png")}
+                        style={{ width: 72, height: 72, }}
+                    />
+                    <Text style={{ textAlign: "center", marginTop: 10, color: COLORS.textPrimary, fontWeight: "bold", fontSize: 16, }}>
+                        Tidak ditemukan data yang sesuai
+                    </Text>
+                    <Text style={{ textAlign: "center", marginTop: 5, color: COLORS.muted, fontSize: 12, }}>
+                        Mohon untuk mengecek kembali nanti
+                    </Text>
+                </View> 
+            </ScrollView>
+        );
+
+        return renderNoData;
+    }
+
+    if (detailError) {
+        const renderError = (
+            <ScrollView
+                contentContainerStyle={[gajiDetailStyles.container, { justifyContent: "center", alignItems: "center", paddingTop: 0, paddingBottom: 0}]}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing || isFetching}
+                        onRefresh={onRefresh}
+                        colors={[COLORS.primary]}
+                        tintColor={COLORS.primary}
+                    />
+                }
+            >
+                <View style={gajiDetailStyles.header}>
+                    <TouchableOpacity 
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                        onPress={() => router.back()}
+                    >
+                        <View style={gajiDetailStyles.iconPlace}>
+                            <Image
+                                style={gajiDetailStyles.iconBack}
+                                source={require('../../../../assets/icons/arrow-left.png')}
+                            />
+                        </View>
+                        <Text style={gajiDetailStyles.headerTitle}>
+                            Kembali
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 30 }}>
+                    <Image
+                        source={require("../../../../assets/icons/error-logo.png")}
+                        style={{ width: 72, height: 72, }}
+                    />
+                    <Text style={{ textAlign: "center", marginTop: 10, color: COLORS.textPrimary, fontWeight: "bold", fontSize: 16, }}>
+                        Terdapat kendala pada sistem
+                    </Text>
+                    <Text style={{ textAlign: "center", marginTop: 5, color: COLORS.muted, fontSize: 12, }}>
+                        Mohon untuk mengecek kembali nanti
+                    </Text>
+                </View> 
+            </ScrollView>
+        );
+
+        return renderError;
+    }
 
     return (
         <View style={{ flex: 1, backgroundColor: COLORS.background }}>
@@ -76,6 +224,15 @@ export default function DetailReimburse() {
                 contentContainerStyle={{ alignItems: "center", paddingTop: 80, paddingBottom: 30 }}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing || isFetching}
+                        onRefresh={onRefresh}
+                        colors={[COLORS.primary]}
+                        tintColor={COLORS.primary}
+                        progressViewOffset={HEADER_HEIGHT}
+                    />
+                }
             >
                 <View style={cutiDetailStyles.subHeaderDetail}>
                     <Image

@@ -1,12 +1,8 @@
-import { cutiStyles } from "@/assets/styles/rootstyles/cuti/cuti.styles";
-import { homeStyles } from "@/assets/styles/rootstyles/home/home.styles";
 import reimburseStyles from "@/assets/styles/rootstyles/reimburse/reimburse.styles";
 import COLORS from "@/constants/colors";
-import { ReimburseStatus } from "@/data/dummyReimburse";
 import { ApprovalStatus, ReimburseResponse } from "@/types/reimburse/reimburseTypes";
 import { format } from "date-fns";
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useRouter } from "expo-router"
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
 type ListDataReimburseComponentProps = {
@@ -96,9 +92,18 @@ const ListDataReimburseComponent = ({ data }: ListDataReimburseComponentProps) =
                     </View>
                 ))
             ) : (
-                <View>
-                    <Text>Belum ada data</Text>
-                </View>
+                <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 20 }}>
+                    <Image
+                        source={require("../../../assets/icons/not-found.png")}
+                        style={{ width: 72, height: 72, }}
+                    />
+                    <Text style={{ textAlign: "center", marginTop: 10, color: COLORS.textPrimary, fontWeight: "bold", fontSize: 16, }}>
+                        Tidak ada riwayat pengajuan reimburse
+                    </Text>
+                    <Text style={{ textAlign: "center", marginTop: 5, color: COLORS.muted, fontSize: 12, }}>
+                        Mohon untuk mengecek kembali nanti
+                    </Text>
+                </View> 
             )}
         </View>
     )

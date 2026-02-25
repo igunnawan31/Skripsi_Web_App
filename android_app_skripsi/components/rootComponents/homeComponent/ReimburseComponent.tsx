@@ -1,15 +1,8 @@
 import { homeStyles } from "@/assets/styles/rootstyles/home/home.styles";
 import COLORS from "@/constants/colors";
-import { dummyCuti } from "@/data/dummyCuti";
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import ListDataCutiComponent from "../cutiComponent/ListDataCutiComponent";
-import { dummyReimburse } from "@/data/dummyReimburse";
+import { Text, TouchableOpacity, View } from "react-native";
 import ListDataReimburseComponent from "../reimburseComponent/ListDataReimburseComponent";
-import { useReimburse } from "@/lib/api/hooks/useReimburse";
-import { cutiStyles } from "@/assets/styles/rootstyles/cuti/cuti.styles";
-import { ReimburseResponse } from "@/types/reimburse/reimburseTypes";
 
 const ReimburseComponent = ({ data }: any) => {
     const router = useRouter();

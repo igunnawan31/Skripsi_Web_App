@@ -3,7 +3,7 @@ import COLORS from "@/constants/colors";
 import { dummyUsers } from "@/data/dummyUser";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Image, Platform, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Image, Platform, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import CutiPopUpModal from "../cutiComponent/CutiPopUpModal";
@@ -20,7 +20,7 @@ const ReimburseCreateFormComponent = () => {
     const [showModal, setShowModal] = useState(false);
     const [error, setError] = useState<{ [key: string]: string}>({});
     const today = new Date().toISOString().split("T")[0];
-    const { mutate: reimburseMutate, isPending: isCreateCuti, isError} = useReimburse().createReimburse();
+    const { mutate: reimburseMutate, isPending: isCreateReimburse, isError} = useReimburse().createReimburse();
     const [notification, setNotification] = useState<{
         visible: boolean;
         status: "success" | "error";
@@ -88,9 +88,9 @@ const ReimburseCreateFormComponent = () => {
     const validateForm = () => {
         let tempErrors: { [key: string]: string } = {};
 
-        if (!formData.title.trim()) tempErrors.name = "Nama wajib diisi.";
-        if (!formData.totalExpenses) tempErrors.endDate = "Total Pengeluaran wajib diisi.";
-        if (formData.reimburseDocuments?.length === 0) tempErrors.reimburseDocuments = "Minimal 1 bukti pendukung.";
+        if (!formData.title.trim()) tempErrors.title = "Judul wajib diisi.";
+        if (!formData.totalExpenses || formData.totalExpenses <= 0) tempErrors.totalExpenses = "Total Pengeluaran wajib diisi dan harus lebih dari 0.";
+        if (!formData.reimburseDocuments || formData.reimburseDocuments?.length === 0) tempErrors.reimburseDocuments = "Minimal 1 bukti pendukung.";
 
         setError(tempErrors);
         return Object.keys(tempErrors).length === 0;
@@ -99,7 +99,9 @@ const ReimburseCreateFormComponent = () => {
     const handleSubmit = () => {
         if (!validateForm()) {
             setShowModal(false);
+            return;
         }
+
         reimburseMutate(formData, {
             onSuccess: () => {
                 setShowModal(false);
@@ -125,18 +127,55 @@ const ReimburseCreateFormComponent = () => {
         });
     };
 
-    if (!user) {
-        return (
-            <View style={{ padding: 20, alignItems: "center" }}>
-                <Text style={{ color: COLORS.textMuted }}>
-                    Memuat data user...
-                </Text>
-            </View>
-        );
-    }
-
     return (
-        <View style={reimburseStyles.createFormContainer}>
+        <View style={[reimburseStyles.createFormContainer, { position: 'relative' }]}>
+            {isCreateReimburse && (
+                <View 
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 1000,
+                        borderRadius: 12,
+                    }}
+                >
+                    <View 
+                        style={{
+                            backgroundColor: COLORS.white,
+                            padding: 24,
+                            borderRadius: 12,
+                            alignItems: 'center',
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 4 },
+                            shadowOpacity: 0.3,
+                            shadowRadius: 8,
+                            elevation: 8,
+                        }}
+                    >
+                        <ActivityIndicator size="large" color={COLORS.primary} />
+                        <Text style={{ 
+                            marginTop: 12, 
+                            fontSize: 16, 
+                            fontWeight: '600',
+                            color: COLORS.textPrimary 
+                        }}>
+                            Mengirim Pengajuan...
+                        </Text>
+                        <Text style={{ 
+                            marginTop: 4, 
+                            fontSize: 12, 
+                            color: COLORS.textMuted 
+                        }}>
+                            Mohon tunggu sebentar
+                        </Text>
+                    </View>
+                </View>
+            )}
+
             <View style={reimburseStyles.labelContainer}>
                 <Text style={reimburseStyles.labelInput}>Nama Lengkap <Text style={reimburseStyles.error}>*</Text></Text>
                 <Text style={[reimburseStyles.input, { opacity: 0.5 }]}>{user.name}</Text>
@@ -154,6 +193,7 @@ const ReimburseCreateFormComponent = () => {
                     style={reimburseStyles.input}
                     value={formData.title}
                     onChangeText={(text) => setFormData({ ...formData, title: text})}
+                    editable={!isCreateReimburse}
                 />
                 {error.title && <Text style={reimburseStyles.error}>{error.title}</Text>}
             </View>
@@ -167,9 +207,9 @@ const ReimburseCreateFormComponent = () => {
                         ? formData.totalExpenses.toLocaleString("id-ID")
                         : ""}
                     onChangeText={handleChangeTotal}
+                    editable={!isCreateReimburse}
                 />
-                {error.reason && <Text style={reimburseStyles.error}
-                >{error.reason}</Text>}
+                {error.totalExpenses && <Text style={reimburseStyles.error}>{error.totalExpenses}</Text>}
             </View>
             <View style={reimburseStyles.labelContainer}>
                 <Text style={reimburseStyles.labelInput}>Major Role <Text style={reimburseStyles.error}>*</Text></Text>
@@ -185,12 +225,14 @@ const ReimburseCreateFormComponent = () => {
                 <Text style={reimburseStyles.labelInput}>Bukti Pendukung <Text style={reimburseStyles.error}>*</Text></Text>
                 <TouchableOpacity
                     style={{
-                        backgroundColor: COLORS.tertiary,
+                        backgroundColor: isCreateReimburse ? COLORS.muted : COLORS.tertiary,
                         padding: 10,
                         borderRadius: 8,
                         alignItems: "center",
+                        opacity: isCreateReimburse ? 0.5 : 1,
                     }}
                     onPress={handleUploadFile}
+                    disabled={isCreateReimburse}
                 >
                     <Text style={{ color: "#fff", fontWeight: "bold" }}>Upload File</Text>
                 </TouchableOpacity>
@@ -252,14 +294,16 @@ const ReimburseCreateFormComponent = () => {
 
                                 <TouchableOpacity
                                     style={{
-                                        backgroundColor: COLORS.primary,
+                                        backgroundColor: isCreateReimburse ? COLORS.muted : COLORS.primary,
                                         borderRadius: 20,
                                         width: 40,
                                         height: 40,
                                         justifyContent: "center",
                                         alignItems: "center",
+                                        opacity: isCreateReimburse ? 0.5 : 1,
                                     }}
                                     onPress={() => handleDeleteDocument(index)}
+                                    disabled={isCreateReimburse}
                                 >
                                     <Image
                                         source={require("../../../assets/icons/trash.png")}
@@ -278,16 +322,26 @@ const ReimburseCreateFormComponent = () => {
                         Belum ada file dipilih
                     </Text>
                 )}
+                {error.reimburseDocuments && <Text style={reimburseStyles.error}>{error.reimburseDocuments}</Text>}
             </View>
             <TouchableOpacity
-                style={reimburseStyles.submitButton}
+                style={[
+                    reimburseStyles.submitButton,
+                    { 
+                        backgroundColor: isCreateReimburse ? COLORS.muted : COLORS.primary,
+                        opacity: isCreateReimburse ? 0.5 : 1 
+                    }
+                ]}
                 onPress={() => setShowModal(true)}
+                disabled={isCreateReimburse}
             >
-                <Text style={reimburseStyles.filterText}>Submit Reimburse</Text>
+                <Text style={reimburseStyles.filterText}>
+                    {isCreateReimburse ? "Mengirim..." : "Submit Reimburse"}
+                </Text>
             </TouchableOpacity>
 
             <ReimbursePopUpModal
-                visible={showModal}
+                visible={showModal && !isCreateReimburse}
                 onClose={() => setShowModal(false)}
                 onSave={handleSubmit}
             />
@@ -301,7 +355,7 @@ const ReimburseCreateFormComponent = () => {
                     setNotification(prev => ({ ...prev, visible: false }));
 
                     if (notification.status === "success") {
-                        router.push("/(reimburse)/reimburse/reimburse");
+                        router.back();
                     }
                 }}
             />

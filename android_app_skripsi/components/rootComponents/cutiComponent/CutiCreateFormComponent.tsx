@@ -2,7 +2,7 @@ import { cutiDetailStyles } from "@/assets/styles/rootstyles/cuti/cutidetail.sty
 import COLORS from "@/constants/colors";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import { Image, Platform, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image, Platform, Text, TextInput, TouchableOpacity, View } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import CutiPopUpModal from "./CutiPopUpModal";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -183,6 +183,53 @@ const CutiCreateFormComponent = ({ kontrakData }: Props) => {
 
     return (
         <View style={cutiDetailStyles.createFormContainer}>
+            {isCreateCuti && (
+                <View 
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 1000,
+                        borderRadius: 12,
+                    }}
+                >
+                    <View 
+                        style={{
+                            backgroundColor: COLORS.white,
+                            padding: 24,
+                            borderRadius: 12,
+                            alignItems: 'center',
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 4 },
+                            shadowOpacity: 0.3,
+                            shadowRadius: 8,
+                            elevation: 8,
+                        }}
+                    >
+                        <ActivityIndicator size="large" color={COLORS.primary} />
+                        <Text style={{ 
+                            marginTop: 12, 
+                            fontSize: 16, 
+                            fontWeight: '600',
+                            color: COLORS.textPrimary 
+                        }}>
+                            Mengirim Pengajuan...
+                        </Text>
+                        <Text style={{ 
+                            marginTop: 4, 
+                            fontSize: 12, 
+                            color: COLORS.textMuted 
+                        }}>
+                            Mohon tunggu sebentar
+                        </Text>
+                    </View>
+                </View>
+            )}
+
             <View style={cutiDetailStyles.labelContainer}>
                 <Text style={cutiDetailStyles.labelInput}>Nama Lengkap <Text style={cutiDetailStyles.error}>*</Text></Text>
                 <Text style={[cutiDetailStyles.input, { opacity: 0.5 }]}>{user.name ? user.name : "-"}</Text>
@@ -249,6 +296,7 @@ const CutiCreateFormComponent = ({ kontrakData }: Props) => {
                     multiline
                     value={formData.reason}
                     onChangeText={(text) => setFormData({ ...formData, reason: text })}
+                    editable={!isCreateCuti}
                 />
                 {error.reason && <Text style={cutiDetailStyles.error}>{error.reason}</Text>}
             </View>
@@ -266,12 +314,14 @@ const CutiCreateFormComponent = ({ kontrakData }: Props) => {
                 <Text style={cutiDetailStyles.labelInput}>Bukti Pendukung (PDF)</Text>
                 <TouchableOpacity
                     style={{
-                        backgroundColor: COLORS.tertiary,
+                        backgroundColor: isCreateCuti ? COLORS.muted : COLORS.tertiary,
                         padding: 10,
-                        borderRadius: 20,
+                        borderRadius: 8,
                         alignItems: "center",
+                        opacity: isCreateCuti ? 0.5 : 1,
                     }}
                     onPress={handleUploadFile}
+                    disabled={isCreateCuti}
                 >
                     <Text style={{ color: "#fff", fontWeight: "bold" }}>{formData.dokumenCuti ? "Change File" : "Upload File"}</Text>
                 </TouchableOpacity>
@@ -335,8 +385,17 @@ const CutiCreateFormComponent = ({ kontrakData }: Props) => {
                         </View>
                         <View style={{ flex: 1, justifyContent: "center", alignItems: "flex-end" }}>
                             <TouchableOpacity 
-                                style={{ backgroundColor: COLORS.primary, borderRadius: 20, width: 40, height: 40, justifyContent: "center", alignItems: "center" }}
+                                style={{                                         
+                                    backgroundColor: isCreateCuti ? COLORS.muted : COLORS.primary,
+                                    borderRadius: 20,
+                                    width: 40,
+                                    height: 40,
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    opacity: isCreateCuti ? 0.5 : 1,
+                                }}
                                 onPress={handleDeleteDocument}
+                                disabled={isCreateCuti}
                             >    
                                 <Image
                                     source={require("../../../assets/icons/trash.png")}
@@ -358,14 +417,24 @@ const CutiCreateFormComponent = ({ kontrakData }: Props) => {
                 )}
             </View>
             <TouchableOpacity
-                style={[cutiDetailStyles.filterContainer, {borderRadius: 5}]}
+                style={[
+                    cutiDetailStyles.filterContainer,
+                    { 
+                        borderRadius: 5,
+                        backgroundColor: isCreateCuti ? COLORS.muted : COLORS.primary,
+                        opacity: isCreateCuti ? 0.5 : 1 
+                    }
+                ]}
                 onPress={() => setShowModal(true)}
+                disabled={isCreateCuti}
             >
-                <Text style={cutiDetailStyles.filterText}>Submit Cuti</Text>
+                <Text style={cutiDetailStyles.filterText}>
+                    {isCreateCuti ? "Mengirim..." : "Submit Cuti"}
+                </Text>
             </TouchableOpacity>
 
             <CutiPopUpModal
-                visible={showModal}
+                visible={showModal && !isCreateCuti}
                 onClose={() => setShowModal(false)}
                 onSave={handleSubmit}
             />
