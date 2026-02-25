@@ -165,7 +165,7 @@ export const useReimburse = () => {
                 if (!token?.access_token) throw new Error("No access token found");
 
                 const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/reimburses/${id}/approve`, {
-                    method: "POST",
+                    method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${jwt}`,
@@ -211,7 +211,7 @@ export const useReimburse = () => {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`,
+                        "Authorization": `Bearer ${jwt}`,
                     },
                     credentials: "include",
                     body: JSON.stringify({ catatan }),

@@ -2,7 +2,7 @@ import reimburseStyles from "@/assets/styles/rootstyles/reimburse/reimburse.styl
 import COLORS from "@/constants/colors";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Image } from "react-native";
+import { Image, RefreshControl } from "react-native";
 import { Text, TouchableOpacity, View } from "react-native"
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import FilterModalReimburseComponent from "@/components/rootComponents/reimburseComponent/FilterModalReimburseComponent";
@@ -10,10 +10,12 @@ import ListDataPengajuanReimburseComponent from "@/components/rootComponents/rei
 import { useReimburse } from "@/lib/api/hooks/useReimburse";
 import { ApprovalStatus, ReimburseResponse } from "@/types/reimburse/reimburseTypes";
 import { cutiStyles } from "@/assets/styles/rootstyles/cuti/cuti.styles";
+import SkeletonBox from "@/components/rootComponents/SkeletonBox";
+import { HEADER_HEIGHT } from "@/assets/styles/rootstyles/gaji/gajidetail.styles";
 
 const SetujuiReimbursePage = () => {
     const router = useRouter();
-    const { data, isLoading, error } = useReimburse().fetchAllReimburse();
+    const { data, isLoading, error, refetch, isFetching } = useReimburse().fetchAllReimburse();
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
     const [filteredData, setFilteredData] = useState<ReimburseResponse[]>([]);
@@ -23,12 +25,35 @@ const SetujuiReimbursePage = () => {
     const [showPicker, setShowPicker] = useState(false);
     const [pickerTarget, setPickerTarget] = useState("month");
 
+    const [showSkeleton, setShowSkeleton] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    
     const showHandlePopUpFilter = () => setModalVisible(true);
     const closeHandlePopUpFilter = () => setModalVisible(false);
 
     useEffect(() => {
         if (data?.data) setFilteredData(data?.data);
     }, [data]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowSkeleton(false);
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        setShowSkeleton(true);
+
+        await refetch();
+
+        setTimeout(() => {
+            setShowSkeleton(false);
+            setRefreshing(false);
+        }, 1000);
+    };
 
     const totalBelumKeputusan = (reimburse: ReimburseResponse[]) => {
         if (!Array.isArray(reimburse)) return 0;
@@ -69,18 +94,155 @@ const SetujuiReimbursePage = () => {
         closeHandlePopUpFilter();
     };
 
-    if (isLoading) {
+    if (isLoading || showSkeleton || isFetching) {
         return (
             <View style={cutiStyles.container}>
-                <Text>Loading absensi data...</Text>
+                <View style={reimburseStyles.header}>
+                    <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <SkeletonBox width={40} height={40} borderRadius={20} />
+                        <SkeletonBox width={80} height={16} style={{ marginLeft: 12 }} />
+                    </View>
+                </View>
+                <View style={[reimburseStyles.subHeaderContainer, {alignItems: "center"}]}>
+                    <View style={{ gap: 5 }}>
+                        <SkeletonBox width={90} height={20} borderRadius={20} />
+                        <SkeletonBox width={120} height={20} borderRadius={20} />
+                    </View>
+                    <SkeletonBox width={60} height={60} borderRadius={30} />
+                </View>
+
+                <View style={cutiStyles.cutiContainer}>
+                    <SkeletonBox width={80} height={20} borderRadius={14} />
+                </View>
+
+                <View style={cutiStyles.cutiAvailableContainer}>
+                    <SkeletonBox width={120} height={100} style={{ width: "48%" }} />
+                    <SkeletonBox width={120} height={100} style={{ width: "48%" }} />
+                </View>
+
+                <View style={[cutiStyles.filterContainer, {backgroundColor: "transparent"}]}>
+                    <SkeletonBox width={120} height={40} style={{ width: "100%" }} />
+                </View>
+
+                {[1, 2, 3, 4].map((_, i) => (
+                    <View
+                        key={i}
+                        style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            marginBottom: 20,
+                            backgroundColor: "transparent",
+                        }}
+                    >
+                        <SkeletonBox width={100} height={120} borderRadius={10} style={{ width: "90%" }} />
+                    </View>
+                ))}
             </View>
         );
     }
 
     if (error) {
-        return (
-            <View style={cutiStyles.container}>
-                <Text>Error: {error.message}</Text>
+        return(
+            <View style={{ flex: 1, backgroundColor: COLORS.background }}>
+                <View style={reimburseStyles.header}>
+                    <TouchableOpacity
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                        onPress={() => router.push("/(tabs)/home")}
+                    >
+                        <View style={reimburseStyles.iconPlace}>
+                            <Image
+                                style={reimburseStyles.iconBack}
+                                source={require("../../../assets/icons/arrow-left.png")}
+                            />
+                        </View>
+                        <Text style={reimburseStyles.headerTitle}>Kembali</Text>
+                    </TouchableOpacity>
+                </View>
+                <KeyboardAwareScrollView
+                    style={{ flex: 1, backgroundColor: COLORS.background }}
+                    contentContainerStyle={{
+                        alignItems: "center",
+                        paddingBottom: 20
+                    }}
+                    enableOnAndroid={true}
+                    extraScrollHeight={150}
+                    keyboardShouldPersistTaps="handled"
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing || isFetching}
+                            onRefresh={onRefresh}
+                            colors={[COLORS.primary]}
+                            tintColor={COLORS.primary}
+                            progressViewOffset={HEADER_HEIGHT}
+                        />
+                    }
+                >
+                    <View style={reimburseStyles.subHeaderContainer}>
+                        <View>
+                            <Text style={reimburseStyles.subHeaderTitle}>
+                                Pengajuan Reimburse
+                            </Text>
+                            <Text style={reimburseStyles.subHeaderDescription}>
+                                Lihat status reimburse yang diajukan
+                            </Text>
+                        </View>
+                        <View style={reimburseStyles.logoSubHeaderContainer}>
+                            <Image
+                                style={reimburseStyles.logoSubHeader}
+                                source={require("../../../assets/icons/reimburse.png")}
+                            />
+                        </View>
+                    </View>
+                    <View style={reimburseStyles.cutiContainer}>
+                        <Text style={{ color: COLORS.textPrimary, fontWeight: "bold", fontSize: 18 }}>
+                            Bulan {startDate ? startDate.toLocaleString("default", { month: "long", year: "numeric" }): "All"}
+                        </Text>
+                    </View>
+                    <View style={cutiStyles.cutiAvailableContainer}>
+                        <View style={cutiStyles.cutiAvailable}>
+                            <Text style={cutiStyles.titleCutiAccepted}>
+                                Sudah Diproses
+                            </Text>
+                            <Image 
+                                style={cutiStyles.logoCutiAccepted}
+                                source={require("../../../assets/icons/cuti.png")}
+                            />
+                            <Text style={cutiStyles.textCutiAccepted}>
+                                -
+                            </Text>
+                        </View>
+                        <View style={cutiStyles.cutiAvailable}>
+                            <Text style={cutiStyles.titleCutiRejected}>
+                                Belum Diproses
+                            </Text>
+                            <Image 
+                                style={cutiStyles.logoCutiRejected}
+                                source={require("../../../assets/icons/cuti.png")}
+                            />
+                            <Text style={cutiStyles.textCutiRejected}>
+                                -
+                            </Text>
+                        </View>
+                    </View>
+                    <TouchableOpacity
+                        style={reimburseStyles.filterContainer}
+                        onPress={showHandlePopUpFilter}
+                    >
+                        <Text style={reimburseStyles.filterText}>Terapkan Filter</Text>
+                    </TouchableOpacity>
+                    <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 30 }}>
+                        <Image
+                            source={require("../../../assets/icons/error-logo.png")}
+                            style={{ width: 72, height: 72, }}
+                        />
+                        <Text style={{ textAlign: "center", marginTop: 10, color: COLORS.textPrimary, fontWeight: "bold", fontSize: 16, }}>
+                            Terdapat kendala pada sistem
+                        </Text>
+                        <Text style={{ textAlign: "center", marginTop: 5, color: COLORS.muted, fontSize: 12, }}>
+                            Mohon untuk mengecek kembali nanti
+                        </Text>
+                    </View>
+                </KeyboardAwareScrollView>
             </View>
         );
     }
@@ -110,6 +272,15 @@ const SetujuiReimbursePage = () => {
                 enableOnAndroid={true}
                 extraScrollHeight={150}
                 keyboardShouldPersistTaps="handled"
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing || isFetching}
+                        onRefresh={onRefresh}
+                        colors={[COLORS.primary]}
+                        tintColor={COLORS.primary}
+                        progressViewOffset={HEADER_HEIGHT}
+                    />
+                }
             >
                 <View style={reimburseStyles.subHeaderContainer}>
                     <View>
