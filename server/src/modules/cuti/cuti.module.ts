@@ -8,7 +8,6 @@ import { CutiAuthorizationService } from './domain/services/cuti-approval-author
 import { CutiQuotaService } from './domain/services/cuti-quota.service';
 import { ICutiRepository } from './domain/repositories/cuti.repository.interface';
 import { CutiRepository } from './infrastructure/persistence/cuti.repository';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CutiExpirationScheduler } from './infrastructure/scheduler/cuti-expiration.scheduler';
 import { CutiExpirationService } from './domain/services/cuti-expiration.service';
 import { DateUtilService } from 'src/common/utils/dateUtil';
@@ -21,7 +20,6 @@ import { LoggerService } from '../logger/logger.service';
   imports: [
     UsersModule,
     forwardRef(() => KontrakModule),
-    EventEmitterModule.forRoot(),
   ],
   controllers: [CutiController],
   providers: [

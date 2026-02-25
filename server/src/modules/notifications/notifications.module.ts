@@ -8,6 +8,7 @@ import { INotificationRepository } from './domain/repositories/notifications.rep
 import { NotificationRepository } from './infrastructure/persistence/notifications.repository';
 import { ReimburseApprovedListener } from './infrastructure/listeners/reimburse-updated.listener';
 import { SalaryPaidListener } from './infrastructure/listeners/salary-paid.listener';
+import { CutiNotificationListener } from './infrastructure/listeners/cuti-approval.listener';
 
 @Module({
   controllers: [NotificationsController],
@@ -18,6 +19,7 @@ import { SalaryPaidListener } from './infrastructure/listeners/salary-paid.liste
     GetNotificationUseCase,
     ReimburseApprovedListener,
     SalaryPaidListener,
+    CutiNotificationListener,
     { provide: INotificationRepository, useClass: NotificationRepository },
   ],
 })
