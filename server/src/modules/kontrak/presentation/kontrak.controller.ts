@@ -11,6 +11,7 @@ import {
   UploadedFiles,
   Patch,
   Delete,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateKontrakUseCase } from '../application/use-cases/create-kontrak.use-case';
 import { GetUserQuotaUseCase } from '../application/use-cases/get-user-quota.use-cases';
@@ -96,6 +97,10 @@ export class KontrakController {
   ) {
     try {
       const { userPhoto, projectDocuments, contractDocuments } = files;
+      if (!contractDocuments?.length) {
+        throw new BadRequestException('Dokumen kontrak wajib ada');
+      }
+
       const payload: InternalCreateKontrakDTO = {
         ...dto,
         startDate: new Date(dto.startDate),
@@ -104,12 +109,14 @@ export class KontrakController {
           ...dto.userData,
           photo: userPhoto ? userPhoto[0] : undefined,
         },
-        projectData: dto.projectData ? {
-          ...dto.projectData,
-          startDate: new Date(dto.projectData.startDate),
-          endDate: new Date(dto.projectData.endDate),
-          documents: projectDocuments,
-        } : undefined,
+        projectData: dto.projectData
+          ? {
+            ...dto.projectData,
+            startDate: new Date(dto.projectData.startDate),
+            endDate: new Date(dto.projectData.endDate),
+            documents: projectDocuments,
+          }
+          : undefined,
         documents: contractDocuments,
       };
       return await this.createKontrakUseCase.execute(payload, req.user.id);
