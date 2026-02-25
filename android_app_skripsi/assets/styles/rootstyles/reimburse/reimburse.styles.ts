@@ -444,6 +444,21 @@ const reimburseStyles = StyleSheet.create({
         elevation: 2,
         backgroundColor: COLORS.tertiary
     },
+    radioOuter: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        borderWidth: 2,
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: 10,
+    },
+    radioInner: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: COLORS.primary,
+    }
 });
 
 export default reimburseStyles;
