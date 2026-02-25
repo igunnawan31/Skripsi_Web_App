@@ -1,17 +1,12 @@
-import {
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { IIndikatorRepository } from 'src/modules/kpi/domain/repositories/indikator.repository.interface';
-import { LoggerService } from 'src/modules/logger/logger.service';
-import { InternalUpdateIndikatorDTO } from '../../dtos/request/indikator/update-indicator.dto';
-import { DateUtilService } from 'src/common/utils/dateUtil';
-import { UpdateIndikatorResponseDTO } from '../../dtos/response/indikator/update-response.dto';
-import { StatusIndikatorKPI } from '@prisma/client';
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { DateUtilService } from "src/common/utils/dateUtil";
+import { IIndikatorRepository } from "src/modules/kpi/domain/repositories/indikator.repository.interface";
+import { LoggerService } from "src/modules/logger/logger.service";
+import { UpdateIndikatorResponseDTO } from "../../dtos/response/indikator/update-response.dto";
+import { InternalUpdateIndikatorDTO } from "../../dtos/request/indikator/update-indicator.dto";
 
 @Injectable()
-export class UpdateStatusIndikatorUseCase {
+export class UpdatePublicIndikatorUseCase {
   constructor(
     @Inject(IIndikatorRepository)
     private readonly indikatorRepo: IIndikatorRepository,
@@ -21,7 +16,7 @@ export class UpdateStatusIndikatorUseCase {
 
   async execute(
     id: string,
-    status: StatusIndikatorKPI,
+    status: boolean,
   ): Promise<UpdateIndikatorResponseDTO> {
     try {
       const targetIndicator = await this.indikatorRepo.findById(id);
@@ -31,7 +26,7 @@ export class UpdateStatusIndikatorUseCase {
         );
 
       const payload: InternalUpdateIndikatorDTO = {
-        status,
+        statusPublic: status,
       };
 
       const updatedIndicator = await this.indikatorRepo.update(id, payload);

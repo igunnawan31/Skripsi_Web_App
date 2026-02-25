@@ -32,7 +32,7 @@ export class IndikatorRepository implements IIndikatorRepository {
   constructor(
     private readonly prisma: PrismaService,
     private readonly logger: LoggerService,
-  ) {}
+  ) { }
 
   async countEvals(indikatorId: string, evaluateeId: string): Promise<number> {
     try {
@@ -178,6 +178,29 @@ export class IndikatorRepository implements IIndikatorRepository {
       handlePrismaError(err, 'Indikator KPI', id, this.logger);
     }
   }
+  async findUniqueEval(
+    indikatorId: string,
+    evaluateeId: string,
+    evaluatorId: string,
+  ): Promise<EvaluationKPIDTO | null> {
+    try {
+      const evaluation = await this.prisma.evaluations.findUnique({
+        where: {
+          indikatorId_evaluateeId_evaluatorId: {
+            indikatorId,
+            evaluateeId,
+            evaluatorId,
+          },
+        },
+      });
+
+      if (!evaluation) return null;
+
+      return plainToInstance(EvaluationKPIDTO, evaluation);
+    } catch (err) {
+      handlePrismaError(err, 'Indikator KPI', '', this.logger);
+    }
+  }
   async create(
     data: InternalCreateIndikatorDTO,
   ): Promise<CreateIndikatorResponseDTO> {
@@ -269,6 +292,25 @@ export class IndikatorRepository implements IIndikatorRepository {
       });
     } catch (err) {
       handlePrismaError(err, 'Indikator KPI', id, this.logger);
+    }
+  }
+  async removeEval(
+    indikatorId: string,
+    evaluateeId: string,
+    evaluatorId: string,
+  ): Promise<void> {
+    try {
+      const query = await this.prisma.evaluations.delete({
+        where: {
+          indikatorId_evaluateeId_evaluatorId: {
+            indikatorId,
+            evaluateeId,
+            evaluatorId,
+          },
+        },
+      });
+    } catch (err) {
+      handlePrismaError(err, 'Indikator KPI', '', this.logger);
     }
   }
 }

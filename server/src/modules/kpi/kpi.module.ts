@@ -33,6 +33,8 @@ import { GetAllIndikatorRekapUseCase } from './application/use-cases/rekap/get.u
 import { IndikatorRekapController } from './presentation/rekap.controller';
 import { RekapRepository } from './infrastructure/persistence/rekap.repository';
 import { IRekapRepository } from './domain/repositories/rekap.repository.interface';
+import { UpdatePublicIndikatorUseCase } from './application/use-cases/indikator/update-public.use-case';
+import { DeleteIndikatorEvaluationUseCase } from './application/use-cases/indikator/delete-eval.use-case';
 
 @Module({
   imports: [UsersModule],
@@ -51,8 +53,10 @@ import { IRekapRepository } from './domain/repositories/rekap.repository.interfa
     GetIndikatorUseCase,
     UpdateIndikatorUseCase,
     UpdateStatusIndikatorUseCase,
+    UpdatePublicIndikatorUseCase,
     CreateJawabanUseCase,
     DeleteJawabanUseCase,
+    DeleteIndikatorEvaluationUseCase,
     GetAllJawabanUseCase,
     GetJawabanUseCase,
     CreatePertanyaanUseCase,

@@ -30,6 +30,9 @@ import { PertanyaanFilterDTO } from '../application/dtos/request/pertanyaan/filt
 import { CreateEvaluationsUseCase } from '../application/use-cases/indikator/create-eval.use-case';
 import { StatusIndikatorKPI } from '@prisma/client';
 import { UpdateStatusIndikatorUseCase } from '../application/use-cases/indikator/update-status.use-case';
+import { UpdatePublicIndikatorUseCase } from '../application/use-cases/indikator/update-public.use-case';
+import { DeleteEvaluationDTO } from '../application/dtos/request/indikator/delete-evaluation.dto';
+import { DeleteIndikatorEvaluationUseCase } from '../application/use-cases/indikator/delete-eval.use-case';
 
 @Controller('indicators')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -39,10 +42,12 @@ export class IndicatorController {
     private readonly createIndicatorUseCase: CreateIndikatorUseCase,
     private readonly createEvaluationsUseCase: CreateEvaluationsUseCase,
     private readonly deleteIndicatorUseCase: DeleteIndikatorUseCase,
+    private readonly deleteEvaluationUseCase: DeleteIndikatorEvaluationUseCase,
     private readonly getAllIndicatorUseCase: GetAllIndikatorUseCase,
     private readonly getIndicatorUseCase: GetIndikatorUseCase,
     private readonly updateIndicatorUseCase: UpdateIndikatorUseCase,
     private readonly updateStatusIndicatorUseCase: UpdateStatusIndikatorUseCase,
+    private readonly updatePublicIndicatorUseCase: UpdatePublicIndikatorUseCase,
     private readonly getAllPertanyaanIndikatorUseCase: GetAllPertanyaanIndikatorUseCase,
   ) { }
 
@@ -105,9 +110,27 @@ export class IndicatorController {
       StatusIndikatorKPI.COMPLETED,
     );
   }
+  @Patch('/:id/publish')
+  publishIndicator(@Param('id') id: string) {
+    return this.updatePublicIndicatorUseCase.execute(
+      id,
+      true,
+    );
+  }
+  @Patch('/:id/unpublish')
+  unpublishIndicator(@Param('id') id: string) {
+    return this.updatePublicIndicatorUseCase.execute(
+      id,
+      false,
+    );
+  }
   @Patch('/:id')
   update(@Param('id') id: string, @Body() dto: UpdateIndikatorDTO) {
     return this.updateIndicatorUseCase.execute(id, dto);
+  }
+  @Delete('/:id/evaluations')
+  deleteEval(@Param('id') id: string, @Body() dto: DeleteEvaluationDTO) {
+    return this.deleteEvaluationUseCase.execute(id, dto);
   }
   @Delete('/:id')
   delete(@Param('id') id: string) {
