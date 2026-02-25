@@ -35,6 +35,7 @@ import { GetAllReimburseUseCase } from '../application/use-cases/get-all-reimbur
 import { DeleteReimburseUseCase } from '../application/use-cases/delete-reimburse.use-case';
 import { RolesMinor } from 'src/common/decorators/minor-role.decorator';
 import { MinorRole } from '@prisma/client';
+import { GetUserAllReimburseUseCase } from '../application/use-cases/get-user-all.use-case';
 
 @Controller('reimburses')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -45,6 +46,7 @@ export class ReimburseController {
     private readonly submitUseCase: SubmitReimburseUseCase,
     private readonly getOneUseCase: GetReimburseUseCase,
     private readonly getAllUseCase: GetAllReimburseUseCase,
+    private readonly getUserAllUseCase: GetUserAllReimburseUseCase,
     private readonly deleteUseCase: DeleteReimburseUseCase,
   ) { }
   @Get()
@@ -53,6 +55,15 @@ export class ReimburseController {
     @Req() req: Request & { user: UserRequest },
   ) {
     return this.getAllUseCase.execute(filters, req.user);
+  }
+  // warning: redundant func with findAll, findAll has handled querying by userId
+  @Get('user/:id')
+  findAllByUserId(
+    @Param('id') id: string,
+    @Query() filters: ReimburseFilterDTO,
+    @Req() req: Request & { user: UserRequest },
+  ){
+    return this.getUserAllUseCase.execute(filters, id, req.user);
   }
   @Get(':id')
   findById(

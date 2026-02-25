@@ -11,6 +11,10 @@ export abstract class IReimburseRepository {
     filters: InternalReimburseFilterDTO,
     user: UserRequest,
   ): Promise<RetrieveAllReimburseResponseDTO | null>;
+  abstract findAllByUserId(
+    filters: InternalReimburseFilterDTO,
+    userId: string,
+  ): Promise<RetrieveAllReimburseResponseDTO | null>;
   abstract findById(id: string): Promise<RetrieveReimburseResponseDTO | null>;
   abstract create(
     dto: InternalCreateReimburseDTO,

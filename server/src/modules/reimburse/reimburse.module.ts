@@ -10,6 +10,7 @@ import { LoggerModule } from '../logger/logger.module';
 import { GetReimburseUseCase } from './application/use-cases/get-reimburse.use-case';
 import { GetAllReimburseUseCase } from './application/use-cases/get-all-reimburse.use-case';
 import { DeleteReimburseUseCase } from './application/use-cases/delete-reimburse.use-case';
+import { GetUserAllReimburseUseCase } from './application/use-cases/get-user-all.use-case';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { DeleteReimburseUseCase } from './application/use-cases/delete-reimburse
   controllers: [ReimburseController],
   providers: [
     GetAllReimburseUseCase,
+    GetUserAllReimburseUseCase,
     GetReimburseUseCase,
     SubmitReimburseUseCase,
     ApprovalReimburseUseCase,
