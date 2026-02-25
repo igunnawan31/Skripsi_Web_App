@@ -54,15 +54,20 @@ export class AbsensiController {
         filename: (req, file, cb) => {
           const uniqueSuffix =
             Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(
-            null,
-            `checkInPhoto-${uniqueSuffix}${extname(file.originalname)}`,
-          );
+          cb(null, `checkInPhoto-${uniqueSuffix}${extname(file.originalname)}`);
         },
       }),
     }),
   )
-  checkIn(@Body() data: CheckInDTO, @UploadedFile() file: Express.Multer.File, @Req() req: Request & {user: UserRequest}) {
+  checkIn(
+    @Body() data: CheckInDTO,
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: Request & { user: UserRequest },
+  ) {
+    if (!file) {
+      throw new BadRequestException('Foto check in wajib ada');
+    }
+
     return this.checkInUseCase.execute(req.user.id, {
       ...data,
       userId: req.user.id,
@@ -107,8 +112,8 @@ export class AbsensiController {
     if (!date) {
       throw new BadRequestException('Date harus diisi');
     }
-    
-  const parsedDate = this.dateUtil.parseDate(date);
+
+    const parsedDate = this.dateUtil.parseDate(date);
     return this.absensiRepo.findOne(id, parsedDate);
   }
 
@@ -135,9 +140,16 @@ export class AbsensiController {
       }),
     }),
   )
-  checkOut(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Req() req: Request & {user: UserRequest}) {
-    if (id !== req.user.id){
+  checkOut(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: Request & { user: UserRequest },
+  ) {
+    if (id !== req.user.id) {
       throw new UnauthorizedException();
+    }
+    if (!file) {
+      throw new BadRequestException('Foto check out wajib ada');
     }
     return this.checkOutUseCase.execute(id, file);
   }
