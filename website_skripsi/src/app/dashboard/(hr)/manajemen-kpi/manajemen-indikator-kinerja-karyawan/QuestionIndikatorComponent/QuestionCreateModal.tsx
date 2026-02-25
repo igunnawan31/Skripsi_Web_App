@@ -5,6 +5,7 @@ import { icons } from "@/app/lib/assets/assets";
 import { useState } from "react";
 import { KategoriPertanyaanKPI, QuestionCreateForm, SkalaNilai } from "@/app/lib/types/kpi/kpiTypes";
 import toast from "react-hot-toast";
+import CustomToast from "@/app/rootComponents/CustomToast";
 
 interface QuestionCreateProps {
     indikatorId: string;
@@ -24,11 +25,15 @@ const QuestionCreateModal = ({
     existingCount,
 }: QuestionCreateProps) => {
     const [questions, setQuestions] = useState<QuestionCreateForm[]>([]);
+    const [errors, setErrors] = useState<{
+        bobot?: string;
+        pertanyaan?: string,
+    }[]>([]);
     const newUrutan = existingCount + questions.length;
 
     if (!isOpen) return null;
 
-    const handleTambahPertanyaan = () => {
+   const handleTambahPertanyaan = () => {
         const newQuestion: QuestionCreateForm = {
             kategori: KategoriPertanyaanKPI.KINERJA,
             pertanyaan: "",
@@ -38,6 +43,7 @@ const QuestionCreateModal = ({
             indikatorId: indikatorId,
         };
         setQuestions([...questions, newQuestion]);
+        setErrors([...errors, { pertanyaan: "", bobot: ""}]);
     };
 
     const handleEditPertanyaan = (index: number, field: keyof QuestionCreateForm, value: any) => {
@@ -47,20 +53,50 @@ const QuestionCreateModal = ({
     };
 
     const handleHapusPertanyaan = (index: number) => {
-        const filtered = questions.filter((_, i) => i !== index);
-        const reordered = filtered.map((q, i) => ({
-            ...q,
-            urutanSoal: existingCount + i + 1
-        }));
-        setQuestions(reordered);
+        setQuestions(questions.filter((_, i) => i !== index));
+        setErrors(errors.filter((_, i) => i !== index));
     };
 
     const handleLocalSave = () => {
         if (questions.length === 0) {
-            toast.error("Tambahkan minimal satu pertanyaan");
+            toast.custom(
+                <CustomToast
+                    type="error" 
+                    message="Tambahkan minimal 1 pertanyaan" 
+                />
+            );
             return;
         }
-        onSave(questions); 
+
+        if (validateForm()) {
+            onSave(questions);
+        } else {
+            toast.custom(
+                <CustomToast 
+                    type="error" 
+                    message="Mohon lengkapi semua field yang wajib diisi" 
+                />
+            );
+        }
+    };
+
+    const validateForm = () => {
+        const newErrors = questions.map((q) => {
+            const errorItem: { pertanyaan?: string; bobot?: string } = {};
+            
+            if (!q.pertanyaan.trim()) {
+                errorItem.pertanyaan = "Pertanyaan wajib diisi";
+            }
+            if (q.bobot < 1) {
+                errorItem.bobot = "Bobot minimal 1";
+            }
+            
+            return errorItem;
+        });
+
+        setErrors(newErrors as any);
+        
+        return newErrors.every((err) => Object.keys(err).length === 0);
     };
 
     return (
@@ -89,14 +125,19 @@ const QuestionCreateModal = ({
                                 className="relative border border-gray-200 bg-gray-50 p-4 rounded-xl shadow-sm hover:shadow-md transition"
                             >
                                 <div className="mb-3">
-                                    <label className="text-sm font-medium text-gray-600">Pertanyaan #{existingCount + index + 1}</label>
+                                    <label className="text-sm font-medium text-gray-600">Pertanyaan #{existingCount + index + 1} <span className="text-(--color-primary)">*</span></label>
                                     <input
                                         type="text"
                                         placeholder="Tulis pertanyaan..."
                                         value={p.pertanyaan}
                                         onChange={(e) => handleEditPertanyaan(index, "pertanyaan", e.target.value)}
-                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-yellow-500"
-                                    />
+                                            className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-yellow-500 transition-colors ${
+                                                errors[index]?.pertanyaan ? "border-red-500 bg-red-50" : "border-gray-300"
+                                            }`}
+                                        />
+                                        {errors[index]?.pertanyaan && (
+                                            <span className="text-xs text-red-500 font-medium mt-1">{errors[index].pertanyaan}</span>
+                                        )}
                                 </div>
 
                                 <div className="grid grid-cols-3 gap-4 mb-4">
@@ -105,9 +146,14 @@ const QuestionCreateModal = ({
                                         <input
                                             type="number"
                                             value={p.bobot}
-                                            onChange={(e) => handleEditPertanyaan(index, "bobot", parseInt(e.target.value))}
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1"
-                                        />
+                                            onChange={(e) => handleEditPertanyaan(index, "bobot", parseInt(e.target.value) || 0)}
+                                                className={`w-full border rounded-lg px-3 py-2 mt-1 ${
+                                                    errors[index]?.bobot ? "border-red-500 bg-red-50" : "border-gray-300"
+                                                }`}
+                                            />
+                                            {errors[index]?.bobot && (
+                                                <span className="text-xs text-red-500 font-medium mt-1">{errors[index].bobot}</span>
+                                            )}
                                     </div>
                                     <div>
                                         <label className="text-sm font-medium text-gray-600">Kategori</label>

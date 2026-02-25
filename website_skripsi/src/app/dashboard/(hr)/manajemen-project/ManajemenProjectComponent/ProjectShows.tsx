@@ -43,8 +43,8 @@ const ProjectShows = () => {
         maxEndDate: selectedMaxDate || undefined,
         searchTerm: searchQuery || undefined,
     });
+    
     const deleteProject = useProject().DeleteProject();
-
     const project = data?.data || [];
     const totalItems = data?.meta?.total || 0;
 
@@ -348,7 +348,7 @@ const ProjectShows = () => {
                 </div>
             )}
 
-            {project.length > 10 && !isLoading && (
+            {project.length > 0 && !isLoading && (
                 <div className="mt-6">
                     <PaginationBar
                         totalItems={totalItems}

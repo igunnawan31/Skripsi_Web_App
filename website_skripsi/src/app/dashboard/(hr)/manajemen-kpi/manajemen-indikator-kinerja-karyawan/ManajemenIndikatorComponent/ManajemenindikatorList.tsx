@@ -3,10 +3,9 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/PaginationBar";
-import FilterBar from "@/app/dashboard/dashboardComponents/allComponents/FilterBar";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { icons } from "@/app/lib/assets/assets";
+import { icons, logo } from "@/app/lib/assets/assets";
 import SearchBar from "@/app/dashboard/dashboardComponents/allComponents/SearchBar";
 import { useKpi } from "@/app/lib/hooks/kpi/useKpi";
 import { IndikatorResponse, StatusIndikatorKPI } from "@/app/lib/types/kpi/kpiTypes";
@@ -23,6 +22,7 @@ const ManajemenIndikatorList = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
 
+    const [statusUpdateTarget, setStatusUpdateTarget] = useState<{ id: string; newStatus: StatusIndikatorKPI } | null>(null);
     const [selectedIndikatorId, setSelectedIndikatorId] = useState<string | null>(null);
     const [selectedStatusPublic, setSelectedStatusPublic] = useState<string>(searchParams.get("statusPublic") || "All");
     const [selectedStatusIndikator, setSelectedStatusIndikator] = useState<string>(searchParams.get("status") || "All");
@@ -47,9 +47,17 @@ const ManajemenIndikatorList = () => {
         searchTerm: searchQuery || undefined,
     });
 
+    const activeIndicator = useKpi().activateIndicator();
+    const archiveIndicator = useKpi().archiveIndicator();
+    const completeIndicator = useKpi().completeIndicator();
     const deleteIndikator = useKpi().deleteIndikator();
+
     const indikator = data?.data || [];
     const totalItems = data?.meta?.total || 0;
+
+    const availableStatuses = Object.values(StatusIndikatorKPI).filter(
+        (status) => status !== StatusIndikatorKPI.DRAFT
+    );
 
     useEffect(() => {
         const params = new URLSearchParams();
@@ -72,6 +80,40 @@ const ManajemenIndikatorList = () => {
     const handleOpenModal = (id: string) => {
         setSelectedIndikatorId(id);
         setIsModalOpen(true);
+    };
+
+    const handleStatusChange = (ikk: IndikatorResponse, nextStatus: string) => {
+        const newStatus = nextStatus as StatusIndikatorKPI;
+        
+        if (ikk.status === newStatus) return;
+
+        setStatusUpdateTarget({ id: ikk.id, newStatus });
+        setIsModalOpen(true); 
+    };
+
+    const handleConfirmAction = () => {
+        if (statusUpdateTarget) {
+            const { id, newStatus } = statusUpdateTarget;
+            
+            let mutation;
+            if (newStatus === StatusIndikatorKPI.ACTIVE) mutation = activeIndicator;
+            if (newStatus === StatusIndikatorKPI.COMPLETED) mutation = completeIndicator;
+            if (newStatus === StatusIndikatorKPI.ARCHIVED) mutation = archiveIndicator;
+            
+            mutation?.mutate({ id }, { 
+                onSuccess: () => {
+                    toast.custom(<CustomToast type="success" message={`Status berhasil diubah ke ${newStatus}`} />);
+                    setIsModalOpen(false);
+                    setStatusUpdateTarget(null);
+                },
+                onError: (err) => {
+                    toast.custom(<CustomToast type="error" message={err.message} />);
+                }
+            });
+        } 
+        else if (selectedIndikatorId) {
+            handleDelete();
+        }
     };
 
     const handleDelete = () => {
@@ -129,7 +171,24 @@ const ManajemenIndikatorList = () => {
     };
 
     if (error) {
-        return <div className="text-center text-red-500 py-6">Error: {error.message}</div>;
+        const errorRender = (
+            <div className="flex flex-col items-center justify-between gap-4 py-4">
+                <Image
+                    src={logo.error}
+                    width={240}
+                    height={240}
+                    alt="Not Found Data"
+                />
+                <div className="flex flex-col items-center">
+                    <h1 className="text-2xl font-bold text-(--color-primary)">
+                        {error.message ? error.message : "Terdapat kendala pada sistem"}
+                    </h1>
+                    <span className="text-sm text-(--color-primary)">Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki</span>
+                </div>
+            </div>
+        );
+
+        return errorRender;
     };
 
     const renderHtml = (
@@ -193,7 +252,7 @@ const ManajemenIndikatorList = () => {
                             <span
                                 className="flex items-center gap-2 bg-(--color-surface) border border-(--color-border) px-4 py-2 rounded-lg text-sm"
                             >
-                                Metode Pembayaran: {selectedStatusIndikator}
+                                Status Indikator: {selectedStatusIndikator}
                                 <button
                                     className="text-red-500 hover:text-red-700 cursor-pointer"
                                     onClick={() => setSelectedStatusIndikator("All")}
@@ -279,14 +338,21 @@ const ManajemenIndikatorList = () => {
                                     >
                                         Status Publish : {String(ikk.statusPublic)}
                                     </span>
-                                    <span
-                                        className={`px-3 py-1 text-xs font-semibold rounded-lg uppercase text-center w-fit 
-                                        ${getStatusColor(
-                                            ikk
-                                        )}`}
+                                    <select
+                                        value={ikk.status}
+                                        onChange={(e) => handleStatusChange(ikk, e.target.value)}
+                                        className={`px-3 py-1 text-xs font-semibold rounded-lg uppercase cursor-pointer outline-none border-none ${getStatusColor(ikk)}`}
                                     >
-                                        Status Indikator : {ikk.status}
-                                    </span>
+                                        {ikk.status === StatusIndikatorKPI.DRAFT && (
+                                            <option value={StatusIndikatorKPI.DRAFT}>DRAFT</option>
+                                        )}
+                                        
+                                        {availableStatuses.map((status) => (
+                                            <option key={status} value={status}>
+                                                Status Indikator : {status}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
                             <div className="flex justify-between items-center py-2">
@@ -352,6 +418,7 @@ const ManajemenIndikatorList = () => {
                                         />
                                     </Link>
                                     <button
+                                        type="button"
                                         onClick={() => handleOpenModal(ikk.id)}
                                         className="flex items-center justify-center gap-2 p-2 bg-(--color-primary) text-white rounded-lg hover:bg-(--color-primary)/80 cursor-pointer"
                                     >
@@ -368,9 +435,20 @@ const ManajemenIndikatorList = () => {
                     ))}
                 </>
             ) : (
-                <p className="text-center text-gray-500 py-6">
-                    Tidak ada data manajemen indikator sesuai filter.
-                </p>
+                <div className="flex flex-col items-center justify-between gap-4 py-4">
+                    <Image
+                        src={logo.notFound}
+                        width={120}
+                        height={120}
+                        alt="Not Found Data"
+                    />
+                    <div className="flex flex-col items-center">
+                        <h1 className="text-xl font-bold text-(--color-text-primary)">
+                            Pencarian Tidak Ditemukan
+                        </h1>
+                        <span className="text-sm text-(--color-muted)">Ubah hasil pencarian kamu</span>
+                    </div>
+                </div>
             )}
 
             {indikator.length > 0 && !isLoading && (
@@ -393,12 +471,20 @@ const ManajemenIndikatorList = () => {
             />
             <ConfirmationPopUpModal
                 isOpen={isModalOpen}
-                onAction={handleDelete}
-                onClose={() => setIsModalOpen(false)}
-                type="error"
-                title={"Konfirmasi Hapus Indikator"}
-                message={"Apakah Anda yakin ingin menghapus data indikator ini"}
-                activeText="Ya"
+                onAction={handleConfirmAction}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setStatusUpdateTarget(null);
+                    setSelectedIndikatorId(null);
+                }}
+                type={statusUpdateTarget ? "success" : "error"}
+                title={statusUpdateTarget ? "Konfirmasi Perubahan Status" : "Konfirmasi Hapus Indikator"}
+                message={
+                    statusUpdateTarget 
+                    ? `Apakah Anda yakin ingin mengubah status menjadi ${statusUpdateTarget.newStatus}?` 
+                    : "Apakah Anda yakin ingin menghapus data indikator ini?"
+                }
+                activeText="Ya, Lanjutkan"
                 passiveText="Batal"
             />
         </div>

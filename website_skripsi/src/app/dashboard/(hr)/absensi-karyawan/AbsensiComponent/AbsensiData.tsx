@@ -11,6 +11,7 @@ const AbsensiData = ({ selectedDate }: { selectedDate: string }) => {
 
     const { data } = useAbsensi().fetchAllAbsensi({
         date: new Date(`${selectedDate}T00:00:00`).toISOString(),
+        limit: 1000,
     });
 
     const stats = useMemo(() => {
@@ -24,7 +25,7 @@ const AbsensiData = ({ selectedDate }: { selectedDate: string }) => {
             return zoned > limit ? "late" : "ontime";
         };
 
-        const totalAbsen = list.length;
+        const totalAbsen = data?.meta.total || 0;
         const onTimeCount = list.filter((a: any) => checkStatus(a.checkIn) === "ontime").length;
         const lateCount = list.filter((a: any) => checkStatus(a.checkIn) === "late").length;
         
@@ -61,7 +62,7 @@ const AbsensiData = ({ selectedDate }: { selectedDate: string }) => {
                             {item.value}
                         </h3>
                         {item.id === 4 && item.value > 0 && (
-                            <p className="text-[10px] text-red-500 mt-1 font-medium">⚠️ {item.note} terdeteksi</p>
+                            <p className="text-[10px] text-red-500 mt-1 font-medium">{item.note} terdeteksi</p>
                         )}
                         <p className="text-xs text-slate-500 mt-1">
                             Untuk tanggal {format(new Date(selectedDate), "dd MMM yyyy")}

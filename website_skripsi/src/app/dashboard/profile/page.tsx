@@ -286,7 +286,7 @@ const Profile = () => {
                     </h3>
                 </div>
 
-                <div className="flex flex-col">
+                <div className="flex flex-col gap-4">
                     {fetchedData?.kontrak.length > 0 ? (
                         fetchedData?.kontrak.map((dk: any) => {
                             const isThisItemOpen = openSummaryId === dk.id;

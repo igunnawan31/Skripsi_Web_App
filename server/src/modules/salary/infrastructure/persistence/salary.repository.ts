@@ -42,6 +42,7 @@ export class SalaryRepository implements ISalaryRepository {
     user: UserRequest,
   ): Promise<RetrieveAllSalaryResponseDTO | null> {
     const {
+      searchTerm,
       status,
       minDueDate,
       maxDueDate,
@@ -64,6 +65,23 @@ export class SalaryRepository implements ISalaryRepository {
           lte: maxDueDate ? new Date(maxDueDate) : undefined,
         },
       };
+      if (
+        searchTerm !== undefined &&
+        searchTerm !== null &&
+        searchTerm.trim() !== ''
+      ) {
+        const searchValue = searchTerm.trim();
+        where.OR = [
+          {
+            user: {
+              name: {
+                contains: searchValue,
+                mode: 'insensitive',
+              },
+            },
+          },
+        ];
+      }
       const orderBy: Prisma.SalaryOrderByWithRelationInput = {};
       if (sortBy && ['createdAt', 'dueDate'].includes(sortBy)) {
         orderBy[sortBy] = sortOrder === 'desc' ? 'desc' : 'asc';

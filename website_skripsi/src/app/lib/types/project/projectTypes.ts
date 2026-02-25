@@ -21,3 +21,21 @@ export type ResponseProject = {
     createdAt: string;
     updatedAt: string;
 }
+
+export type ProjectCreateRequest = {
+    name: string;
+    description: string;
+    startDate: string;
+    endDate: string;
+    projectDocument: File[] | null;
+}
+
+export type ProjectPatchRequest = {
+    name: string;
+    status: string;
+    description: string;
+    startDate: string;
+    endDate: string;
+    projectDocument: File[] | null;
+    removeDocuments: string[];
+}

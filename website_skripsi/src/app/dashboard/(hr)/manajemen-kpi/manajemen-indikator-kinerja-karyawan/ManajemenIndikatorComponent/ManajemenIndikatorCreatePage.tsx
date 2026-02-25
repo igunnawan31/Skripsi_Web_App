@@ -1,7 +1,7 @@
 "use client";
 
 import ConfirmationPopUpModal from "@/app/dashboard/dashboardComponents/allComponents/ConfirmationPopUpModal";
-import { icons } from "@/app/lib/assets/assets";
+import { icons, logo } from "@/app/lib/assets/assets";
 import { dummyUsers } from "@/app/lib/dummyData/dummyUsers";
 import { dummyProject } from "@/app/lib/dummyData/ProjectData";
 import { useKpi } from "@/app/lib/hooks/kpi/useKpi";
@@ -15,11 +15,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
+import ManajemenIndikatorSkeletonDetail from "./ManajemenIndikatorSkeletonDetail";
 
 const ManajemenIndikatorCreatePage = () => {
     const router = useRouter();
-    const { data: fetchedDataUser, error: isErrorUser } = useUser().fetchAllUser();
-    const { data: fetchedDataProject, error: isErrorProject } = useProject().fetchAllProject();
+    const { data: fetchedDataUser, isLoading: isLoadingUser, error: isErrorUser } = useUser().fetchAllUser();
+    const { data: fetchedDataProject, isLoading: isLoadingProject, error: isErrorProject } = useProject().fetchAllProject();
     const { mutate, isPending } = useKpi().createIndikator();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,6 +32,13 @@ const ManajemenIndikatorCreatePage = () => {
         statusPublic: false,
         status: "",
         evalMap: [],
+    });
+    const [errors, setErrors] = useState({
+        name: "",
+        description: "",
+        startDate: "",
+        endDate: "",
+        status: "",
     });
 
     const handleChange = (
@@ -52,46 +60,6 @@ const ManajemenIndikatorCreatePage = () => {
             };
         });
     };
-
-    // const handleTambahPertanyaan = () => {
-    //     const newQuestion: pertanyaanKPI = {
-    //         id: crypto.randomUUID(),
-    //         kategoriPertanyaan: KategoriPertanyaanKPI.KINERJA,
-    //         pertanyaan: "",
-    //         bobot: 1,
-    //         aktif: true,
-    //         IndikatorKPIId: "",
-    //         skalaNilai: [
-    //             { nilai: 1, label: "Sangat Tidak Baik" },
-    //             { nilai: 2, label: "Tidak Baik" },
-    //             { nilai: 3, label: "Cukup" },
-    //             { nilai: 4, label: "Baik" },
-    //             { nilai: 5, label: "Sangat Baik" },
-    //         ],
-    //         defaultRange: [1, 5],
-    //     };
-
-    //     setFormData({
-    //         ...formData,
-    //         pertanyaan: [...formData.pertanyaan, newQuestion],
-    //     });
-    // };
-
-    // const handleHapusPertanyaan = (id: string) => {
-    //     setFormData({
-    //         ...formData,
-    //         pertanyaan: formData.pertanyaan.filter((p) => p.id !== id),
-    //     });
-    // };
-
-    // const handleEditPertanyaan = (id: string, field: string, value: any) => {
-    //     setFormData({
-    //         ...formData,
-    //         pertanyaan: formData.pertanyaan.map((p) =>
-    //             p.id === id ? { ...p, [field]: value } : p
-    //         ),
-    //     });
-    // };
 
     const potentialEvaluators = useMemo(() => {
         if (!fetchedDataUser?.data) return [];
@@ -169,25 +137,53 @@ const ManajemenIndikatorCreatePage = () => {
 
 
     const handleOpenModal = () => {
-        // if (!formData..trim()) {
-        //     toast.custom(<CustomToast type="error" message="Nama project harus diisi" />)
-        //     return;
-        // }
+        const newErrors = {
+            name: "",
+            description: "",
+            startDate: "",
+            endDate: "",
+            statusPublic: "",
+            status: "",
+        };
+        let isValid = true;
 
-        // if (!formData.description.trim()) {
-        //     toast.custom(<CustomToast type="error" message="Deskripsi project harus diisi" />)
-        //     return;
-        // }        
+        if (!formData.name) {
+            newErrors.name = "Nama indikator harus dipilih";
+            isValid = false;
+        }
 
-        // if (!formData.startDate || !formData.endDate) {
-        //     toast.custom(<CustomToast type="error" message="Tanggal mulai dan Tanggal selesai harus diisi" />)
-        //     return;
-        // }
+        if (!formData.description) {
+            newErrors.description = "Deskripsi indikator harus dipilih";
+            isValid = false;
+        }
 
-        // if (new Date(formData.startDate) > new Date(formData.endDate)) {
-        //     toast.custom(<CustomToast type="error" message="Tanggal selesai tidak boleh lebih dari tanggal mulai" />)
-        //     return;
-        // }
+        if (!formData.startDate) {
+            newErrors.startDate = "Tanggal mulai harus diisi";
+            isValid = false;
+        }
+        if (!formData.endDate) {
+            newErrors.endDate = "Tanggal selesai harus diisi";
+            isValid = false;
+        } else if (new Date(formData.startDate) > new Date(formData.endDate)) {
+            newErrors.endDate = "Tanggal selesai tidak boleh sebelum tanggal mulai";
+            isValid = false;
+        }
+        if (!formData.status) {
+            newErrors.status = "Status indikator harus dipilih";
+            isValid = false;
+        }
+
+        setErrors(newErrors as any);
+
+        if (!isValid) {
+            toast.custom(
+                <CustomToast 
+                    type="error" 
+                    message="Mohon lengkapi semua field yang wajib diisi" 
+                />
+            );
+            return;
+        }
 
         setIsModalOpen(true);
     }
@@ -211,6 +207,90 @@ const ManajemenIndikatorCreatePage = () => {
                 setIsModalOpen(false);
             },
         });
+    };
+
+    if (isLoadingProject || isLoadingUser) {
+        return <ManajemenIndikatorSkeletonDetail />;
+    }
+
+
+    if (!fetchedDataProject || !fetchedDataUser) {
+        const noFetchedData = (
+            <div className="flex flex-col gap-6 w-full pb-8">
+                <button
+                    onClick={() => router.back()}
+                    className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                >
+                    <Image 
+                        src={icons.arrowLeftActive}
+                        alt="Back Arrow"
+                        width={20}
+                        height={20}
+                    />
+                    <p className="text-(--color-surface)">
+                        Kembali ke halaman sebelumnya
+                    </p>
+                </button>
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md px-6 py-12 border border-(--color-border) flex flex-col gap-6">
+                    <div className="flex flex-col items-center justify-between gap-4">
+                        <Image
+                            src={logo.notFound}
+                            width={240}
+                            height={240}
+                            alt="Not Found Data"
+                        />
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                Terdapat Kesalahan Dalam Memproses Data
+                            </h1>
+                            <span className="text-sm text-(--color-primary)">Mohon mengecek kembali detail kontrak kerja nanti</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return noFetchedData;
+    };
+
+    if (isErrorProject || isErrorUser) {
+        const errorFetchedData = (
+            <div className="flex flex-col gap-6 w-full pb-8">
+                <button
+                    onClick={() => router.back()}
+                    className="w-fit px-3 py-2 bg-(--color-primary) hover:bg-red-800 flex flex-row gap-3 rounded-lg cursor-pointer transition"
+                >
+                    <Image 
+                        src={icons.arrowLeftActive}
+                        alt="Back Arrow"
+                        width={20}
+                        height={20}
+                    />
+                    <p className="text-(--color-surface)">
+                        Kembali ke halaman sebelumnya
+                    </p>
+                </button>
+                <div className="w-full bg-(--color-surface) rounded-2xl shadow-md px-6 py-12 border border-(--color-border) flex flex-col gap-6">
+                    <div className="flex flex-col items-center justify-between gap-4">
+                        <Image
+                            src={logo.error}
+                            width={240}
+                            height={240}
+                            alt="Not Found Data"
+                        />
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-2xl font-bold text-(--color-primary)">
+                                {isErrorProject?.message ? isErrorProject.message : "Terdapat kendala pada sistem"}
+                                {isErrorUser?.message ? isErrorUser.message : "Terdapat kendala pada sistem"}
+                            </h1>
+                            <span className="text-sm text-(--color-primary)">Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        return errorFetchedData;
     };
 
     const renderHtml = (
@@ -241,7 +321,7 @@ const ManajemenIndikatorCreatePage = () => {
                 <form className="space-y-6">
                     <div className="flex flex-col">
                         <label className="text-sm font-medium text-gray-600 mb-1">
-                            Nama Indikator <span className="text-yellow-600">*</span>
+                            Nama Indikator <span className="text-(--color-primary)">*</span>
                         </label>
                         <input
                             type="text"
@@ -249,51 +329,79 @@ const ManajemenIndikatorCreatePage = () => {
                             value={formData.name}
                             onChange={handleChange}
                             placeholder="Masukkan nama Indikator"
-                            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                            className={`border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors ${
+                                errors.name ? "border-(--color-primary)" : "border-(--color-border)"
+                            }`}
                             required
                         />
+                        {errors.name && (
+                            <p className="text-xs text-(--color-primary) mt-1 animate-in fade-in slide-in-from-top-1">
+                                {errors.name}
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex flex-col">
                         <label className="text-sm font-medium text-gray-600 mb-1">
-                            Deskripsi Indikator
+                            Deskripsi Indikator <span className="text-(--color-primary)">*</span>
                         </label>
                         <textarea
                             name="description"
                             value={formData.description}
                             onChange={handleChange}
                             placeholder="Tuliskan deskripsi singkat indikator..."
-                            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                            className={`border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors ${
+                                errors.description ? "border-(--color-primary)" : "border-(--color-border)"
+                            }`}
                             required
                         />
+                        {errors.description && (
+                            <p className="text-xs text-(--color-primary) mt-1 animate-in fade-in slide-in-from-top-1">
+                                {errors.description}
+                            </p>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="flex flex-col">
                             <label className="text-sm font-medium text-gray-600 mb-1">
-                                Periode Mulai
+                                Periode Mulai <span className="text-(--color-primary)">*</span>
                             </label>
                             <input
                                 type="date"
                                 name="startDate"
                                 value={formData.startDate}
                                 onChange={handleChange}
-                                className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                className={`border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors ${
+                                    errors.startDate ? "border-(--color-primary)" : "border-(--color-border)"
+                                }`}
                                 required
                             />
+                            {errors.startDate && (
+                                <p className="text-xs text-(--color-primary) mt-1 animate-in fade-in slide-in-from-top-1">
+                                    {errors.startDate}
+                                </p>
+                            )}
                         </div>
                         <div className="flex flex-col">
                             <label className="text-sm font-medium text-gray-600 mb-1">
-                                Periode Selesai
+                                Periode Selesai <span className="text-(--color-primary)">*</span>
                             </label>
                             <input
                                 type="date"
                                 name="endDate"
                                 value={formData.endDate}
                                 onChange={handleChange}
-                                className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                                className={`border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors ${
+                                    errors.endDate ? "border-(--color-primary)" : "border-(--color-border)"
+                                }`}
                                 required
                             />
+                            {errors.endDate && (
+                                <p className="text-xs text-(--color-primary) mt-1 animate-in fade-in slide-in-from-top-1">
+                                    {errors.endDate}
+                                </p>
+                            )}
                         </div>
                     </div>
                     <div className="mt-10 border-t border-gray-200 pt-6">
@@ -301,7 +409,7 @@ const ManajemenIndikatorCreatePage = () => {
                         <div className="flex flex-col gap-4">
                             <div className="flex flex-col bg-yellow-50 p-4 rounded-xl border border-yellow-200">
                                 <label className="text-sm font-medium text-gray-600 mb-2">
-                                    Tambah Penilai Baru
+                                    Tambah Penilai Baru (opsional)
                                 </label>
                                 <select
                                     value=""
@@ -390,13 +498,14 @@ const ManajemenIndikatorCreatePage = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium text-gray-600 mb-2">
-                                    Status Publish
+                                    Status Publish <span className="text-(--color-primary)">*</span>
                                 </label>
                                 <select
                                     name="statusPublic"
                                     value={formData.statusPublic ? "true" : "false"}
                                     onChange={handleChange}
-                                    className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500"
+                                    className={`border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors border-(--color-border)`}
+                                    required
                                 >
                                     <option value="true">True (Publik)</option>
                                     <option value="false">False (Privat)</option>
@@ -404,16 +513,24 @@ const ManajemenIndikatorCreatePage = () => {
                                 <p className="text-xs text-gray-500 mt-1">
                                     Tentukan apakah indikator ini dapat dilihat publik.
                                 </p>
+                                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mt-3">
+                                    <p className="text-sm text-blue-800">
+                                        <strong>Info:</strong> Status Publish tidak bisa dirubah ketika Status Indikator : ACTIVE 
+                                    </p>
+                                </div>
                             </div>
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium text-gray-600 mb-2">
-                                    Status Indikator
+                                    Status Indikator <span className="text-(--color-primary)">*</span>
                                 </label>
                                 <select
                                     name="status"
                                     value={formData.status}
                                     onChange={handleChange}
-                                    className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500"
+                                    className={`border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors ${
+                                        errors.status ? "border-(--color-primary)" : "border-(--color-border)"
+                                    }`}
+                                    required
                                 >
                                     <option value="">-- Pilih Status --</option>
                                     {Object.values(StatusIndikatorKPI).map((status) => (
@@ -422,9 +539,19 @@ const ManajemenIndikatorCreatePage = () => {
                                         </option>
                                     ))}
                                 </select>
+                                {errors.status && (
+                                    <p className="text-xs text-(--color-primary) mt-1 animate-in fade-in slide-in-from-top-1">
+                                        {errors.status}
+                                    </p>
+                                )}
                                 <p className="text-xs text-gray-500 mt-1">
                                     Pilih status saat ini dari indikator KPI ini.
                                 </p>
+                                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mt-3">
+                                    <p className="text-sm text-blue-800">
+                                        <strong>Info:</strong> Jika terdapat keraguan, anda dapat memilih Status Indikator : DRAFT 
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>

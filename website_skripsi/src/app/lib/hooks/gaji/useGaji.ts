@@ -82,6 +82,47 @@ export const useGaji = () => {
             staleTime: 5 * 60 * 1000,
         });
     }
+
+    const fetchSalaryByUserId = ({ id, ...filters }: {
+        id: string;
+        page?: number;
+        limit?: number;
+        sortBy?: string;
+        sortOrder?: "asc" | "desc";
+        searchTerm?: string;
+    }) => {
+        return useQuery ({
+            queryKey: ["salaries", id, filters],
+            queryFn: async () => {
+                const token = Cookies.get("accessToken");
+                if (!token) throw new Error("No access token found");
+
+                const queryParams = new URLSearchParams();
+                if (filters?.page) queryParams.append("page", filters.page.toString());
+                if (filters?.limit) queryParams.append("limit", filters.limit.toString());
+                if (filters?.sortBy) queryParams.append("sortBy", filters.sortBy);
+                if (filters?.sortOrder) queryParams.append("sortOrder", filters.sortOrder);
+
+                const response = await fetch(`${API}/salaries/users/${id}?${queryParams.toString()}`, {
+                    method: "GET",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    credentials: "include",
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || "Failed to fetch salary by User ID");
+                }
+
+                return response.json();
+            },
+            enabled: !!id,
+            staleTime: 5 * 60 * 1000,
+        });
+    }
     
     const paySalary = () => {
         const queryClient = useQueryClient();
@@ -136,6 +177,7 @@ export const useGaji = () => {
     return {
         fetchAllSalaries,
         fetchSalaryById,
+        fetchSalaryByUserId,
         paySalary,
     };
 }

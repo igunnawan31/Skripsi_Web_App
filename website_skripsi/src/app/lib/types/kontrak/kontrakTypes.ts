@@ -30,12 +30,13 @@ export type KontrakResponse = {
 
 export type CreateKontrakKerja = {
     userData: {
-        email: string;
-        name: string;
-        password: string;
-        majorRole: MajorRole | "";
-        minorRole: MinorRole | "";
-    },
+        id?: string;
+        email?: string;
+        name?: string;
+        password?: string;
+        majorRole?: MajorRole | "";
+        minorRole?: MinorRole | "";
+    };
     projectData: {
         id: string;
     },

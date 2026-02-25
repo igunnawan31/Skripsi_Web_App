@@ -7,14 +7,20 @@ import { icons, logo } from "@/app/lib/assets/assets";
 import { useProject } from "@/app/lib/hooks/project/useProject";
 import { useUser } from "@/app/lib/hooks/user/useUser";
 import SkeletonDetail from "./ProjectSkeletonDetail";
+import { fetchFileBlob } from "@/app/lib/path";
+import CustomToast from "@/app/rootComponents/CustomToast";
+import toast from "react-hot-toast";
 
 export default function ProjectShowsDetail({ id }: { id: string }) {
     const { data: fetchedData, isLoading: isLoadingProject, error: isErrorProject } = useProject().fetchProjectById(id);
     const { data: fetchedDataUser, isLoading: isLoadingUser, error: isErrorUser } = useUser().fetchAllUser();
     
     const [openHistory, setOpenHistory] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const router = useRouter();
     const data = fetchedData;
+    const documents = Array.isArray(fetchedData?.documents) ? fetchedData.documents : [];
+
     const projectTeamUserIds = useMemo(() => {
         return fetchedData?.projectTeams?.map((pt: any) => pt.userId) ?? [];
     }, [fetchedData]);
@@ -26,6 +32,41 @@ export default function ProjectShowsDetail({ id }: { id: string }) {
             projectTeamUserIds.includes(user.id)
         );
     }, [fetchedDataUser, projectTeamUserIds]);
+
+    const handlePreview = async (path: string) => {
+        try {
+            const blob = await fetchFileBlob(path);
+            const url = URL.createObjectURL(blob);
+            setPreviewUrl(url);
+        } catch {
+            toast.custom(<CustomToast type="error" message="Gagal memuat file"/>);
+        }
+    }
+
+    const handleDownload = async (path: string, filename: string) => {
+        try {
+            const blob = await fetchFileBlob(path);
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.style.display = 'none';
+            a.href = url;
+            a.download = filename;
+            a.click();
+        } catch {
+            toast.custom(<CustomToast type="error" message="Gagal download file"/>);
+        }
+    };
+
+    const getFileIcon = (mimetype: any) => {
+        if (!mimetype) return icons.pdfFormat;
+
+        const typeString = typeof mimetype === 'object' ? mimetype.mimetype : mimetype;
+        if (typeof typeString !== 'string') return icons.pdfFormat;
+        if (typeString.includes("image/")) return icons.imageFormat;
+        if (typeString.includes("application/pdf")) return icons.pdfFormat;
+
+        return icons.pdfFormat;
+    };
 
     if (isLoadingProject || isLoadingUser) {
         return <SkeletonDetail />;
@@ -199,6 +240,73 @@ export default function ProjectShowsDetail({ id }: { id: string }) {
                                 disabled
                             />
                         </div>
+                    </div>
+
+                    <div className="flex flex-col gap-4">
+                        <label className="text-sm font-medium text-gray-600 mb-1">Dokumen Asli (pdf)</label>
+                        {documents.length > 0 ? (
+                            documents.map((dk: any) => (
+                                <div
+                                    key={dk.path}
+                                    className="flex justify-between items-center rounded-lg p-4 border border-(--color-border) shadow-sm hover:shadow-md transition-shadow bg-white"
+                                >
+                                    <div className="flex flex-row gap-4">
+                                        <div className="w-20 h-20 bg-(--color-secondary) rounded-lg items-center justify-center relative">
+                                            <Image
+                                                src={getFileIcon(dk)}
+                                                fill
+                                                alt="PDF Format"
+                                                className="object-cover p-4"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col justify-center gap-1">
+                                            <p className="text-md font-bold">{dk.originalname}</p>
+                                            <p className="text-sm font-medium text-(--color-text-secondary)">{dk.filename}</p>
+                                            <span
+                                                onClick={() => handlePreview(dk.path)}
+                                                className="text-xs cursor-pointer hover:underline text-(--color-muted)"
+                                            >
+                                                See File
+                                            </span>
+                                        </div>
+                                        {previewUrl && (
+                                            <div className="fixed inset-0 bg-black/60 flex justify-center items-center">
+                                                <div className="bg-white w-3/4 h-3/4 rounded-xl p-4 relative">
+                                                    <div className="items-center justify-between flex mb-5">
+                                                        <p className="text-md font-bold">{dk.originalname}</p>
+                                                        <button onClick={() => setPreviewUrl(null)} className="bg-(--color-primary) rounded-lg p-2 hover: hover:bg-red-800 cursor-pointer">
+                                                            <Image 
+                                                                src={icons.closeMenu}
+                                                                alt="Close Preview PDF"
+                                                                width={24}
+                                                                height={24}
+                                                            />
+                                                        </button>
+                                                    </div>
+                                                    <iframe src={previewUrl} className="w-full h-[90%]" />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleDownload(dk.path, dk.originalname)}
+                                        className="p-4 bg-(--color-primary) rounded-lg justify-center items-center cursor-pointer hover:bg-red-800"
+                                    >
+                                        <Image
+                                            src={icons.download}
+                                            alt="Download Button"
+                                            height={24}
+                                            width={24}
+                                        />
+                                    </button>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="text-center text-(--color-muted) py-6 italic">
+                                Belum ada dokumen / lampiran pendukung.
+                            </div>
+                        )}
                     </div>
                     
                     <div className="flex flex-col mt-6 border-t border-(--color-border) pt-6">

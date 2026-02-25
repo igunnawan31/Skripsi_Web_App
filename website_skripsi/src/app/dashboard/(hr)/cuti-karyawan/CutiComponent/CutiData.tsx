@@ -7,12 +7,13 @@ import { CutiResponse } from "@/app/lib/types/cuti/cutiTypes";
 import { CutiStatus } from "@/app/lib/types/enumTypes";
 
 const CutiData = () => {
-    const { data } = useCuti().fetchAllCuti();
+    const { data } = useCuti().fetchAllCuti({ limit: 1000 });
+    console.log(data);
     const [seeFull, setSeeFull] = useState(false); 
 
     const stats = useMemo(() => {
         const cutis: CutiResponse[] = data?.data || [];
-        const totalCuti = cutis.length;
+        const totalCuti = data?.meta.total;
         
         return [
             { id: 1, label: "Total Pengajuan Cuti", value: totalCuti, color: "bg-blue-100 text-blue-700" },

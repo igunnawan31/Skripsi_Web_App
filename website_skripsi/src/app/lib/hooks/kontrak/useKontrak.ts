@@ -107,14 +107,18 @@ export const useKontrak = () => {
 
                 const fd = new FormData();
 
-                fd.append('userData[email]', kontrakData.userData.email || '');
-                fd.append('userData[name]', kontrakData.userData.name || '');
-                fd.append('userData[password]', kontrakData.userData.password || '');
-                fd.append('userData[majorRole]', kontrakData.userData.majorRole || '');
-                fd.append('userData[minorRole]', kontrakData.userData.minorRole || '');
+                if (kontrakData.userData.id) {
+                    fd.append('userData[id]', kontrakData.userData.id);
+                } else {
+                    fd.append('userData[email]', kontrakData.userData.email || '');
+                    fd.append('userData[name]', kontrakData.userData.name || '');
+                    fd.append('userData[password]', kontrakData.userData.password || '');
+                    fd.append('userData[majorRole]', kontrakData.userData.majorRole || '');
+                    fd.append('userData[minorRole]', kontrakData.userData.minorRole || '');
 
-                if (kontrakData.userPhoto) {
-                    fd.append('userPhoto', kontrakData.userPhoto);
+                    if (kontrakData.userPhoto) {
+                        fd.append('userPhoto', kontrakData.userPhoto);
+                    }
                 }
 
                 fd.append('projectData[id]', kontrakData.projectData.id || '');

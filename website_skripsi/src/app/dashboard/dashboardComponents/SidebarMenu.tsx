@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 import MobileMenu from "./menuComponents/MobileMenu";
 import DesktopMenu from "./menuComponents/DesktopMenu";
 import { MajorRole, MinorRole, User } from "@/app/lib/types/types";
+import { fetchFileBlob } from "@/app/lib/path";
 
 export default function SidebarMenu({ user }: { user: User }) {
     const [openSidebarMenus, setOpenSidebarMenus] = useState<{ [key: string]: boolean }>({});
@@ -18,6 +19,25 @@ export default function SidebarMenu({ user }: { user: User }) {
     const mobileMenuRef = useRef<HTMLDivElement>(null);
     const [menusToRender, setMenusToRender] = useState<any[]>([]);
     const pathname = usePathname();
+    const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
+
+    const loadPhoto = async (photoPath: string) => {
+        try {
+            const blob = await fetchFileBlob(photoPath);
+            const reader = new FileReader();
+            reader.onload = () => setPreviewPhoto(reader.result as string);
+            reader.readAsDataURL(blob);
+        } catch (err) {
+            console.error("Load photo error:", err);
+            setPreviewPhoto(null);
+        }
+    };
+
+    useEffect(() => {
+        if (user?.photo?.path) {
+            loadPhoto(user?.photo.path);
+        }
+    }, [user?.photo?.path]);
 
     useEffect(() => {
         let selectedMenus: any[] = [];
@@ -82,9 +102,9 @@ export default function SidebarMenu({ user }: { user: User }) {
             <div className="flex flex-col flex-1 overflow-y-auto">
                 <div className="lg:flex hidden items-center justify-center pt-6 pb-2 border-b border-(--color-surface) mb-4">
                     <div className="flex flex-col items-center gap-3">
-                        <div className="rounded-full bg-gray-400 overflow-hidden w-16 h-16 border-2 border-(--color-surface)">
+                        <div className="rounded-full bg-white overflow-hidden w-16 h-16 border-2 border-(--color-surface)">
                             <Image
-                                src={photo.profilePlaceholder}
+                                src={previewPhoto || icons.userProfile}
                                 alt="Profile Picture"
                                 width={64}
                                 height={64}
