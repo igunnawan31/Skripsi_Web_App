@@ -243,22 +243,22 @@ const RekapitulasiAbsensiByMonth = () => {
                         <table className="w-full">
                             <thead className="bg-gray-50 border-b border-(--color-border)">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 camelCase">
+                                    <th className="px-6 py-4 text-left text-sm font-semibold text-(--color-secondary) camelCase">
                                         No
                                     </th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 camelCase">
+                                    <th className="px-6 py-4 text-left text-sm font-semibold text-(--color-secondary) camelCase">
                                         Nama Karyawan
                                     </th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 camelCase">
+                                    <th className="px-6 py-4 text-left text-sm font-semibold text-(--color-secondary) camelCase">
                                         Role
                                     </th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600 camelCase">
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-(--color-secondary) camelCase">
                                         Kehadiran
                                     </th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600 camelCase">
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-(--color-secondary) camelCase">
                                         Persentase
                                     </th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600 camelCase">
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-(--color-secondary) camelCase">
                                         Aksi
                                     </th>
                                 </tr>
