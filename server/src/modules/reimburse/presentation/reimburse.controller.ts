@@ -33,6 +33,8 @@ import { LoggerService } from 'src/modules/logger/logger.service';
 import { GetReimburseUseCase } from '../application/use-cases/get-reimburse.use-case';
 import { GetAllReimburseUseCase } from '../application/use-cases/get-all-reimburse.use-case';
 import { DeleteReimburseUseCase } from '../application/use-cases/delete-reimburse.use-case';
+import { RolesMinor } from 'src/common/decorators/minor-role.decorator';
+import { MinorRole } from '@prisma/client';
 
 @Controller('reimburses')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -108,6 +110,7 @@ export class ReimburseController {
   }
 
   @Patch('/:id/approve')
+  @RolesMinor(MinorRole.ADMIN)
   approve(
     @Param('id') id: string,
     @Req() req: Request & { user: UserRequest },
@@ -123,6 +126,7 @@ export class ReimburseController {
   }
 
   @Patch('/:id/reject')
+  @RolesMinor(MinorRole.ADMIN)
   reject(
     @Param('id') id: string,
     @Req() req: Request & { user: UserRequest },
@@ -139,6 +143,6 @@ export class ReimburseController {
 
   @Delete('/:id')
   delete(@Param('id') id: string, @Req() req: Request & {user: UserRequest}) { 
-    return this.deleteUseCase.execute(id);
+    return this.deleteUseCase.execute(id, req.user);
   }
 }
