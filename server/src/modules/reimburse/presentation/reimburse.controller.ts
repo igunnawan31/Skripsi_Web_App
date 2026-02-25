@@ -41,7 +41,7 @@ export class ReimburseController {
     private readonly submitUseCase: SubmitReimburseUseCase,
     private readonly getOneUseCase: GetReimburseUseCase,
     private readonly getAllUseCase: GetAllReimburseUseCase,
-  ) {}
+  ) { }
   @Get()
   findAll(
     @Query() filters: ReimburseFilterDTO,
@@ -84,18 +84,20 @@ export class ReimburseController {
     @Body() dto: CreateReimburseDTO,
     @UploadedFiles()
     files: {
-      reimburseDocuments: Express.Multer.File[];
+      reimburseDocuments?: Express.Multer.File[];
     },
   ) {
     try {
       const payload: InternalCreateReimburseDTO = {
         ...dto,
         userId: req.user.id,
-        documents: files.reimburseDocuments,
+        documents: files.reimburseDocuments ?? undefined,
       };
       return this.submitUseCase.execute(payload);
     } catch (err) {
-      deleteFileArray(files.reimburseDocuments, 'Dokumen reimburse');
+      if (files.reimburseDocuments) {
+        deleteFileArray(files.reimburseDocuments, 'Dokumen reimburse');
+      }
       throw err;
     }
   }
@@ -131,5 +133,5 @@ export class ReimburseController {
   }
 
   @Delete('/:id')
-  delete() {}
+  delete() { }
 }
