@@ -155,7 +155,7 @@ export class ReimburseRepository implements IReimburseRepository {
       const query = await this.prisma.reimburse.create({
         data: {
           ...dto,
-          documents: dto.documents ? dto.documents as any[] : undefined,
+          documents: dto.documents as any[],
         },
       });
       return plainToInstance(CreateReimburseResponseDTO, query);

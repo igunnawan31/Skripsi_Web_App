@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsArray, IsInt, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { IsArray, IsInt, IsNumber, IsString, Min } from "class-validator";
 import { FileMetaData } from "src/common/types/FileMetaData.dto";
 
 export class CreateReimburseDTO { 
@@ -14,8 +14,7 @@ export class CreateReimburseDTO {
 
 export class InternalCreateReimburseDTO extends CreateReimburseDTO {
   @IsArray()
-  @IsOptional()
-  documents?: FileMetaData[]
+  documents: FileMetaData[]
 
   @IsString()
   userId: string;

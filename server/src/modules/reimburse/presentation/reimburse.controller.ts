@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   UploadedFiles,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { UserRequest } from 'src/common/types/UserRequest.dto';
 import { InternalUpdateReimburseDTO } from '../application/dtos/request/update.dto';
@@ -84,20 +85,22 @@ export class ReimburseController {
     @Body() dto: CreateReimburseDTO,
     @UploadedFiles()
     files: {
-      reimburseDocuments?: Express.Multer.File[];
+      reimburseDocuments: Express.Multer.File[];
     },
   ) {
     try {
+      if (!files?.reimburseDocuments?.length) {
+        throw new BadRequestException('Dokumen reimburse wajib ada');
+      }
+
       const payload: InternalCreateReimburseDTO = {
         ...dto,
         userId: req.user.id,
-        documents: files.reimburseDocuments ?? undefined,
+        documents: files.reimburseDocuments,
       };
       return this.submitUseCase.execute(payload);
     } catch (err) {
-      if (files.reimburseDocuments) {
-        deleteFileArray(files.reimburseDocuments, 'Dokumen reimburse');
-      }
+      deleteFileArray(files.reimburseDocuments, 'Dokumen reimburse');
       throw err;
     }
   }
