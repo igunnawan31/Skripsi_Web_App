@@ -9,6 +9,7 @@ import { UsersModule } from '../users/users.module';
 import { LoggerModule } from '../logger/logger.module';
 import { GetReimburseUseCase } from './application/use-cases/get-reimburse.use-case';
 import { GetAllReimburseUseCase } from './application/use-cases/get-all-reimburse.use-case';
+import { DeleteReimburseUseCase } from './application/use-cases/delete-reimburse.use-case';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { GetAllReimburseUseCase } from './application/use-cases/get-all-reimburs
     SubmitReimburseUseCase,
     ApprovalReimburseUseCase,
     ReimburseAuthorizationService,
+    DeleteReimburseUseCase,
     { provide: IReimburseRepository, useClass: ReimburseRepository }
   ],
 })
