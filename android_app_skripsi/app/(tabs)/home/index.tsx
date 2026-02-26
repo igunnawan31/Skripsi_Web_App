@@ -11,6 +11,7 @@ import { useAbsensi } from "@/lib/api/hooks/useAbsensi";
 import { useReimburse } from "@/lib/api/hooks/useReimburse";
 import COLORS from "@/constants/colors";
 import SkeletonBox from "@/components/rootComponents/SkeletonBox";
+import { useNotification } from "@/lib/api/hooks/useNotification";
 
 const HomePage = () => {
     const [newNotification, setNewNotification] = useState(false);
@@ -31,6 +32,7 @@ const HomePage = () => {
 
     const { data: dataAbsensi, isLoading: isLoadingAbsensi, refetch: refetchAbs, isFetching: isFetchingAbs } = useAbsensi().fetchAbsensiById(userId, dateNow);
     const { data: dataReimburse, isLoading: isLoadingReimburse, refetch: refetchReim, isFetching: isFetchingReim } = useReimburse().fetchAllReimburse();
+    const { data: dataNotif, isLoading: isLoadingNotif, refetch: refetchNotif, isFetching: isFetchingNotif } = useNotification().fetchAllNotification();    
 
     useEffect(() => {
         const updateTime = () => {
@@ -64,6 +66,7 @@ const HomePage = () => {
         setShowSkeleton(true);
         await refetchAbs();
         await refetchReim();
+        await refetchNotif();
         setShowSkeleton(false);
         setRefreshing(false);
     };
@@ -76,7 +79,7 @@ const HomePage = () => {
         );
     }
 
-    if (isLoadingAbsensi || isLoadingReimburse || showSkeleton || isFetchingAbs || isFetchingReim) {
+    if (isLoadingAbsensi || isLoadingNotif || isLoadingReimburse || showSkeleton || isFetchingAbs || isFetchingReim || isFetchingNotif) {
         return (
             <View style={homeStyles.container}>
                 <View style={homeStyles.header}>
@@ -209,6 +212,7 @@ const HomePage = () => {
                         />
                     </TouchableOpacity>
                     <ModalNotification
+                        data={dataNotif}
                         isVisible={onClickNotification}
                         onClose={() => setOnClickNotification(false)}
                     />

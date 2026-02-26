@@ -100,7 +100,7 @@ export const notificationStyles = StyleSheet.create({
         justifyContent: "space-between",
         flexDirection: "row",
         alignItems: "center",
-        marginBottom: 12,
+        marginBottom: 4,
     },
     showAllButton: {
         paddingVertical: 6,

@@ -4,16 +4,18 @@ import Modal from "react-native-modal";
 import { notificationStyles } from "@/assets/styles/rootstyles/home/notification.styles";
 import { COLORS } from "@/constants/colors";
 import { dummyNotifications } from "@/data/dummyNotifications";
+import { useNotification } from "@/lib/api/hooks/useNotification";
 
 type ModalNotificationProps = {
+    data: any;
     isVisible: boolean;
     onClose: () => void;
 };
 
-const ModalNotification = ({ isVisible, onClose }: ModalNotificationProps) => {
-    const [data, setData] = useState(dummyNotifications);
+const ModalNotification = ({ data, isVisible, onClose }: ModalNotificationProps) => {
     const [showAll, setShowAll] = useState(false);
-    const displayedData = showAll ? data : data.slice(0,4);
+    const notifications = data || [];
+    const displayedData = showAll ? notifications : notifications.slice(0, 4);
 
     return (
         <Modal
@@ -36,26 +38,27 @@ const ModalNotification = ({ isVisible, onClose }: ModalNotificationProps) => {
                 <View style={{ width: "100%" }}>
                     <View style={notificationStyles.titleNotificationContainer}>
                         <Text style={notificationStyles.headerTitle}>Notifikasi</Text>
-                        {showAll && (
-                            <TouchableOpacity
-                                onPress={() => setShowAll(false)}
-                                style={notificationStyles.showAllButton}
-                            >
-                                <Text style={{ color: COLORS.white, fontWeight: "600" }}>
-                                    Lihat lebih sedikit
-                                </Text>
-                            </TouchableOpacity>
-                        )}
+                        { notifications.length > 4 &&
+                            showAll && (
+                                <TouchableOpacity
+                                    onPress={() => setShowAll(false)}
+                                    style={notificationStyles.showAllButton}
+                                >
+                                    <Text style={{ color: COLORS.white, fontWeight: "600" }}>
+                                        Lihat lebih sedikit
+                                    </Text>
+                                </TouchableOpacity>
+                            )
+                        }
                     </View>
-                    {data.length > 0 ? (
+                    {notifications.length > 0 ? (
                         <ScrollView
                             style={{
                                 maxHeight: showAll ? 450 : undefined,
-                                marginTop: 10,
                             }}
                             showsVerticalScrollIndicator={showAll}
                         >
-                            {displayedData.map((item) => (
+                            {displayedData.map((item: any) => (
                                 <View 
                                     key={item.id}
                                     style={notificationStyles.notificationBox}
@@ -81,17 +84,18 @@ const ModalNotification = ({ isVisible, onClose }: ModalNotificationProps) => {
                             Belum ada Notifikasi
                         </Text>  
                     )}
-
-                    {!showAll && (
-                        <TouchableOpacity
-                            style={[notificationStyles.showAllButton, {alignSelf: "center"}]}
-                            onPress={() => setShowAll(true)}
-                        >
-                            <Text style={{ color: COLORS.white, fontWeight: "600" }}>
-                                Lihat lebih banyak
-                            </Text>
-                        </TouchableOpacity>
-                    )}
+                    { notifications.length > 4 &&
+                        !showAll && (
+                            <TouchableOpacity
+                                style={[notificationStyles.showAllButton, { alignSelf: "center", marginTop: 20}]}
+                                onPress={() => setShowAll(true)}
+                            >
+                                <Text style={{ color: COLORS.white, fontWeight: "600" }}>
+                                    Lihat lebih banyak
+                                </Text>
+                            </TouchableOpacity>
+                        )
+                    }
                 </View>
             </View>
             <TouchableOpacity
