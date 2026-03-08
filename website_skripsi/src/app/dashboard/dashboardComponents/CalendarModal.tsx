@@ -81,18 +81,6 @@ export default function CalendarModal({ events = [] }: Props) {
     const monthEnd = endOfMonth(monthStart);
     const startDate = startOfWeek(monthStart, { weekStartsOn: 1 });
     const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
-    
-    const toDate = (isoString: string) => {
-        if (!isoString) return "-";
-
-        const date = new Date(isoString);
-        return date.toLocaleDateString("id-ID", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-        });
-    };
 
     const days = [];
     let day = startDate;
@@ -170,8 +158,6 @@ export default function CalendarModal({ events = [] }: Props) {
             return;
         }
 
-        const isRecurring = selectedEvent.frequency !== null;
-
         updateAgendaMutation.mutate(
             {
                 id: selectedEvent.id,
@@ -179,7 +165,7 @@ export default function CalendarModal({ events = [] }: Props) {
                     title: editFormData.title,
                     eventDate,
                     projectId: editFormData.projectId,
-                    frequency: isRecurring ? editFormData.frequency : null,
+                    frequency: editFormData.frequency,
                 },
             },
             {
@@ -240,7 +226,6 @@ export default function CalendarModal({ events = [] }: Props) {
             projectId: formData.projectId,
             frequency: isOccurent ? formData.frequency : null,
         };
-        console.log(payload);
 
         mutate(payload, {
             onSuccess: () => {
@@ -281,6 +266,7 @@ export default function CalendarModal({ events = [] }: Props) {
                 );
                 setIsModalOpen(false);
                 setSelectedEvent(null);
+                setPanelMode(null);
             },
             onError: (error) => {
                 toast.custom(
@@ -590,16 +576,21 @@ export default function CalendarModal({ events = [] }: Props) {
                                         id="check" 
                                         className="sr-only peer" 
                                         checked={isOccurent}
+                                        disabled={!isEditMode}
                                         onChange={(e) => {
                                             const checked = e.target.checked;
-                                            setIsOccurent(checked)
-                                        }} 
+                                            setIsOccurent(checked);
+                                            if (!checked) {
+                                                setEditFormData(prev => ({ ...prev, frequency: null }));
+                                            }
+                                        }}
                                     />
                                     <div className="
                                         relative w-14 h-8 bg-(--color-border) 
                                         peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-soft dark:peer-focus:ring-brand-soft rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer 
                                         after:content-[''] after:absolute after:top-1 after:start-1 after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all after:duration-500 
-                                        peer-checked:bg-(--color-primary)"
+                                        peer-checked:bg-(--color-primary)
+                                        peer-disabled:opacity-50 peer-disabled:cursor-not-allowed"
                                     />
                                 </label>
                                 <span className="text-sm">
@@ -674,11 +665,15 @@ export default function CalendarModal({ events = [] }: Props) {
                                         <div className="flex justify-between gap-2">
                                             <button
                                                 onClick={handleUpdateOccurrence}
-                                                className="py-2 px-2 bg-(--color-secondary) hover:bg-(--color-secondary)/90 text-white rounded-lg cursor-pointer"
+                                                disabled={!isOccurent}
+                                                className={`py-2 px-2 rounded-lg cursor-pointer text-white
+                                                    ${!isOccurent 
+                                                        ? "bg-slate-300 cursor-not-allowed opacity-50" 
+                                                        : "bg-(--color-secondary) hover:bg-(--color-secondary)/90"
+                                                    }`}
                                             >
                                                 Update agenda ini saja
                                             </button>
-
                                             <button
                                                 onClick={handleUpdateAgenda}
                                                 className="py-2 px-2 border-2 border-(--color-secondary) hover:bg-(--color-secondary)/10 text-(--color-secondary) rounded-lg cursor-pointer"
@@ -703,7 +698,7 @@ export default function CalendarModal({ events = [] }: Props) {
                                         </button>
                                         <button
                                             onClick={handleUpdateAgenda}
-                                            className="w-full py-3 bg-(--color-secondary) text-white rounded-lg"
+                                            className="w-full py-3 bg-(--color-secondary) text-white rounded-lg cursor-pointer"
                                         >
                                             Update agenda
                                         </button>
