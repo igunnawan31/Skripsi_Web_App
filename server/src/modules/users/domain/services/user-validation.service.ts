@@ -51,7 +51,6 @@ export class UserValidationService {
       return true;
     }
 
-    console.log("Passed");
     // HR can change specific roles
     if (currentUser.minorRole === MinorRole.HR) {
       const allowedRoles = [
@@ -65,7 +64,6 @@ export class UserValidationService {
         ? allowedRoles.includes(targetUser.minorRole)
         : false;
     }
-    console.log("Passed");
 
     return false;
   }
