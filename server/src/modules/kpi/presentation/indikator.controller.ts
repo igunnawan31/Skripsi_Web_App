@@ -33,6 +33,7 @@ import { UpdateStatusIndikatorUseCase } from '../application/use-cases/indikator
 import { UpdatePublicIndikatorUseCase } from '../application/use-cases/indikator/update-public.use-case';
 import { DeleteEvaluationDTO } from '../application/dtos/request/indikator/delete-evaluation.dto';
 import { DeleteIndikatorEvaluationUseCase } from '../application/use-cases/indikator/delete-eval.use-case';
+import { GetJawabanByIndikatorIdAndEvaluateeIdUseCase } from '../application/use-cases/jawaban/get-by-indikator-user.use-case';
 
 @Controller('indicators')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -49,7 +50,8 @@ export class IndicatorController {
     private readonly updateStatusIndicatorUseCase: UpdateStatusIndikatorUseCase,
     private readonly updatePublicIndicatorUseCase: UpdatePublicIndikatorUseCase,
     private readonly getAllPertanyaanIndikatorUseCase: GetAllPertanyaanIndikatorUseCase,
-  ) { }
+    private readonly getAllAnswersIndikatorUseCase: GetJawabanByIndikatorIdAndEvaluateeIdUseCase,
+  ) {}
 
   @Get()
   getAll(
@@ -69,6 +71,14 @@ export class IndicatorController {
       filters,
       req.user,
     );
+  }
+  @Get('/:id/answers')
+  getIndikatorAnswersByUserId(
+    @Param('id') id: string,
+    @Body('evaluateeId') evaluateeId: string,
+    @Req() req: Request & { user: UserRequest },
+  ) {
+    return this.getAllAnswersIndikatorUseCase.execute(id, evaluateeId, req.user);
   }
   @Get('/:id')
   getOne(@Param('id') id: string, @Req() req: Request & { user: UserRequest }) {
@@ -112,17 +122,11 @@ export class IndicatorController {
   }
   @Patch('/:id/publish')
   publishIndicator(@Param('id') id: string) {
-    return this.updatePublicIndicatorUseCase.execute(
-      id,
-      true,
-    );
+    return this.updatePublicIndicatorUseCase.execute(id, true);
   }
   @Patch('/:id/unpublish')
   unpublishIndicator(@Param('id') id: string) {
-    return this.updatePublicIndicatorUseCase.execute(
-      id,
-      false,
-    );
+    return this.updatePublicIndicatorUseCase.execute(id, false);
   }
   @Patch('/:id')
   update(@Param('id') id: string, @Body() dto: UpdateIndikatorDTO) {

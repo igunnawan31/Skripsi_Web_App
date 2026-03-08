@@ -20,6 +20,10 @@ export abstract class IJawabanRepository {
     pairs: { pertanyaanId: string; evaluateeId: string }[],
     evaluatorId: string,
   ): Promise<RetrieveJawabanResponseDTO[]>;
+  abstract findByIndikatorIdAndUserId(
+    indikatorId: string,
+    evaluateeId: string,
+  ): Promise<RetrieveJawabanResponseDTO[] | null>
   abstract getAllByIndicatorIdAndEvaluateeId(
     indikatorId: string,
     evaluateeId: string,
