@@ -49,13 +49,10 @@ export class CreateIndikatorRecapUseCase {
       evaluateeId,
     );
 
-    console.log(answers);
     answers.forEach((answer, index) => {
-      console.log('totalNilai: ', index, answer.nilai);
       totalNilai += answer.nilai;
     });
 
-    console.log('jumlahPenilai: ', jumlahPenilai);
     rataRata = jumlahPenilai > 0 ? totalNilai / jumlahPenilai : 0;
 
     const payload: CreateIndikatorRekapDTO = {
