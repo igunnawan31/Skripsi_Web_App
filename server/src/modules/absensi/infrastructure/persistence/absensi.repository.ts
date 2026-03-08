@@ -225,7 +225,6 @@ export class AbsensiRepository implements IAbsensiRepository {
       sortOrder = 'desc',
     } = filters;
     const formattedDate = new Date(date);
-    console.log(`Date: ${date}, converted: ${formattedDate}`);
     if (isNaN(formattedDate.getTime())) {
       throw new BadRequestException('Format date invalid');
     }
