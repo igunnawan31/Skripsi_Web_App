@@ -15,13 +15,14 @@ import { UpdateCutiUseCase } from './application/use-cases/update-cuti.use-case'
 import { UsersModule } from '../users/users.module';
 import { KontrakModule } from '../kontrak/kontrak.module';
 import { LoggerService } from '../logger/logger.service';
+import { SchedulerAdminController } from './presentation/scheduler-admin.controller';
 
 @Module({
   imports: [
     UsersModule,
     forwardRef(() => KontrakModule),
   ],
-  controllers: [CutiController],
+  controllers: [CutiController, SchedulerAdminController],
   providers: [
     CutiExpirationScheduler,
     CutiExpirationService,

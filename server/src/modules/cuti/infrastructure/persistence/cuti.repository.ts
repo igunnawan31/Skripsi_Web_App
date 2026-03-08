@@ -23,12 +23,12 @@ import { DeleteCutiResponseDTO } from '../../application/dtos/response/delete-re
 @Injectable()
 export class CutiRepository implements ICutiRepository {
   constructor(private readonly prisma: PrismaService) {}
-  async findExpired(todayUTC: Date): Promise<any[]> {
-    return await this.prisma.cuti.findMany({
+  async findExpired(todayUTC: Date): Promise<RetrieveCutiResponseDTO[]> {
+    const cuti = await this.prisma.cuti.findMany({
       where: {
         status: StatusCuti.MENUNGGU,
         startDate: {
-          lt: todayUTC,
+          lte: todayUTC,
         },
       },
       select: {
@@ -46,6 +46,9 @@ export class CutiRepository implements ICutiRepository {
         },
       },
     });
+
+    if (!cuti) return [];
+    return plainToInstance(RetrieveCutiResponseDTO, cuti);
   }
   async findById(id: string): Promise<RetrieveCutiResponseDTO> {
     try {
@@ -552,6 +555,35 @@ export class CutiRepository implements ICutiRepository {
     });
     return result.count;
   }
+  async expireAndFetch(
+    cutoffUTC: Date,
+  ): Promise<{ count: number; list: any[] }> {
+    return this.prisma.$transaction(async (tx) => {
+      const list = await tx.cuti.findMany({
+        where: {
+          status: StatusCuti.MENUNGGU,
+          startDate: { lte: cutoffUTC },
+        },
+        select: {
+          id: true,
+          userId: true,
+          startDate: true,
+          endDate: true,
+          reason: true,
+          user: { select: { id: true, name: true, email: true } },
+        },
+      });
+
+      if (list.length === 0) return { count: 0, list: [] };
+
+      const { count } = await tx.cuti.updateMany({
+        where: { id: { in: list.map((c) => c.id) } },
+        data: { status: StatusCuti.EXPIRED },
+      });
+
+      return { count, list };
+    });
+  }
   async cutiApproval(
     id: string,
     data: ApprovalCutiInput,
@@ -576,7 +608,6 @@ export class CutiRepository implements ICutiRepository {
     try {
       const target = await this.findById(id);
       if (!target) throw new NotFoundException('Cuti data not found');
-      console.log('repository', target.dokumen);
       await deleteFile(target.dokumen.path);
       const query = await this.prisma.cuti.delete({
         where: { id },

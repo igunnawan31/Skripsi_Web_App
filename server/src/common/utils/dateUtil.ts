@@ -14,6 +14,17 @@ export class DateUtilService {
     return moment.tz(this.timezone).startOf('day').utc().toDate();
   }
 
+  getTodayMidnightUTC(): Date {
+    const now = new Date();
+    return new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    );
+  }
+
+  getTomorrowMidnightUTC(): Date {
+    return moment.tz(this.timezone).add(2, 'day').startOf('day').utc().toDate();
+  }
+
   startOfDayUTC(date: Date | string): Date {
     return moment.tz(date, this.timezone).startOf('day').utc().toDate();
   }

@@ -10,7 +10,8 @@ import { ApprovalCutiDTO } from "../../application/dtos/request/approval.dto";
 export abstract class ICutiRepository {
   abstract checkOverlap(userId: string, startDate: Date, endDate: Date): Promise<boolean>;
   abstract countUsedCutiDays(userId: string, year: number, month: number): Promise<number>;
-  abstract findExpired(today: Date);
+  abstract expireAndFetch(cutoffUTC: Date): Promise<{count: number; list: any[]}>;
+  abstract findExpired(today: Date): Promise<RetrieveCutiResponseDTO[] | []>
   abstract findById(id: string): Promise<RetrieveCutiResponseDTO>;
   abstract findByUserId(userId: string, filters: CutiFilterDTO): Promise<RetrieveAllCutiResponseDTO>;
   abstract findPendingForApprover(user: UserRequest, filters: CutiFilterDTO): Promise<RetrieveAllCutiResponseDTO>;

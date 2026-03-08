@@ -10,7 +10,6 @@ export class CutiExpirationScheduler {
   private readonly logger: LoggerService;
   private readonly cronExpression: string;
   private readonly enabled: boolean;
-  private readonly timezone: string;
 
   constructor(
     private readonly cutiExpirationService: CutiExpirationService,
@@ -21,7 +20,6 @@ export class CutiExpirationScheduler {
   ) {
     this.logger = loggerService;
     this.logger.setContext(CutiExpirationScheduler.name);
-    this.timezone = this.configService.getOrThrow<string>('TZ', 'Asia/Jakarta')
     this.cronExpression = this.configService.get<string>(
       'scheduler.cutiExpiration.cronExpression',
       '0 1 * * *',
@@ -36,11 +34,11 @@ export class CutiExpirationScheduler {
 
   /**
    * Cron job to expire pending cuti
-   * Runs based on config (default: 01:00 daily)
+   * Runs based on config (default: 23:59 daily)
    */
-  @Cron('0 1 * * *', {
+  @Cron('59 23 * * *', {
     name: 'cuti-expiration',
-    timeZone: process.env.TZ,
+    timeZone: 'Asia/Jakarta',
   })
   async handleCutiExpiration() {
     if (!this.enabled) {
@@ -115,8 +113,8 @@ export class CutiExpirationScheduler {
             id: c.id,
             userId: c.userId,
             userName: c.user?.name,
-            startDate: this.dateUtil.formatLocal(c.startDate, 'YYYY-MM-DD'),
-            endDate: this.dateUtil.formatLocal(c.endDate, 'YYYY-MM-DD'),
+            startDate: this.dateUtil.formatLocal(new Date(c.startDate), 'YYYY-MM-DD'),
+            endDate: this.dateUtil.formatLocal(new Date(c.endDate), 'YYYY-MM-DD'),
             reason: c.reason,
           })),
         },
@@ -138,9 +136,9 @@ export class CutiExpirationScheduler {
         enabled: this.enabled,
         cronExpression: this.cronExpression,
         timezone: this.dateUtil.getTimezone(),
-        // running: job.running,
-        // lastDate: job.lastDate()?.toISOString(),
-        // nextDate: job.nextDate()?.toISOString(),
+        running: job.isActive,
+        lastDate: job.lastDate()?.toString(),
+        nextDate: job.nextDate()?.toString(),
       };
     } catch (error) {
       return {
