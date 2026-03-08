@@ -6,9 +6,6 @@ import { KontrakCreatedEvent } from '../../application/events/kontrak.events';
 export class KontrakGajiListener {
   @OnEvent('kontrak.created')
   async handleKontrakCreated(event: KontrakCreatedEvent) {
-    console.log(`💰 Kontrak created: Setup gaji schedule for user ${event.userId}`);
-    console.log(`Unimplemented: TO DO`)
-    
     // If BULANAN, schedule monthly salary generation
     // This will be handled by Gaji module scheduler
     

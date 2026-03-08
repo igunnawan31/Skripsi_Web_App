@@ -75,20 +75,14 @@ export class UpdateKontrakUseCase {
           (d) => !validRemoveDocs.includes(d.path),
         );
         remainingDocs = [...remainingDocs, ...newDocs];
-        console.log('old: ', oldDocs);
-        console.log('new: ', newDocs);
-        console.log('remove: ', removeDocs);
-        console.log('remaining: ', remainingDocs);
       }
 
-      console.log('payload: ', remainingDocs);
       const payload: InternalUpdateKontrakDTO = {
         ...dto,
         startDate,
         endDate,
         documents: remainingDocs,
       };
-      console.log('payload: ', payload);
 
       const updatedKontrak = await this.kontrakRepo.update(kontrakId, payload);
 
