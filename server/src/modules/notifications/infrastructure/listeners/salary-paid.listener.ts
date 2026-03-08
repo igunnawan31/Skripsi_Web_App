@@ -15,7 +15,6 @@ export class SalaryPaidListener {
   @OnEvent('salary.paid')
   async handleSalaryPaid(event: SalaryUpdateEvent){
     try {
-      console.log('salary paid invoked')
       const payload: CreateNotificationDTO = {
         userId: event.userId,
         title: 'Gaji Paid',
