@@ -17,7 +17,6 @@ export class GetAllOccurrencesUseCase {
   ): Promise<RetrieveAgendaOccurrencesResponseDTO[]> {
     const year = date.getFullYear()
     const month =  date.getMonth()
-    console.log(year, month);
     const agendaOccurrences = await this.agendaRepo.findAllOccurrences(
       year,
       month,
