@@ -136,13 +136,6 @@ export const HRMenuProps = [
                 description: "Tampilkan laporan penggajian untuk seluruh karyawan sebagai dasar evaluasi keuangan perusahaan.",
                 href: "/dashboard/rekap-gaji-karyawan",
             },
-            {
-                icon: icons.rekapKPIKaryawanLogo,
-                alt: "Rekap Kinerja Karyawan",
-                label: "Rekap Kinerja Karyawan",
-                description: "Pantau performa keseluruhan karyawan berdasarkan hasil KPI dan evaluasi manajerial.",
-                href: "/dashboard/rekap-kinerja-karyawan",
-            },
         ],
     },
     {
@@ -281,13 +274,6 @@ export const OwnerMenuProps = [
                 label: "Rekap Gaji Karyawan",
                 description: "Tampilkan laporan penggajian untuk seluruh karyawan sebagai dasar evaluasi keuangan perusahaan.",
                 href: "/dashboard/rekap-gaji-karyawan-owner",
-            },
-            {
-                icon: icons.rekapKPIKaryawanLogo,
-                alt: "Rekap Kinerja Karyawan",
-                label: "Rekap Kinerja Karyawan",
-                description: "Pantau performa keseluruhan karyawan berdasarkan hasil KPI dan evaluasi manajerial.",
-                href: "/dashboard/rekap-kinerja-karyawan-owner",
             },
             {
                 icon: icons.rekapReimbursePengeluaranLogo,
