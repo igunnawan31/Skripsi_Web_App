@@ -1,0 +1,24 @@
+{
+  "name": "Skripsi_Web_App",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "api:dev": "pnpm --filter=api run start:dev",
+    "dev":"pnpm --parallel --filter=api run dev",
+    "lint": "pnpm exec biome check",
+		"lint:fix": "pnpm exec biome check --write --unsafe",
+		"prepare": "husky"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.30.3",
+  "dependencies": {
+    "dotenv-cli": "^11.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.6",
+    "husky": "^9.1.7"
+  }
+}
