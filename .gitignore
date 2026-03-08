@@ -1,11 +1,49 @@
-# compiled output
-/dist
-/node_modules
-/build
-/uploads
+# =========================
+# Dependencies
+# =========================
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
+# =========================
+# Build / Output
+# =========================
+dist/
+build/
+.next/
+out/
+web-build/
+coverage/
+.nyc_output/
+
+# =========================
+# Generated files
+# =========================
+generated/
+generated/prisma/
+*.tsbuildinfo
+next-env.d.ts
+expo-env.d.ts
+
+# =========================
+# Runtime / Temp
+# =========================
+.temp/
+.tmp/
+pids/
+*.pid
+*.pid.lock
+*.seed
+
+# =========================
 # Logs
-logs
+# =========================
+logs/
 *.log
 npm-debug.log*
 pnpm-debug.log*
@@ -13,47 +51,63 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-# OS
-.DS_Store
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+!.env.example
 
-# Tests
-/coverage
-/.nyc_output
-
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# IDE - VSCode
+# =========================
+# IDE / Editor
+# =========================
+.idea/
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+.project
+.classpath
+.settings/
+.c9/
+*.sublime-workspace
+*.launch
 
-# dotenv environment variable files
-.env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+# =========================
+# OS
+# =========================
+.DS_Store
 
-# temp directory
-.temp
-.tmp
+# =========================
+# Vercel
+# =========================
+.vercel/
 
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
+# =========================
+# Expo / React Native
+# =========================
+.expo/
+.metro-health-check*
 
-# Diagnostic reports (https://nodejs.org/api/report.html)
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+# =========================
+# Native / Mobile secrets
+# =========================
+.kotlin/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
 
-/generated/prisma
+# =========================
+# Misc
+# =========================
+report.*.json
+*.orig.*
+
+# =========================
+# Uploads
+# =========================
+uploads/
