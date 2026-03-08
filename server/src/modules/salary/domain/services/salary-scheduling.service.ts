@@ -3,12 +3,14 @@ import { MetodePembayaran } from '@prisma/client';
 import { KontrakCreatedEvent } from 'src/modules/kontrak/application/events/kontrak.events';
 import { ISalaryRepository } from '../repositories/salary.repository.interface';
 import { CreateSalaryDTO } from '../../application/dtos/request/create-salary.dto';
+import { LoggerService } from 'src/modules/logger/logger.service';
 
 @Injectable()
 export class SalarySchedulingService {
   constructor(
     @Inject(ISalaryRepository)
     private readonly gajiRepo: ISalaryRepository,
+    private readonly logger: LoggerService,
   ) { }
 
   async generateSalaryFromKontrak(event: KontrakCreatedEvent): Promise<void> {
@@ -25,7 +27,7 @@ export class SalarySchedulingService {
 
     const existingSalary = await this.gajiRepo.findByKontrakId(event.kontrakId);
     if (existingSalary && existingSalary.length > 0) {
-      console.log(
+      this.logger.log(
         `ℹ️ Salary for kontrak ${event.kontrakId} already exists. Skipping.`,
       );
       return;

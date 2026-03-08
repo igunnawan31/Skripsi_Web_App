@@ -4,16 +4,15 @@ import { format, addMonths, isBefore, isEqual } from 'date-fns';
 import { MetodePembayaran } from '@prisma/client';
 import { CreateSalaryUseCase } from '../../application/use-cases/create-salary.use-case';
 import { KontrakCreatedEvent } from 'src/modules/kontrak/application/events/kontrak.events';
+import { LoggerService } from 'src/modules/logger/logger.service';
 
 @Injectable()
 export class KontrakCreatedListener {
-  constructor(private readonly createSalaryUseCase: CreateSalaryUseCase) {}
+  constructor(private readonly createSalaryUseCase: CreateSalaryUseCase, private readonly logger: LoggerService) {}
 
   @OnEvent('kontrak.created')
   async handleKontrakCreated(event: KontrakCreatedEvent) {
     try {
-      console.log('Listener invoked for kontrak:', event.kontrakId);
-
       const {
         startDate,
         endDate,
@@ -26,7 +25,7 @@ export class KontrakCreatedListener {
       } = event;
 
       if (!endDate) {
-        console.warn(
+        this.logger.warn(
           `Kontrak ${kontrakId} has no endDate – skipping salary generation`,
         );
         return;
@@ -66,15 +65,14 @@ export class KontrakCreatedListener {
           );
           break;
         default:
-          console.warn(
+          this.logger.warn(
             `Unsupported payment method: ${metodePembayaran} for kontrak ${kontrakId}`,
           );
           return;
       }
 
-      console.log(`Successfully generated salaries for kontrak ${kontrakId}`);
     } catch (error) {
-      console.error(
+      this.logger.error(
         `Failed to generate salaries for kontrak ${event.kontrakId}:`,
         error instanceof Error ? error.message : error,
       );
