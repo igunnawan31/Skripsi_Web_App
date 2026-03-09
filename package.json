@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "api:dev": "pnpm --filter=api run start:dev",
+    "website:dev": "pnpm --filter=website run dev",
     "dev":"pnpm --parallel --filter=api run dev",
     "lint": "pnpm exec biome check",
 		"lint:fix": "pnpm exec biome check --write --unsafe",
