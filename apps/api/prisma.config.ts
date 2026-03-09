@@ -1,10 +1,14 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import dotenv from 'dotenv';
+import dotenv, { config } from 'dotenv';
 import { defineConfig } from 'prisma/config';
 
 const nodeEnv = process.env.NODE_ENV ?? 'development';
 const envFile = `.env.${nodeEnv}`;
+
+config({
+  path: "../../.env",
+})
 
 if (fs.existsSync(envFile)) {
   dotenv.config({ path: envFile });
