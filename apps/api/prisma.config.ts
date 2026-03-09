@@ -20,10 +20,6 @@ if (fs.existsSync(envFile)) {
 
 const databaseUrl = process.env.DATABASE_URL;
 
-if (!databaseUrl) {
-  throw new Error('DATABASE_URL environment variable is not set.');
-}
-
 export default defineConfig({
   schema: path.join('prisma', 'schema.prisma'),
   migrations: {
