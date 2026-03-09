@@ -29,6 +29,18 @@ services:
     depends_on:
       - db
 
+  # website:
+  #   build:
+  #     context: .
+  #     dockerfile: ./apps/website/Dockerfile
+  #   ports:
+  #     - "3000:3000"
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     - NODE_ENV=production
+    
+
 volumes:
   hris:
 
