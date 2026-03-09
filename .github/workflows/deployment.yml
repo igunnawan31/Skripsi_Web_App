@@ -44,7 +44,6 @@ jobs:
           host: 103.183.74.142
           username: aligun
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd live/
             git pull
