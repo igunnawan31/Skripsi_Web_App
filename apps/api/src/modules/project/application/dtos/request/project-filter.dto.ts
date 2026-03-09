@@ -1,4 +1,4 @@
-import { ProjectStatus } from "@prisma/client";
+import { ProjectStatus } from "src/generated/prisma/enums";
 import { IsDateString, IsEnum, IsOptional } from "class-validator";
 import { FilterDTO } from "src/common/types/Filter.dto";
 

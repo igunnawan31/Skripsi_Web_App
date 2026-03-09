@@ -1,4 +1,4 @@
-import { StatusCuti } from "@prisma/client";
+import { StatusCuti } from "src/generated/prisma/enums";
 import { IsDateString, IsEnum, IsOptional } from "class-validator";
 import { FilterDTO } from "src/common/types/Filter.dto";
 

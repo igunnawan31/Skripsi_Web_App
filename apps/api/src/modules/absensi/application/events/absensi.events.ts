@@ -1,4 +1,4 @@
-import { WorkStatus } from "@prisma/client";
+import { WorkStatus } from "src/generated/prisma/enums";
 
 export class AbsensiCheckedInEvent {
   constructor(

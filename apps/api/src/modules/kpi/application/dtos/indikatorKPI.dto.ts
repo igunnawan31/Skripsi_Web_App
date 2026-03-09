@@ -1,4 +1,4 @@
-import { StatusIndikatorKPI } from "@prisma/client";
+import { StatusIndikatorKPI } from "src/generated/prisma/enums";
 import { Expose } from "class-transformer";
 
 export class IndikatorKPIBaseDTO {

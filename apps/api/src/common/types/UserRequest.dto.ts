@@ -1,4 +1,4 @@
-import { MajorRole, MinorRole } from "@prisma/client";
+import { MajorRole, MinorRole } from "src/generated/prisma/enums";
 
 export class UserRequest {
   id: string;

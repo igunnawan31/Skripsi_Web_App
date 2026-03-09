@@ -1,4 +1,4 @@
-import { AgendaFreq, AgendaStatus } from "@prisma/client";
+import { AgendaFreq, AgendaStatus } from "src/generated/prisma/enums";
 import { Expose } from "class-transformer"
 
 export class AgendaBaseDTO {

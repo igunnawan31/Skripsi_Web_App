@@ -1,4 +1,4 @@
-import { WorkStatus } from "@prisma/client";
+import { WorkStatus } from "src/generated/prisma/enums";
 import { Type } from "class-transformer";
 import { IsDateString, IsEnum, IsInt, IsOptional } from "class-validator";
 import { FilterDTO } from "src/common/types/Filter.dto";

@@ -1,4 +1,4 @@
-import { ApprovalStatus } from "@prisma/client";
+import { ApprovalStatus } from "src/generated/prisma/enums";
 
 export class ReimburseUpdateEvent {
   constructor(

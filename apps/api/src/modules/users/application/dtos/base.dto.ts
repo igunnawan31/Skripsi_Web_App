@@ -1,4 +1,4 @@
-import { MajorRole, MinorRole } from "@prisma/client";
+import { MajorRole, MinorRole } from "src/generated/prisma/enums";
 import { Exclude, Expose } from "class-transformer";
 import { FileMetaData } from "src/common/types/FileMetaData.dto";
 

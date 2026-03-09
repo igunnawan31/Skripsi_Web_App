@@ -1,4 +1,4 @@
-import { StatusCuti } from "@prisma/client";
+import { StatusCuti } from "src/generated/prisma/enums";
 import { Expose } from "class-transformer";
 import { FileMetaData } from "src/common/types/FileMetaData.dto";
 

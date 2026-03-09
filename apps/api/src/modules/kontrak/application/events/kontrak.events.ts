@@ -1,4 +1,4 @@
-import { MetodePembayaran } from "@prisma/client";
+import { MetodePembayaran } from "src/generated/prisma/enums";
 
 export class KontrakCreatedEvent {
   constructor(

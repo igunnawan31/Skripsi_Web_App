@@ -1,4 +1,4 @@
-import { KategoriPertanyaan } from "@prisma/client";
+import { KategoriPertanyaan } from "src/generated/prisma/enums";
 import { IsBoolean, IsEnum, IsNumber, IsString } from "class-validator";
 
 export class CreatePertanyaanDTO {

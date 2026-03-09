@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaClientKnownRequestError, PrismaClientValidationError } from '@prisma/client/runtime/client';
+import { PrismaClientKnownRequestError, PrismaClientValidationError } from 'src/generated/prisma/internal/prismaNamespace';
 import { LoggerService } from 'src/modules/logger/logger.service';
 
 export function handlePrismaError(

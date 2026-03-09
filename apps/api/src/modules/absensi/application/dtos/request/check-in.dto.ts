@@ -1,4 +1,4 @@
-import { WorkStatus } from "@prisma/client";
+import { WorkStatus } from "src/generated/prisma/enums";
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
 import { FileMetaData } from "src/common/types/FileMetaData.dto";
 

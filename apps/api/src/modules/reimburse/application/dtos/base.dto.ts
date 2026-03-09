@@ -1,4 +1,4 @@
-import { ApprovalStatus } from "@prisma/client";
+import { ApprovalStatus } from "src/generated/prisma/enums";
 import { Expose } from "class-transformer";
 import { FileMetaData } from "src/common/types/FileMetaData.dto";
 

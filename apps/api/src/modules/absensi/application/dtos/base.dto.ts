@@ -1,4 +1,4 @@
-import { WorkStatus } from "@prisma/client";
+import { WorkStatus } from "src/generated/prisma/enums";
 import { Expose } from "class-transformer";
 import { FileMetaData } from "src/common/types/FileMetaData.dto";
 
