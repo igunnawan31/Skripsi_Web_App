@@ -34,7 +34,7 @@ import { GetReimburseUseCase } from '../application/use-cases/get-reimburse.use-
 import { GetAllReimburseUseCase } from '../application/use-cases/get-all-reimburse.use-case';
 import { DeleteReimburseUseCase } from '../application/use-cases/delete-reimburse.use-case';
 import { RolesMinor } from 'src/common/decorators/minor-role.decorator';
-import { MinorRole } from '@prisma/client';
+import { MinorRole } from 'src/generated/prisma/enums';
 import { GetUserAllReimburseUseCase } from '../application/use-cases/get-user-all.use-case';
 
 @Controller('reimburses')

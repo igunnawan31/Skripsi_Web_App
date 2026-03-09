@@ -21,7 +21,7 @@ import { AbsensiFilterDTO } from '../application/dtos/request/absensi-filter.dto
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { UserRequest } from 'src/common/types/UserRequest.dto';
-import { MinorRole, User } from '@prisma/client';
+import { MinorRole } from 'src/generated/prisma/enums';
 import { RolesMinor } from 'src/common/decorators/minor-role.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';

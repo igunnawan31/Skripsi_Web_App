@@ -1,7 +1,7 @@
 import { OmitType, PartialType } from '@nestjs/mapped-types';
 import { CreateProjectDTO } from './create-project.dto';
 import { IsArray, IsDate, IsEnum, IsOptional, IsString } from 'class-validator';
-import { ProjectStatus } from '@prisma/client';
+import { ProjectStatus } from 'src/generated/prisma/enums';
 import { FileMetaData } from 'src/common/types/FileMetaData.dto';
 import { Type } from 'class-transformer';
 

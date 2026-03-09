@@ -18,7 +18,7 @@ import { UpdateCutiDTO } from '../../application/dtos/request/update-cuti.dto';
 import { UpdateCutiResponseDTO } from '../../application/dtos/response/update-response.dto';
 import { ApprovalCutiInput } from '../../application/dtos/request/approval.dto';
 import { DeleteCutiResponseDTO } from '../../application/dtos/response/delete-response.dto';
-import { MinorRole, StatusCuti } from '@prisma/client';
+import { MinorRole, StatusCuti } from 'src/generated/prisma/enums';
 import { Prisma } from 'src/generated/prisma/client';
 
 @Injectable()

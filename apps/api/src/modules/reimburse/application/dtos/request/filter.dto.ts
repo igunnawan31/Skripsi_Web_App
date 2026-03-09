@@ -1,5 +1,5 @@
 import { OmitType } from '@nestjs/mapped-types';
-import { ApprovalStatus } from '@prisma/client';
+import { ApprovalStatus } from 'src/generated/prisma/enums';
 import { IsDate, IsDateString, IsEnum, IsInt, IsOptional } from 'class-validator';
 import { FilterDTO } from 'src/common/types/Filter.dto';
 

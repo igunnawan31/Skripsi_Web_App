@@ -1,4 +1,4 @@
-import { KategoriPertanyaan } from '@prisma/client';
+import { KategoriPertanyaan } from 'src/generated/prisma/enums';
 import { Transform } from 'class-transformer';
 import {
   IsBoolean,

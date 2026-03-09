@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { MajorRole, MinorRole } from '@prisma/client';
+import { MajorRole, MinorRole } from 'src/generated/prisma/enums';
 import { RetrieveUserResponseDTO } from 'src/modules/users/application/dtos/response/read-response.dto';
 
 @Injectable()

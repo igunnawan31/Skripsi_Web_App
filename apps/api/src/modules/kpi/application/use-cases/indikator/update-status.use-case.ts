@@ -8,7 +8,7 @@ import { LoggerService } from 'src/modules/logger/logger.service';
 import { InternalUpdateIndikatorDTO } from '../../dtos/request/indikator/update-indicator.dto';
 import { DateUtilService } from 'src/common/utils/dateUtil';
 import { UpdateIndikatorResponseDTO } from '../../dtos/response/indikator/update-response.dto';
-import { StatusIndikatorKPI } from '@prisma/client';
+import { StatusIndikatorKPI } from 'src/generated/prisma/enums';
 
 @Injectable()
 export class UpdateStatusIndikatorUseCase {

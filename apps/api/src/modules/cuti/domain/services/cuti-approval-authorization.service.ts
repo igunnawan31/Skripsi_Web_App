@@ -1,7 +1,7 @@
 // src/cuti/application/services/cuti-authorization.service.ts
 
 import { Injectable } from '@nestjs/common';
-import { MajorRole, MinorRole, StatusCuti } from '@prisma/client';
+import { MajorRole, MinorRole, StatusCuti } from 'src/generated/prisma/enums';
 import { RetrieveUserResponseDTO } from 'src/modules/users/application/dtos/response/read-response.dto';
 import { RetrieveCutiResponseDTO } from '../../application/dtos/response/read-response.dto';
 

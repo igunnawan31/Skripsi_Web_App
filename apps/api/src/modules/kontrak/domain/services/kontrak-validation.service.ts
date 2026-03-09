@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { KontrakKerjaStatus, MetodePembayaran } from '@prisma/client';
+import { KontrakKerjaStatus, MetodePembayaran } from 'src/generated/prisma/enums';
 import { RetrieveKontrakResponseDTO } from '../../application/dtos/response/read-response.dto';
 
 @Injectable()

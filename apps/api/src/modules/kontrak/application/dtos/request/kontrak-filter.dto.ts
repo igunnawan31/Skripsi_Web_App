@@ -1,4 +1,4 @@
-import { KontrakKerjaStatus, MetodePembayaran } from '@prisma/client';
+import { KontrakKerjaStatus, MetodePembayaran } from 'src/generated/prisma/enums';
 import {
   IsDateString,
   IsEnum,

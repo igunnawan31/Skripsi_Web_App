@@ -19,7 +19,7 @@ import { InternalUpdateProjectDTO, UpdateProjectDTO } from '../application/dtos/
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesMinor } from 'src/common/decorators/minor-role.decorator';
-import { MinorRole } from '@prisma/client';
+import { MinorRole } from 'src/generated/prisma/enums';
 import { CreateProjectUseCase } from '../application/use-cases/create-project.use-case';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';

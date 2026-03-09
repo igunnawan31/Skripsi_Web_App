@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { OmitType } from '@nestjs/mapped-types';
-import { StatusIndikatorKPI } from '@prisma/client';
+import { StatusIndikatorKPI } from 'src/generated/prisma/enums';
 import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,

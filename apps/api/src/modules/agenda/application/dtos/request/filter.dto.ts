@@ -1,5 +1,5 @@
 import { OmitType } from '@nestjs/mapped-types';
-import { AgendaFreq, AgendaStatus } from '@prisma/client';
+import { AgendaFreq, AgendaStatus } from 'src/generated/prisma/enums';
 import { IsDate, IsEnum, IsOptional, IsString } from 'class-validator';
 import { FilterDTO } from 'src/common/types/Filter.dto';
 

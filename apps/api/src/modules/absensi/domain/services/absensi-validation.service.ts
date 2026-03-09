@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { WorkStatus } from '@prisma/client';
+import { WorkStatus } from 'src/generated/prisma/enums';
 import type { IAbsensiQuotaProvider } from './absensi-quota-provide.interface';
 import { toZonedTime } from 'date-fns-tz';
 

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CutiCancelledEvent } from '../events/cuti.events';
-import { MajorRole, MinorRole, StatusCuti } from '@prisma/client';
+import { MajorRole, MinorRole, StatusCuti } from 'src/generated/prisma/enums';
 import { DeleteCutiResponseDTO } from '../dtos/response/delete-response.dto';
 import { ApprovalCutiDTO, ApprovalCutiInput } from '../dtos/request/approval.dto';
 import { ICutiRepository } from '../../domain/repositories/cuti.repository.interface';

@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { MetodePembayaran } from '@prisma/client';
+import { MetodePembayaran } from 'src/generated/prisma/enums';
 import { KontrakCreatedEvent } from 'src/modules/kontrak/application/events/kontrak.events';
 import { ISalaryRepository } from '../repositories/salary.repository.interface';
 import { CreateSalaryDTO } from '../../application/dtos/request/create-salary.dto';

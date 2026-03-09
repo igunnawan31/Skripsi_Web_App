@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { CreateKontrakUseCase } from '../application/use-cases/create-kontrak.use-case';
 import { GetUserQuotaUseCase } from '../application/use-cases/get-user-quota.use-cases';
-import { MinorRole } from '@prisma/client';
+import { MinorRole } from 'src/generated/prisma/enums';
 import { RolesMinor } from 'src/common/decorators/minor-role.decorator';
 import {
   CreateKontrakDTO,

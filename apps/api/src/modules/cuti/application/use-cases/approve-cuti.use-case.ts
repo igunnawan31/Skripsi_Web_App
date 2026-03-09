@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UpdateCutiResponseDTO } from '../dtos/response/update-response.dto';
-import { StatusCuti } from '@prisma/client';
+import { StatusCuti } from 'src/generated/prisma/enums';
 import { CutiApprovedEvent } from '../events/cuti.events';
 import { ApprovalCutiDTO, ApprovalCutiInput } from '../dtos/request/approval.dto';
 import { ICutiRepository } from '../../domain/repositories/cuti.repository.interface';

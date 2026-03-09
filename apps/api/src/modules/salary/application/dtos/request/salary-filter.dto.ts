@@ -1,4 +1,4 @@
-import { SalaryStatus } from '@prisma/client';
+import { SalaryStatus } from 'src/generated/prisma/enums';
 import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
 import { FilterDTO } from 'src/common/types/Filter.dto';
 

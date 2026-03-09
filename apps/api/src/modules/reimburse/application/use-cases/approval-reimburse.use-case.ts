@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InternalUpdateReimburseDTO } from '../dtos/request/update.dto';
 import { UpdateReimburseResponseDTO } from '../dtos/response/update.dto';
-import { ApprovalStatus } from '@prisma/client';
+import { ApprovalStatus } from 'src/generated/prisma/enums';
 import { UserRequest } from 'src/common/types/UserRequest.dto';
 import { IReimburseRepository } from '../../domain/repositories/reimburse.repository.interface';
 import { ReimburseAuthorizationService } from '../../domain/services/reimburse-authorization.service';

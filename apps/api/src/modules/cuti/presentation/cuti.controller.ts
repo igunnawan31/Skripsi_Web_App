@@ -23,7 +23,7 @@ import { CutiFilterDTO } from '../application/dtos/request/filter-cuti.dto';
 import { UserRequest } from 'src/common/types/UserRequest.dto';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
-import { MajorRole, MinorRole } from '@prisma/client';
+import { MajorRole, MinorRole } from 'src/generated/prisma/enums';
 import { RolesMinor } from 'src/common/decorators/minor-role.decorator';
 import { ApprovalCutiDTO } from '../application/dtos/request/approval.dto';
 import { RolesMajor } from 'src/common/decorators/major-roles.decorator';

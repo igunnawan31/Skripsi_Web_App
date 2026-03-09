@@ -1,4 +1,4 @@
-import { MinorRole } from '@prisma/client';
+import { MinorRole } from 'src/generated/prisma/enums';
 import { IsEmail, IsEnum, IsString, MinLength } from 'class-validator';
 
 export class RegisterDto {

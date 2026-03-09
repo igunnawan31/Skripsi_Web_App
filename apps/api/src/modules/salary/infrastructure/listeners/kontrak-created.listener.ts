@@ -1,7 +1,7 @@
 import { OnEvent } from '@nestjs/event-emitter';
 import { Injectable } from '@nestjs/common';
 import { format, addMonths, isBefore, isEqual } from 'date-fns';
-import { MetodePembayaran } from '@prisma/client';
+import { MetodePembayaran } from 'src/generated/prisma/enums';
 import { CreateSalaryUseCase } from '../../application/use-cases/create-salary.use-case';
 import { KontrakCreatedEvent } from 'src/modules/kontrak/application/events/kontrak.events';
 import { LoggerService } from 'src/modules/logger/logger.service';

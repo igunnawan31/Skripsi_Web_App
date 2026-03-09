@@ -7,7 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { MAJOR_ROLES_KEY } from '../decorators/major-roles.decorator';
 import { MINOR_ROLES_KEY } from '../decorators/minor-role.decorator';
-import { MajorRole, MinorRole } from '@prisma/client';
+import { MajorRole, MinorRole } from 'src/generated/prisma/enums';
 
 // Define the request type with user attached
 interface RequestWithUser extends Request {

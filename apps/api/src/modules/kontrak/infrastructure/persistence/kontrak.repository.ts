@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { KontrakKerjaStatus } from '@prisma/client';
+import { KontrakKerjaStatus } from 'src/generated/prisma/enums';
 import { plainToInstance } from 'class-transformer';
 import { handlePrismaError } from 'src/common/errors/prisma-exception';
 import { IKontrakRepository } from '../../domain/repositories/kontrak.repository.interface';

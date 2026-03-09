@@ -1,5 +1,5 @@
 import { OmitType } from '@nestjs/mapped-types';
-import { StatusIndikatorKPI } from '@prisma/client';
+import { StatusIndikatorKPI } from 'src/generated/prisma/enums';
 import { Type } from 'class-transformer';
 import {
   IsArray,

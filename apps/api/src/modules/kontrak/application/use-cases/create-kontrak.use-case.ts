@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { KontrakKerjaStatus } from '@prisma/client';
+import { KontrakKerjaStatus } from 'src/generated/prisma/enums';
 import { InternalCreateKontrakDTO } from '../dtos/request/create-kontrak.dto';
 import { CreateKontrakResponseDTO } from '../dtos/response/create-response.dto';
 import { plainToClass } from 'class-transformer';

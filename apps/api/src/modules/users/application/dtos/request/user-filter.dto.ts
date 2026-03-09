@@ -1,4 +1,4 @@
-import { MajorRole, MinorRole } from '@prisma/client';
+import { MajorRole, MinorRole } from 'src/generated/prisma/enums';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { FilterDTO } from 'src/common/types/Filter.dto';
 

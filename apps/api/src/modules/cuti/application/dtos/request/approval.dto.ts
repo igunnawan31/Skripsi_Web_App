@@ -1,4 +1,4 @@
-import { StatusCuti } from '@prisma/client';
+import { StatusCuti } from 'src/generated/prisma/enums';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class ApprovalCutiDTO {

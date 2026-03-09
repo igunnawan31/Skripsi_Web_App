@@ -28,7 +28,7 @@ import { UpdateIndikatorDTO } from '../application/dtos/request/indikator/update
 import { GetAllPertanyaanIndikatorUseCase } from '../application/use-cases/pertanyaan/get-all-pertanyaan-indikator.use-case';
 import { PertanyaanFilterDTO } from '../application/dtos/request/pertanyaan/filter-question.dto';
 import { CreateEvaluationsUseCase } from '../application/use-cases/indikator/create-eval.use-case';
-import { StatusIndikatorKPI } from '@prisma/client';
+import { StatusIndikatorKPI } from 'src/generated/prisma/enums';
 import { UpdateStatusIndikatorUseCase } from '../application/use-cases/indikator/update-status.use-case';
 import { UpdatePublicIndikatorUseCase } from '../application/use-cases/indikator/update-public.use-case';
 import { DeleteEvaluationDTO } from '../application/dtos/request/indikator/delete-evaluation.dto';

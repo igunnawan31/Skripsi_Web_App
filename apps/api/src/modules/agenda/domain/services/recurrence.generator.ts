@@ -1,4 +1,4 @@
-import { AgendaFreq } from '@prisma/client';
+import { AgendaFreq } from 'src/generated/prisma/enums';
 import { addDays, addMonths, addWeeks, isAfter } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 const MAX_OCCURRENCES = 1000;

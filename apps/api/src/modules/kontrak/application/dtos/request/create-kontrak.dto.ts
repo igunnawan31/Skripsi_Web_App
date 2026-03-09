@@ -4,7 +4,7 @@ import {
   EmployeeType,
   KontrakKerjaStatus,
   MetodePembayaran,
-} from '@prisma/client';
+} from 'src/generated/prisma/enums';
 import { Transform, Type } from 'class-transformer';
 import {
   ArrayNotEmpty,

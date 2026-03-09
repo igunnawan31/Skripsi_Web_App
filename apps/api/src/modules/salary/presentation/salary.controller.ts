@@ -10,7 +10,7 @@ import {
   UploadedFiles,
   Req,
 } from '@nestjs/common';
-import { MinorRole } from '@prisma/client';
+import { MinorRole } from 'src/generated/prisma/enums';
 import { RolesMinor } from 'src/common/decorators/minor-role.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
