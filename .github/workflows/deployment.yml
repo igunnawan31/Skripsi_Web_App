@@ -38,18 +38,13 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
-      - name: Add SSH Key
-        uses: webfactory/ssh-agent@v0.8.1
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          ssh-passphrase: ${{ secrets.SSH_PASSPHRASE }}
-
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: 103.183.74.142
           username: aligun
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd live/
             git pull
