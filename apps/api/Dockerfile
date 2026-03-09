@@ -12,7 +12,7 @@ RUN pnpm install
 COPY . .
 
 WORKDIR /app/apps/api
-RUN pnpm prisma generate --schema=apps/api/prisma/schema.prisma
+RUN pnpm prisma generate --schema=./prisma/schema.prisma
 RUN pnpm build
 
 EXPOSE 8000
