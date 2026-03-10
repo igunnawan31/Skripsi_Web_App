@@ -319,12 +319,12 @@ export class KontrakRepository implements IKontrakRepository {
         userId,
         status: KontrakKerjaStatus.ACTIVE,
       },
-      _sum: {
+      _max: {
         cutiBulanan: true,
       },
     });
 
-    return result._sum.cutiBulanan || 0;
+    return result._max.cutiBulanan || 0;
   }
 
   async getTotalAbsensiQuota(userId: string): Promise<number> {
@@ -333,12 +333,12 @@ export class KontrakRepository implements IKontrakRepository {
         userId,
         status: KontrakKerjaStatus.ACTIVE,
       },
-      _sum: {
+      _max: {
         absensiBulanan: true,
       },
     });
 
-    return result._sum.absensiBulanan || 0;
+    return result._max.absensiBulanan || 0;
   }
 
   async update(
