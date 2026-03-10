@@ -8,7 +8,10 @@ import { LoggerService } from 'src/modules/logger/logger.service';
 
 @Injectable()
 export class KontrakCreatedListener {
-  constructor(private readonly createSalaryUseCase: CreateSalaryUseCase, private readonly logger: LoggerService) {}
+  constructor(
+    private readonly createSalaryUseCase: CreateSalaryUseCase,
+    private readonly logger: LoggerService,
+  ) {}
 
   @OnEvent('kontrak.created')
   async handleKontrakCreated(event: KontrakCreatedEvent) {
@@ -70,7 +73,6 @@ export class KontrakCreatedListener {
           );
           return;
       }
-
     } catch (error) {
       this.logger.error(
         `Failed to generate salaries for kontrak ${event.kontrakId}:`,
@@ -79,7 +81,39 @@ export class KontrakCreatedListener {
     }
   }
 
+  // Fungsi baru: setiap bulan amount-nya = totalAmount (tidak dibagi)
   private async createMonthlySalaries(
+    userId: string,
+    kontrakId: string,
+    totalAmount: number,
+    start: Date,
+    end: Date,
+  ) {
+    let current = new Date(start);
+
+    while (isBefore(current, end) || isEqual(current, end)) {
+      const periode = format(current, 'yyyy-MM');
+
+      const dueDate = new Date(
+        current.getFullYear(),
+        current.getMonth() + 1,
+        5,
+      );
+
+      await this.createSalaryUseCase.execute({
+        userId,
+        kontrakId,
+        periode,
+        dueDate,
+        amount: totalAmount,
+      });
+
+      current = addMonths(current, 1);
+    }
+  }
+
+  // Fungsi lama: total dibagi rata per bulan, sisa ke bulan terakhir
+  private async createMonthlySalariesSplit(
     userId: string,
     kontrakId: string,
     totalAmount: number,
@@ -101,21 +135,18 @@ export class KontrakCreatedListener {
     const baseAmount = Math.floor(totalAmount / monthCount);
     const remainder = totalAmount - baseAmount * monthCount;
 
-    // Reset cursor
     let current = new Date(start);
     let index = 0;
 
     while (isBefore(current, end) || isEqual(current, end)) {
       const periode = format(current, 'yyyy-MM');
 
-      // Due date: 5th of next month
       const dueDate = new Date(
         current.getFullYear(),
         current.getMonth() + 1,
         5,
       );
 
-      // remainder ditambahkan ke bulan terakhir
       const amount =
         index === monthCount - 1 ? baseAmount + remainder : baseAmount;
 
