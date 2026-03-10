@@ -33,7 +33,7 @@ export const useCutiData = () => {
     const { data: kontrakData, isLoading: isLoadingKontrak, error: errorKontrak } = useKontrak().fetchAllKontrak({ limit: 1000 });
     const { data: cutiData, isLoading: isLoadingCuti, error: errorCuti } = useCuti().fetchAllCuti({
         limit: 1000,
-        status: CutiStatus.DITERIMA || CutiStatus.MENUNGGU,
+        status: CutiStatus.DITERIMA,
         minStartDate: startOfMonth(new Date(defaultMonth + "-01")).toISOString(),
         maxEndDate: endOfMonth(new Date(defaultMonth + "-01")).toISOString(),
     });
@@ -64,11 +64,9 @@ export const useCutiData = () => {
             return dayStart <= end && dayEnd >= start;
         });
 
-        const pending = dailyCuti.filter((c: any) => c.status === CutiStatus.MENUNGGU).length;
         const accepted = dailyCuti.filter((c: any) => c.status === CutiStatus.DITERIMA).length;
 
         return {
-            pending,
             accepted,
             total: dailyCuti.length
         };
@@ -99,14 +97,6 @@ export const CutiChart = ({ dailyCutiStats, workingDays, isLoading }: any) => {
                 data: dailyCutiStats.map((s: any) => s.accepted),
                 backgroundColor: `${COLORS.successOpa}`,
                 borderColor: `${COLORS.success}`,
-                borderWidth: 1,
-                borderRadius: 4,
-            },
-            {
-                label: 'Menunggu',
-                data: dailyCutiStats.map((s: any) => s.pending),
-                backgroundColor: `${COLORS.tertiaryOpa}`,
-                borderColor: `${COLORS.tertiary}`,
                 borderWidth: 1,
                 borderRadius: 4,
             },

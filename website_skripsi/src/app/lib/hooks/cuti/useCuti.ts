@@ -1,8 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-
 export const useCuti = () => {
     const fetchAllCuti = (filters?: {
         page?: number;
@@ -30,7 +28,7 @@ export const useCuti = () => {
                 if (filters?.maxEndDate) queryParams.append("maxEndDate", filters.maxEndDate);
                 if (filters?.searchTerm) queryParams.append("searchTerm", filters.searchTerm);
 
-                const response = await fetch(`${API}/cuti?${queryParams.toString()}`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cuti?${queryParams.toString()}`, {
                     method: "GET",
                     headers: { 
                         "Content-Type": "application/json",
@@ -57,7 +55,7 @@ export const useCuti = () => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const response = await fetch(`${API}/cuti/${id}`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cuti/${id}`, {
                     method: "GET",
                     headers: { 
                         "Content-Type": "application/json",
@@ -85,7 +83,7 @@ export const useCuti = () => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const response = await fetch(`${API}/cuti/user/${id}`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cuti/user/${id}`, {
                     method: "GET",
                     headers: { 
                         "Content-Type": "application/json",
@@ -118,7 +116,7 @@ export const useCuti = () => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const response = await fetch(`${API}/cuti/approve/${id}`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cuti/approve/${id}`, {
                     method: "PATCH",
                     headers: { 
                         "Content-Type": "application/json",
@@ -154,7 +152,7 @@ export const useCuti = () => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const response = await fetch(`${API}/cuti/reject/${id}`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cuti/reject/${id}`, {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
