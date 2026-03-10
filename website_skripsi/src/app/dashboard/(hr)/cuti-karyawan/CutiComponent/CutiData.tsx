@@ -8,7 +8,6 @@ import { CutiStatus } from "@/app/lib/types/enumTypes";
 
 const CutiData = () => {
     const { data } = useCuti().fetchAllCuti({ limit: 1000 });
-    console.log(data);
     const [seeFull, setSeeFull] = useState(false); 
 
     const stats = useMemo(() => {
@@ -58,7 +57,7 @@ const CutiData = () => {
                             </span>
                         </div>
                         <h3 className="text-4xl font-bold text-slate-800">
-                            {item.value}
+                            {item.value} <span className="text-sm font-normal text-slate-400">Data</span>
                         </h3>
                         <p className="text-xs text-slate-500 mt-1">
                             Jumlah {item.label}

@@ -30,6 +30,7 @@ export default function CutiShowsDetail({ id }: { id: string }) {
 
     const approveCuti = useCuti().approveCuti();
     const rejectCuti = useCuti().rejectCuti();
+    const [errors, setErrors] = useState({ catatan: "" })
 
     const [catatan, setCatatan] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -91,11 +92,31 @@ export default function CutiShowsDetail({ id }: { id: string }) {
     const days = computeTotalDays(detailData?.startDate, detailData?.endDate);
 
     const handleOpenModal = (type: "approve" | "reject") => {
+        const newErrors = {
+            catatan: ""
+        };
+        let isValid = true;
+
         if (!catatan.trim()) {
-            toast.custom(<CustomToast type="error" message="Catatan harus diisi" />)
-            return;
+            newErrors.catatan = "Catatan harus diisi";
+            isValid = false;
+        }
+        if (catatan.length < 10) {
+            newErrors.catatan = "Minimal karakter adalah 10";
+            isValid = false;
         }
 
+        setErrors(newErrors);
+
+        if (!isValid) {
+            toast.custom(
+                <CustomToast 
+                    type="error" 
+                    message="Mohon lengkapi semua field yang wajib diisi" 
+                />
+            );
+            return;
+        }
         setActionType(type);
         setIsModalOpen(true);
     };
@@ -422,20 +443,32 @@ export default function CutiShowsDetail({ id }: { id: string }) {
                         </h2>
                         <form className="space-y-5">
                             <div>
-                                <label
-                                    htmlFor="catatan"
-                                    className="block mb-2 text-sm font-medium text-(--color-text-secondary)"
-                                >
-                                    Catatan <span className="text-(--color-primary)">*</span>
-                                </label>
+                                <div className="flex justify-between items-center mb-2">
+                                    <label
+                                        htmlFor="catatan"
+                                        className="text-sm font-medium text-(--color-text-secondary)"
+                                    >
+                                        Catatan <span className="text-(--color-primary)">*</span>
+                                    </label>
+                                    <span className={`text-xs font-medium ${catatan.length < 10 ? 'text-(--color-primary)' : 'text-green-600'}`}>
+                                        {catatan.length} / 10 Karakter
+                                    </span>
+                                </div>
                                 <textarea
                                     name="notes"
                                     id="catatan"
                                     onChange={(e) => setCatatan(e.target.value)}
-                                    className="w-full p-2.5 border border-(--color-border) rounded-lg  text-(--color-text-primary) focus:ring-2 focus:ring-(--color-primary) focus:outline-none transition-all"
                                     placeholder="Anda diperbolehkan untuk cuti, jika ...."
+                                    className={`w-full p-2.5 border rounded-lg  text-(--color-text-primary) focus:ring-2 focus:ring-(--color-primary) focus:outline-none transition-all ${
+                                        errors.catatan ? "border-(--color-primary)" : "border-(--color-border)"
+                                    }`}
                                     required
                                 />
+                                {errors.catatan && (
+                                    <p className="text-xs text-(--color-primary) mt-1 animate-in fade-in slide-in-from-top-1">
+                                        {errors.catatan}
+                                    </p>
+                                )}
                             </div>
                         </form>
                     </div>

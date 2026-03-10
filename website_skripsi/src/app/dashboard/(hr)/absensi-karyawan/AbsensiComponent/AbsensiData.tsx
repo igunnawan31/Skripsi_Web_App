@@ -59,7 +59,7 @@ const AbsensiData = ({ selectedDate }: { selectedDate: string }) => {
                             </span>
                         </div>
                         <h3 className="text-4xl font-bold text-slate-800">
-                            {item.value}
+                            {item.value} <span className="text-sm font-normal text-slate-400">Data</span>
                         </h3>
                         {item.id === 4 && item.value > 0 && (
                             <p className="text-[10px] text-red-500 mt-1 font-medium">{item.note} terdeteksi</p>
