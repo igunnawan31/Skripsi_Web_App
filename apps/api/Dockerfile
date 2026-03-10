@@ -17,5 +17,5 @@ RUN pnpm build
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "pnpm prisma migrate deploy && pnpm prisma db seed && node dist/src/main.js"]
+CMD ["sh", "-c", "pnpm prisma migrate deploy && (pnpm prisma db seed || echo 'Seed skipped, data may already exist') && node dist/src/main.js"]
 
