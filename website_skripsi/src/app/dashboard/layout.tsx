@@ -10,8 +10,6 @@ import { decodeJwt, decodeJwtExpMs } from "../lib/jwt";
 import { UserContext } from "../context/UserContext";
 import ClientUserProvider from "../context/ClientUserProvider";
 
-const API = process.env.API_URL || "http://localhost:4000";
-
 export default async function DashboardLayout({
     children,
 }: Readonly<{
@@ -25,7 +23,7 @@ export default async function DashboardLayout({
     const userId = payload?.sub;
     if (!userId) redirect("/");
 
-    const res = await fetch(`${API}/users/${userId}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`, {
         method: "GET",
         headers: { Authorization: `Bearer ${accessToken}` },
         cache: "no-store",

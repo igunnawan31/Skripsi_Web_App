@@ -5,8 +5,6 @@ import Cookies from "js-cookie";
 import { MajorRole, MinorRole } from "../../types/types";
 import toast from "react-hot-toast";
 
-const API = "http://localhost:4000";
-
 function redirectBasedOnRole(majorRole?: MajorRole, minorRole?: MinorRole) {
     if (majorRole === MajorRole.OWNER) return "/dashboard";
     if (majorRole === MajorRole.KARYAWAN && minorRole === MinorRole.HR) return "/dashboard";
@@ -32,7 +30,7 @@ export const useAuth = () => {
         { email: string; password: string }
     >({
         mutationFn: async ({ email, password }) => {
-            const response = await fetch(`${API}/auth/login`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",

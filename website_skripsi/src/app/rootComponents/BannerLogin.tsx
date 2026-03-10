@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { illustrations } from "../lib/assets/assets";
+import { illustrations, logo } from "../lib/assets/assets";
 
 const BannerLogin = () => {
     return (
@@ -20,10 +20,9 @@ const BannerLogin = () => {
             >
                 <Image
                     src={illustrations.welcomeIllustration}
-                    alt="HRIS Illustration"
-                    width={400}
-                    height={400}
-                    className="mb-6 animate-float"
+                    width={240}
+                    height={240}
+                    alt="Welcome Banner Image"
                 />
 
                 <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">

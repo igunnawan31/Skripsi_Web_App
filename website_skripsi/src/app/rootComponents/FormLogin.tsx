@@ -7,6 +7,7 @@ import React, { useState } from "react";
 import { useAuth } from "../lib/hooks/auth/useAuth";
 import CustomToast from "./CustomToast";
 import toast from "react-hot-toast";
+import { logo } from "../lib/assets/assets";
 
 const FormLogin: React.FC<FormProps> = ({
     loginAccount = false, 
@@ -44,11 +45,10 @@ const FormLogin: React.FC<FormProps> = ({
         <section className="min-h-screen flex flex-col justify-center items-center px-4 bg-(--color-background)">
             <div className="flex flex-col items-center mb-10">
                 <Image
-                    src="/assets/images/logoBerinovasi.png"
-                    alt="Logo"
-                    width={120}
-                    height={60}
-                    className="mb-3"
+                    src={logo.logoBerinovasi}
+                    width={160}
+                    height={160}
+                    alt="Logo Perusahaan Berinovasi"
                 />
                 <span className="text-lg font-semibold text-(--color-secondary) tracking-wide">
                     Berinovasi HRIS
