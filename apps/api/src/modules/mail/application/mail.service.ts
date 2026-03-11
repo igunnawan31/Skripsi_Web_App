@@ -24,7 +24,7 @@ export class MailService {
 
   async sendNewUserCredentials(to: string, name: string, password: string): Promise<void> {
     await this.mailer.send({
-      to: 'aldisarg@gmail.com',
+      to,
       subject: 'User Credentials',
       html: `<p>Your Credentials: <strong>${name}</strong>, <strong>${password}</strong></p>`,
     })
