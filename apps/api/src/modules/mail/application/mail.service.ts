@@ -26,7 +26,7 @@ export class MailService {
     await this.mailer.send({
       to,
       subject: 'User Credentials',
-      html: `<p>Your Credentials: <strong>${name}</strong>, <strong>${password}</strong></p>`,
+      html: `<p>Your Credentials: Name: <strong>${name}</strong>, Email: <strong>${to}</strong>, <strong>${password}</strong></p>`,
     })
   }
 
