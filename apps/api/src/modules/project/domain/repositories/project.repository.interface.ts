@@ -13,6 +13,7 @@ export abstract class IProjectRepository {
   ): Promise<RetrieveAllProjectResponseDTO | null>;
   abstract findById(id: string): Promise<RetrieveProjectResponseDTO | null>;
   abstract findTeamById(id: string): Promise<RetrieveTeamResponseDTO[] | null>;
+  abstract findSpecificTeamMember(projectId:string, userId: string): Promise<RetrieveTeamResponseDTO | null>;
   abstract create(
     data: InternalCreateProjectDTO,
   ): Promise<CreateProjectResponseDTO>;

@@ -26,7 +26,7 @@ export class ProjectRepository implements IProjectRepository {
   constructor(
     private readonly prisma: PrismaService,
     private readonly logger: LoggerService,
-  ) { }
+  ) {}
   async findAll(
     filters: ProjectFilterDTO,
     user: UserRequest,
@@ -152,6 +152,25 @@ export class ProjectRepository implements IProjectRepository {
       });
       if (!personel) return null;
       return personel.map((p) => plainToInstance(RetrieveTeamResponseDTO, p));
+    } catch (err) {
+      handlePrismaError(err, 'Project');
+    }
+  }
+  async findSpecificTeamMember(
+    projectId: string,
+    userId: string,
+  ): Promise<RetrieveTeamResponseDTO | null> {
+    try {
+      const personel = await this.prisma.projectTeam.findUnique({
+        where: {
+          projectId_userId: {
+            projectId,
+            userId,
+          },
+        },
+      });
+      if (!personel) return null;
+      return plainToInstance(RetrieveTeamResponseDTO, personel);
     } catch (err) {
       handlePrismaError(err, 'Project');
     }
