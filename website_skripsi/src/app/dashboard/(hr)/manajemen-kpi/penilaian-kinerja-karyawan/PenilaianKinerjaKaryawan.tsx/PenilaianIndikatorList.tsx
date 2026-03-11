@@ -45,7 +45,10 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
         searchTerm: searchQuery || undefined,
     });
     
-    const { data: fetchedDataUser, isLoading: isLoadingUser } = useUser().fetchAllUser();
+    const { data: fetchedDataUser, isLoading: isLoadingUser } = useUser().fetchAllUser({
+        page: currentPage,
+        limit: itemsPerPage,
+    });
 
     useEffect(() => {
         const params = new URLSearchParams();
@@ -94,6 +97,7 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
                         description: indikator.description,
                         startDate: indikator.startDate,
                         endDate: indikator.endDate,
+                        updatedAt: indikator.updatedAt,
                         evaluateeId: ev.evaluateeId,
                         namaTarget: userMap.get(ev.evaluateeId) || ev.evaluatee?.name || "Karyawan",
                         sudahDinilai: sudahDinilai,
@@ -289,7 +293,7 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
                                 </div>
                             </div>
 
-                            <div className="flex justify-between items-center  mt-2">
+                            <div className="flex justify-between items-center mt-2">
                                 <div className="text-sm text-gray-500 flex gap-2 items-center justify-center">
                                     <Image
                                         src={icons.question}
@@ -300,6 +304,19 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
                                     {task.indikatorPertanyaan} Pertanyaan
                                 </div>
                             </div>
+                            {task.sudahDinilai && (
+                                <div className="border-t border-(--color-border) mt-4 pt-2 flex justify-between items-start">
+                                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                                        <Image
+                                            src={icons.dateIn}
+                                            alt="Tanggal Mulai Cuti"
+                                            width={24}
+                                            height={24}
+                                        />
+                                        <span>Submit: {format(new Date(task.updatedAt), "dd MMM yyyy, HH:mm")}</span>
+                                    </div>
+                                </div>
+                            )}
 
                             {showButton && (
                                 (!task.sudahDinilai) ? (

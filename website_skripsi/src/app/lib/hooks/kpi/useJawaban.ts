@@ -54,6 +54,50 @@ export const useJawaban = () => {
         })
     }
 
+    const fetchUserAnswersByIndikator = ({ indikatorId, evaluateeId, ...filters } : {
+        indikatorId: string;
+        evaluateeId: string;
+        limit?: number;
+        sortBy?: string;
+        sortOrder?: "asc" | "desc";
+    }) => {
+        return useQuery({
+            queryKey: ["answers-user", indikatorId, evaluateeId, filters],
+            queryFn: async () => {
+                const token =  Cookies.get("accessToken");
+                if (!token) throw new Error("No access token found");
+
+                const params = new URLSearchParams({
+                    evaluateeId,
+                    ...filters
+                });
+
+                const response = await fetch(`${API}/indicators/${indikatorId}/answers?${params}`,{
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    credentials: "include",
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Failed to fetch answers kpi"
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                return response.json();
+            },
+            staleTime: 5 * 60 * 1000,
+        })
+    }
+
     const createAnswer = () => {
         const queryClient = useQueryClient();
 
@@ -102,6 +146,7 @@ export const useJawaban = () => {
     }
 
     return {
+        fetchUserAnswersByIndikator,
         fetchAllJawaban,
         createAnswer,
     }
