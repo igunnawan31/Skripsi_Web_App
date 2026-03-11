@@ -17,8 +17,8 @@ import {
 } from 'src/modules/project/application/dtos/base.dto';
 import { ProjectTeamProvisionService } from 'src/modules/project/application/services/projectTeam-provisioning.service';
 import { ProjectTeamProvisionInputDTO } from 'src/modules/project/application/dtos/request/create-project.dto';
-import { InternalUserProvisionInputDTO } from 'src/modules/users/application/dtos/request/create-user.dto';
 import { MailService } from 'src/modules/mail/application/mail.service';
+import { LoggerService } from 'src/modules/logger/logger.service';
 
 @Injectable()
 export class CreateKontrakUseCase {
@@ -31,6 +31,7 @@ export class CreateKontrakUseCase {
     private readonly userProvision: UserProvisionService,
     private readonly projectTeamProvision: ProjectTeamProvisionService,
     private readonly mailService: MailService,
+    private readonly logger: LoggerService,
   ) {}
 
   async execute(
@@ -116,11 +117,14 @@ export class CreateKontrakUseCase {
       );
 
       if (user.password) {
-        await this.mailService.sendNewUserCredentials(
-          user.email,
-          user.name,
-          user.password,
-        );
+        this.mailService
+          .sendNewUserCredentials(user.email, user.name, user.password)
+          .catch((err) =>
+            this.logger.error(
+              `Failed to send credentials email to ${user.email}:`,
+              err.message,
+            ),
+          );
       }
 
       return kontrak;

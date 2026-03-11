@@ -16,6 +16,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Max,
   ValidateNested,
 } from 'class-validator';
 import { FileMetaData } from 'src/common/types/FileMetaData.dto';
@@ -46,6 +47,7 @@ class BaseCreateKontrakDTO {
 
   @IsNumber()
   @Type(()=>Number)
+  @Max(10)
   cutiBulanan: number;
 
   @IsEnum(KontrakKerjaStatus)
