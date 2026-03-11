@@ -669,39 +669,47 @@ export default function KontrakKerjaDetail({ id }: { id: string }) {
                                 {fetchedData.metodePembayaran === MetodePembayaran.MONTHLY && monthlyPercentages.length > 0 && (
                                     <div>
                                         <div className="flex flex-col gap-4">
-                                            <div className="w-full flex flex-row font-semibold text-sm text-gray-600">
-                                                <span className="w-1/3 text-left">Bulan</span>
-                                                <span className="w-1/3 text-center">Persentase</span>
-                                                <span className="w-1/3 text-right">Jumlah</span>
-                                            </div>
-                                            {monthlyPercentages.map((percent, i) => {
-                                                const amount = (fetchedData.totalBayaran * percent) / 100 || 0;
-                                                return (
-                                                    <div
-                                                        key={i}
-                                                        className="w-full flex flex-row gap-4"
-                                                    >
-                                                        <label className="w-1/3 text-left text-sm text-gray-600">
-                                                            Bulan {i + 1}
-                                                        </label>
-                                                        <input
-                                                            type="number"
-                                                            value={percent}
-                                                            className="w-1/3 text-center bg-(--color-muted)/30 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                                            disabled
-                                                        />
-                                                        <input
-                                                            type="text"
-                                                            disabled
-                                                            value={amount.toLocaleString("id-ID", {
+                                            <table className="w-full text-sm text-left">
+                                                <thead className="bg-gray-50 text-(--color-textPrimary) font-semibold border-b border-(--color-border)">
+                                                    <tr>
+                                                        <th className="px-4 py-3 font-semibold">Bulan</th>
+                                                        <th className="px-4 py-3 text-right font-semibold">Jumlah Pembayaran</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-200 bg-white">
+                                                    {monthlyPercentages.map((percent, i) => (
+                                                        <tr key={i} className="hover:bg-gray-50 transition-colors">
+                                                            <td className="px-4 py-3 text-(--color-textPrimary) font-light">
+                                                                Bulan {i + 1}
+                                                            </td>
+                                                            <td className="px-4 py-3 text-right">
+                                                                <input
+                                                                    type="text"
+                                                                    disabled
+                                                                    value={fetchedData?.totalBayaran?.toLocaleString("id-ID", {
+                                                                        style: "currency",
+                                                                        currency: "IDR",
+                                                                        minimumFractionDigits: 0,
+                                                                    })}
+                                                                    className="w-full max-w-[200px] ml-auto text-right rounded-lg px-3 py-1.5 text-(--color-textPrimary) font-light cursor-not-allowed"
+                                                                />
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                                <tfoot className="bg-gray-50 border-t border-gray-200">
+                                                    <tr>
+                                                        <td className="px-4 py-3 font-bold text-gray-800">Total</td>
+                                                        <td className="px-4 py-3 text-right font-bold text-(--color-textPrimary)">
+                                                            {(Number(fetchedData.totalBayaran ?? 0) * monthlyPercentages.length).toLocaleString("id-ID", {
                                                                 style: "currency",
                                                                 currency: "IDR",
+                                                                minimumFractionDigits: 0,
                                                             })}
-                                                            className="w-1/3 justify-end bg-(--color-muted)/30 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                                        />
-                                                    </div>
-                                                );
-                                            })}
+                                                        </td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
                                         </div>
                                     </div>
                                 )}
