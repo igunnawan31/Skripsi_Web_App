@@ -1,9 +1,8 @@
 
 import { useRouter } from "next/navigation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { MajorRole, MinorRole } from "../../types/types";
-import toast from "react-hot-toast";
 
 function redirectBasedOnRole(majorRole?: MajorRole, minorRole?: MinorRole) {
     if (majorRole === MajorRole.OWNER) return "/dashboard";
@@ -38,9 +37,16 @@ export const useAuth = () => {
             });
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || "Login failed");
+                let errorMessage = "Login failed";
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                } catch {
+                    errorMessage = response.statusText || errorMessage;
+                }
+                throw new Error(errorMessage);
             }
+
             return response.json();
         },
 
@@ -114,9 +120,16 @@ export const useAuth = () => {
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || "Cannot verify your email");
+                    let errorMessage = "Login failed";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
                 }
+
                 return response.json();
             },
         })
@@ -139,9 +152,16 @@ export const useAuth = () => {
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || "Cannot verify your email");
+                    let errorMessage = "Login failed";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
                 }
+
                 return response.json();
             },
         })
@@ -164,9 +184,16 @@ export const useAuth = () => {
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || "Cannot verify your email");
+                    let errorMessage = "Login failed";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
                 }
+
                 return response.json();
             },
         })
