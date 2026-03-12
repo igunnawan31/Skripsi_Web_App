@@ -4,7 +4,6 @@ import { CreateKontrakUseCase } from './application/use-cases/create-kontrak.use
 import { GetUserQuotaUseCase } from './application/use-cases/get-user-quota.use-cases';
 import { IKontrakRepository } from './domain/repositories/kontrak.repository.interface';
 import { KontrakRepository } from './infrastructure/persistence/kontrak.repository';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 import { KontrakValidationService } from './domain/services/kontrak-validation.service';
 import { KontrakBasedAbsensiQuotaAdapter } from './infrastructure/adapter/absensi-quota-adapter';
 import { UpdateKontrakUseCase } from './application/use-cases/update-kontrak.use-case';

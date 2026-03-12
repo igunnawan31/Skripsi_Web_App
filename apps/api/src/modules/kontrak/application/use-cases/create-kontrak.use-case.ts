@@ -32,7 +32,7 @@ export class CreateKontrakUseCase {
     private readonly projectTeamProvision: ProjectTeamProvisionService,
     private readonly mailService: MailService,
     private readonly logger: LoggerService,
-  ) {}
+  ) { }
 
   async execute(
     dto: InternalCreateKontrakDTO,
@@ -122,6 +122,17 @@ export class CreateKontrakUseCase {
           .catch((err) =>
             this.logger.error(
               `Failed to send credentials email to ${user.email}:`,
+              err.message,
+            ),
+          );
+      }
+
+      if (project) {
+        this.mailService
+          .sendUserAddedToProject(user.email, project)
+          .catch((err) =>
+            this.logger.error(
+              `Failed to send added project email to ${user.email}:`,
               err.message,
             ),
           );

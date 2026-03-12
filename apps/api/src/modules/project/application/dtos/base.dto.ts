@@ -13,10 +13,10 @@ export class ProjectBaseDTO {
   description?: string;
   
   @Expose()
-  startDate?: string;
+  startDate: string;
   
   @Expose()
-  endDate?:string;
+  endDate:string;
   
   @Expose()
   status:ProjectStatus;
