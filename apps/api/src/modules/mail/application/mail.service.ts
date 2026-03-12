@@ -6,7 +6,7 @@ import type { MailPort } from '../domain/ports/mail.port';
 export class MailService {
   constructor(@Inject(MAIL_PORT) private readonly mailer: MailPort) {}
 
-  async sendPasswordResetEmail(to: string, token: string): Promise<void> {
+  async sendOTPEmail(to: string, token: string): Promise<void> {
     await this.mailer.send({
       to,
       subject: 'Reset your password',

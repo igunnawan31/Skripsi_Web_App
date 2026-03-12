@@ -16,6 +16,7 @@ import { PrismaService } from '../database/prisma/prisma.service';
 import { LoggerService } from '../logger/logger.service';
 import { ForgotPasswordDto } from './dto/forgot.dto';
 import { ResetPasswordDto } from './dto/reset.dto';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -24,7 +25,7 @@ export class AuthController {
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
-  ) {}
+  ) { }
   private readonly logger: LoggerService;
 
   // auth/login
@@ -48,8 +49,13 @@ export class AuthController {
 
   @Post('reset-password')
   async resetPassword(@Body() dto: ResetPasswordDto) {
-    await this.authService.resetPassword(dto.token, dto.newPassword);
+    await this.authService.resetPassword(dto.email, dto.otp, dto.newPassword);
     return { message: 'Password reset successfully.' };
+  }
+
+  @Post('verify-otp')
+  async verifyOtp(@Body() dto: VerifyOtpDto) {
+    return this.authService.verifyOtp(dto.email, dto.otp);
   }
 
   // auth/refresh

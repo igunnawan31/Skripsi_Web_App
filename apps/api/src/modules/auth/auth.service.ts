@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
@@ -6,7 +10,6 @@ import { MajorRole, MinorRole } from 'src/generated/prisma/enums';
 import { PrismaService } from '../database/prisma/prisma.service';
 import { User } from 'src/generated/prisma/client';
 import { MailService } from '../mail/application/mail.service';
-import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -78,35 +81,54 @@ export class AuthService {
 
     if (!user) return;
 
-    const token = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 menit
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 min
 
     await this.prisma.user.update({
       where: { email },
       data: {
-        passwordResetToken: token,
+        passwordResetOTP: otp,
         passwordResetExpiresAt: expiresAt,
       },
     });
 
-    await this.mailService.sendPasswordResetEmail(email, token);
+    await this.mailService.sendOTPEmail(email, otp);
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<void> {
+  async verifyOtp(email: string, otp: string): Promise<{ valid: boolean }> {
     const user = await this.prisma.user.findFirst({
       where: {
-        passwordResetToken: token,
-        passwordResetExpiresAt: { gt: new Date() }, // not expired
+        email,
+        passwordResetOTP: otp,
+        passwordResetExpiresAt: { gt: new Date() },
       },
     });
 
-    if (!user) throw new BadRequestException('Invalid or expired reset token');
+    if (!user) throw new BadRequestException('Invalid or expired OTP');
+
+    return { valid: true };
+  }
+
+  async resetPassword(
+    email: string,
+    otp: string,
+    newPassword: string,
+  ): Promise<void> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email,
+        passwordResetOTP: otp,
+        passwordResetExpiresAt: { gt: new Date() },
+      },
+    });
+
+    if (!user) throw new BadRequestException('Invalid or expired OTP');
 
     await this.prisma.user.update({
       where: { id: user.id },
       data: {
         password: await bcrypt.hash(newPassword, 10),
-        passwordResetToken: null,
+        passwordResetOTP: null,
         passwordResetExpiresAt: null,
       },
     });
