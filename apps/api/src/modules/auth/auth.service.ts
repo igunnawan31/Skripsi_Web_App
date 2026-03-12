@@ -1,10 +1,12 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { MajorRole, MinorRole } from 'src/generated/prisma/enums';
 import { PrismaService } from '../database/prisma/prisma.service';
 import { User } from 'src/generated/prisma/client';
+import { MailService } from '../mail/application/mail.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -12,18 +14,10 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
+    private readonly mailService: MailService,
   ) { }
 
   async validateUser(email: string, password: string) {
-    // const user = await this.prisma.user.findUnique({ where: { email } });
-    // if (!user) throw new UnauthorizedException('Email atau password salah');
-    // if (password) {
-    //   const isPasswordValid = await bcrypt.compare(password, user.password);
-    //   if (!isPasswordValid) {
-    //     throw new UnauthorizedException('Email atau password salah');
-    //   }
-    // }
-    // return user;
     try {
       const user = await this.prisma.user.findUnique({ where: { email } });
       if (!user) throw new UnauthorizedException('Email atau password salah');
@@ -35,9 +29,6 @@ export class AuthService {
       }
       return user;
     } catch (err) {
-      console.error('🔴 Prisma error code:', err.code);
-      console.error('🔴 Prisma error meta:', JSON.stringify(err.meta));
-      console.error('🔴 Prisma error message:', err.message);
       throw err;
     }
   }
@@ -80,5 +71,44 @@ export class AuthService {
       data: { ...data, majorRole: MajorRole.KARYAWAN, password: hashed },
     });
     return this.login(user);
+  }
+
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+
+    if (!user) return;
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 menit
+
+    await this.prisma.user.update({
+      where: { email },
+      data: {
+        passwordResetToken: token,
+        passwordResetExpiresAt: expiresAt,
+      },
+    });
+
+    await this.mailService.sendPasswordResetEmail(email, token);
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        passwordResetToken: token,
+        passwordResetExpiresAt: { gt: new Date() }, // not expired
+      },
+    });
+
+    if (!user) throw new BadRequestException('Invalid or expired reset token');
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: await bcrypt.hash(newPassword, 10),
+        passwordResetToken: null,
+        passwordResetExpiresAt: null,
+      },
+    });
   }
 }

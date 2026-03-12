@@ -19,6 +19,8 @@ model User {
   photo     Json?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  passwordResetToken     String?
+  passwordResetExpiresAt DateTime?
 
   // Relasi Absensi & Cuti
   absensi       Absensi[] @relation("UserAbsen")

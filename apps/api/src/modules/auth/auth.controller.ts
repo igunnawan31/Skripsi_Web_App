@@ -14,6 +14,8 @@ import { JwtPayload } from './types/jwt-payload.type';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../database/prisma/prisma.service';
 import { LoggerService } from '../logger/logger.service';
+import { ForgotPasswordDto } from './dto/forgot.dto';
+import { ResetPasswordDto } from './dto/reset.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -36,6 +38,18 @@ export class AuthController {
   @Post('register')
   async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    await this.authService.forgotPassword(dto.email);
+    return { message: 'If the email exists, a reset link has been sent.' };
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    await this.authService.resetPassword(dto.token, dto.newPassword);
+    return { message: 'Password reset successfully.' };
   }
 
   // auth/refresh
@@ -99,4 +113,3 @@ export class AuthController {
     }
   }
 }
-
