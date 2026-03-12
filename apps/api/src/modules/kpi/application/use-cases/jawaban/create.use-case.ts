@@ -84,7 +84,7 @@ export class CreateJawabanUseCase {
         evaluatorId: user.id,
         evaluateeId: item.evaluateeId,
         notes: item.notes ?? undefined,
-        nilai: item.nilai * questionMap.get(item.pertanyaanId)!.bobot,
+        nilai: item.nilai,
       }));
 
       const jawaban = await this.jawabanRepo.createMany(payloads);

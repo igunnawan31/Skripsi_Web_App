@@ -186,7 +186,22 @@ export class PertanyaanRepository implements IPertanyaanRepository {
         },
       });
     } catch (err) {
-      handlePrismaError(err, 'Pertanyaan', id, this.logger);
+      handlePrismaError(err, 'Pertanyaan', '', this.logger);
+    }
+  }
+  async findQuestions(
+    indikatorId: string,
+  ): Promise<RetrievePertanyaanResponseDTO[] | null> {
+    try {
+      const questions = await this.prisma.pertanyaanKPI.findMany({
+        where: { indikatorId },
+      });
+      if (!questions) return null;
+      return questions.map((q) =>
+        plainToInstance(RetrievePertanyaanResponseDTO, q),
+      );
+    } catch (err) {
+      handlePrismaError(err, 'Pertanyaan', '', this.logger);
     }
   }
   async findById(id: string): Promise<RetrievePertanyaanResponseDTO | null> {
@@ -208,9 +223,7 @@ export class PertanyaanRepository implements IPertanyaanRepository {
       handlePrismaError(err, 'Pertanyaan', id, this.logger);
     }
   }
-  async findManyByIds(
-    ids: string[],
-  ): Promise<RetrievePertanyaanResponseDTO[]> {
+  async findManyByIds(ids: string[]): Promise<RetrievePertanyaanResponseDTO[]> {
     try {
       const questions = await this.prisma.pertanyaanKPI.findMany({
         where: { id: { in: ids } },
@@ -223,7 +236,9 @@ export class PertanyaanRepository implements IPertanyaanRepository {
       handlePrismaError(err, 'Pertanyaan', '', this.logger);
     }
   }
-  async create(data: CreatePertanyaanDTO[]): Promise<CreatePertanyaanResponseDTO[]> {
+  async create(
+    data: CreatePertanyaanDTO[],
+  ): Promise<CreatePertanyaanResponseDTO[]> {
     try {
       const query = await this.prisma.pertanyaanKPI.createManyAndReturn({
         data,

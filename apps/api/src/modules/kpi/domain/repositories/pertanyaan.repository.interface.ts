@@ -17,6 +17,7 @@ export abstract class IPertanyaanRepository {
     id: string,
     filters: PertanyaanFilterDTO,
   ): Promise<RetrieveAllPertanyaanResponseDTO | null>;
+  abstract findQuestions(indikatorId: string): Promise <RetrievePertanyaanResponseDTO[] | null>
   abstract findById(id: string): Promise<RetrievePertanyaanResponseDTO | null>;
   abstract findManyByIds(
     ids: string[],
