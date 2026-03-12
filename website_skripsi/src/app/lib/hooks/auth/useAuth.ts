@@ -1,6 +1,6 @@
 
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { MajorRole, MinorRole } from "../../types/types";
 import toast from "react-hot-toast";
@@ -97,10 +97,88 @@ export const useAuth = () => {
         router.push("/");
     };
 
+    const verifyEmail = () => {
+        return useMutation<
+            any,
+            Error,
+            { email: string }
+        >({
+            mutationFn: async ({ email }) => {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/forgot-password`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json" 
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({ email }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || "Cannot verify your email");
+                }
+                return response.json();
+            },
+        })
+    }
+
+    const verifyOTP = () => {
+        return useMutation<
+            any,
+            Error,
+            { email: string; otp: string }
+        >({
+            mutationFn: async ({ email, otp }) => {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-otp`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json" 
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({ email, otp }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || "Cannot verify your email");
+                }
+                return response.json();
+            },
+        })
+    }
+
+    const resetPassword = () => {
+        return useMutation<
+            any,
+            Error,
+            { email: string; otp: string, newPassword: string }
+        >({
+            mutationFn: async ({ email, otp, newPassword }) => {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/reset-password`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json" 
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({ email, otp, newPassword }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || "Cannot verify your email");
+                }
+                return response.json();
+            },
+        })
+    }
+
     return {
         login: (email: string, password: string) => loginMutation.mutateAsync({ email, password }),
         isLoggingIn: loginMutation.isPending,
         loginError: (loginMutation.error as Error) ?? null,
         logout,
+        verifyEmail,
+        verifyOTP,
+        resetPassword,
     };
 };
