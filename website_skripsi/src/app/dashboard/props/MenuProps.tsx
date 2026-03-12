@@ -142,14 +142,14 @@ export const HRMenuProps = [
         title: "Lain-lainnya",
         items: [
             {
-                icon: icons.indikatorKPILogo,
+                icon: icons.manajemenProject,
                 alt: "Manajemen Project",
                 label: "Manajemen Project",
                 description: "Atur dan pantau pengajuan cuti karyawan berdasarkan hak cuti, tanggal, serta status persetujuan.",
                 href: "/dashboard/manajemen-project",
             },
             {
-                icon: icons.penilaianKPILogo,
+                icon: icons.myprofile,
                 alt: "My Profile",
                 label: "My Profile",
                 description: "",
@@ -243,7 +243,7 @@ export const OwnerMenuProps = [
         title: "Pengajuan Reimburse",
         items: [
             {
-                icon: icons.manajemenKaryawanLogo,
+                icon: icons.reimburseLogo,
                 alt: "Pengajuan Reimburse",
                 label: "Pengajuan Reimburse",
                 description: "Kelola pengajuan reimburse karyawan dengan mudah dan efisien.",
@@ -288,7 +288,7 @@ export const OwnerMenuProps = [
         title: "Lain-lainnya",
         items: [
             {
-                icon: icons.penilaianKPILogo,
+                icon: icons.myprofile,
                 alt: "My Profile",
                 label: "My Profile",
                 description: "",

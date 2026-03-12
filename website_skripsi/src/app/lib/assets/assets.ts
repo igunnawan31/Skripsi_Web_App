@@ -53,6 +53,7 @@ export const icons = {
     filterWhite: "/assets/icons/filter-white.svg",
     dateIn: "/assets/icons/date-in.svg",
     dateOut: "/assets/icons/date-out.svg",
+    myprofile: "/assets/icons/myprofile.svg",
 
     // HR Management Icons
     absensiLogo: "/assets/icons/absen.svg",
@@ -64,13 +65,13 @@ export const icons = {
     hasilKPILogo: "/assets/icons/hasil-kpi.svg",
     rekomendasiFreelancerLogo: "/assets/icons/rekomendasi-freelancer.svg",
     manajemenKaryawanLogo: "/assets/icons/manajemen-user.svg",
+    manajemenProject: "/assets/icons/project.svg",
 
     // Owner Management Icons
     reimburseLogo: "/assets/icons/reimburse.svg",
-    rekapAbsensiKaryawanLogo : "/assets/icons/absen.svg",
-    rekapCutiKaryawanLogo : "/assets/icons/cuti.svg",
-    rekapGajiKaryawanLogo : "/assets/icons/gaji.svg",
-    rekapKPIKaryawanLogo : "/assets/icons/indikator-kpi.svg",
+    rekapAbsensiKaryawanLogo : "/assets/icons/recapattendance.svg",
+    rekapCutiKaryawanLogo : "/assets/icons/recapcuti.svg",
+    rekapGajiKaryawanLogo : "/assets/icons/recapgaji.svg",
     rekapReimbursePengeluaranLogo : "/assets/icons/reimburse-pengeluaran.svg",
 
     successPop: "/assets/icons/success-dark.svg",
