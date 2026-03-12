@@ -27,7 +27,6 @@ export class MailService {
     name: string,
     password: string,
   ): Promise<void> {
-    console.log('Jalan gak sih ini anjing')
     await this.mailer.send({
       to,
       subject: 'User Credentials',
