@@ -29,8 +29,13 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
     const { data: fetchedDataProject, isLoading: isLoadingProject, error: isErrorProject } = useProject().fetchAllProject();
     const { mutate, isPending } = useKpi().createEval();
     const { mutate: updateIndikator, isPending: isPendingUpdateIndikator} = useKpi().updateIndikator();
+    const deleteEval = useKpi().deleteEval();
 
-    const [selectedEvaluatorId, setSelectedEvaluatorId] = useState<string | null>(null);
+    const [selectedEvalToDelete, setSelectedEvalToDelete] = useState<{
+        evaluatorId: string;
+        evaluateeIds: string[];
+    } | null>(null);
+    const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
     const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false);
     const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
 
@@ -90,10 +95,6 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
                 [name]: value,
             };
         });
-    };
-
-    const removeEvalMap = (evaluatorId: string) => {
-        // remove by selectedEvaluatorId
     };
 
     const potentialEvaluators = useMemo(() => {
@@ -166,6 +167,35 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
             evalMap: prev.evalMap.filter(item => item.evaluatorId !== evaluatorId)
         }));
     };
+
+    const handleHapusEval = () => {
+    if (!selectedEvalToDelete) return;
+
+    const { evaluatorId, evaluateeIds } = selectedEvalToDelete;
+
+    const deletePromises = evaluateeIds.map((evaluateeId) =>
+        new Promise<void>((resolve, reject) => {
+            deleteEval.mutate(
+                { indikatorId: id, evaluateeId, evaluatorId },
+                { onSuccess: () => resolve(), onError: (err) => reject(err) }
+            );
+        })
+    );
+
+    Promise.all(deletePromises)
+        .then(async () => {
+            toast.custom(<CustomToast type="success" message="Penilai berhasil dihapus" />);
+            removeEvalFromModal(evaluatorId);
+            await refetch();
+            setIsModalDeleteOpen(false);
+            setSelectedEvalToDelete(null);
+        })
+        .catch((error) => {
+            toast.custom(<CustomToast type="error" message={error?.message || "Terjadi kendala ketika ingin menghapus penilai"} />);
+            setIsModalDeleteOpen(false);
+            setSelectedEvalToDelete(null);
+        });
+};
 
     const handleOpenCreateEval = () => {
         const existingEvals = groupedEvaluations.map((item: any) => ({
@@ -575,7 +605,14 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
                 onClose={() => setIsModalCreateOpen(false)}
                 onSave={() => handleCreateNewEval()} 
                 onEvaluatorChange={addEvalMapToModal}
-                onRemoveItem={removeEvalFromModal}
+                onRemoveItem={(evaluatorId) => {
+                    const evalItem = formDataEval.evalMap.find(e => e.evaluatorId === evaluatorId);
+                    setSelectedEvalToDelete({
+                        evaluatorId,
+                        evaluateeIds: evalItem?.evaluateeId || [],
+                    });
+                    setIsModalDeleteOpen(true);
+                }}
                 potentialEvaluators={potentialEvaluators}
                 groupedEvaluations={groupedEvaluations}
                 formDataEval={formDataEval}
@@ -590,6 +627,19 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
                 title={"Konfirmasi Perubahan Indikator"}
                 message={"Apakah Anda yakin sudah mengisi data dengan baik"}
                 activeText={"Simpan"}
+                passiveText="Batal"
+            />
+            <ConfirmationPopUpModal
+                isOpen={isModalDeleteOpen}
+                onAction={handleHapusEval}
+                onClose={() => {
+                    setIsModalDeleteOpen(false);
+                    setSelectedEvalToDelete(null);
+                }}
+                type="error"
+                title="Hapus Penilai"
+                message="Apakah Anda yakin ingin menghapus penilai ini?"
+                activeText="Hapus"
                 passiveText="Batal"
             />
         </div>

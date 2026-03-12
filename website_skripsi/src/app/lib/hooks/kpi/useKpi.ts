@@ -438,23 +438,25 @@ export const useKpi = () => {
         return useMutation<
             any,
             Error,
-            string
+            { indikatorId: string; evaluateeId: string; evaluatorId: string }
         >({
-            mutationFn: async (id: string) => {
+            mutationFn: async ({ indikatorId, evaluateeId, evaluatorId}) => {
                 const token = Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const response = await fetch(`${API}/indicators/${id}`, {
+                const response = await fetch(`${API}/indicators/${indikatorId}/evaluations`, {
                     method: "DELETE",
                     headers: {
+                        "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`,
                     },
                     credentials: "include",
+                    body: JSON.stringify({ indikatorId, evaluateeId, evaluatorId }),
                 });
 
                 if (!response.ok) {
                     const text = await response.text();
-                    throw new Error(text || "Failed to delete indikator");
+                    throw new Error(text || "Failed to delete eval");
                 }
 
                 return true;
@@ -477,5 +479,6 @@ export const useKpi = () => {
         activateIndicator,
         archiveIndicator,
         completeIndicator,
+        deleteEval,
     }
 }

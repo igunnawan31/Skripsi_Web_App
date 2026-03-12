@@ -1353,7 +1353,7 @@ const CreateKontrakKerjaPage = () => {
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-200 bg-white">
-                                                {monthlyPercentages.map((i) => (
+                                                {monthlyPercentages.map((percent, i) => (
                                                     <tr key={i} className="hover:bg-gray-50 transition-colors">
                                                         <td className="px-4 py-3 text-(--color-textPrimary) font-light">
                                                             Bulan {i + 1}

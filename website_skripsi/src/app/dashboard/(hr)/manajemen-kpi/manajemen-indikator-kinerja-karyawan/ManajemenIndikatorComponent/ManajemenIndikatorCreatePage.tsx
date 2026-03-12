@@ -507,7 +507,6 @@ const ManajemenIndikatorCreatePage = () => {
                                     className={`border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors border-(--color-border)`}
                                     required
                                 >
-                                    <option value="true">True (Publik)</option>
                                     <option value="false">False (Privat)</option>
                                 </select>
                                 <p className="text-xs text-gray-500 mt-1">

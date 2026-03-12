@@ -6,7 +6,7 @@ import PaginationBar from "@/app/dashboard/dashboardComponents/allComponents/Pag
 import FilterBar from "@/app/dashboard/dashboardComponents/allComponents/FilterBar";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { icons } from "@/app/lib/assets/assets";
+import { icons, logo } from "@/app/lib/assets/assets";
 import { KontrakKerja, MajorRole, MinorRole, User } from "@/app/lib/types/types";
 import { useUser } from "@/app/lib/hooks/user/useUser";
 import toast from "react-hot-toast";
@@ -142,8 +142,25 @@ const MKShows = () => {
     };
 
     if (error) {
-        return <div className="text-center text-red-500 py-6">Error: {error.message}</div>;
-    }
+        const errorRender = (
+            <div className="flex flex-col items-center justify-between gap-4 py-4">
+                <Image
+                    src={logo.error}
+                    width={240}
+                    height={240}
+                    alt="Not Found Data"
+                />
+                <div className="flex flex-col items-center">
+                    <h1 className="text-2xl font-bold text-(--color-primary)">
+                        {error.message ? error.message : "Terdapat kendala pada sistem"}
+                    </h1>
+                    <span className="text-sm text-(--color-primary)">Mohon untuk melakukan refresh atau kembali ketika sistem sudah selesai diperbaiki</span>
+                </div>
+            </div>
+        );
+
+        return errorRender;
+    };
 
     const renderHtml = (
         <div className="flex flex-col gap-4 w-full relative">
@@ -292,9 +309,20 @@ const MKShows = () => {
                     ))}
                 </>
             ) : (
-                <p className="text-center text-gray-500 py-6">
-                    Tidak ada data karyawan sesuai filter.
-                </p>
+                <div className="flex flex-col items-center justify-between gap-4 py-4">
+                    <Image
+                        src={logo.notFound}
+                        width={120}
+                        height={120}
+                        alt="Not Found Data"
+                    />
+                    <div className="flex flex-col items-center">
+                        <h1 className="text-xl font-bold text-(--color-text-primary)">
+                            Data Karyawan Tidak Ditemukan
+                        </h1>
+                        <span className="text-sm text-(--color-muted)">Ubah hasil pencarian kamu</span>
+                    </div>
+                </div>
             )}
 
             {user.length > 0 && !isLoading && (
@@ -320,8 +348,8 @@ const MKShows = () => {
                 onAction={handleDelete}
                 onClose={() => setIsModalOpen(false)}
                 type="error"
-                title={"Konfirmasi Hapus Project"}
-                message={"Apakah Anda yakin ingin menghapus data project ini"}
+                title={"Konfirmasi Hapus User Karyawan"}
+                message={"Apakah Anda yakin ingin menghapus data user karyawan ini"}
                 activeText="Ya"
                 passiveText="Batal"
             />
