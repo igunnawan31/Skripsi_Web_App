@@ -17,6 +17,7 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const evaluatee = searchParams.get("evaluatee") || "";
+    const evaluator = searchParams.get("evaluator") || "";
     
     const { data: detailDataPertanyaan, isLoading: isDetailPertanyaanLoading, error: detailPertanyaanError } = useKpi().fetchAllQuestionByIdIndikator({id: id});
     const { data: detailDataJawaban, isLoading: isDetailJawabanLoading, error: detailJawabanError } = useJawaban().fetchUserAnswersByIndikator({
@@ -30,8 +31,13 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
     const [formJawaban, setFormJawaban] = useState<{ [key: string]: { nilai: number | null, notes: string } }>({});
 
     const questions = detailDataPertanyaan?.data || [];
-    const answers = Array.isArray(detailDataJawaban) ? detailDataJawaban : [];
-    const sudahDinilai = answers.length === questions.length;
+    const allAnswers = Array.isArray(detailDataJawaban) ? detailDataJawaban : [];
+
+    const answers = evaluator 
+        ? allAnswers.filter((j: any) => j.evaluatorId === evaluator)
+        : allAnswers;
+
+    const sudahDinilai = answers.length === questions.length && questions.length > 0;
     
     const pertanyaanByCategory = (detailDataPertanyaan?.data || []).reduce((acc: any, p: any) => {
         const kategori = p.kategori || KategoriPertanyaanKPI.KINERJA; 
@@ -329,7 +335,7 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
                 onClose={() => setIsModalOpen(false)}
                 type="info"
                 title={"Konfirmasi Simpan Penilaian"}
-                message={"Apakah Anda yakin ingin menghapus data pertanyaan ini"}
+                message={"Apakah Anda yakin ingin menyimpan data penilaian ini"}
                 activeText="Ya"
                 passiveText="Batal"
             />

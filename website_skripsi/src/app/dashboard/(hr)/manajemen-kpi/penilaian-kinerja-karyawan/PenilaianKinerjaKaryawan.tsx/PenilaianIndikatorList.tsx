@@ -99,7 +99,9 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
                         endDate: indikator.endDate,
                         updatedAt: indikator.updatedAt,
                         evaluateeId: ev.evaluateeId,
+                        evaluatorId: ev.evaluatorId,
                         namaTarget: userMap.get(ev.evaluateeId) || ev.evaluatee?.name || "Karyawan",
+                        namaPenilai: userMap.get(ev.evaluatorId) || ev.evaluator?.name || "Karyawan",
                         sudahDinilai: sudahDinilai,
                     };
                 });
@@ -324,7 +326,7 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
                                         onClick={(e) => {
                                             e.preventDefault();
                                             onButtonClick?.(task.idUnique);
-                                            router.push(`/dashboard/manajemen-kpi/penilaian-kinerja-karyawan/${task.indikatorId}?evaluatee=${task.evaluateeId}`)
+                                            router.push(`/dashboard/manajemen-kpi/penilaian-kinerja-karyawan/${task.indikatorId}?evaluatee=${task.evaluateeId}&evaluator=${task.evaluatorId}`)
                                         }}
                                         className="mt-3 w-full py-2 rounded-lg text-sm font-semibold bg-(--color-primary) text-white hover:bg-(--color-tertiary) hover:text-(--color-secondary) transition cursor-pointer"
                                     >
@@ -335,7 +337,7 @@ const PenilaianIndikatorList: React.FC<PenilaianProps> = ({
                                         onClick={(e) => {
                                             e.preventDefault();
                                             onButtonClick?.(task.idUnique);
-                                            router.push(`/dashboard/manajemen-kpi/penilaian-kinerja-karyawan/${task.indikatorId}?evaluatee=${task.evaluateeId}`)
+                                            router.push(`/dashboard/manajemen-kpi/penilaian-kinerja-karyawan/${task.indikatorId}?evaluatee=${task.evaluateeId}&evaluator=${task.evaluatorId}`)
                                         }}
                                         className="mt-3 w-full py-2 rounded-lg text-sm font-semibold bg-(--color-success) text-white hover:bg-(--color-tertiary) hover:text-(--color-secondary) transition cursor-pointer"
                                     >

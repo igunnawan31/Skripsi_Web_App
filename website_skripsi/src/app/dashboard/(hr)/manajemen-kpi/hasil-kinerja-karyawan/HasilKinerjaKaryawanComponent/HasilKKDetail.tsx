@@ -58,36 +58,66 @@ export default function HasilKKDetail({ id }: { id: string }) {
         }
 
         const evaluations = fetchedDataIndicator.evaluations || [];
+        const groupedByEvaluatee = evaluations.reduce((acc: any, ev: any) => {
+            if (!acc[ev.evaluateeId]) {
+                acc[ev.evaluateeId] = [];
+            }
+            acc[ev.evaluateeId].push(ev);
+            return acc;
+        }, {});
 
-        return evaluations.map((ev: any) => {
+        return Object.entries(groupedByEvaluatee).map(([evaluateeId, evList]: [string, any]) => {
             const dataRekap = fetchedDataIndicator.rekap?.find(
-                (r: any) => r.userId === ev.evaluateeId
+                (r: any) => r.userId === evaluateeId
             );
 
             const relatedJawaban = fetchedDataIndicator.jawaban || [];
-            const lastSubmit = relatedJawaban.length > 0 
-                ? relatedJawaban[relatedJawaban.length - 1].createdAt 
+            const lastSubmit = relatedJawaban.length > 0
+                ? relatedJawaban[relatedJawaban.length - 1].createdAt
                 : null;
 
             const sudahDinilai = (dataRekap?.jumlahPenilai || 0) > 0;
+            const evaluatorDetails = evList.map((ev: any) => {
+                const evaluatorAnswers = (fetchedDataIndicator.jawaban || []).filter(
+                    (j: any) => j.evaluatorId === ev.evaluatorId && j.evaluateeId === evaluateeId
+                );
+                const sudahSubmit = evaluatorAnswers.length > 0;
+                const lastSubmit = sudahSubmit 
+                    ? evaluatorAnswers[evaluatorAnswers.length - 1].updatedAt 
+                    : null;
+
+                return {
+                    evaluatorId: ev.evaluatorId,
+                    namaEvaluator: userMap.get(ev.evaluatorId) || ev.evaluator?.name || `Penilai (${ev.evaluatorId?.slice(0, 5)})`,
+                    sudahSubmit,
+                    lastSubmit,
+                    jumlahJawaban: evaluatorAnswers.length,
+                };
+            });
+
+            const jumlahSudahDinilai = evaluatorDetails.filter((ev: any) => ev.sudahSubmit).length;
+            const totalEvaluator = evList.length;
 
             return {
-                idUnique: `${fetchedDataIndicator.id}-${ev.evaluateeId}`,
+                idUnique: `${fetchedDataIndicator.id}-${evaluateeId}`,
                 indikatorId: fetchedDataIndicator.id,
                 namaIndikator: fetchedDataIndicator.name,
                 description: fetchedDataIndicator.description,
                 startDate: fetchedDataIndicator.startDate,
                 endDate: fetchedDataIndicator.endDate,
                 indikatorPertanyaan: fetchedDataIndicator.pertanyaan?.length || 0,
-                
-                evaluateeId: ev.evaluateeId,
-                namaTarget: userMap.get(ev.evaluateeId) || ev.evaluatee?.name || `Karyawan (${ev.evaluateeId.slice(0, 5)})`,
-                
-                sudahDinilai: sudahDinilai,
+
+                evaluateeId: evaluateeId,
+                namaTarget: userMap.get(evaluateeId) || `Karyawan (${evaluateeId.slice(0, 5)})`,
+
+                sudahDinilai,
+                jumlahSudahDinilai,
+                totalEvaluator,
+                evaluatorDetails,
                 totalNilai: dataRekap?.totalNilai || 0,
                 rataRata: dataRekap?.rataRata || 0,
                 jumlahPenilai: dataRekap?.jumlahPenilai || 0,
-                disubmitPada: lastSubmit
+                disubmitPada: lastSubmit,
             };
         });
     }, [fetchedDataIndicator, fetchedDataUser]);
@@ -263,6 +293,7 @@ export default function HasilKKDetail({ id }: { id: string }) {
                         <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {tasksToDisplay.map((task: any) => {
                                 const isThisItemOpen = openSummaryId === task.idUnique;
+                                const persentase = task.totalEvaluator > 0 ? (task.jumlahSudahDinilai / task.totalEvaluator) * 100 : 0;
 
                                 return (
                                     <div
@@ -273,10 +304,8 @@ export default function HasilKKDetail({ id }: { id: string }) {
                                             <span className="text-sm font-semibold text-(--color-text-primary)">
                                                 {task.namaTarget}
                                             </span>
-                                            <span className={`px-2 py-1 text-[10px] font-bold rounded-md uppercase ${
-                                                task.sudahDinilai ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                                            }`}>
-                                                {task.sudahDinilai ? "Sudah Dinilai" : "Belum Dinilai"}
+                                            <span className={`px-2 py-1 text-[10px] font-bold rounded-md uppercase ${persentase === 100 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+                                                {persentase === 100 ? 'Lengkap' : 'Belum Lengkap'}
                                             </span>
                                         </div>
 
@@ -345,7 +374,7 @@ export default function HasilKKDetail({ id }: { id: string }) {
 
                                         {isThisItemOpen && (
                                             <>
-                                                <div className="grid grid-cols-2 gap-2  bg-gray-50 rounded-xl border border-gray-100 mb-6">
+                                                <div className="grid grid-cols-2 gap-2  bg-gray-50 rounded-xl border border-gray-100 mb-2">
                                                     <div className="flex flex-col p-3 items-center justify-center bg-gray-100 rounded-lg">
                                                         <span className="text-sm text-(--color-muted)">Rata-Rata</span>
                                                         <span className="text-lg font-bold text-(--color-primary)">
@@ -361,35 +390,75 @@ export default function HasilKKDetail({ id }: { id: string }) {
                                                 </div>
 
                                                 <div className="space-y-2">
-                                                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                                                    <div className="flex items-center justify-between gap-4 text-xs text-gray-600 bg-gray-100 mb-4 p-3 rounded-lg">
                                                         <Image 
                                                             src={icons.question} 
                                                             alt="icon" 
-                                                            width={24} 
-                                                            height={24} 
-                                                        />
-                                                        <span>{task.indikatorPertanyaan} Indikator Dinilai</span>
-                                                    </div>
-                                                    {task.sudahDinilai && task.disubmitPada && (
-                                                        <div className="flex items-center gap-2 text-xs text-gray-600">
-                                                            <Image
-                                                                src={icons.dateIn}
-                                                                alt="Tanggal Mulai Cuti"
-                                                                width={24}
-                                                                height={24}
-                                                            />
-                                                            <span>Submit: {format(new Date(task.disubmitPada), "dd MMM yyyy, HH:mm")}</span>
+                                                            width={32} 
+                                                            height={32} 
+                                                        /> 
+                                                        <div className="w-full flex flex-col gap-1">
+                                                            <p className="text-xs font-semibold text-gray-500">
+                                                                Penilai
+                                                            </p>
+                                                            <div className="w-full bg-gray-200 rounded-full h-2">
+                                                                <div 
+                                                                    className="bg-yellow-500 h-2 rounded-full transition-all duration-500" 
+                                                                    style={{ width: `${persentase}%` }}
+                                                                ></div>
+                                                            </div>
+
+                                                            <div className="flex justify-between items-center text-xs">
+                                                                <div className="w-full flex justify-between">
+                                                                    <span>
+                                                                        <span className="text-gray-600">Terjawab: </span>
+                                                                        <span className="font-bold text-gray-900">{task.jumlahSudahDinilai} / {task.totalEvaluator}</span>
+                                                                    </span>
+                                                                    <span>
+                                                                        <span className="text-gray-600">Status: </span>
+                                                                        <span className={`font-bold ${persentase === 100 ? 'text-green-600' : 'text-orange-500'}`}>
+                                                                            {persentase === 100 ? 'Lengkap' : 'Belum Lengkap'}
+                                                                        </span>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                    )}
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.preventDefault();
-                                                            router.push(`/dashboard/manajemen-kpi/penilaian-kinerja-karyawan/${task.indikatorId}?evaluatee=${task.evaluateeId}`)
-                                                        }}
-                                                        className="mt-3 w-full py-2 rounded-lg text-sm font-semibold bg-(--color-success) text-white hover:bg-(--color-tertiary) hover:text-(--color-secondary) transition cursor-pointer"
-                                                    >
-                                                        <p>Lihat Detail Penilaian Karyawan</p>
-                                                    </button>
+                                                    </div>
+                                                    {task.evaluatorDetails.map((ev: any) => (
+                                                        <button
+                                                            key={ev.evaluatorId}
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                router.push(
+                                                                    `/dashboard/manajemen-kpi/penilaian-kinerja-karyawan/${task.indikatorId}?evaluatee=${task.evaluateeId}&evaluator=${ev.evaluatorId}`
+                                                                );
+                                                            }}
+                                                            className="w-full text-left rounded-xl border border-(--color-border) p-3 hover:border-(--color-primary) hover:shadow-sm transition-all cursor-pointer bg-white"
+                                                        >
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="text-sm font-semibold text-gray-800">
+                                                                    {ev.namaEvaluator}
+                                                                </span>
+                                                                <span className={`px-2 py-0.5 text-[10px] font-bold rounded-md uppercase ${
+                                                                    ev.sudahSubmit 
+                                                                        ? "bg-green-100 text-green-800" 
+                                                                        : "bg-red-100 text-red-800"
+                                                                }`}>
+                                                                    {ev.sudahSubmit ? "Sudah" : "Belum"}
+                                                                </span>
+                                                            </div>
+                                                            {ev.sudahSubmit && ev.lastSubmit && (
+                                                                <p className="text-xs text-gray-400 mt-1">
+                                                                    {format(new Date(ev.lastSubmit), "dd MMM yyyy, HH:mm")}
+                                                                </p>
+                                                            )}
+                                                            {!ev.sudahSubmit && (
+                                                                <p className="text-xs text-gray-400 mt-1 italic">
+                                                                    Belum melakukan penilaian
+                                                                </p>
+                                                            )}
+                                                        </button>
+                                                    ))}
                                                 </div>
                                             </>
                                         )}
