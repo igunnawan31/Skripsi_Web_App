@@ -382,8 +382,8 @@ const KontrakKerjaShows = () => {
                 onAction={handleDelete}
                 onClose={() => setIsModalOpen(false)}
                 type="error"
-                title={"Konfirmasi Hapus Project"}
-                message={"Apakah Anda yakin ingin menghapus data project ini"}
+                title={"Konfirmasi Hapus Kontrak"}
+                message={"Apakah Anda yakin ingin menghapus data kontrak ini"}
                 activeText="Ya"
                 passiveText="Batal"
             />

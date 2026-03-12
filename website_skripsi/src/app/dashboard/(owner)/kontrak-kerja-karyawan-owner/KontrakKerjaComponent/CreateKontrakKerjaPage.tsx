@@ -128,13 +128,12 @@ const CreateKontrakKerjaPage = () => {
 
             const totalWorkDays = countWorkDaysInRange(rangeStart, rangeEnd);
             const cuti = Math.min(cutiBulanan, totalWorkDays);
-            const absensi = Math.max(totalWorkDays - cuti, 0);
 
             const bulanNama = current.toLocaleString("id-ID", { month: "long", year: "numeric" });
 
             months.push({
                 bulan: bulanNama,
-                absensi,
+                absensi: totalWorkDays,
                 cuti
             });
 
@@ -142,6 +141,12 @@ const CreateKontrakKerjaPage = () => {
         }
 
         setMonthlyPresence(months);
+        if (months.length > 0) {
+            setFormData(prev => ({
+                ...prev,
+                absensiBulanan: months[0].absensi
+            }));
+        }
     }, [formData.startDate, formData.endDate, formData.cutiBulanan]);
 
     useEffect(() => {
@@ -1339,42 +1344,48 @@ const CreateKontrakKerjaPage = () => {
                                 )}
 
                                 {formData.metodePembayaran === MetodePembayaran.MONTHLY && monthlyPercentages.length > 0 && (
-                                    <div>
-                                        <div className="flex flex-col gap-4">
-                                            <div className="w-full flex flex-row font-semibold text-sm text-gray-600">
-                                                <span className="w-1/3 text-left">Bulan</span>
-                                                <span className="w-1/3 text-center">Persentase</span>
-                                                <span className="w-1/3 text-right">Jumlah</span>
-                                            </div>
-                                            {monthlyPercentages.map((percent, i) => {
-                                                const amount = (formData.totalBayaran * percent) / 100 || 0;
-                                                return (
-                                                    <div
-                                                        key={i}
-                                                        className="w-full flex flex-row gap-4"
-                                                    >
-                                                        <label className="w-1/3 text-left text-sm text-gray-600">
+                                    <div className="mt-4 overflow-hidden border border-gray-200 rounded-xl">
+                                        <table className="w-full text-sm text-left">
+                                            <thead className="bg-gray-50 text-(--color-textPrimary) font-semibold border-b border-(--color-border)">
+                                                <tr>
+                                                    <th className="px-4 py-3 font-semibold text-(--color-textPrimary)">Bulan</th>
+                                                    <th className="px-4 py-3 text-right font-semibold text-(--color-textPrimary)">Jumlah Pembayaran</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-200 bg-white">
+                                                {monthlyPercentages.map((percent, i) => (
+                                                    <tr key={i} className="hover:bg-gray-50 transition-colors">
+                                                        <td className="px-4 py-3 text-(--color-textPrimary) font-light">
                                                             Bulan {i + 1}
-                                                        </label>
-                                                        <input
-                                                            type="number"
-                                                            value={percent}
-                                                            className="w-1/3 text-center bg-(--color-muted)/30 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                                            disabled
-                                                        />
-                                                        <input
-                                                            type="text"
-                                                            disabled
-                                                            value={amount.toLocaleString("id-ID", {
-                                                                style: "currency",
-                                                                currency: "IDR",
-                                                            })}
-                                                            className="w-1/3 justify-end bg-(--color-muted)/30 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                                        />
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-right">
+                                                            <input
+                                                                type="text"
+                                                                disabled
+                                                                value={formData.totalBayaran.toLocaleString("id-ID", {
+                                                                    style: "currency",
+                                                                    currency: "IDR",
+                                                                    minimumFractionDigits: 0,
+                                                                })}
+                                                                className="w-full max-w-[200px] ml-auto text-right rounded-lg px-3 py-1.5 text-(--color-textPrimary) font-light cursor-not-allowed"
+                                                            />
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                            <tfoot className="bg-gray-50 border-t border-gray-200">
+                                                <tr>
+                                                    <td className="px-4 py-3 font-semibold text-(--color-textPrimary)">Total</td>
+                                                    <td className="px-4 py-3 text-right font-semibold text-(--color-textPrimary)">
+                                                        {(formData.totalBayaran * monthlyPercentages.length).toLocaleString("id-ID", {
+                                                            style: "currency",
+                                                            currency: "IDR",
+                                                            minimumFractionDigits: 0,
+                                                        })}
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
                                     </div>
                                 )}
                             </>

@@ -12,7 +12,7 @@ const CutiData = () => {
 
     const stats = useMemo(() => {
         const cutis: CutiResponse[] = data?.data || [];
-        const totalCuti = data?.meta.length;
+        const totalCuti = data?.meta.total;
         
         return [
             { id: 1, label: "Total Pengajuan Cuti", value: totalCuti, color: "bg-blue-100 text-blue-700" },
@@ -57,7 +57,7 @@ const CutiData = () => {
                             </span>
                         </div>
                         <h3 className="text-4xl font-bold text-slate-800">
-                            {item.value}
+                            {item.value} <span className="text-sm font-normal text-slate-400">Data</span>
                         </h3>
                         <p className="text-xs text-slate-500 mt-1">
                             Jumlah {item.label}

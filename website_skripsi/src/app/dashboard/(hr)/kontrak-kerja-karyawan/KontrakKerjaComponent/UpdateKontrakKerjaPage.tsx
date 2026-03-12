@@ -1046,46 +1046,46 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                                     <div>
                                         <div className="flex flex-col gap-4">
                                             <table className="w-full text-sm text-left">
-                                            <thead className="bg-gray-50 text-(--color-textPrimary) font-semibold border-b border-(--color-border)">
-                                                <tr>
-                                                    <th className="px-4 py-3 font-semibold">Bulan</th>
-                                                    <th className="px-4 py-3 text-right font-semibold">Jumlah Pembayaran</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-gray-200 bg-white">
-                                                {monthlyPercentages.map((percent, i) => (
-                                                    <tr key={i} className="hover:bg-gray-50 transition-colors">
-                                                        <td className="px-4 py-3 text-(--color-textPrimary) font-light">
-                                                            Bulan {i + 1}
-                                                        </td>
-                                                        <td className="px-4 py-3 text-right">
-                                                            <input
-                                                                type="text"
-                                                                disabled
-                                                                value={formData?.totalBayaran?.toLocaleString("id-ID", {
-                                                                    style: "currency",
-                                                                    currency: "IDR",
-                                                                    minimumFractionDigits: 0,
-                                                                })}
-                                                                className="w-full max-w-[200px] ml-auto text-right rounded-lg px-3 py-1.5 text-(--color-textPrimary) font-light cursor-not-allowed"
-                                                            />
+                                                <thead className="bg-gray-50 text-(--color-textPrimary) font-semibold border-b border-(--color-border)">
+                                                    <tr>
+                                                        <th className="px-4 py-3 font-semibold">Bulan</th>
+                                                        <th className="px-4 py-3 text-right font-semibold">Jumlah Pembayaran</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-200 bg-white">
+                                                    {monthlyPercentages.map((percent, i) => (
+                                                        <tr key={i} className="hover:bg-gray-50 transition-colors">
+                                                            <td className="px-4 py-3 text-(--color-textPrimary) font-light">
+                                                                Bulan {i + 1}
+                                                            </td>
+                                                            <td className="px-4 py-3 text-right">
+                                                                <input
+                                                                    type="text"
+                                                                    disabled
+                                                                    value={formData?.totalBayaran?.toLocaleString("id-ID", {
+                                                                        style: "currency",
+                                                                        currency: "IDR",
+                                                                        minimumFractionDigits: 0,
+                                                                    })}
+                                                                    className="w-full max-w-[200px] ml-auto text-right rounded-lg px-3 py-1.5 text-(--color-textPrimary) font-light cursor-not-allowed"
+                                                                />
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                                <tfoot className="bg-gray-50 border-t border-gray-200">
+                                                    <tr>
+                                                        <td className="px-4 py-3 font-bold text-gray-800">Total</td>
+                                                        <td className="px-4 py-3 text-right font-bold text-(--color-textPrimary)">
+                                                            {(Number(formData.totalBayaran ?? 0) * monthlyPercentages.length).toLocaleString("id-ID", {
+                                                                style: "currency",
+                                                                currency: "IDR",
+                                                                minimumFractionDigits: 0,
+                                                            })}
                                                         </td>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                            <tfoot className="bg-gray-50 border-t border-gray-200">
-                                                <tr>
-                                                    <td className="px-4 py-3 font-bold text-gray-800">Total</td>
-                                                    <td className="px-4 py-3 text-right font-bold text-(--color-textPrimary)">
-                                                        {(Number(formData.totalBayaran ?? 0) * monthlyPercentages.length).toLocaleString("id-ID", {
-                                                            style: "currency",
-                                                            currency: "IDR",
-                                                            minimumFractionDigits: 0,
-                                                        })}
-                                                    </td>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
+                                                </tfoot>
+                                            </table>
                                         </div>
                                     </div>
                                 )}

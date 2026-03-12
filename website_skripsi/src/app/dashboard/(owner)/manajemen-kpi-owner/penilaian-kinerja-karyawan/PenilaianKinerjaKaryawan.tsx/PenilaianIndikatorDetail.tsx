@@ -17,19 +17,28 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const evaluatee = searchParams.get("evaluatee") || "";
+    const evaluator = searchParams.get("evaluator") || "";
     
     const { data: detailDataPertanyaan, isLoading: isDetailPertanyaanLoading, error: detailPertanyaanError } = useKpi().fetchAllQuestionByIdIndikator({id: id});
-    const { data: detailDataJawaban, isLoading: isDetailJawabanLoading, error: detailJawabanError } = useJawaban().fetchAllJawaban();
+    const { data: detailDataJawaban, isLoading: isDetailJawabanLoading, error: detailJawabanError } = useJawaban().fetchUserAnswersByIndikator({
+        indikatorId: id,
+        evaluateeId: evaluatee,
+        limit: 100,
+    });
     const { mutate: createAnswer, isPending } = useJawaban().createAnswer();
     
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formJawaban, setFormJawaban] = useState<{ [key: string]: { nilai: number | null, notes: string } }>({});
 
-    const jawabanMilikTarget = detailDataJawaban?.data?.filter(
-        (j: any) => j.evaluatee?.id === evaluatee && j.indikatorId === id
-    ) || [];
-    const sudahDinilai = jawabanMilikTarget.length > 0;
+    const questions = detailDataPertanyaan?.data || [];
+    const allAnswers = Array.isArray(detailDataJawaban) ? detailDataJawaban : [];
 
+    const answers = evaluator 
+        ? allAnswers.filter((j: any) => j.evaluatorId === evaluator)
+        : allAnswers;
+
+    const sudahDinilai = answers.length === questions.length && questions.length > 0;
+    
     const pertanyaanByCategory = (detailDataPertanyaan?.data || []).reduce((acc: any, p: any) => {
         const kategori = p.kategori || KategoriPertanyaanKPI.KINERJA; 
         if (!acc[kategori]) acc[kategori] = [];
@@ -48,7 +57,7 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
             let totalWeightedScore = 0;
             let totalBobot = 0;
 
-            jawabanMilikTarget.forEach((j: any) => {
+            answers.forEach((j: any) => {
                 const pertanyaan = detailDataPertanyaan?.data?.find((p: any) => p.id === j.pertanyaanId);
                 const bobot = pertanyaan?.bobot || 1;
                 totalWeightedScore += (j.nilai * bobot);
@@ -86,9 +95,9 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
     }, [detailDataPertanyaan]);
 
     useEffect(() => {
-        if (sudahDinilai && jawabanMilikTarget.length > 0) {
+        if (sudahDinilai && answers.length > 0) {
             const existingAnswers: { [key: string]: { nilai: number | null, notes: string } } = {};
-            jawabanMilikTarget.forEach((j: any) => {
+            answers.forEach((j: any) => {
                 existingAnswers[j.pertanyaanId] = {
                     nilai: j.nilai,
                     notes: j.notes || ""
@@ -267,7 +276,7 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
                                 Ringkasan Penilaian
                             </p>
                             <p className="text-sm text-(--color-text-secondary)">
-                                Total Pertanyaan Dinilai: {sudahDinilai ? jawabanMilikTarget.length : Object.values(formJawaban).filter(v => v.nilai !== null).length}
+                                Total Pertanyaan Dinilai: {sudahDinilai ? answers.length : Object.values(formJawaban).filter(v => v.nilai !== null).length}
                             </p>
                             <p className="text-sm text-(--color-text-secondary)">
                                 Rata-rata Nilai (Tertimbang): <span className="font-bold text-(--color-primary)">{nilaiAkhir}</span>
@@ -275,7 +284,7 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
                         </div>
                         <PenilaianIndikatorForm
                             categoriesQuestion={categoriesQuestion}
-                            convertNilai={jawabanMilikTarget}
+                            convertNilai={answers}
                             judul={"Penilaian yang telah dilakukan"}
                             sudahDinilai={true}
                         />
@@ -309,7 +318,7 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
                     </div>
                     <PenilaianIndikatorForm
                         categoriesQuestion={categoriesQuestion}
-                        convertNilai={jawabanMilikTarget}
+                        convertNilai={answers}
                         judul={sudahDinilai ? "Hasil Penilaian" : "Form Penilaian"}
                         sudahDinilai={sudahDinilai}
                         formJawaban={formJawaban}
@@ -326,7 +335,7 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
                 onClose={() => setIsModalOpen(false)}
                 type="info"
                 title={"Konfirmasi Simpan Penilaian"}
-                message={"Apakah Anda yakin ingin menghapus data pertanyaan ini"}
+                message={"Apakah Anda yakin ingin menyimpan data penilaian ini"}
                 activeText="Ya"
                 passiveText="Batal"
             />
