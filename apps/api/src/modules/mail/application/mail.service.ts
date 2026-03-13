@@ -66,7 +66,7 @@ export class MailService {
                                       </tr>
                                   </table>
 
-                                  <table width="500" style="margin-top:10px; display: flex; justify-content: center; align-items: center;">
+                                  <table align="center" width="500" style="margin-top:10px;">
                                       <tr>
                                           <td style="font-size:12px; color:#999; text-align: center">
                                               © PT.Central Inovasi Digital. 
@@ -145,7 +145,7 @@ export class MailService {
                                     </tr>
                                 </table>
 
-                                <table width="500" style="margin-top:10px; display: flex; justify-content: center; align-items: center;">
+                                <table align="center" width="500" style="margin-top:10px;">
                                     <tr>
                                         <td style="font-size:12px; color:#999; text-align: center">
                                             © PT.Central Inovasi Digital. 
@@ -171,15 +171,7 @@ export class MailService {
     await this.mailer.send({
       to,
       subject: 'New Project',
-      html: `<!DOCTYPE html>
-                <html lang="en">
-                  <head>
-                      <meta charset="UTF-8">
-                      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                      <title>Document</title>
-                  </head>
-                  <body>
-                      <table width="100%" style="background-color:#f4f6f8; padding:40px 0; display: flex; justify-content: center; align-items: center;">
+      html: `<table width="100%" style="background-color:#f4f6f8; padding:40px 0; display: flex; justify-content: center; align-items: center;">
                           <tr>
                               <td>
                                   <table width="500" style="background:#ffffff; border-radius:8px; border-color:#F82237; border-style: solid; border-width: 5px; padding:30px;">
@@ -229,7 +221,7 @@ export class MailService {
                                       </tr>
                                   </table>
 
-                                  <table width="500" style="margin-top:10px; display: flex; justify-content: center; align-items: center;">
+                                  <table align="center" width="500" style="margin-top:10px;">
                                       <tr>
                                           <td style="font-size:12px; color:#999; text-align: center">
                                               © PT.Central Inovasi Digital. 
@@ -241,9 +233,7 @@ export class MailService {
 
                               </td>
                           </tr>
-                      </table>
-                  </body>
-                  </html>`,
+                      </table>`,
     });
   }
 }
