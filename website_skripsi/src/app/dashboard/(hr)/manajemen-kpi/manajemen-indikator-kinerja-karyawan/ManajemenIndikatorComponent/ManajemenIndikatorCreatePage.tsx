@@ -19,8 +19,22 @@ import ManajemenIndikatorSkeletonDetail from "./ManajemenIndikatorSkeletonDetail
 
 const ManajemenIndikatorCreatePage = () => {
     const router = useRouter();
-    const { data: fetchedDataUser, isLoading: isLoadingUser, error: isErrorUser } = useUser().fetchAllUser();
-    const { data: fetchedDataProject, isLoading: isLoadingProject, error: isErrorProject } = useProject().fetchAllProject();
+    const { data: fetchedDataUser, isLoading: isLoadingUser, error: isErrorUser } = useUser().fetchAllUser({ limit: 1000 });
+    const { data: fetchedDataProject, isLoading: isLoadingProject, error: isErrorProject } = useProject().fetchAllProject({ limit: 1000 });
+
+    const fetchedProjectData = useMemo(() => {
+        if (!fetchedDataProject?.data) return null;
+        const now = new Date();
+        const filteredProjects = fetchedDataProject.data.filter((proj: any) => {
+            if (!proj.endDate) return false;
+            return new Date(proj.endDate) > now;
+        });
+
+        return {
+            ...fetchedDataProject,
+            data: filteredProjects
+        };
+    }, [fetchedDataProject]);
     const { mutate, isPending } = useKpi().createIndikator();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,6 +53,11 @@ const ManajemenIndikatorCreatePage = () => {
         startDate: "",
         endDate: "",
         status: "",
+    });
+    const [modalState, setModalState] = useState({
+        isSuccess: false,
+        isError: false,
+        errorMessage: ""
     });
 
     const handleChange = (
@@ -79,42 +98,63 @@ const ManajemenIndikatorCreatePage = () => {
         );
 
         if (!layer) return [];
-        if (layer.hanyaDalamProject && penilai.minorRole === MinorRole.PROJECT_MANAGER) {
-            if (!fetchedDataProject?.data) return [];
 
-            // Ngeliat orang yang punya tim yang sama
-            const projectsPMIsOn = fetchedDataProject.data.filter((proj: any) => 
-                proj.projectTeams.some((team: any) => team.userId === penilai.id)
-            );
+        const isGlobalRole = penilai.majorRole === MajorRole.OWNER || penilai.minorRole === MinorRole.HR;
 
-            // Dapetin userId di tim yang sama
-            const teammateIds = new Set(
-                projectsPMIsOn.flatMap((proj: any) => proj.projectTeams.map((t: any) => t.userId))
-            );
-
-            return fetchedDataUser.data.filter((u: User) => 
-                teammateIds.has(u.id) && 
-                u.id !== penilai.id &&
+        if (isGlobalRole) {
+            const globalTargets = fetchedDataUser.data.filter((u: User) => 
+                u.id !== penilai.id && 
                 layer.menilaiRole.includes(u.minorRole as any)
             );
-        }
 
-        return fetchedDataUser.data.filter((u: User) => 
-            u.id !== penilai.id && 
-            layer.menilaiRole.includes(u.minorRole as any)
+            return [{
+                projectName: "Global / Seluruh Karyawan",
+                projectId: "global",
+                users: globalTargets
+            }].filter(p => p.users.length > 0);
+        }
+        
+        if (!fetchedProjectData?.data) return [];
+
+        const projectsPMIsOn = fetchedProjectData.data.filter((proj: any) =>
+            proj.projectTeams.some((team: any) => team.userId === penilai.id)
         );
+
+        return projectsPMIsOn.map((proj: any) => {
+            const evaluateesInProject = fetchedDataUser.data.filter((u: User) => {
+                const isTeammate = proj.projectTeams.some((t: any) => t.userId === u.id);
+                const isNotSelf = u.id !== penilai.id;
+                const isRightRole = layer.menilaiRole.includes(u.minorRole as any);
+                return isTeammate && isNotSelf && isRightRole;
+            });
+
+            return {
+                projectName: proj.name,
+                projectId: proj.id,
+                users: evaluateesInProject
+            };
+        });
     };
 
     const addEvalMap = (userId: string) => {
         const penilai = fetchedDataUser?.data.find((u: any) => u.id === userId);
         if (!penilai) return;
 
+        const targetGroups = getTargetEvaluatees(penilai);
+        
+        const allTargetIds: string[] = Array.from(new Set(
+            targetGroups.flatMap((group: any) => group.users.map((u: any) => u.id as string))
+        ));
+
+        if (allTargetIds.length === 0) {
+            toast.custom(<CustomToast type="error" message={`${penilai.name} tidak memiliki target untuk dinilai.`} />);
+            return;
+        }
+
         if (formData.evalMap.some(item => item.evaluatorId === userId)) {
             toast.error("Penilai ini sudah ditambahkan");
             return;
         }
-
-        const targets = getTargetEvaluatees(penilai);
         
         setFormData((prev) => ({
             ...prev,
@@ -122,7 +162,7 @@ const ManajemenIndikatorCreatePage = () => {
                 ...prev.evalMap,
                 {
                     evaluatorId: penilai.id,
-                    evaluateeId: targets.map((t: any) => t.id)
+                    evaluateeId: allTargetIds
                 }
             ]
         }));
@@ -189,22 +229,35 @@ const ManajemenIndikatorCreatePage = () => {
     }
 
     const handleSubmit = () => {
-        mutate(formData, {
+        const cleanedEvalMap = formData.evalMap.filter(item => item.evaluateeId.length > 0);
+    
+        if (cleanedEvalMap.length === 0) {
+            toast.error("Minimal harus ada satu penilai dengan target yang valid.");
+            return;
+        }
+
+        const finalData = {
+            ...formData,
+            evalMap: cleanedEvalMap
+        };
+
+        console.log(finalData);
+
+        mutate(finalData, {
             onSuccess: () => {
-                toast.custom(
-                    <CustomToast 
-                        type="success" 
-                        message={"Indikator berhasil dibuat"} 
-                    />
-                );
-                setIsModalOpen(false);
+                setModalState({ isSuccess: true, isError: false, errorMessage: "" });
                 setTimeout(() => {
+                    setIsModalOpen(false);
                     router.push(`/dashboard/manajemen-kpi/manajemen-indikator-kinerja-karyawan/`);
                 }, 2000);
             },
             onError: (error) => {
-                toast.custom(<CustomToast type="error" message={error.message || "Terjadi kesalahan"} />);
-                setIsModalOpen(false);
+                setModalState({ 
+                    isSuccess: false, 
+                    isError: true, 
+                    errorMessage: error.message 
+                });
+                toast.custom(<CustomToast type="error" message={error.message} />);
             },
         });
     };
@@ -467,15 +520,44 @@ const ManajemenIndikatorCreatePage = () => {
                                                     
                                                     <div>
                                                         <p className="text-xs text-(--color-muted) font-medium tracking-wider">
-                                                            Target yang Dinilai ({item.evaluateeId.length})
+                                                            Target per Project ({item.evaluateeId.length})
                                                         </p>
-                                                        <div className="space-y-2 mt-3">
-                                                            {item.evaluateeId.map(id => {
-                                                                const targetObj = fetchedDataUser?.data.find((u: any) => u.id === id);
+                                                        <div className="space-y-4 mt-3">
+                                                            {getTargetEvaluatees(penilaiObj).map((projectGroup: any) => {
+                                                                const hasUsersInProject = projectGroup.users.length > 0;
+                                                                
                                                                 return (
-                                                                    <div key={id} className="text-sm text-gray-700 border border-gray-200 rounded-lg px-3 py-3 bg-white shadow-sm flex flex-col border-l-4 border-l-blue-500">
-                                                                        <span className="font-semibold">{targetObj?.name}</span>
-                                                                        <span className="text-xs">{targetObj?.majorRole} — {targetObj?.minorRole}</span>
+                                                                    <div key={projectGroup.projectId} 
+                                                                        className={`rounded-lg p-3 border ${hasUsersInProject ? 'bg-gray-50 border-gray-100' : 'bg-red-50 border-red-200'}`}>
+                                                                        <div className="flex items-center justify-between mb-2">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <div className={`w-2 h-2 rounded-full ${hasUsersInProject ? 'bg-blue-500' : 'bg-red-500'}`}></div>
+                                                                                <span className="text-sm font-bold text-gray-600">
+                                                                                    Project: {projectGroup.projectName}
+                                                                                </span>
+                                                                            </div>
+                                                                            {!hasUsersInProject && (
+                                                                                <span className="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full uppercase">
+                                                                                    Tidak Valid
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+
+                                                                        {hasUsersInProject ? (
+                                                                            <div className="space-y-2">
+                                                                                {projectGroup.users.map((target: any) => (
+                                                                                    <div key={target.id} className="text-sm text-gray-700 border border-gray-200 rounded-lg px-3 py-2 bg-white shadow-sm flex flex-col border-l-4 border-l-blue-400">
+                                                                                        <span className="text-sm font-semibold">{target.name}</span>
+                                                                                        <span className="text-xs text-gray-500">{target.minorRole}</span>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        ) : (
+                                                                            <p className="text-xs text-red-600 italic">
+                                                                                Tidak ada anggota tim yang sesuai kriteria penilaian di project ini.
+                                                                                Sehingga nantinya penilaian ini pada project ini tidak akan dianggap.
+                                                                            </p>
+                                                                        )}
                                                                     </div>
                                                                 );
                                                             })}
@@ -574,8 +656,15 @@ const ManajemenIndikatorCreatePage = () => {
             <ConfirmationPopUpModal
                 isOpen={isModalOpen}
                 onAction={handleSubmit}
-                onClose={() => setIsModalOpen(false)}
-                type="success"
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setModalState({ isSuccess: false, isError: false, errorMessage: "" });
+                }}
+                isLoading={isPending}
+                isSuccess={modalState.isSuccess}
+                isError={modalState.isError}
+                errorMessage={modalState.errorMessage}
+                type="info"
                 title={"Konfirmasi Pembuatan Indikator"}
                 message={"Apakah Anda yakin sudah mengisi data dengan baik"}
                 activeText={"Simpan"}

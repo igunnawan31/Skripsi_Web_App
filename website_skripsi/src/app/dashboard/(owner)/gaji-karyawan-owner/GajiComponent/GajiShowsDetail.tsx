@@ -32,6 +32,12 @@ export default function GajiShowsDetail({ id }: { id: string }) {
     const [formData, setFormData] = useState<PaySalary>({
         paychecks: null,
     });
+    const [modalState, setModalState] = useState({
+        isSuccess: false,
+        isError: false,
+        errorMessage: ""
+    });
+
 
     const loadPhoto = async (photoPath: string) => {
         try {
@@ -182,7 +188,8 @@ export default function GajiShowsDetail({ id }: { id: string }) {
             toast.custom(<CustomToast type="error" message="Harus ada bukti pembayaran" />)
             return;
         }
-
+        
+        setModalState({ isSuccess: false, isError: false, errorMessage: "" })
         setIsModalOpen(true);
     }
 
@@ -195,14 +202,16 @@ export default function GajiShowsDetail({ id }: { id: string }) {
                         message={"Salary berhasil dibayar"} 
                     />
                 );
-                setIsModalOpen(false);
+                setModalState({ isSuccess: true, isError: false, errorMessage: "" });
                 setTimeout(() => {
+                    setIsModalOpen(false);
+                    setModalState({ isSuccess: false, isError: false, errorMessage: "" });
                     router.push("/dashboard/gaji-karyawan");
                 }, 2000);
             },
             onError: (error) => {
-                toast.custom(<CustomToast type="error" message={error.message || "Terjadi kesalahan"} />);
-                setIsModalOpen(false);
+                toast.custom(<CustomToast type="error" message={error.message} />);
+                setModalState({ isSuccess: false, isError: true, errorMessage: error.message });
             },
         });
     };
@@ -580,11 +589,18 @@ export default function GajiShowsDetail({ id }: { id: string }) {
             <ConfirmationPopUpModal
                 isOpen={isModalOpen}
                 onAction={handleSubmit}
-                onClose={() => setIsModalOpen(false)}
-                type="success"
-                title={"Konfirmasi Pembayaran Salary Karyawan"}
-                message={"Apakah Anda yakin sudah mengisi data dengan baik"}
-                activeText={"Simpan"}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setModalState({ isSuccess: false, isError: false, errorMessage: "" });
+                }}
+                isLoading={isPending}
+                isSuccess={modalState.isSuccess}
+                isError={modalState.isError}
+                errorMessage={modalState.errorMessage}
+                type="info"
+                title="Konfirmasi Pembuatan Project"
+                message="Apakah Anda yakin sudah mengisi data dengan baik?"
+                activeText="Ya, Simpan"
                 passiveText="Batal"
             />
         </div>

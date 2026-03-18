@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { IndikatorKPI, KategoriPertanyaanKPI, pertanyaanKPI,  } from "@/app/lib/types/types";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { icons, logo } from "@/app/lib/assets/assets";
 import { useKpi } from "@/app/lib/hooks/kpi/useKpi";
-import { SkalaNilai } from "@/app/lib/types/kpi/kpiTypes";
 import QuestionShow from "../QuestionIndikatorComponent/QuestionShow";
 import { useUser } from "@/app/lib/hooks/user/useUser";
 import ManajemenIndikatorSkeletonDetail from "./ManajemenIndikatorSkeletonDetail";
@@ -292,10 +290,12 @@ export default function ManajemenIndikatorDetail({ id }: { id: string }) {
                     )}
                 </div>
             </div>
-            <div>
-                <h2 className="text-md font-semibold mb-4">Daftar Pertanyaan KPI</h2>
-                <QuestionShow fetchedData={fetchedData.id} />
-            </div>
+            {fetchedData?.id && (
+                <div>
+                    <h2 className="text-md font-semibold mb-4">Daftar Pertanyaan KPI</h2>
+                    <QuestionShow fetchedData={fetchedData.id} />
+                </div>
+            )}
         </div>
     );
 }

@@ -28,6 +28,11 @@ const CreateProjectPage = () => {
         endDate: "",
         projectDocument: null,
     });
+    const [modalState, setModalState] = useState({
+        isSuccess: false,
+        isError: false,
+        errorMessage: ""
+    });
 
     const [documentFiles, setDocumentFiles] = useState<File[]>([]);
     const [previewDocumentUrl, setPreviewDocumentUrl] = useState<string | null>(null);
@@ -202,22 +207,28 @@ const CreateProjectPage = () => {
     }
 
     const handleSubmit = () => {
+        setModalState({ isSuccess: false, isError: false, errorMessage: "" });
+
         mutate(formData, {
             onSuccess: () => {
-                toast.custom(
-                    <CustomToast 
-                        type="success" 
-                        message={"Project berhasil dibuat"} 
-                    />
-                );
-                setIsModalOpen(false);
+                setModalState(prev => ({ ...prev, isSuccess: true }));
                 setTimeout(() => {
+                    setIsModalOpen(false);
                     router.push("/dashboard/manajemen-project");
                 }, 2000);
             },
             onError: (error) => {
-                toast.custom(<CustomToast type="error" message={error.message} />);
-                setIsModalOpen(false);
+                setModalState({ 
+                    isSuccess: false, 
+                    isError: true, 
+                    errorMessage: error.message 
+                });
+                toast.custom(
+                    <CustomToast 
+                        type="error" 
+                        message={`${error.message}`} 
+                    />
+                );
             },
         });
     };
@@ -449,11 +460,18 @@ const CreateProjectPage = () => {
             <ConfirmationPopUpModal
                 isOpen={isModalOpen}
                 onAction={handleSubmit}
-                onClose={() => setIsModalOpen(false)}
-                type="success"
-                title={"Konfirmasi Pembuatan Project"}
-                message={"Apakah Anda yakin sudah mengisi data dengan baik"}
-                activeText={"Simpan"}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setModalState({ isSuccess: false, isError: false, errorMessage: "" });
+                }}
+                isLoading={isPending}
+                isSuccess={modalState.isSuccess}
+                isError={modalState.isError}
+                errorMessage={modalState.errorMessage}
+                type="info"
+                title="Konfirmasi Pembuatan Project"
+                message="Apakah Anda yakin sudah mengisi data dengan baik?"
+                activeText="Ya, Simpan"
                 passiveText="Batal"
             />
         </div>

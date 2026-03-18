@@ -27,9 +27,12 @@ const CreateKontrakKerjaPage = () => {
     const [openAbsensi, setOpenAbsensi] = useState(true);
     const [openPembayaran, setOpenPembayaran] = useState(true);
 
-    const { data: fetchedDataUsers, isLoading: isLoadingUsers } = useUser().fetchAllUser();
+    const { data: fetchedDataUsers, isLoading: isLoadingUsers } = useUser().fetchAllUser({ limit: 1000 });
     const users = Array.isArray(fetchedDataUsers?.data) ? fetchedDataUsers.data : [];
+    const { data: fetchedDataProject, isLoading, error } = useProject().fetchAllProject({ limit: 1000 });
+    const project = Array.isArray(fetchedDataProject?.data) ? fetchedDataProject.data : [];
     const { mutate, isPending } = useKontrak().createKontrak();
+    
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isNewUser, setIsNewUser] = useState(true);
 
@@ -80,6 +83,13 @@ const CreateKontrakKerjaPage = () => {
         status: "",
         startDate: "",
         endDate: "",
+
+        contractDocuments: "",
+    });
+    const [modalState, setModalState] = useState({
+        isSuccess: false,
+        isError: false,
+        errorMessage: ""
     });
 
     const [monthlyPercentages, setMonthlyPercentages] = useState<number[]>([]);
@@ -219,9 +229,6 @@ const CreateKontrakKerjaPage = () => {
             finalPercentage: 100 - value,
         }));
     };
-
-    const { data: fetchedDataProject, isLoading, error } = useProject().fetchAllProject();
-    const project = Array.isArray(fetchedDataProject?.data) ? fetchedDataProject.data : [];
     
     const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -432,6 +439,7 @@ const CreateKontrakKerjaPage = () => {
             status: "",
             startDate: "",
             endDate: "",
+            contractDocuments: "",
         };
         let isValid = true;
 
@@ -502,6 +510,11 @@ const CreateKontrakKerjaPage = () => {
             isValid = false;
         }
 
+        if (documentFiles.length === 0) {
+            newErrors.contractDocuments = "Minimal satu dokumen kontrak harus diunggah";
+            isValid = false;
+        }
+
         setErrors(newErrors);
 
         if (!isValid) {
@@ -520,20 +533,19 @@ const CreateKontrakKerjaPage = () => {
     const handleSubmit = () => {
         mutate(formData, {
             onSuccess: () => {
-                toast.custom(
-                    <CustomToast 
-                        type="success" 
-                        message={"Kontrak kerja berhasil dibuat"} 
-                    />
-                );
-                setIsModalOpen(false);
+                setModalState({ isSuccess: true, isError: false, errorMessage: "" });
                 setTimeout(() => {
+                    setIsModalOpen(false);
                     router.push("/dashboard/kontrak-kerja-karyawan");
                 }, 2000);
             },
             onError: (error) => {
-                toast.custom(<CustomToast type="error" message={error.message || "Terjadi kesalahan"} />);
-                setIsModalOpen(false);
+                setModalState({ 
+                    isSuccess: false, 
+                    isError: true, 
+                    errorMessage: error.message 
+                });
+                toast.custom(<CustomToast type="error" message={error.message} />);
             },
         });
     };
@@ -1392,7 +1404,7 @@ const CreateKontrakKerjaPage = () => {
                         )}
                     </div>
                     <div className="flex flex-col gap-4">
-                        <label className="text-sm font-medium text-gray-600 mb-1">Upload Document Asli (pdf)</label>
+                        <label className="text-sm font-medium text-gray-600 mb-1">Upload Document Asli (pdf) <span className="text-(--color-primary)">*</span></label>
                         {documentFiles.length > 0 ? (
                             documentFiles.map((file, index) => (
                                 <div key={index} className="flex justify-between items-center rounded-lg p-4 border border-(--color-border) shadow-sm hover:shadow-md transition-shadow bg-white">
@@ -1486,10 +1498,20 @@ const CreateKontrakKerjaPage = () => {
                         />
                         <label
                             htmlFor="addDocuments"
-                            className="mt-2 flex items-center justify-center text-sm rounded-lg text-(--color-textPrimary) bg-(--color-surface) border-(--color-border) border-2 hover:border-(--color-tertiary) px-4 py-2 cursor-pointer"
+                            className={`mt-2 flex items-center justify-center text-sm rounded-lg text-(--color-textPrimary) bg-(--color-surface) border-2 px-4 py-2 cursor-pointer transition-colors
+                                ${errors.contractDocuments 
+                                    ? "border-(--color-primary) bg-red-50" 
+                                    : "border-(--color-border) hover:border-(--color-tertiary)"
+                                }`}
                         >
                             Tambah Dokumen
                         </label>
+
+                        {errors.contractDocuments && (
+                            <p className="text-xs text-(--color-primary) mt-1 animate-in fade-in slide-in-from-top-1">
+                                {errors.contractDocuments}
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex flex-col">
@@ -1549,8 +1571,15 @@ const CreateKontrakKerjaPage = () => {
             <ConfirmationPopUpModal
                 isOpen={isModalOpen}
                 onAction={handleSubmit}
-                onClose={() => setIsModalOpen(false)}
-                type="success"
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setModalState(prev => ({ ...prev, isError: false }));
+                }}
+                isLoading={isPending}
+                isSuccess={modalState.isSuccess}
+                isError={modalState.isError}
+                errorMessage={modalState.errorMessage}
+                type="info"
                 title={"Konfirmasi Pembuatan Kontrak Kerja"}
                 message={"Apakah Anda yakin sudah mengisi data dengan baik"}
                 activeText={"Simpan"}

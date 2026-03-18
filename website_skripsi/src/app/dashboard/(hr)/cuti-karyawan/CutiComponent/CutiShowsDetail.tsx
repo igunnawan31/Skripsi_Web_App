@@ -28,8 +28,8 @@ export default function CutiShowsDetail({ id }: { id: string }) {
         error: historyError,
     } = cuti.fetchCutiByUserId(detailData?.userId ?? "");
 
-    const approveCuti = useCuti().approveCuti();
-    const rejectCuti = useCuti().rejectCuti();
+    const {mutate: approveCuti, isPending: isPendingApprove} = useCuti().approveCuti();
+    const {mutate: rejectCuti, isPending: isPendingReject} = useCuti().rejectCuti();
     const [errors, setErrors] = useState({ catatan: "" })
 
     const [catatan, setCatatan] = useState("");
@@ -39,6 +39,12 @@ export default function CutiShowsDetail({ id }: { id: string }) {
     const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const router = useRouter();
+
+    const [modalState, setModalState] = useState({
+        isSuccess: false,
+        isError: false,
+        errorMessage: ""
+    });
 
     const loadPhoto = async (photoPath: string) => {
         try {
@@ -117,6 +123,8 @@ export default function CutiShowsDetail({ id }: { id: string }) {
             );
             return;
         }
+        
+        setModalState({ isSuccess: false, isError: false, errorMessage: "" });
         setActionType(type);
         setIsModalOpen(true);
     };
@@ -125,8 +133,8 @@ export default function CutiShowsDetail({ id }: { id: string }) {
         if (!detailData || !actionType) return;
 
         const mutateFn = actionType === "approve" ? approveCuti : rejectCuti;
-        mutateFn.mutate(
-            {id: detailData.id, catatan},
+        mutateFn(
+            { id: detailData.id, catatan },
             {
                 onSuccess: () => {
                     toast.custom(
@@ -135,18 +143,20 @@ export default function CutiShowsDetail({ id }: { id: string }) {
                             message={`Cuti berhasil ${actionType === "approve" ? "disetujui" : "ditolak"}`} 
                         />
                     );
-                    setIsModalOpen(false);
+                    setModalState({ isSuccess: true, isError: false, errorMessage: "" });
                     setTimeout(() => {
+                        setIsModalOpen(false);
+                        setModalState({ isSuccess: false, isError: false, errorMessage: "" });
                         router.push("/dashboard/cuti-karyawan");
                     }, 2000);
                 },
                 onError: (err: any) => {
                     toast.custom(<CustomToast type="error" message={err.message} />);
-                    setIsModalOpen(false);
+                    setModalState({ isSuccess: false, isError: true, errorMessage: err.message });
                 },
             }
-        )
-    }
+        );
+    };
 
     const handleDownload = async (path: string, filename: string) => {
         try {
@@ -502,17 +512,17 @@ export default function CutiShowsDetail({ id }: { id: string }) {
                         <div className="flex justify-between gap-3">
                             <button
                                 onClick={() => handleOpenModal("approve")}
-                                disabled={approveCuti.isPending}
+                                disabled={isPendingApprove}
                                 className="w-full px-4 py-2 bg-(--color-success) hover:bg-green-600 text-white rounded-lg transition-colors cursor-pointer"
                             >
-                                {approveCuti.isPending ? "Menyutujui..." : "Setujui"}
+                                {isPendingApprove ? "Menyutujui..." : "Setujui"}
                             </button>
                             <button
                                 onClick={() => handleOpenModal("reject")}                            
-                                disabled={rejectCuti.isPending}
+                                disabled={isPendingReject}
                                 className="w-full px-4 py-2 bg-(--color-primary) hover:bg-red-800 text-white rounded-lg transition-colors cursor-pointer"
                             >
-                                {rejectCuti.isPending ? "Menolak..." : "Tolak"}
+                                {isPendingReject ? "Menolak..." : "Tolak"}
                             </button>
                         </div>
                     )}
@@ -602,8 +612,15 @@ export default function CutiShowsDetail({ id }: { id: string }) {
             <ConfirmationPopUpModal
                 isOpen={isModalOpen}
                 onAction={handleConfirmAction}
-                onClose={() => setIsModalOpen(false)}
-                type="success"
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setModalState({ isSuccess: false, isError: false, errorMessage: "" });
+                }}
+                isLoading={isPendingApprove || isPendingReject}
+                isSuccess={modalState.isSuccess}
+                isError={modalState.isError}
+                errorMessage={modalState.errorMessage}
+                type="info"
                 title={actionType === "approve" ? "Konfirmasi Persetujuan" : "Konfirmasi Penolakan"}
                 message={`Apakah Anda yakin ingin ${actionType === "approve" ? "menyetujui" : "menolak"} cuti ini?`}
                 activeText={actionType === "approve" ? "Setujui" : "Tolak"}

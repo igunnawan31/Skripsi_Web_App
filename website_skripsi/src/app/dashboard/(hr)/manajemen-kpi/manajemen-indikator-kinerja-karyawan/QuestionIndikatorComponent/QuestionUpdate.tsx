@@ -33,8 +33,25 @@ const QuestionUpdate = ({fetchedData}: QuestionUpdateProps) => {
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+ 
+    const [deleteModalState, setDeleteModalState] = useState({
+        isSuccess: false,
+        isError: false,
+        errorMessage: "",
+    });
+    const [editModalState, setEditModalState] = useState({
+        isSuccess: false,
+        isError: false,
+        errorMessage: "",
+    });
+    const [createModalState, setCreateModalState] = useState({
+        isSuccess: false,
+        isError: false,
+        errorMessage: "",
+    });
+    
     const handleSearch = (query: string) => {
         setSearchQuery(query);
         setCurrentPage(1);
@@ -42,16 +59,18 @@ const QuestionUpdate = ({fetchedData}: QuestionUpdateProps) => {
 
     const { data, isLoading, error, refetch} = useKpi().fetchAllQuestionByIdIndikator({
         id: fetchedData,
+        page: currentPage,
+        limit: itemsPerPage,
         kategori: selectedKategori !== "All" ? selectedKategori : undefined,
         searchTerm: searchQuery || undefined,
     });
     const { mutate: createQuestions, isPending } = useQuestion().createQuestion();
     const { mutate: updateQuestion, isPending: isUpdatePending } = useQuestion().updateQuestion();
-
+    const { mutate: deleteQuestion, isPending: isDeletePending } = useQuestion().deleteQuestion();
+ 
     const questionData = [...(data?.data || [])].sort((a, b) => a.urutanSoal - b.urutanSoal);
     const existingQuestionCount = questionData.length;
     const totalItems = data?.meta?.total || 0;
-    const deleteQuestion = useQuestion().deleteQuestion();
 
     useEffect(() => {
         const params = new URLSearchParams();
@@ -67,87 +86,82 @@ const QuestionUpdate = ({fetchedData}: QuestionUpdateProps) => {
 
     const handleEditModal = (id: string) => {
         setSelectedQuestionId(id);
+        setEditModalState({ isSuccess: false, isError: false, errorMessage: "" });
         setIsEditModalOpen(true);
-    }
-
+    };
+ 
     const handleSaveEdit = (updatedData: QuestionCreateForm) => {
         if (!selectedQuestionId) return;
-
-        updateQuestion({ 
-            id: selectedQuestionId, 
-            questionData: updatedData 
-        }, {
-            onSuccess: async () => {
-                toast.custom(<CustomToast type="success" message="Pertanyaan berhasil diperbarui" />);
-                await refetch();
-                setIsEditModalOpen(false);
-            },
-            onError: (err) => {
-                toast.custom(<CustomToast type="error" message={err.message} />);
+ 
+        updateQuestion(
+            { id: selectedQuestionId, questionData: updatedData },
+            {
+                onSuccess: async () => {
+                    toast.custom(<CustomToast type="success" message="Pertanyaan berhasil diperbarui" />);
+                    setEditModalState({ isSuccess: true, isError: false, errorMessage: "" });
+                    await refetch();
+                    setTimeout(() => setIsEditModalOpen(false), 1500);
+                },
+                onError: (err) => {
+                    toast.custom(<CustomToast type="error" message={err.message} />);
+                    setEditModalState({ isSuccess: false, isError: true, errorMessage: err.message });
+                },
             }
-        });
+        );
     };
 
-    const handleOpenModal = (id: string) => {
+    const handleOpenDeleteModal = (id: string) => {
         setSelectedQuestionId(id);
-        setIsModalOpen(true);
+        setDeleteModalState({ isSuccess: false, isError: false, errorMessage: "" });
+        setIsDeleteModalOpen(true);
     };
-
+ 
     const handleHapusPertanyaan = () => {
         if (!selectedQuestionId) return;
-        
-        deleteQuestion.mutate(selectedQuestionId, {
-            onSuccess: async () => {
-                toast.custom(
-                    <CustomToast
-                        type="success"
-                        message={"Pertanyaan berhasil dihapus"}
-                    />
-                );
-
-                await refetch();
-                setIsModalOpen(false);
-                setSelectedQuestionId("");
+ 
+        deleteQuestion(selectedQuestionId, {
+            onSuccess: () => {
+                toast.custom(<CustomToast type="success" message="Pertanyaan berhasil dihapus" />);
+                setDeleteModalState({ isSuccess: true, isError: false, errorMessage: "" });
+                setTimeout(async () => {
+                    setIsDeleteModalOpen(false);
+                    setSelectedQuestionId("");
+                    await refetch();
+                }, 2000);
             },
             onError: (error) => {
+                setDeleteModalState({
+                    isSuccess: false,
+                    isError: true,
+                    errorMessage: error.message,
+                });
                 toast.custom(
                     <CustomToast
                         type="error"
                         message={error?.message || "Terjadi kendala ketika ingin menghapus pertanyaan"}
                     />
                 );
-                setIsModalOpen(false);
-                setSelectedQuestionId("");
-            }
-        })
+            },
+        });
     };
 
     const handleOpenSimpanModal = () => {
+        setCreateModalState({ isSuccess: false, isError: false, errorMessage: "" });
         setIsCreateModalOpen(true);
     };
-
+ 
     const handleSimpanPertanyaan = (questionData: QuestionCreateForm[]) => {
         createQuestions(questionData, {
             onSuccess: async () => {
-                toast.custom(
-                    <CustomToast 
-                        type="success" 
-                        message="Pertanyaan berhasil dibuat" 
-                    />
-                );
-
+                toast.custom(<CustomToast type="success" message="Pertanyaan berhasil dibuat" />);
+                setCreateModalState({ isSuccess: true, isError: false, errorMessage: "" });
                 await refetch();
-                setIsCreateModalOpen(false);
+                setTimeout(() => setIsCreateModalOpen(false), 1500);
             },
             onError: (err) => {
-                toast.custom(
-                    <CustomToast 
-                        type="error"
-                        message={err.message} 
-                    />
-                );
-                setIsCreateModalOpen(false);
-            }
+                toast.custom(<CustomToast type="error" message={err.message} />);
+                setCreateModalState({ isSuccess: false, isError: true, errorMessage: err.message });
+            },
         });
     };
 
@@ -365,7 +379,7 @@ const QuestionUpdate = ({fetchedData}: QuestionUpdateProps) => {
                                             </button>
                                             <button
                                                 type="button"
-                                                onClick={() => handleOpenModal(p.id)}
+                                                onClick={() => handleOpenDeleteModal(p.id)}
                                                 className="text-sm flex px-3 py-2 bg-(--color-primary) rounded-lg gap-2 cursor-pointer hover:bg-(--color-primary)/60"
                                             >
                                                 <Image
@@ -420,29 +434,45 @@ const QuestionUpdate = ({fetchedData}: QuestionUpdateProps) => {
                 onApply={handleApplyFilters}
             />
             <ConfirmationPopUpModal
-                isOpen={isModalOpen}
+                isOpen={isDeleteModalOpen}
                 onAction={handleHapusPertanyaan}
-                onClose={() => setIsModalOpen(false)}
-                type="error"
-                title={"Konfirmasi Hapus Pertanyaan"}
-                message={"Apakah Anda yakin ingin menghapus data pertanyaan ini"}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                    setDeleteModalState({ isSuccess: false, isError: false, errorMessage: "" });
+                }}
+                isLoading={isDeletePending}
+                isSuccess={deleteModalState.isSuccess}
+                isError={deleteModalState.isError}
+                errorMessage={deleteModalState.errorMessage}
+                type="info"
+                title="Konfirmasi Hapus Pertanyaan"
+                message="Apakah Anda yakin ingin menghapus data pertanyaan ini"
                 activeText="Ya"
                 passiveText="Batal"
             />
             <QuestionUpdateModal
                 questionId={selectedQuestionId || ""}
                 isOpen={isEditModalOpen}
-                onClose={() => setIsEditModalOpen(false)}
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    setEditModalState({ isSuccess: false, isError: false, errorMessage: "" });
+                }}
                 onSave={handleSaveEdit}
                 isPending={isUpdatePending}
+                saveModalState={editModalState}
             />
+ 
             <QuestionCreateModal
                 indikatorId={fetchedData}
                 isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
+                onClose={() => {
+                    setIsCreateModalOpen(false);
+                    setCreateModalState({ isSuccess: false, isError: false, errorMessage: "" });
+                }}
                 onSave={handleSimpanPertanyaan}
                 isPending={isPending}
                 existingCount={existingQuestionCount}
+                saveModalState={createModalState}
             />
         </div>
     )

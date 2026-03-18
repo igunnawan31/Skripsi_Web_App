@@ -64,6 +64,8 @@ export const useKpi = () => {
 
     const fetchAllQuestionByIdIndikator = ({ id, ...filters }: {
         id: string;
+        page?: number;
+        limit?: number;
         sortBy?: string;
         sortOrder?: "asc" | "desc";
         kategori?: string;
@@ -79,6 +81,8 @@ export const useKpi = () => {
                 if (!token) throw new Error("No access token found");
 
                 const queryParams = new URLSearchParams();
+                if (filters?.page) queryParams.append("page", filters.page.toString());
+                if (filters?.limit) queryParams.append("limit", filters.limit.toString());
                 if (filters?.sortBy) queryParams.append("sortBy", filters.sortBy);
                 if (filters?.sortOrder) queryParams.append("sortOrder", filters.sortOrder);
                 if (filters?.kategori) queryParams.append("kategori", filters.kategori);

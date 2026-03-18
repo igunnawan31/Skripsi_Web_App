@@ -1,9 +1,6 @@
 "use client";
 
 import { icons, logo } from "@/app/lib/assets/assets";
-import { dummyUsers } from "@/app/lib/dummyData/dummyUsers";
-import { KinerjaData } from "@/app/lib/dummyData/KinerjaData";
-import { dummyProject } from "@/app/lib/dummyData/ProjectData";
 import { useKpi } from "@/app/lib/hooks/kpi/useKpi";
 import { useProject } from "@/app/lib/hooks/project/useProject";
 import { useUser } from "@/app/lib/hooks/user/useUser";
@@ -11,7 +8,6 @@ import { EvalCreateForm, IndikatorCreateForm, layerPenilaian, StatusIndikatorKPI
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import QuestionShow from "../QuestionIndikatorComponent/QuestionShow";
 import QuestionUpdate from "../QuestionIndikatorComponent/QuestionUpdate";
 import toast from "react-hot-toast";
 import CustomToast from "@/app/rootComponents/CustomToast";
@@ -29,7 +25,7 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
     const { data: fetchedDataProject, isLoading: isLoadingProject, error: isErrorProject } = useProject().fetchAllProject();
     const { mutate, isPending } = useKpi().createEval();
     const { mutate: updateIndikator, isPending: isPendingUpdateIndikator} = useKpi().updateIndikator();
-    const deleteEval = useKpi().deleteEval();
+    const { mutateAsync: deleteEvalAsync, isPending: isDeletePending } = useKpi().deleteEval();
 
     const [selectedEvalToDelete, setSelectedEvalToDelete] = useState<{
         evaluatorId: string;
@@ -47,17 +43,44 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
         statusPublic: false,
         status: "",
     });
-
     const [errors, setErrors] = useState({
         name: "",
         description: "",
         startDate: "",
         endDate: "",
     });
-
+    const [modalState, setModalState] = useState({
+        isSuccess: false,
+        isError: false,
+        errorMessage: ""
+    });
+    const [deleteModalState, setDeleteModalState] = useState({
+        isSuccess: false,
+        isError: false,
+        errorMessage: ""
+    });
+    const [evalModalState, setEvalModalState] = useState({
+        isSuccess: false,
+        isError: false,
+        errorMessage: ""
+});
     const [formDataEval, setFormDataEval] = useState<EvalCreateForm>({ 
         evalMap: [],
     })
+
+    const fetchedProjectData = useMemo(() => {
+        if (!fetchedDataProject?.data) return null;
+        const now = new Date();
+        const filteredProjects = fetchedDataProject.data.filter((proj: any) => {
+            if (!proj.endDate) return false;
+            return new Date(proj.endDate) > now;
+        });
+
+        return {
+            ...fetchedDataProject,
+            data: filteredProjects
+        };
+    }, [fetchedDataProject]);
 
     const groupedEvaluations = useMemo(() => {
         if (!fetchedData || !fetchedDataUser?.data) return [];
@@ -115,51 +138,74 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
         );
 
         if (!layer) return [];
-        if (layer.hanyaDalamProject && penilai.minorRole === MinorRole.PROJECT_MANAGER) {
-            if (!fetchedDataProject?.data) return [];
 
-            // Ngeliat orang yang punya tim yang sama
-            const projectsPMIsOn = fetchedDataProject.data.filter((proj: any) => 
-                proj.projectTeams.some((team: any) => team.userId === penilai.id)
-            );
+        const isGlobalRole = penilai.majorRole === MajorRole.OWNER || penilai.minorRole === MinorRole.HR;
 
-            // Dapetin userId di tim yang sama
-            const teammateIds = new Set(
-                projectsPMIsOn.flatMap((proj: any) => proj.projectTeams.map((t: any) => t.userId))
-            );
-
-            return fetchedDataUser.data.filter((u: User) => 
-                teammateIds.has(u.id) && 
-                u.id !== penilai.id &&
+        if (isGlobalRole) {
+            const globalTargets = fetchedDataUser.data.filter((u: User) => 
+                u.id !== penilai.id && 
                 layer.menilaiRole.includes(u.minorRole as any)
             );
-        }
 
-        return fetchedDataUser.data.filter((u: User) => 
-            u.id !== penilai.id && 
-            layer.menilaiRole.includes(u.minorRole as any)
+            return [{
+                projectName: "Global / Seluruh Karyawan",
+                projectId: "global",
+                users: globalTargets
+            }].filter(p => p.users.length > 0);
+        }
+        
+        if (!fetchedProjectData?.data) return [];
+
+        const projectsPMIsOn = fetchedProjectData.data.filter((proj: any) =>
+            proj.projectTeams.some((team: any) => team.userId === penilai.id)
         );
+
+        return projectsPMIsOn.map((proj: any) => {
+            const evaluateesInProject = fetchedDataUser.data.filter((u: User) => {
+                const isTeammate = proj.projectTeams.some((t: any) => t.userId === u.id);
+                const isNotSelf = u.id !== penilai.id;
+                const isRightRole = layer.menilaiRole.includes(u.minorRole as any);
+                return isTeammate && isNotSelf && isRightRole;
+            });
+
+            return {
+                projectName: proj.name,
+                projectId: proj.id,
+                users: evaluateesInProject
+            };
+        });
     };
 
     const addEvalMapToModal = (userId: string) => {
         if (!userId) return;
-        
-        if (formDataEval.evalMap.some(e => e.evaluatorId === userId)) {
-            toast.error("Penilai ini sudah masuk dalam daftar.");
-            return;
-        }
 
         const penilai = fetchedDataUser?.data.find((u: any) => u.id === userId);
         if (!penilai) return;
 
-        const targets = getTargetEvaluatees(penilai);
+        const targetGroups = getTargetEvaluatees(penilai);
         
-        setFormDataEval(prev => ({
-            evalMap: [
-                ...prev.evalMap, 
-                { evaluatorId: penilai.id, evaluateeId: targets.map((t: any) => t.id) }
-            ]
-        }));
+        const allTargetIds: string[] = Array.from(new Set(
+            targetGroups.flatMap((group: any) => group.users.map((u: any) => u.id as string))
+        ));
+
+        if (allTargetIds.length === 0) {
+            toast.custom(<CustomToast type="error" message={`${penilai.name} tidak memiliki target untuk dinilai.`} />);
+            return;
+        }
+
+        setFormDataEval(prev => {
+            if (prev.evalMap.some(e => e.evaluatorId === userId)) {
+                toast.error("Penilai ini sudah ditambahkan");
+                return prev;
+            }
+            return {
+                ...prev,
+                evalMap: [
+                    ...prev.evalMap,
+                    { evaluatorId: penilai.id, evaluateeId: allTargetIds }
+                ]
+            };
+        });
     };
 
     const removeEvalFromModal = (evaluatorId: string) => {
@@ -168,34 +214,46 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
         }));
     };
 
-    const handleHapusEval = () => {
-    if (!selectedEvalToDelete) return;
+    const handleHapusEval = async () => {
+        if (!selectedEvalToDelete) return;
 
-    const { evaluatorId, evaluateeIds } = selectedEvalToDelete;
+        const { evaluatorId, evaluateeIds } = selectedEvalToDelete;
 
-    const deletePromises = evaluateeIds.map((evaluateeId) =>
-        new Promise<void>((resolve, reject) => {
-            deleteEval.mutate(
-                { indikatorId: id, evaluateeId, evaluatorId },
-                { onSuccess: () => resolve(), onError: (err) => reject(err) }
+        setIsModalDeleteOpen(false);
+        setSelectedEvalToDelete(null);
+
+        try {
+            await Promise.all(
+                evaluateeIds.map((evaluateeId) =>
+                    deleteEvalAsync({ indikatorId: id, evaluateeId, evaluatorId })
+                )
             );
-        })
-    );
 
-    Promise.all(deletePromises)
-        .then(async () => {
-            toast.custom(<CustomToast type="success" message="Penilai berhasil dihapus" />);
+            setDeleteModalState({ isSuccess: true, isError: false, errorMessage: "" });
             removeEvalFromModal(evaluatorId);
-            await refetch();
-            setIsModalDeleteOpen(false);
-            setSelectedEvalToDelete(null);
-        })
-        .catch((error) => {
-            toast.custom(<CustomToast type="error" message={error?.message || "Terjadi kendala ketika ingin menghapus penilai"} />);
-            setIsModalDeleteOpen(false);
-            setSelectedEvalToDelete(null);
-        });
-};
+            toast.custom(<CustomToast type="success" message="Penilai berhasil dihapus" />);
+
+            const { data: freshData } = await refetch();
+
+            if (freshData) {
+                const map = freshData.evaluations.reduce((acc: any, curr: any) => {
+                    if (!acc[curr.evaluatorId]) {
+                        acc[curr.evaluatorId] = { evaluatorId: curr.evaluatorId, evaluateeIds: [] };
+                    }
+                    acc[curr.evaluatorId].evaluateeIds.push(curr.evaluateeId);
+                    return acc;
+                }, {});
+                const refreshedEvals = Object.values(map).map((item: any) => ({
+                    evaluatorId: item.evaluatorId,
+                    evaluateeId: item.evaluateeIds
+                }));
+                setFormDataEval({ evalMap: refreshedEvals });
+            }
+        } catch (error: any) {
+            setDeleteModalState({ isSuccess: false, isError: true, errorMessage: error.message });
+            toast.custom(<CustomToast type="error" message={error.message} />);
+        }
+    };
 
     const handleOpenCreateEval = () => {
         const existingEvals = groupedEvaluations.map((item: any) => ({
@@ -208,6 +266,7 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
     };
 
     const handleCreateNewEval = () => {
+        setEvalModalState({ isSuccess: false, isError: false, errorMessage: "" });
         mutate({id, evalData: formDataEval}, {
             onSuccess: async () => {
                 toast.custom(
@@ -217,12 +276,16 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
                     />
                 );
                 
+                setEvalModalState({ isSuccess: true, isError: false, errorMessage: "" });
                 await refetch();
-                setIsModalCreateOpen(false);
+                setTimeout(() => {
+                    setIsModalCreateOpen(false);
+                    setEvalModalState({ isSuccess: false, isError: false, errorMessage: "" });
+                }, 2000);
             },
             onError: (error) => {
+                setEvalModalState({ isSuccess: false, isError: true, errorMessage: error.message || "Terjadi kesalahan" });
                 toast.custom(<CustomToast type="error" message={error.message || "Terjadi kesalahan"} />);
-                setIsModalCreateOpen(false);
             },
         });
     }
@@ -274,6 +337,7 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
     }
 
     const handleUpdateIndikator = () => {
+        setModalState({ isSuccess: false, isError: false, errorMessage: "" });
         updateIndikator({id, indikatorData: formData}, {
             onSuccess: () => {
                 toast.custom(
@@ -282,14 +346,15 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
                         message={"Indikator berhasil diperbarui"} 
                     />
                 );
-                setIsModalUpdateOpen(false);
+                setModalState({ isSuccess: true, isError: false, errorMessage: "" });
                 setTimeout(() => {
+                    setIsModalUpdateOpen(false);
                     router.push("/dashboard/manajemen-kpi/manajemen-indikator-kinerja-karyawan");
                 }, 2000);
             },
             onError: (error) => {
+                setModalState({ isSuccess: false, isError: true, errorMessage: error.message || "Terjadi kesalahan" });
                 toast.custom(<CustomToast type="error" message={error.message || "Terjadi kesalahan"} />);
-                setIsModalUpdateOpen(false);
             },
         });
     };
@@ -602,8 +667,12 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
             </div>
             <CreateEvalModal
                 isOpen={isModalCreateOpen}
-                onClose={() => setIsModalCreateOpen(false)}
-                onSave={() => handleCreateNewEval()} 
+                onClose={() => {
+                    setIsModalCreateOpen(false);
+                    setEvalModalState({ isSuccess: false, isError: false, errorMessage: "" });
+                    setDeleteModalState({ isSuccess: false, isError: false, errorMessage: "" }); // reset here
+                }}
+                onSave={handleCreateNewEval}
                 onEvaluatorChange={addEvalMapToModal}
                 onRemoveItem={(evaluatorId) => {
                     const evalItem = formDataEval.evalMap.find(e => e.evaluatorId === evaluatorId);
@@ -613,17 +682,33 @@ export default function UpdateManajemenIndikatorComponent({id} : {id: string}) {
                     });
                     setIsModalDeleteOpen(true);
                 }}
+                onRemoveFromForm={removeEvalFromModal}
                 potentialEvaluators={potentialEvaluators}
                 groupedEvaluations={groupedEvaluations}
+                getTargetEvaluatees={getTargetEvaluatees}
                 formDataEval={formDataEval}
                 fetchedDataUser={fetchedDataUser}
                 isPending={isPending}
+                saveModalState={evalModalState}
+                deleteModalState={deleteModalState}
+                onResetModalState={() => {
+                    setEvalModalState({ isSuccess: false, isError: false, errorMessage: "" });
+                    setDeleteModalState({ isSuccess: false, isError: false, errorMessage: "" });
+                }}
             />
+
             <ConfirmationPopUpModal
                 isOpen={isModalUpdateOpen}
                 onAction={handleUpdateIndikator}
-                onClose={() => setIsModalUpdateOpen(false)}
-                type="success"
+                onClose={() => {
+                    setIsModalUpdateOpen(false);
+                    setModalState({ isSuccess: false, isError: false, errorMessage: "" });
+                }}
+                isLoading={isPendingUpdateIndikator}
+                isSuccess={modalState.isSuccess}
+                isError={modalState.isError}
+                errorMessage={modalState.errorMessage}
+                type="info"
                 title={"Konfirmasi Perubahan Indikator"}
                 message={"Apakah Anda yakin sudah mengisi data dengan baik"}
                 activeText={"Simpan"}

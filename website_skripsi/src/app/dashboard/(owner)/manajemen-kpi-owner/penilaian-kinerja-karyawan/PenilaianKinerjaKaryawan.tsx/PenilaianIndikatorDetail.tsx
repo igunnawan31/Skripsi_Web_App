@@ -19,7 +19,10 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
     const evaluatee = searchParams.get("evaluatee") || "";
     const evaluator = searchParams.get("evaluator") || "";
     
-    const { data: detailDataPertanyaan, isLoading: isDetailPertanyaanLoading, error: detailPertanyaanError } = useKpi().fetchAllQuestionByIdIndikator({id: id});
+    const { data: detailDataPertanyaan, isLoading: isDetailPertanyaanLoading, error: detailPertanyaanError } = useKpi().fetchAllQuestionByIdIndikator({
+        id: id,
+        limit: 100
+    });
     const { data: detailDataJawaban, isLoading: isDetailJawabanLoading, error: detailJawabanError } = useJawaban().fetchUserAnswersByIndikator({
         indikatorId: id,
         evaluateeId: evaluatee,
@@ -29,7 +32,11 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
     
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formJawaban, setFormJawaban] = useState<{ [key: string]: { nilai: number | null, notes: string } }>({});
-
+    const [modalState, setModalState] = useState({
+        isSuccess: false,
+        isError: false,
+        errorMessage: "",
+    });
     const questions = detailDataPertanyaan?.data || [];
     const allAnswers = Array.isArray(detailDataJawaban) ? detailDataJawaban : [];
 
@@ -85,33 +92,34 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
     const nilaiAkhir = hitungNilaiAkhir();
 
     useEffect(() => {
-        if (detailDataPertanyaan?.data && Object.keys(formJawaban).length === 0 && !sudahDinilai) {
-            const initialForm: { [key: string]: { nilai: number | null, notes: string } } = {};
-            detailDataPertanyaan.data.forEach((p: any) => {
-                initialForm[p.id] = { nilai: null, notes: "" };
-            });
-            setFormJawaban(initialForm);
-        }
-    }, [detailDataPertanyaan]);
+        if (!detailDataPertanyaan?.data || sudahDinilai) return;
+
+        const initialForm: { [key: string]: { nilai: number | null, notes: string } } = {};
+        detailDataPertanyaan.data.forEach((p: any) => {
+            initialForm[p.id] = { nilai: null, notes: "" };
+        });
+        setFormJawaban(initialForm);
+    }, [detailDataPertanyaan?.data, sudahDinilai]);
 
     useEffect(() => {
-        if (sudahDinilai && answers.length > 0) {
-            const existingAnswers: { [key: string]: { nilai: number | null, notes: string } } = {};
-            answers.forEach((j: any) => {
-                existingAnswers[j.pertanyaanId] = {
-                    nilai: j.nilai,
-                    notes: j.notes || ""
-                };
-            });
-            setFormJawaban(existingAnswers);
-        }
-    }, [detailDataJawaban]);
+        if (!sudahDinilai || answers.length === 0) return;
+
+        const existingAnswers: { [key: string]: { nilai: number | null, notes: string } } = {};
+        answers.forEach((j: any) => {
+            existingAnswers[j.pertanyaanId] = {
+                nilai: j.nilai,
+                notes: j.notes || ""
+            };
+        });
+        setFormJawaban(existingAnswers);
+    }, [sudahDinilai, answers.length]);
 
     const handleOpenModal = () => {
         if (!allAnswered) {
             toast.custom(<CustomToast type="error" message="Mohon lengkapi semua penilaian" />);
             return;
         }
+        setModalState({ isSuccess: false, isError: false, errorMessage: "" });
         setIsModalOpen(true);
     };
 
@@ -129,12 +137,13 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
                 toast.custom(
                     <CustomToast 
                         type="success" 
-                        message="Pertanyaan berhasil dibuat" 
+                        message="Penilaian berhasil disimpan" 
                     />
                 );
-
-                setIsModalOpen(false);
+                setModalState({ isSuccess: true, isError: false, errorMessage: "" });
                 setTimeout(() => {
+                    setIsModalOpen(false);
+                    setModalState({ isSuccess: false, isError: false, errorMessage: "" });
                     router.push(`/dashboard/manajemen-kpi/penilaian-kinerja-karyawan/`);
                 }, 2000);
             },
@@ -145,10 +154,10 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
                         message={err.message} 
                     />
                 );
-                setIsModalOpen(false);
+                setModalState({ isSuccess: false, isError: true, errorMessage: err.message });
             }
         });
-    }
+    };
     
     const getErrorMessage = () => {
         if (detailJawabanError?.message) return detailJawabanError.message;
@@ -332,10 +341,17 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
             <ConfirmationPopUpModal
                 isOpen={isModalOpen}
                 onAction={handleSubmit}
-                onClose={() => setIsModalOpen(false)}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setModalState({ isSuccess: false, isError: false, errorMessage: "" });
+                }}
+                isLoading={isPending}
+                isSuccess={modalState.isSuccess}
+                isError={modalState.isError}
+                errorMessage={modalState.errorMessage}
                 type="info"
-                title={"Konfirmasi Simpan Penilaian"}
-                message={"Apakah Anda yakin ingin menyimpan data penilaian ini"}
+                title="Konfirmasi Simpan Penilaian"
+                message="Apakah Anda yakin ingin menyimpan data penilaian ini"
                 activeText="Ya"
                 passiveText="Batal"
             />

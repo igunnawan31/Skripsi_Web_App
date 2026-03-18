@@ -68,8 +68,14 @@ export const useProject = () => {
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || "Failed to fetch project by ID");
+                    let errorMessage = "Failed to get project by id";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
                 }
 
                 return response.json();
@@ -113,10 +119,10 @@ export const useProject = () => {
                 });
 
                 if (!response.ok) {
-                    let errorMessage = "Failed to create kontrak";
+                    let errorMessage = "Failed to create new project";
                     try {
                         const errorData = await response.json();
-                        errorMessage = errorData.message || errorMessage;
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
                     } catch {
                         errorMessage = response.statusText || errorMessage;
                     }
@@ -150,7 +156,12 @@ export const useProject = () => {
                 fd.append('status', projectData.status || '');
                 fd.append('startDate', projectData.startDate || '');
                 fd.append('endDate', projectData.endDate || '');
-                fd.append('removeDocuments', JSON.stringify(projectData.removeDocuments || []));
+
+                if (projectData.removeDocuments && projectData.removeDocuments.length > 0) {
+                    projectData.removeDocuments.forEach((filename, index) => {
+                        fd.append(`removeDocuments[${index}]`, filename);
+                    });
+                }
 
                 if (projectData.projectDocument?.length) {
                     projectData.projectDocument.forEach(file => {
@@ -168,10 +179,10 @@ export const useProject = () => {
                 });
 
                 if (!response.ok) {
-                    let errorMessage = "Failed to update kontrak";
+                    let errorMessage = "Failed to update project";
                     try {
                         const errorData = await response.json();
-                        errorMessage = errorData.message || errorMessage;
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
                     } catch {
                         errorMessage = response.statusText || errorMessage;
                     }
@@ -210,8 +221,14 @@ export const useProject = () => {
                 });
 
                 if (!response.ok) {
-                    const text = await response.text();
-                    throw new Error(text || "Failed to delete project");
+                    let errorMessage = "Failed to delete project";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
                 }
 
                 return true;

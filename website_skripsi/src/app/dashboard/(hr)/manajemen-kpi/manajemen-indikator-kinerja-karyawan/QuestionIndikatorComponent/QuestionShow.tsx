@@ -28,6 +28,7 @@ const QuestionShow = ({fetchedData}: QuestionShowProps) => {
     const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
     const [selectedKategori, setSelectedKategori] = useState<string>(searchParams.get("kategori") || "All");
     const [searchQuery, setSearchQuery] = useState("");
+    const [isMounted, setIsMounted] = useState(false);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -35,22 +36,34 @@ const QuestionShow = ({fetchedData}: QuestionShowProps) => {
         setSearchQuery(query);
     };
 
-    const { data, isLoading, error} = useKpi().fetchAllQuestionByIdIndikator({
+    const { data, isLoading, error, refetch} = useKpi().fetchAllQuestionByIdIndikator({
         id: fetchedData,
+        page: currentPage,
+        limit: itemsPerPage,
         kategori: selectedKategori !== "All" ? selectedKategori : undefined,
         searchTerm: searchQuery || undefined,
     });
 
     const questionData = [...(data?.data || [])].sort((a, b) => a.urutanSoal - b.urutanSoal);
     const totalItems = data?.meta?.total || 0;
-    const deleteQuestion = useQuestion().deleteQuestion();
+    const { mutate: deleteQuestion, isPending} = useQuestion().deleteQuestion();
+    const [modalState, setModalState] = useState({
+        isSuccess: false,
+        isError: false,
+        errorMessage: ""
+    });
 
     useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (!isMounted) return;
         const params = new URLSearchParams();
         if (selectedKategori && selectedKategori !== "All") params.set("kategori", selectedKategori);
         if (searchQuery) params.set("searchTerm", searchQuery);
         router.replace(`?${params.toString()}`);
-    }, [selectedKategori, searchQuery, router]);
+    }, [selectedKategori, searchQuery, isMounted]);
 
     const handleApplyFilters = (filters: Record<string, string | undefined>) => {
         setSelectedKategori(filters.kategori || "All");
@@ -58,32 +71,41 @@ const QuestionShow = ({fetchedData}: QuestionShowProps) => {
 
     const handleOpenModal = (id: string) => {
         setSelectedQuestionId(id);
+        setModalState({ isSuccess: false, isError: false, errorMessage: "" });
         setIsModalOpen(true);
     };
+
 
     const handleHapusPertanyaan = () => {
         if (!selectedQuestionId) return;
         
-        deleteQuestion.mutate(selectedQuestionId, {
+        deleteQuestion(selectedQuestionId, {
             onSuccess: () => {
                 toast.custom(
                     <CustomToast
                         type="success"
-                        message={"Indikator berhasil dihapus"}
+                        message={"Pertanyaan berhasil dihapus"}
                     />
                 );
-                setIsModalOpen(false);
-                setSelectedQuestionId("");
+                setModalState({ isSuccess: true, isError: false, errorMessage: "" });
+                setTimeout(async () => {
+                    setIsModalOpen(false);
+                    setSelectedQuestionId("");
+                    await refetch();
+                }, 2000);
             },
             onError: (error) => {
+                setModalState({ 
+                    isSuccess: false, 
+                    isError: true, 
+                    errorMessage: error.message 
+                });
                 toast.custom(
                     <CustomToast
                         type="error"
                         message={error?.message || "Terjadi kendala ketika ingin menghapus indikator"}
                     />
                 );
-                setIsModalOpen(false);
-                setSelectedQuestionId("");
             }
         })
     };
@@ -182,7 +204,16 @@ const QuestionShow = ({fetchedData}: QuestionShowProps) => {
                         </>
                     )}
                 </div>
-                {questionData.length > 0 ? (
+            {isLoading ? (
+                <div className="flex flex-col gap-6">
+                    {Array.from({ length: itemsPerPage }).map((_, i) => (
+                        <div
+                            key={i}
+                            className="animate-pulse w-full bg-slate-200 h-48 rounded-xl"
+                        ></div>
+                    ))}
+                </div>
+            ) : questionData.length > 0 ? (
                     <form className="space-y-6">
                         <div className="flex flex-col">
                             <div className="space-y-4">
@@ -331,8 +362,15 @@ const QuestionShow = ({fetchedData}: QuestionShowProps) => {
             <ConfirmationPopUpModal
                 isOpen={isModalOpen}
                 onAction={handleHapusPertanyaan}
-                onClose={() => setIsModalOpen(false)}
-                type="error"
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setModalState({ isSuccess: false, isError: false, errorMessage: "" });
+                }}
+                isLoading={isPending}
+                isSuccess={modalState.isSuccess}
+                isError={modalState.isError}
+                errorMessage={modalState.errorMessage}
+                type="info"
                 title={"Konfirmasi Hapus Pertanyaan"}
                 message={"Apakah Anda yakin ingin menghapus data pertanyaan ini"}
                 activeText="Ya"

@@ -45,7 +45,6 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
 
         removeDocuments: []
     });
-
     const [errors, setErrors] = useState({
         metodePembayaran: "",
         totalBayaran: "",
@@ -54,6 +53,12 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
         status: "",
         startDate: "",
         endDate: "",
+        contractDocuments: null,
+    });
+    const [modalState, setModalState] = useState({
+        isSuccess: false,
+        isError: false,
+        errorMessage: ""
     });
 
     const data = fetchedData;
@@ -69,6 +74,7 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
     const [documentFiles, setDocumentFiles] = useState<File[]>([]);
     const [previewDocumentUrl, setPreviewDocumentUrl] = useState<string | null>(null);
     const [activePreviewIndex, setActivePreviewIndex] = useState<number | null>(null);
+    const [originalDocuments, setOriginalDocuments] = useState<{filename: string, path: string}[]>([]);
 
     const [lockDate, setLockDate] = useState(false);
     
@@ -250,19 +256,28 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
     };
 
     const handleDeleteDocument = (index: number) => {
-        setDocumentFiles(prev => {
-            const copy = [...prev];
-            copy.splice(index, 1);
-            return copy;
-        });
+        const documentToDelete = originalDocuments[index];
 
-        setFormData(prev => {
-            const copy = [...(prev.contractDocuments || [])];
-            copy.splice(index, 1);
-            return { ...prev, contractDocuments: copy };
-        });
+        if (documentToDelete?.path) {
+            setFormData(prev => ({
+                ...prev,
+                removeDocuments: [...(prev.removeDocuments || []), documentToDelete.path]
+            }));
+        } else {
+            const serverFileCount = originalDocuments.filter(doc => doc.path).length;
+            const localIndex = index - serverFileCount;
 
-        toast.custom(<CustomToast type="success" message="Dokumen berhasil dihapus" />);
+            setFormData(prev => {
+                const newFiles = prev.contractDocuments ? [...prev.contractDocuments] : [];
+                newFiles.splice(localIndex, 1);
+                return { ...prev, contractDocuments: newFiles };
+            });
+        }
+
+        setDocumentFiles(prev => prev.filter((_, i) => i !== index));
+        setOriginalDocuments(prev => prev.filter((_, i) => i !== index));
+
+        toast.custom(<CustomToast type="success" message="Dokumen ditandai untuk dihapus" />);
     };
 
     const handlePreviewFile = (index: number) => {
@@ -331,6 +346,7 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
             status: "",
             startDate: "",
             endDate: "",
+            contractDocuments: "",
         };
         let isValid = true;
 
@@ -363,8 +379,12 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
             newErrors.status = "Status kontrak harus dipilih";
             isValid = false;
         }
+        if (documentFiles.length === 0) {
+            newErrors.contractDocuments = "Minimal satu dokumen kontrak harus diunggah";
+            isValid = false;
+        }
 
-        setErrors(newErrors);
+        setErrors(newErrors as any);
 
         if (!isValid) {
             toast.custom(
@@ -382,20 +402,19 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
     const handleSubmit = () => {
         mutate({id, kontrakData: formData}, {
             onSuccess: () => {
-                toast.custom(
-                    <CustomToast 
-                        type="success" 
-                        message={"Kontrak kerja berhasil dibuat"} 
-                    />
-                );
-                setIsModalOpen(false);
+                setModalState({ isSuccess: true, isError: false, errorMessage: "" });
                 setTimeout(() => {
+                    setIsModalOpen(false);
                     router.push("/dashboard/kontrak-kerja-karyawan");
                 }, 2000);
             },
             onError: (error) => {
-                toast.custom(<CustomToast type="error" message={error.message || "Terjadi kesalahan"} />);
-                setIsModalOpen(false);
+                setModalState({ 
+                    isSuccess: false, 
+                    isError: true, 
+                    errorMessage: error.message 
+                });
+                toast.custom(<CustomToast type="error" message={error.message} />);
             },
         });
     };
@@ -457,21 +476,23 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
 
             if (Array.isArray(data.documents) && data.documents.length > 0) {
                 const pdfFiles: File[] = [];
+                const docRefs: {filename: string, path: string}[] = [];
 
                 for (const doc of data.documents) {
                     if (!doc.path) continue;
                     try {
                         const blob = await fetchFileBlob(doc.path);
-                        const file = new File([blob], doc.originalname ?? "Unknown Document", {
+                        const file = new File([blob], doc.originalname ?? "Unknown", {
                             type: doc.mimetype ?? "application/pdf",
                         });
                         pdfFiles.push(file);
+                        docRefs.push({ filename: doc.filename, path: doc.path });
                     } catch (err) {
                         console.error("Load document error:", err);
                     }
                 }
-
                 setDocumentFiles(pdfFiles);
+                setOriginalDocuments(docRefs);
             }
         };
 
@@ -1094,7 +1115,7 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                     </div>
 
                     <div className="flex flex-col gap-4">
-                        <label className="text-sm font-medium text-gray-600 mb-1">Upload Document Asli (pdf)</label>
+                        <label className="text-sm font-medium text-gray-600 mb-1">Upload Document Asli (pdf) <span className="text-(--color-primary)">*</span></label>
                         {documentFiles.length > 0 ? (
                             documentFiles.map((file, index) => (
                                 <div key={index} className="flex justify-between items-center rounded-lg p-4 border border-(--color-border) shadow-sm hover:shadow-md transition-shadow bg-white">
@@ -1191,10 +1212,20 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
                         />
                         <label
                             htmlFor="addDocuments"
-                            className="mt-2 flex items-center justify-center text-sm rounded-lg text-(--color-textPrimary) bg-(--color-surface) border-(--color-border) border-2 hover:border-(--color-tertiary) px-4 py-2 cursor-pointer"
+                            className={`mt-2 flex items-center justify-center text-sm rounded-lg text-(--color-textPrimary) bg-(--color-surface) border-2 px-4 py-2 cursor-pointer transition-colors
+                                ${errors.contractDocuments 
+                                    ? "border-(--color-primary) bg-red-50" 
+                                    : "border-(--color-border) hover:border-(--color-tertiary)"
+                                }`}
                         >
                             Tambah Dokumen
                         </label>
+
+                        {errors.contractDocuments && (
+                            <p className="text-xs text-(--color-primary) mt-1 animate-in fade-in slide-in-from-top-1">
+                                {errors.contractDocuments}
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex flex-col">
@@ -1254,8 +1285,15 @@ export default function UpdateKontrakKerjaPage({ id }: { id: string }) {
             <ConfirmationPopUpModal
                 isOpen={isModalOpen}
                 onAction={handleSubmit}
-                onClose={() => setIsModalOpen(false)}
-                type="success"
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setModalState(prev => ({ ...prev, isError: false }));
+                }}
+                isLoading={isPending}
+                isSuccess={modalState.isSuccess}
+                isError={modalState.isError}
+                errorMessage={modalState.errorMessage}
+                type="info"
                 title={"Konfirmasi Pembaruan Kontrak Kerja"}
                 message={"Apakah Anda yakin sudah mengisi data dengan baik"}
                 activeText={"Simpan"}

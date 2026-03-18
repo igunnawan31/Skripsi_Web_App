@@ -151,10 +151,10 @@ export const useKontrak = () => {
                 });
 
                 if (!response.ok) {
-                    let errorMessage = "Failed to create kontrak";
+                    let errorMessage = "Failed to create kontrak"
                     try {
                         const errorData = await response.json();
-                        errorMessage = errorData.message || errorMessage;
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
                     } catch {
                         errorMessage = response.statusText || errorMessage;
                     }
@@ -225,10 +225,10 @@ export const useKontrak = () => {
                 });
 
                 if (!response.ok) {
-                    let errorMessage = "Failed to update kontrak";
+                    let errorMessage = "Failed to update kontrak"
                     try {
                         const errorData = await response.json();
-                        errorMessage = errorData.message || errorMessage;
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
                     } catch {
                         errorMessage = response.statusText || errorMessage;
                     }
@@ -265,8 +265,14 @@ export const useKontrak = () => {
                 });
 
                 if (!response.ok) {
-                    const text = await response.text();
-                    throw new Error(text || "Failed to delete kontrak");
+                    let errorMessage = "Failed to delete kontrak"
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
                 }
 
                 return true;

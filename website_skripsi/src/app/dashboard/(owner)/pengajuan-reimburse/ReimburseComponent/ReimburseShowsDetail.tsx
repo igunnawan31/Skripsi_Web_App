@@ -21,14 +21,20 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
         error: detailError,
     } = reimburse.fetchReimburseById(id);
 
-    const approveReimburse = useReimburse().approveReimburse();
-    const rejectReimburse = useReimburse().rejectReimburse();
+    const {mutate: approveReimburse, isPending: isPendingApprove} = useReimburse().approveReimburse();
+    const {mutate: rejectReimburse, isPending: isPendingReject} = useReimburse().rejectReimburse();
     const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
     const [catatan, setCatatan] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [actionType, setActionType] = useState<"approve" | "reject" | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const router = useRouter();
+
+    const [modalState, setModalState] = useState({
+        isSuccess: false,
+        isError: false,
+        errorMessage: ""
+    });
     
     const loadPhoto = async (photoPath: string) => {
         try {
@@ -72,6 +78,7 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
             return;
         }
 
+        setModalState({ isSuccess: false, isError: false, errorMessage: "" });
         setActionType(type);
         setIsModalOpen(true);
     };
@@ -80,7 +87,7 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
         if (!detailData || !actionType) return;
 
         const mutateFn = actionType === "approve" ? approveReimburse : rejectReimburse;
-        mutateFn.mutate(
+        mutateFn(
             {id, catatan},
             {
                 onSuccess: () => {
@@ -90,14 +97,16 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
                             message={`Reimburse berhasil ${actionType === "approve" ? "disetujui" : "ditolak"}`} 
                         />
                     );
-                    setIsModalOpen(false);
+                    setModalState({ isSuccess: true, isError: false, errorMessage: "" });
                     setTimeout(() => {
+                        setIsModalOpen(false);
+                        setModalState({ isSuccess: false, isError: false, errorMessage: "" });
                         router.push("/dashboard/pengajuan-reimburse");
                     }, 2000);
                 },
                 onError: (err: any) => {
                     toast.custom(<CustomToast type="error" message={err.message} />);
-                    setIsModalOpen(false);
+                    setModalState({ isSuccess: false, isError: true, errorMessage: err.message });
                 },
             }
         )
@@ -448,17 +457,17 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
                         <div className="flex justify-between gap-3">
                             <button
                                 onClick={() => handleOpenModal("approve")}
-                                disabled={approveReimburse.isPending}
+                                disabled={isPendingApprove}
                                 className="w-full px-4 py-2 bg-(--color-success) hover:bg-green-600 text-white rounded-lg transition-colors cursor-pointer"
                             >
-                                {approveReimburse.isPending ? "Menyutujui..." : "Setujui"}
+                                {isPendingApprove ? "Menyutujui..." : "Setujui"}
                             </button>
                             <button
                                 onClick={() => handleOpenModal("reject")}                            
-                                disabled={rejectReimburse.isPending}
+                                disabled={isPendingReject}
                                 className="w-full px-4 py-2 bg-(--color-primary) hover:bg-red-800 text-white rounded-lg transition-colors cursor-pointer"
                             >
-                                {rejectReimburse.isPending ? "Menolak..." : "Tolak"}
+                                {isPendingReject ? "Menolak..." : "Tolak"}
                             </button>
                         </div>
                     )}
@@ -467,8 +476,15 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
             <ConfirmationPopUpModal
                 isOpen={isModalOpen}
                 onAction={handleConfirmAction}
-                onClose={() => setIsModalOpen(false)}
-                type="success"
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setModalState({ isSuccess: false, isError: false, errorMessage: "" });
+                }}
+                isLoading={isPendingApprove || isPendingReject}
+                isSuccess={modalState.isSuccess}
+                isError={modalState.isError}
+                errorMessage={modalState.errorMessage}
+                type="info"
                 title={actionType === "approve" ? "Konfirmasi Persetujuan" : "Konfirmasi Penolakan"}
                 message={`Apakah Anda yakin ingin ${actionType === "approve" ? "menyetujui" : "menolak"} reimburse ini?`}
                 activeText={actionType === "approve" ? "Setujui" : "Tolak"}

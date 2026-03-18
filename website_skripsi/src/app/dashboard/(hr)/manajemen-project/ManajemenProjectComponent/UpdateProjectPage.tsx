@@ -22,6 +22,7 @@ export default function UpdateProjectPage({ id }: { id: string }) {
     const [documentFiles, setDocumentFiles] = useState<File[]>([]);
     const [previewDocumentUrl, setPreviewDocumentUrl] = useState<string | null>(null);
     const [activePreviewIndex, setActivePreviewIndex] = useState<number | null>(null);
+    const [originalDocuments, setOriginalDocuments] = useState<{filename: string, path: string}[]>([]);
 
     const [formData, setFormData] = useState<Partial<ProjectPatchRequest>>({
         name: "",
@@ -38,6 +39,12 @@ export default function UpdateProjectPage({ id }: { id: string }) {
         description: "",
         startDate: "",
         endDate: "",
+        projectDocument: null,
+    });
+    const [modalState, setModalState] = useState({
+        isSuccess: false,
+        isError: false,
+        errorMessage: ""
     });
 
     useEffect(() => {
@@ -118,19 +125,28 @@ export default function UpdateProjectPage({ id }: { id: string }) {
     };
 
     const handleDeleteDocument = (index: number) => {
-        setDocumentFiles(prev => {
-            const copy = [...prev];
-            copy.splice(index, 1);
-            return copy;
-        });
+        const documentToDelete = originalDocuments[index];
 
-        setFormData(prev => {
-            const copy = [...(prev.projectDocument || [])];
-            copy.splice(index, 1);
-            return { ...prev, projectDocument: copy };
-        });
+        if (documentToDelete?.path) {
+            setFormData(prev => ({
+                ...prev,
+                removeDocuments: [...(prev.removeDocuments || []), documentToDelete.path]
+            }));
+        } else {
+            const serverFileCount = originalDocuments.filter(doc => doc.path).length;
+            const localIndex = index - serverFileCount;
 
-        toast.custom(<CustomToast type="success" message="Dokumen berhasil dihapus" />);
+            setFormData(prev => {
+                const newFiles = prev.projectDocument ? [...prev.projectDocument] : [];
+                newFiles.splice(localIndex, 1);
+                return { ...prev, projectDocument: newFiles };
+            });
+        }
+
+        setDocumentFiles(prev => prev.filter((_, i) => i !== index));
+        setOriginalDocuments(prev => prev.filter((_, i) => i !== index));
+
+        toast.custom(<CustomToast type="success" message="Dokumen ditandai untuk dihapus" />);
     };
 
     const handlePreviewFile = (index: number) => {
@@ -154,7 +170,6 @@ export default function UpdateProjectPage({ id }: { id: string }) {
 
         URL.revokeObjectURL(url);
     };
-
 
     const getFileIcon = (mimetype: any) => {
         if (!mimetype) return icons.pdfFormat;
@@ -218,28 +233,25 @@ export default function UpdateProjectPage({ id }: { id: string }) {
 
     const handleSubmit = () => {
         if (!data) return;
+        setModalState({ isSuccess: false, isError: false, errorMessage: "" });
 
-        updateProject.mutate({id: data.id, projectData: formData}, {
-                onSuccess: () => {
-                    toast.custom(
-                        <CustomToast 
-                            type="success" 
-                            message="Project berhasil diupdate"
-                        />
-                    );
+        updateProject.mutate({ id: data.id, projectData: formData }, {
+            onSuccess: () => {
+                setModalState({ isSuccess: true, isError: false, errorMessage: "" });
+                setTimeout(() => {
                     setIsModalOpen(false);
-                    setTimeout(() => {
-                        router.push("/dashboard/manajemen-project");
-                    }, 2000);
-                },
-                onError: (error) => {
-                    toast.custom(
-                        <CustomToast type="error" message={error.message} />
-                    );
-                    setIsModalOpen(false);
-                },
-            }
-        );
+                    router.push("/dashboard/manajemen-project");
+                }, 2000);
+            },
+            onError: (error) => {
+                setModalState({ 
+                    isSuccess: false, 
+                    isError: true, 
+                    errorMessage: error.message 
+                });
+                toast.custom(<CustomToast type="error" message={error.message} />);
+            },
+        });
     };
 
     useEffect(() => {
@@ -252,30 +264,31 @@ export default function UpdateProjectPage({ id }: { id: string }) {
                 description: data.description ?? "",
                 startDate: data.startDate?.slice(0, 10) ?? "",
                 endDate: data.endDate?.slice(0, 10) ?? "",
-
-                projectDocument: null,
+                projectDocument: [],
+                removeDocuments: []
             });
 
             if (Array.isArray(data.documents) && data.documents.length > 0) {
                 const pdfFiles: File[] = [];
+                const docRefs: {filename: string, path: string}[] = [];
 
                 for (const doc of data.documents) {
                     if (!doc.path) continue;
                     try {
                         const blob = await fetchFileBlob(doc.path);
-                        const file = new File([blob], doc.originalname ?? "Unknown Document", {
+                        const file = new File([blob], doc.originalname ?? "Unknown", {
                             type: doc.mimetype ?? "application/pdf",
                         });
                         pdfFiles.push(file);
+                        docRefs.push({ filename: doc.filename, path: doc.path });
                     } catch (err) {
                         console.error("Load document error:", err);
                     }
                 }
-
                 setDocumentFiles(pdfFiles);
+                setOriginalDocuments(docRefs);
             }
         };
-
         loadData();
     }, [data]);
 
@@ -572,10 +585,20 @@ export default function UpdateProjectPage({ id }: { id: string }) {
                         />
                         <label
                             htmlFor="addDocuments"
-                            className="mt-2 flex items-center justify-center text-sm rounded-lg text-(--color-textPrimary) bg-(--color-surface) border-(--color-border) border-2 hover:border-(--color-tertiary) px-4 py-2 cursor-pointer"
+                            className={`mt-2 flex items-center justify-center text-sm rounded-lg text-(--color-textPrimary) bg-(--color-surface) border-2 px-4 py-2 cursor-pointer transition-colors
+                                ${errors.projectDocument 
+                                    ? "border-(--color-primary) bg-red-50" 
+                                    : "border-(--color-border) hover:border-(--color-tertiary)"
+                                }`}
                         >
                             Tambah Dokumen
                         </label>
+
+                        {errors.projectDocument && (
+                            <p className="text-xs text-(--color-primary) mt-1 animate-in fade-in slide-in-from-top-1">
+                                {errors.projectDocument}
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex justify-end gap-4 pt-4">
@@ -598,10 +621,17 @@ export default function UpdateProjectPage({ id }: { id: string }) {
             <ConfirmationPopUpModal
                 isOpen={isModalOpen}
                 onAction={handleSubmit}
-                onClose={() => setIsModalOpen(false)}
-                type="success"
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setModalState(prev => ({ ...prev, isError: false }));
+                }}
+                isLoading={isPending}
+                isSuccess={modalState.isSuccess}
+                isError={modalState.isError}
+                errorMessage={modalState.errorMessage}
+                type="info"
                 title={"Konfirmasi Update Project"}
-                message={"Apakah Anda yakin sudah mengisi data dengan baik"}
+                message={"Apakah Anda yakin ingin menyimpan perubahan ini?"}
                 activeText={"Simpan"}
                 passiveText="Batal"
             />

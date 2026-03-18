@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import { icons } from "@/app/lib/assets/assets";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { KategoriPertanyaanKPI, QuestionCreateForm, SkalaNilai } from "@/app/lib/types/kpi/kpiTypes";
 import toast from "react-hot-toast";
 import CustomToast from "@/app/rootComponents/CustomToast";
+import ConfirmationPopUpModal from "@/app/dashboard/dashboardComponents/allComponents/ConfirmationPopUpModal";
 
 interface QuestionCreateProps {
     indikatorId: string;
@@ -14,6 +15,7 @@ interface QuestionCreateProps {
     onSave: (data: QuestionCreateForm[]) => void;
     isPending: boolean;
     existingCount: number;
+    saveModalState: { isSuccess: boolean; isError: boolean; errorMessage: string };
 }
 
 const QuestionCreateModal = ({
@@ -23,6 +25,7 @@ const QuestionCreateModal = ({
     onSave,
     isPending,
     existingCount,
+    saveModalState,
 }: QuestionCreateProps) => {
     const [questions, setQuestions] = useState<QuestionCreateForm[]>([]);
     const [errors, setErrors] = useState<{
@@ -31,6 +34,13 @@ const QuestionCreateModal = ({
     }[]>([]);
     const newUrutan = existingCount + questions.length;
 
+    useEffect(() => {
+        if (!isOpen) {
+            setQuestions([]);
+            setErrors([]);
+        }
+    }, [isOpen]);
+ 
     if (!isOpen) return null;
 
    const handleTambahPertanyaan = () => {
@@ -52,208 +62,216 @@ const QuestionCreateModal = ({
         setQuestions(updatedQuestions);
     };
 
+    const validateForm = () => {
+        const newErrors = questions.map((q) => {
+            const errorItem: { pertanyaan?: string; bobot?: string } = {};
+            if (!q.pertanyaan.trim()) errorItem.pertanyaan = "Pertanyaan wajib diisi";
+            if (q.bobot < 1) errorItem.bobot = "Bobot minimal 1";
+            return errorItem;
+        });
+        setErrors(newErrors);
+        return newErrors.every((err) => Object.keys(err).length === 0);
+    };
+
     const handleHapusPertanyaan = (index: number) => {
         setQuestions(questions.filter((_, i) => i !== index));
         setErrors(errors.filter((_, i) => i !== index));
     };
 
+    const handleClose = () => {
+        setQuestions([]);
+        setErrors([]);
+        onClose();
+    };
+
     const handleLocalSave = () => {
         if (questions.length === 0) {
             toast.custom(
-                <CustomToast
-                    type="error" 
-                    message="Tambahkan minimal 1 pertanyaan" 
-                />
+                <CustomToast type="error" message="Tambahkan minimal 1 pertanyaan" />
             );
             return;
         }
-
+ 
         if (validateForm()) {
             onSave(questions);
         } else {
             toast.custom(
-                <CustomToast 
-                    type="error" 
-                    message="Mohon lengkapi semua field yang wajib diisi" 
-                />
+                <CustomToast type="error" message="Mohon lengkapi semua field yang wajib diisi" />
             );
         }
     };
 
-    const validateForm = () => {
-        const newErrors = questions.map((q) => {
-            const errorItem: { pertanyaan?: string; bobot?: string } = {};
-            
-            if (!q.pertanyaan.trim()) {
-                errorItem.pertanyaan = "Pertanyaan wajib diisi";
-            }
-            if (q.bobot < 1) {
-                errorItem.bobot = "Bobot minimal 1";
-            }
-            
-            return errorItem;
-        });
-
-        setErrors(newErrors as any);
-        
-        return newErrors.every((err) => Object.keys(err).length === 0);
-    };
-
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="bg-white w-full max-w-[80%] rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
-                <div className="p-6 border-b flex justify-between items-center bg-gray-50">
-                    <h3 className="text-lg font-bold text-gray-800">Buat Pertanyaan Baru</h3>
-                    <div
-                        className="p-2 rounded-lg bg-(--color-primary) hover:bg-(--color-primary)/80 cursor-pointer transition"
-                        onClick={onClose}
-                    >
-                        <Image
-                            src={icons.closeMenu}
-                            alt="Close Filter"
-                            width={24}
-                            height={24}
-                        />
-                    </div>
-                </div>
-
-                <div className="p-6 overflow-y-auto">
-                    <div className="space-y-4">
-                        {questions.map((p, index) => (
-                            <div 
-                                key={index} 
-                                className="relative border border-gray-200 bg-gray-50 p-4 rounded-xl shadow-sm hover:shadow-md transition"
-                            >
-                                <div className="mb-3">
-                                    <label className="text-sm font-medium text-gray-600">Pertanyaan #{existingCount + index + 1} <span className="text-(--color-primary)">*</span></label>
-                                    <input
-                                        type="text"
-                                        placeholder="Tulis pertanyaan..."
-                                        value={p.pertanyaan}
-                                        onChange={(e) => handleEditPertanyaan(index, "pertanyaan", e.target.value)}
-                                            className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-yellow-500 transition-colors ${
-                                                errors[index]?.pertanyaan ? "border-red-500 bg-red-50" : "border-gray-300"
-                                            }`}
-                                        />
-                                        {errors[index]?.pertanyaan && (
-                                            <span className="text-xs text-red-500 font-medium mt-1">{errors[index].pertanyaan}</span>
-                                        )}
-                                </div>
-
-                                <div className="grid grid-cols-3 gap-4 mb-4">
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-600">Bobot</label>
-                                        <input
-                                            type="number"
-                                            value={p.bobot}
-                                            onChange={(e) => handleEditPertanyaan(index, "bobot", parseInt(e.target.value) || 0)}
-                                                className={`w-full border rounded-lg px-3 py-2 mt-1 ${
-                                                    errors[index]?.bobot ? "border-red-500 bg-red-50" : "border-gray-300"
-                                                }`}
-                                            />
-                                            {errors[index]?.bobot && (
-                                                <span className="text-xs text-red-500 font-medium mt-1">{errors[index].bobot}</span>
-                                            )}
-                                    </div>
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-600">Kategori</label>
-                                        <select
-                                            value={p.kategori}
-                                            onChange={(e) => handleEditPertanyaan(index, "kategori", e.target.value)}
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1"
-                                        >
-                                            {Object.values(KategoriPertanyaanKPI).map((cat) => (
-                                                <option key={cat} value={cat}>{cat}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-600">Status Aktif</label>
-                                        <select
-                                            value={p.aktif ? "true" : "false"}
-                                            onChange={(e) => handleEditPertanyaan(index, "aktif", e.target.value === "true")}
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-yellow-500"
-                                        >
-                                            <option value="true">Aktif</option>
-                                            <option value="false">Non-Aktif</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className="mt-4">
-                                    <label className="text-sm font-medium text-gray-600 mb-2 block">
-                                        Preview Skala Penilaian
-                                    </label>
-                                    <div className="flex flex-wrap justify-between gap-4">
-                                        {SkalaNilai.map((skala: any) => (
-                                            <label
-                                                key={skala.nilai}
-                                                className="flex items-center gap-2"
-                                            >
-                                                <input
-                                                    type="radio"
-                                                    name={`skala-${index}`}
-                                                    value={skala.nilai}
-                                                    disabled
-                                                    className="text-yellow-500 accent-yellow-500 w-5 h-5"
-                                                />
-                                                <span className="text-sm text-gray-700">
-                                                    {skala.nilai} - {skala.label}
-                                                </span>
-                                            </label>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="w-full flex justify-end items-end mt-5">
-                                    <button
-                                        onClick={() => handleHapusPertanyaan(index)}
-                                        className="text-sm flex px-3 py-2 bg-(--color-primary) rounded-lg gap-2 cursor-pointer hover:bg-(--color-primary)/60"
-                                    >
-                                        <Image
-                                            src={icons.deleteLogo}
-                                            alt="Delete Logo"
-                                            width={16}
-                                            height={16}
-                                        />
-                                        <span className="text-white">Hapus</span>
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                        <div className="flex justify-center mt-6 w-full bg-(--color-tertiary)/30 rounded-lg p-20">
-                            <button
-                                onClick={handleTambahPertanyaan}
-                                className="flex items-center gap-2 text-yellow-600 hover:text-yellow-700 font-medium cursor-pointer p-10 border-(--color-tertiary) border-2 rounded-lg bg-(--color-tertiary)/40"
-                            >
-                                + Tambah Baris Pertanyaan
-                            </button>
+        <>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                <div className="bg-white w-full max-w-[80%] rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+                    <div className="p-6 border-b flex justify-between items-center bg-gray-50">
+                        <h3 className="text-lg font-bold text-gray-800">Buat Pertanyaan Baru</h3>
+                        <div
+                            className="p-2 rounded-lg bg-(--color-primary) hover:bg-(--color-primary)/80 cursor-pointer transition"
+                            onClick={onClose}
+                        >
+                            <Image
+                                src={icons.closeMenu}
+                                alt="Close Filter"
+                                width={24}
+                                height={24}
+                            />
                         </div>
                     </div>
-                </div>
 
-                <div className="p-6 bg-gray-50 border-t flex justify-end gap-3">
-                    <button
-                        type="button" 
-                        onClick={onClose} 
-                        className="px-5 py-2 rounded-lg border border-(--color-border) text-gray-700 hover:bg-gray-100 transition cursor-pointer"
-                    >
-                        Batal
-                    </button>
-                    <button 
-                        type="button"
-                        onClick={handleLocalSave}
-                        disabled={isPending || questions.length === 0}
-                        className={`flex items-center gap-2 px-5 py-2 rounded-lg text-white transition
-                            ${isPending || questions.length === 0
-                                ? "bg-gray-400 cursor-not-allowed"
-                                : "bg-yellow-500 hover:bg-yellow-600 active:scale-[0.98]  cursor-pointer"
-                            }`}
-                    >
-                        <Image src={icons.saveLogo} alt="Save Logo" width={18} height={18} />
-                        {isPending ? "Menyimpan..." : "Simpan Semua Pertanyaan"}
-                    </button>
+                    <div className="p-6 overflow-y-auto">
+                        <div className="space-y-4">
+                            {questions.map((p, index) => (
+                                <div 
+                                    key={index} 
+                                    className="relative border border-gray-200 bg-gray-50 p-4 rounded-xl shadow-sm hover:shadow-md transition"
+                                >
+                                    <div className="mb-3">
+                                        <label className="text-sm font-medium text-gray-600">Pertanyaan #{existingCount + index + 1} <span className="text-(--color-primary)">*</span></label>
+                                        <input
+                                            type="text"
+                                            placeholder="Tulis pertanyaan..."
+                                            value={p.pertanyaan}
+                                            onChange={(e) => handleEditPertanyaan(index, "pertanyaan", e.target.value)}
+                                                className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-yellow-500 transition-colors ${
+                                                    errors[index]?.pertanyaan ? "border-red-500 bg-red-50" : "border-gray-300"
+                                                }`}
+                                            />
+                                            {errors[index]?.pertanyaan && (
+                                                <span className="text-xs text-red-500 font-medium mt-1">{errors[index].pertanyaan}</span>
+                                            )}
+                                    </div>
+
+                                    <div className="grid grid-cols-3 gap-4 mb-4">
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-600">Bobot</label>
+                                            <input
+                                                type="number"
+                                                value={p.bobot}
+                                                onChange={(e) => handleEditPertanyaan(index, "bobot", parseInt(e.target.value) || 0)}
+                                                    className={`w-full border rounded-lg px-3 py-2 mt-1 ${
+                                                        errors[index]?.bobot ? "border-red-500 bg-red-50" : "border-gray-300"
+                                                    }`}
+                                                />
+                                                {errors[index]?.bobot && (
+                                                    <span className="text-xs text-red-500 font-medium mt-1">{errors[index].bobot}</span>
+                                                )}
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-600">Kategori</label>
+                                            <select
+                                                value={p.kategori}
+                                                onChange={(e) => handleEditPertanyaan(index, "kategori", e.target.value)}
+                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1"
+                                            >
+                                                {Object.values(KategoriPertanyaanKPI).map((cat) => (
+                                                    <option key={cat} value={cat}>{cat}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-600">Status Aktif</label>
+                                            <select
+                                                value={p.aktif ? "true" : "false"}
+                                                onChange={(e) => handleEditPertanyaan(index, "aktif", e.target.value === "true")}
+                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-yellow-500"
+                                            >
+                                                <option value="true">Aktif</option>
+                                                <option value="false">Non-Aktif</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4">
+                                        <label className="text-sm font-medium text-gray-600 mb-2 block">
+                                            Preview Skala Penilaian
+                                        </label>
+                                        <div className="flex flex-wrap justify-between gap-4">
+                                            {SkalaNilai.map((skala: any) => (
+                                                <label
+                                                    key={skala.nilai}
+                                                    className="flex items-center gap-2"
+                                                >
+                                                    <input
+                                                        type="radio"
+                                                        name={`skala-${index}`}
+                                                        value={skala.nilai}
+                                                        disabled
+                                                        className="text-yellow-500 accent-yellow-500 w-5 h-5"
+                                                    />
+                                                    <span className="text-sm text-gray-700">
+                                                        {skala.nilai} - {skala.label}
+                                                    </span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="w-full flex justify-end items-end mt-5">
+                                        <button
+                                            onClick={() => handleHapusPertanyaan(index)}
+                                            className="text-sm flex px-3 py-2 bg-(--color-primary) rounded-lg gap-2 cursor-pointer hover:bg-(--color-primary)/60"
+                                        >
+                                            <Image
+                                                src={icons.deleteLogo}
+                                                alt="Delete Logo"
+                                                width={16}
+                                                height={16}
+                                            />
+                                            <span className="text-white">Hapus</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                            <div className="flex justify-center mt-6 w-full bg-(--color-tertiary)/30 rounded-lg p-20">
+                                <button
+                                    onClick={handleTambahPertanyaan}
+                                    className="flex items-center gap-2 text-yellow-600 hover:text-yellow-700 font-medium cursor-pointer p-10 border-(--color-tertiary) border-2 rounded-lg bg-(--color-tertiary)/40"
+                                >
+                                    + Tambah Baris Pertanyaan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="p-6 bg-gray-50 border-t flex justify-end gap-3">
+                        <button
+                            type="button"
+                            onClick={handleClose}
+                            className="px-5 py-2 rounded-lg border border-(--color-border) text-gray-700 hover:bg-gray-100 transition cursor-pointer"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleLocalSave}
+                            disabled={isPending || questions.length === 0}
+                            className={`flex items-center gap-2 px-5 py-2 rounded-lg text-white transition
+                                ${isPending || questions.length === 0
+                                    ? "bg-gray-400 cursor-not-allowed"
+                                    : "bg-yellow-500 hover:bg-yellow-600 active:scale-[0.98] cursor-pointer"
+                                }`}
+                        >
+                            <Image src={icons.saveLogo} alt="Save Logo" width={18} height={18} />
+                            {isPending ? "Menyimpan..." : "Simpan Semua Pertanyaan"}
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+            <ConfirmationPopUpModal
+                isOpen={isPending || saveModalState.isSuccess || saveModalState.isError}
+                onAction={handleLocalSave}
+                onClose={() => {}}
+                isLoading={isPending}
+                isSuccess={saveModalState.isSuccess}
+                isError={saveModalState.isError}
+                errorMessage={saveModalState.errorMessage}
+                type="info"
+                title="Buat Pertanyaan"
+                message="Sedang membuat data pertanyaan..."
+                activeText="Simpan"
+                passiveText="Batal"
+            />
+        </>
     );
 };
 

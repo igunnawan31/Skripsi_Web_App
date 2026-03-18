@@ -7,7 +7,7 @@ import { ProjectStatus } from "@/app/lib/types/fixTypes";
 import { ResponseProject } from "@/app/lib/types/project/projectTypes";
 
 const ProjectData = () => {
-    const { data } = useProject().fetchAllProject();
+    const { data } = useProject().fetchAllProject({ limit: 1000 });
 
     const stats = useMemo(() => {
         const projects: ResponseProject[] = data?.data || [];
