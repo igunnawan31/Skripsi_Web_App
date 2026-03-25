@@ -75,7 +75,7 @@ export class IndicatorController {
   @Get('/:id/answers')
   getIndikatorAnswersByUserId(
     @Param('id') id: string,
-    @Body('evaluateeId') evaluateeId: string,
+    @Query('evaluateeId') evaluateeId: string,
     @Req() req: Request & { user: UserRequest },
   ) {
     return this.getAllAnswersIndikatorUseCase.execute(id, evaluateeId, req.user);
