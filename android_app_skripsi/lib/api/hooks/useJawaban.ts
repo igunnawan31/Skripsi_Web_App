@@ -52,6 +52,52 @@ export const useJawaban = () => {
         })
     }
 
+    const fetchUserAnswersByIndikator = ({ indikatorId, evaluateeId, ...filters } : {
+        indikatorId: string;
+        evaluateeId: string;
+        limit?: number;
+        sortBy?: string;
+        sortOrder?: "asc" | "desc";
+    }) => {
+        return useQuery({
+            queryKey: ["answers-user", indikatorId, evaluateeId, filters],
+            queryFn: async () => {
+                const token = await getTokens();
+                const jwt = token?.access_token;
+                if (!token?.access_token) throw new Error("No access token found");
+
+                const params = new URLSearchParams();
+                params.append("evaluateeId", evaluateeId);
+                if (filters?.limit !== undefined) params.append("limit", filters.limit.toString());
+                if (filters?.sortBy) params.append("sortBy", filters.sortBy);
+                if (filters?.sortOrder) params.append("sortOrder", filters.sortOrder);
+
+                const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/indicators/${indikatorId}/answers?${params.toString()}`,{
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${jwt}`,
+                    },
+                    credentials: "include",
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Failed to fetch answers kpi"
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                return response.json();
+            },
+            staleTime: 5 * 60 * 1000,
+        })
+    }
+
     const createAnswer = () => {
         const queryClient = useQueryClient();
 
@@ -118,6 +164,7 @@ export const useJawaban = () => {
 
     return {
         fetchAllJawaban,
+        fetchUserAnswersByIndikator,
         createAnswer,
     }
 }

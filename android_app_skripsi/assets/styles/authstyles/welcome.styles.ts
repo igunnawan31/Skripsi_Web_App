@@ -36,14 +36,15 @@ export const welcomeStyles = StyleSheet.create({
         marginBottom: 16,
     },
     title: {
-        fontSize: 18,
+        fontSize: 24,
         fontWeight: "bold",
         color: COLORS.text,
         marginBottom: 8,
     },
     description: {
-        fontSize: 16,
-        textAlign: "justify",
+        width: "90%",
+        fontSize: 24,
+        textAlign: "center",
         color: COLORS.textMuted,
     },
     pagination: {

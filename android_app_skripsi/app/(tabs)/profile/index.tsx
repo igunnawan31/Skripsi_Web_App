@@ -234,10 +234,17 @@ const ProfilePage = () => {
                         <View style={profileStyles.changeImageContainer}>
                             <SkeletonBox width={140} height={40} borderRadius={15} />
                         </View>
-                        <View style={[profileStyles.namaUserContainer, { gap: 4 }]}>
+                        
+                        <View style={[profileStyles.namaUserContainer, { gap: 4, marginBottom: 8 }]}>
                             <SkeletonBox width={120} height={20} borderRadius={4} />
                             <SkeletonBox width={150} height={20} borderRadius={4} />
                         </View>
+
+                        <View style={[profileStyles.subHeaderContainer, { marginBottom: 12 }]}>
+                            <SkeletonBox width={120} height={100} style={{ width: "48%" }} />
+                            <SkeletonBox width={120} height={100} style={{ width: "48%" }} />
+                        </View>
+
                         <View style={profileStyles.menuPickerContainer}>
                             <View style={{ width: '100%', paddingVertical: 10 ,gap: 20 }}>
                                 {[1, 2, 3, 4].map((i) => (
@@ -386,7 +393,7 @@ const ProfilePage = () => {
                                     <View style={gajiDetailStyles.labelContainer}>
                                         {data?.length > 0 ? (
                                             data.map((kontrak: any, kontrakIndex: number) => (
-                                                <View key={kontrak.id || kontrakIndex}>
+                                                <View key={kontrak.id || kontrakIndex} style={{ paddingBottom: 10, borderBottomColor: COLORS.border, borderBottomWidth: 1}}>
                                                     {data.length > 0 && (
                                                         <>
                                                             <View style={cutiStyles.listHeader}>

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Alert } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { useAbsen } from "@/context/AbsenContext";
 import COLORS from "@/constants/colors";
@@ -44,7 +44,6 @@ const SummaryAbsensiPage = () => {
         const now = new Date();
         const utcPlus7 = new Date(now.getTime() + 7 * 60 * 60 * 1000);
         const today = utcPlus7.toISOString();
-        console.log(today);
         return today;
     }, []);
 
@@ -75,7 +74,7 @@ const SummaryAbsensiPage = () => {
     }, []);
 
     const { mutate: checkInMutate, isPending: isUploadingCheckIn, isError, error } = useAbsensi().checkIn();
-    const { mutate: checkOutMutate, isPending: isUploadingCheckOut } = useAbsensi().checkOut();
+    const { mutate: checkOutMutate, isPending: isUploadingCheckOut, isError: isErrorCheckOut, error: errorCheckOut } = useAbsensi().checkOut();
 
     const handleSubmit = () => {
         if (!photoUrl) {
@@ -174,6 +173,52 @@ const SummaryAbsensiPage = () => {
             keyboardShouldPersistTaps="handled"
         >
             <View style={absenSummaryStyles.container}>
+                {isUploadingCheckIn || isUploadingCheckOut && (
+                    <View 
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            zIndex: 1000,
+                            borderRadius: 12,
+                        }}
+                    >
+                        <View 
+                            style={{
+                                backgroundColor: COLORS.white,
+                                padding: 24,
+                                borderRadius: 12,
+                                alignItems: 'center',
+                                shadowColor: '#000',
+                                shadowOffset: { width: 0, height: 4 },
+                                shadowOpacity: 0.3,
+                                shadowRadius: 8,
+                                elevation: 8,
+                            }}
+                        >
+                            <ActivityIndicator size="large" color={COLORS.primary} />
+                            <Text style={{ 
+                                marginTop: 12, 
+                                fontSize: 16, 
+                                fontWeight: '600',
+                                color: COLORS.textPrimary 
+                            }}>
+                                Mengirim Absensi...
+                            </Text>
+                            <Text style={{ 
+                                marginTop: 4, 
+                                fontSize: 12, 
+                                color: COLORS.textMuted 
+                            }}>
+                                Mohon tunggu sebentar
+                            </Text>
+                        </View>
+                    </View>
+                )}
                 <View style={absenSummaryStyles.header}>
                     <View style={absenSummaryStyles.logoHeaderContainer}>
                         <Image
@@ -191,32 +236,37 @@ const SummaryAbsensiPage = () => {
                     </View>
                 </View>
 
-                <View style={absenSummaryStyles.section}>
-                    <Text style={absenSummaryStyles.sectionTitle}>Tipe Kehadiran</Text>
-                    <View style={absenSummaryStyles.radioGroup}>
-                        {Object.values(WorkStatus).map((option) => (
-                            <TouchableOpacity
-                                key={option}
-                                style={[
-                                    absenSummaryStyles.radioButton,
-                                    workStatus === option && absenSummaryStyles.radioButtonSelected
-                                ]}
-                                onPress={() => setWorkStatus(option as any)}
-                            >
-                                <View style={[
-                                    absenSummaryStyles.radioCircle,
-                                    workStatus === option && absenSummaryStyles.radioCircleSelected
-                                ]} />
-                                <Text style={[
-                                    absenSummaryStyles.radioText,
-                                    workStatus === option && absenSummaryStyles.radioTextSelected
-                                ]}>
-                                    {option}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
+                {mode === "Check-In" && (
+                    <View style={{ paddingHorizontal: 20, width: "100%"}}>
+                        <View style={absenSummaryStyles.section}>
+                            <Text style={absenSummaryStyles.sectionTitle}>Tipe Kehadiran</Text>
+                            <View style={absenSummaryStyles.radioGroup}>
+                                {Object.values(WorkStatus).map((option) => (
+                                    <TouchableOpacity
+                                        key={option}
+                                        style={[
+                                            absenSummaryStyles.radioButton,
+                                            workStatus === option && absenSummaryStyles.radioButtonSelected
+                                        ]}
+                                        onPress={() => setWorkStatus(option as any)}
+                                    >
+                                        <View style={[
+                                            absenSummaryStyles.radioCircle,
+                                            workStatus === option && absenSummaryStyles.radioCircleSelected
+                                        ]} />
+                                        <Text style={[
+                                            absenSummaryStyles.radioText,
+                                            workStatus === option && absenSummaryStyles.radioTextSelected
+                                        ]}>
+                                            {option}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        </View>
                     </View>
-                </View>
+                )}
+
                 <View style={{ paddingHorizontal: 20, width: "100%"}}>
                     {mode === "Check-In" && (
                         <View style={absenSummaryStyles.section}>
@@ -262,15 +312,26 @@ const SummaryAbsensiPage = () => {
 
                     <View style={absenSummaryStyles.actions}>
                         <TouchableOpacity
-                            style={[absenSummaryStyles.button, { backgroundColor: COLORS.secondary || "#aaa" }]}
+                            style={[absenSummaryStyles.button, 
+                                { 
+                                    backgroundColor: (isUploadingCheckIn || isUploadingCheckOut) ? COLORS.muted : COLORS.secondary,
+                                    opacity: (isUploadingCheckIn || isUploadingCheckOut) ? 0.5 : 1 
+                                }
+                            ]}
                             onPress={() => router.back()}
+                            disabled={isUploadingCheckIn || isUploadingCheckOut}
                         >
                             <Text style={absenSummaryStyles.buttonText}>Kembali</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={[absenSummaryStyles.button, { backgroundColor: COLORS.tertiary || "#00AEEF" }]}
+                            style={[absenSummaryStyles.button, 
+                                { 
+                                    backgroundColor: (isUploadingCheckIn || isUploadingCheckOut) ? COLORS.muted : COLORS.tertiary,
+                                    opacity: (isUploadingCheckIn || isUploadingCheckOut) ? 0.5 : 1
+                                }
+                            ]}
                             onPress={() => setShowModal(true)}
-                            disabled={isUploadingCheckIn}
+                            disabled={isUploadingCheckIn || isUploadingCheckOut}
                         >
                             <Text style={absenSummaryStyles.buttonText}>
                                 {isUploadingCheckIn || isUploadingCheckOut ? "Mengirim..." : `Kirim ${mode}`}
@@ -281,7 +342,7 @@ const SummaryAbsensiPage = () => {
             </View>
 
             <ConfirmationPopUpModal 
-                visible={showModal}
+                visible={showModal && !isUploadingCheckIn && !isUploadingCheckOut}
                 onBack={() => setShowModal(false)}
                 onSave={handleSubmit}
             />

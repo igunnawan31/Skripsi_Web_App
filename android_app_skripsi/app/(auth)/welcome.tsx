@@ -63,6 +63,7 @@ const WelcomePage = () => {
                 <CardExplanation
                   title={item.title}
                   description={item.description}
+                  byWho={item.byWho}
                   onNext={handleNext}
                   nextLabel={index === welcomeData.length - 1 ? "Go to Sign-in" : "Next"}
                   pagination={

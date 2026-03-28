@@ -67,12 +67,13 @@ export const useJawaban = () => {
                 const token =  Cookies.get("accessToken");
                 if (!token) throw new Error("No access token found");
 
-                const params = new URLSearchParams({
-                    evaluateeId,
-                    ...filters
-                });
+                const params = new URLSearchParams();
+                params.append("evaluateeId", evaluateeId);
+                if (filters?.limit !== undefined) params.append("limit", filters.limit.toString());
+                if (filters?.sortBy) params.append("sortBy", filters.sortBy);
+                if (filters?.sortOrder) params.append("sortOrder", filters.sortOrder);
 
-                const response = await fetch(`${API}/indicators/${indikatorId}/answers?${params}`,{
+                const response = await fetch(`${API}/indicators/${indikatorId}/answers?${params.toString()}`,{
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",

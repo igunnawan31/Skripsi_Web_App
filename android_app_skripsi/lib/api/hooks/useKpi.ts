@@ -59,6 +59,8 @@ export const useKpi = () => {
 
     const fetchAllQuestionByIdIndikator = ({ id, ...filters }: {
         id: string;
+        page?: number;
+        limit?: number;
         sortBy?: string;
         sortOrder?: "asc" | "desc";
         kategori?: string;

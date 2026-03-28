@@ -5,7 +5,8 @@ export const COLORS = {
   primaryOpacity80: "#F8223780",     // Warna utama (merah khas brand)
   primaryOpacity20: "#F8223720",
   primaryOpacity50: "#F8223750",
-  secondary: "#1E293B",   // Warna sekunder (abu tua / biru gelap)
+  secondary: "#1E293B",
+  secondaryOpacity: "#1E293B20",   // Warna sekunder (abu tua / biru gelap)
   tertiary: "#DE8F0E",    // Warna aksen (oranye lembut)
   tertiaryOpacity20: "#DE8F0E20",
 
@@ -19,6 +20,7 @@ export const COLORS = {
   successOpacity20: "#22C55E20",
   successOpacity50: "#22C55E50",
   info: "#3B82F6",        // Biru - informasi
+  infoOpacity: "#3B82F620",
   warning: "#FACC15",     // Kuning - peringatan
   error: "#EF4444",       // Merah - error
 

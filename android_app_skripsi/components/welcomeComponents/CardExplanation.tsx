@@ -8,13 +8,15 @@ type CardExplanationProps = {
   onNext: () => void;
   nextLabel?: string;
   pagination?: React.ReactNode;
+  byWho?: string;
 };
 
-const CardExplanation: React.FC<CardExplanationProps> = ({title, description, onNext, pagination, nextLabel = "Next"}) => {
+const CardExplanation: React.FC<CardExplanationProps> = ({title, description, byWho, onNext, pagination, nextLabel = "Next"}) => {
   return (
     <View style={welcomeStyles.card}>
       <Text style={welcomeStyles.title}>{title}</Text>
       <Text style={welcomeStyles.description}>{description}</Text>
+      <Text style={welcomeStyles.description}>{byWho}</Text>
 
       <View style={welcomeStyles.footer}>
         {pagination && <View style={welcomeStyles.paginationContainer}>{pagination}</View>}

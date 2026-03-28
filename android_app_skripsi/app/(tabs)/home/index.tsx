@@ -103,6 +103,13 @@ const HomePage = () => {
                     <SkeletonBox width={200} height={200} borderRadius={14} style={{ width: "100%" }}  />
                 </View>
 
+                <View style={{ width: "90%", marginTop: 90, marginBottom: 10,
+                    flexDirection: "column", alignItems: "center", 
+                    justifyContent: "flex-start", gap: 4
+                }}>
+                    <SkeletonBox width={80} height={160} style={{ width: "100%", }} />
+                </View>
+
                 <View style={[homeStyles.featureContainer, { paddingHorizontal: 10 }]}>
                     <View style={{ gap: 4 }}>
                         <SkeletonBox width={80} height={16} />
@@ -222,6 +229,63 @@ const HomePage = () => {
                     currentDate={currentDate}
                     currentTime={currentTime}
                 />
+                <View style={{ width: "90%", padding: 8, backgroundColor: COLORS.infoOpacity, marginTop: 120, marginBottom: 10,
+                    borderRadius: 8, borderWidth: 1, borderColor: COLORS.info, flexDirection: "column", alignItems: "center", 
+                    justifyContent: "flex-start", gap: 4
+                 }}>
+                    <View style={{ width: "100%", flexDirection: "row", gap: 8, paddingBottom: 8, justifyContent: "flex-start", alignItems: "center", borderBottomWidth: 1, borderBottomColor: COLORS.info }}>
+                        <Image
+                            source={require("../../../assets/icons/info.png")}
+                            style={{
+                                width: 20,
+                                height: 20,
+                                tintColor: COLORS.info,
+                            }}
+                        />
+                        <Text style={{ fontWeight: "bold", color: COLORS.info }}>Informasi Absensi</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", gap: 10, width: "100%" }}>
+                        <View style={{
+                            flex: 1,
+                            padding: 16,
+                            alignItems: "center",
+                            gap: 8,
+                        }}>
+                            <Image
+                                source={require("../../../assets/icons/clock-in.png")}
+                                style={{ width: 32, height: 32, tintColor: COLORS.info }}
+                            />
+                            <Text style={{ fontSize: 14, fontWeight: "500", color: COLORS.info }}>
+                                Check In
+                            </Text>
+                            <View style={{ height: 0.5, width: "100%", backgroundColor: COLORS.info, opacity: 0.4 }} />
+                            <Text style={{ fontSize: 13, color: COLORS.info }}>07.00 – 12.00</Text>
+                            <Text style={{ fontSize: 11, color: COLORS.info, opacity: 0.8, textAlign: "center" }}>
+                                Terlambat setelah 08.30
+                            </Text>
+                        </View>
+
+                        <View style={{
+                            flex: 1,
+                            padding: 16,
+                            alignItems: "center",
+                            gap: 8,
+                        }}>
+                            <Image
+                                source={require("../../../assets/icons/clock-out.png")}
+                                style={{ width: 32, height: 32, tintColor: COLORS.info }}
+                            />
+                            <Text style={{ fontSize: 14, fontWeight: "500", color: COLORS.info }}>
+                                Check Out
+                            </Text>
+                            <View style={{ height: 0.5, width: "100%", backgroundColor: COLORS.info, opacity: 0.4 }} />
+                            <Text style={{ fontSize: 13, color: COLORS.info }}>16.30 – 18.00</Text>
+                            <Text style={{ fontSize: 11, color: COLORS.info, opacity: 0.8, textAlign: "center" }}>
+                                Wajib sebelum 18.00
+                            </Text>
+                        </View>
+                    </View>
+                </View>
                 <FeatureComponent />
                 <ReimburseComponent data={dataReimburse}/>
             </View>

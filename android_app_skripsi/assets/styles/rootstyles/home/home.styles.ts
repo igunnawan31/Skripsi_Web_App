@@ -162,7 +162,6 @@ export const homeStyles = StyleSheet.create({
     featureContainer: {
         width: "95%",
         justifyContent: "center",
-        marginTop: 120,
         marginBottom: 10,
     },
     featureTouchContainer: {

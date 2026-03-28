@@ -17,20 +17,21 @@ const SignInPage = () => {
   const [password, setPassword] = useState("");
   const [validationError, setValidationError] = useState("");
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (loginMutation.isPending) return;
-    if (!email.trim()) {
-      setValidationError("Email tidak boleh kosong");
-      loginMutation.reset();
+    
+    if (!email.trim() || !password.trim()) {
+      setValidationError("Email dan Password wajib diisi");
       return;
     }
-    if (!password.trim()) {
-      setValidationError("Password tidak boleh kosong");
-      loginMutation.reset();
-      return;
-    }
+
     setValidationError("");
-    loginMutation.mutate({ email, password });
+    
+    try {
+      await loginMutation.mutateAsync({ email, password });
+    } catch (err: any) {
+      setValidationError(err.message || "Email atau Password salah");
+    }
   };
 
   return (

@@ -32,8 +32,7 @@ const EventCardComponent = ({ event, onNotify, onDeleteSuccess }: EventCardCompo
 
         if (
             user.majorRole === MajorRole.KARYAWAN &&
-            (user.minorRole === MinorRole.HR ||
-            user.minorRole === MinorRole.PROJECT_MANAGER)
+            user.minorRole === MinorRole.HR
         ) {
             return true;
         }

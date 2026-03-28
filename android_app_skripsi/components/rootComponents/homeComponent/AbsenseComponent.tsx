@@ -40,6 +40,26 @@ const AbsenseComponent = ({ data, currentDate, currentTime }: AbsenseComponentPr
         return checkInWIB > limit ? "Terlambat" : "Tepat Waktu";
     };
 
+    const isButtonBlocked = () => {
+        const now = toZonedTime(new Date(), "Asia/Jakarta");
+        const hour = now.getHours();
+        const minute = now.getMinutes();
+        const timeInMinutes = hour * 60 + minute;
+
+        const blockRanges = [
+            { start: 18 * 60, end: 24 * 60 },
+            { start: 0, end: 7 * 60 },
+            { start: 12 * 60, end: 16 * 60 + 30 },
+        ];
+
+        return blockRanges.some(
+            ({ start, end }) => timeInMinutes >= start && timeInMinutes < end
+        );
+    };
+
+    const isBlocked = isButtonBlocked();
+    const isDisabled = isAlreadyAbsent || isBlocked;
+
     const isLate = checkIn ? getCheckInStatus(checkIn) === "Terlambat" : false;
     const checkInColor = isLate ? COLORS.primary : checkIn ? COLORS.success : COLORS.textMutedOpacity20;
     const checkInBgColor = isLate ? COLORS.primaryOpacity20 : checkIn ? COLORS.successOpacity20 : COLORS.textMutedOpacity20;
@@ -119,10 +139,13 @@ const AbsenseComponent = ({ data, currentDate, currentTime }: AbsenseComponentPr
 
             <View style={homeStyles.buttonContainer}>
                 <TouchableOpacity 
-                    style={[homeStyles.buttonPrimary, { backgroundColor: isAlreadyAbsent ? COLORS.muted : COLORS.tertiary}]}
-                    disabled={isAlreadyAbsent}
+                    style={[
+                        homeStyles.buttonPrimary, 
+                        { backgroundColor: isDisabled ? COLORS.muted : COLORS.tertiary }
+                    ]}
+                    disabled={isDisabled}
                     onPress={() => {
-                        if (isAlreadyAbsent) return;
+                        if (isDisabled) return;
                         if (checkIn !== null) {
                             router.push("/(absensi)/fotoabsensi");
                         } else {
@@ -130,7 +153,9 @@ const AbsenseComponent = ({ data, currentDate, currentTime }: AbsenseComponentPr
                         }
                     }}
                 >
-                    <Text style={homeStyles.buttonText}>Absen Sekarang</Text>
+                    <Text style={homeStyles.buttonText}>
+                        {isBlocked ? "Di Luar Jam Absensi" : "Absen Sekarang"}
+                    </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity 
