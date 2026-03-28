@@ -229,7 +229,7 @@ const HomePage = () => {
                     currentDate={currentDate}
                     currentTime={currentTime}
                 />
-                <View style={{ width: "90%", padding: 8, backgroundColor: COLORS.infoOpacity, marginTop: 120, marginBottom: 10,
+                <View style={{ width: "90%", padding: 8, backgroundColor: COLORS.infoOpacity, marginTop: 110, marginBottom: 10,
                     borderRadius: 8, borderWidth: 1, borderColor: COLORS.info, flexDirection: "column", alignItems: "center", 
                     justifyContent: "flex-start", gap: 4
                  }}>

@@ -210,8 +210,6 @@ const ProfilePage = () => {
         logoutAction();
     };
 
-    console.log("Kontrak Data", data);
-
     if (!user) {
         return (
             <View style={{ padding: 20, alignItems: "center" }}>

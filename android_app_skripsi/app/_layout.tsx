@@ -11,17 +11,19 @@ export default function RootLayout() {
       <QueryProvider>
         <AppAuthBootstrap>
           <NavigationGuard />
-          {/* <StatusBar backgroundColor="#000000"/> */}
+          <StatusBar backgroundColor="#000000"/>
           <Stack screenOptions={{ headerShown: false }}>
-            <StatusBar backgroundColor="#000000"/>
+            {/* <StatusBar backgroundColor="#000000"/> */}
             <Stack.Screen name="(auth)" />
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="(cuti)" />
-            <Stack.Screen name="(gaji)" />
+            <Stack.Screen name="(gaji)/gaji" />
             <Stack.Screen name="(kpi)" />
-            <Stack.Screen name="(reimburse)" />
+            <Stack.Screen name="(reimburse)/reimburse/reimburse" />
             <Stack.Screen name="(absensi)" />
-            <Stack.Screen name="(calendar)" />
+            <Stack.Screen name="(calendar)/[id]/index" />
+            <Stack.Screen name="(profile)/change-password/index" />
+            <Stack.Screen name="(team)" />
           </Stack>
         </AppAuthBootstrap>
       </QueryProvider>

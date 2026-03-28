@@ -56,9 +56,6 @@ export default function DetailPenilaianKPIUser() {
         j.evaluateeId === evaluatee && (evaluator ? j.evaluatorId === evaluator : true)
     );
 
-    console.log("tes detail", detailDataJawaban);
-    console.log("tes answers", answers);
-
     const sudahDinilai = answers.length === questions.length && questions.length > 0;
     
     const pertanyaanByCategory = (detailDataPertanyaan?.data || []).reduce((acc: any, p: any) => {

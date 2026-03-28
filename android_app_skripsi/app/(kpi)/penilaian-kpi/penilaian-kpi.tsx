@@ -17,6 +17,14 @@ import { Image, RefreshControl, ScrollView, Text, TextInput, TouchableOpacity, V
 
 const PenilaianKPI = () => {
     const user = useAuthStore((state) => state?.user);
+
+    if (!user) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Text style={{ color: COLORS.textMuted }}>Data tidak ditemukan...</Text>
+            </View>
+        )
+    }
     const router = useRouter();
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -38,22 +46,6 @@ const PenilaianKPI = () => {
 
     const showHandlePopUpFilter = () => setModalVisible(true);
     const closeHandlePopUpFilter = () => setModalVisible(false);
-
-    if (!user) {
-        return (
-            <View style={{ padding: 20, alignItems: "center" }}>
-                <Text style={{ color: COLORS.textMuted }}>Data tidak ditemukan...</Text>
-            </View>
-        )
-    }
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setShowSkeleton(false);
-        }, 1000);
-
-        return () => clearTimeout(timer);
-    }, []);
 
     const tasksToReview = useMemo(() => {
         if (!kpiData?.data || !user?.id) return [];
@@ -94,7 +86,7 @@ const PenilaianKPI = () => {
         if (assessmentStatus === "Sudah Dinilai") {
             return allTasks.filter((task: any) => task.sudahDinilai);
         } 
-        if (assessmentStatus === "Perlu Dinilai") {
+        if (assessmentStatus === "Belum Dinilai") {
             return allTasks.filter((task: any) => !task.sudahDinilai);
         }
 
@@ -102,17 +94,42 @@ const PenilaianKPI = () => {
     }, [kpiData, user?.id, fetchedDataUser, assessmentStatus, allAnswersData]);
 
     useEffect(() => {
-        if (tasksToReview.length > 0 && filteredData.length === 0) {
+        if (!startDate) {
             setFilteredData(tasksToReview);
+            return;
         }
-    }, [tasksToReview]);
+
+        const now = startDate;
+        const nowYear = now.getFullYear();
+        const nowMonth = now.getMonth();
+
+        const filtered = tasksToReview.filter((item: any) => {
+            const itemStart = new Date(item.startDate);
+            const itemEnd = new Date(item.endDate);
+
+            const startYearMonth = itemStart.getFullYear() * 100 + itemStart.getMonth();
+            const endYearMonth = itemEnd.getFullYear() * 100 + itemEnd.getMonth();
+            const nowYearMonth = nowYear * 100 + nowMonth;
+
+            return nowYearMonth >= startYearMonth && nowYearMonth <= endYearMonth;
+        });
+
+        setFilteredData(filtered);
+    }, [tasksToReview, startDate]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowSkeleton(false);
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const onRefresh = async () => {
         setRefreshing(true);
         setShowSkeleton(true);
 
-        await refetchKPI();
-        await refetchUser();
+        await Promise.all([refetchAnswers(), refetchKPI(), refetchUser()]);
 
         setTimeout(() => {
             setShowSkeleton(false);
@@ -124,12 +141,16 @@ const PenilaianKPI = () => {
         let filtered = [...tasksToReview];
 
         if (pickerMode === "month" && startDate) {
-            const selectedMonth = startDate.getMonth();
-            const selectedYear = startDate.getFullYear();
+            const nowYear = startDate.getFullYear();
+            const nowMonth = startDate.getMonth();
+            const nowYearMonth = nowYear * 100 + nowMonth;
 
             filtered = filtered.filter((item: any) => {
-                const itemDate = new Date(item.startDate);
-                return itemDate.getMonth() === selectedMonth && itemDate.getFullYear() === selectedYear;
+                const itemStart = new Date(item.startDate);
+                const itemEnd = new Date(item.endDate);
+                const startYearMonth = itemStart.getFullYear() * 100 + itemStart.getMonth();
+                const endYearMonth = itemEnd.getFullYear() * 100 + itemEnd.getMonth();
+                return nowYearMonth >= startYearMonth && nowYearMonth <= endYearMonth;
             });
         }
 
@@ -152,8 +173,8 @@ const PenilaianKPI = () => {
         closeHandlePopUpFilter();
     };
 
-    const jumlahSudahDinilai = tasksToReview.filter((item: any) => item.sudahDinilai).length;
-    const jumlahBelumDinilai = tasksToReview.filter((item: any) => !item.sudahDinilai).length;
+    const jumlahSudahDinilai = filteredData.filter((item: any) => item.sudahDinilai).length;
+    const jumlahBelumDinilai = filteredData.filter((item: any) => !item.sudahDinilai).length;
 
     if (isLoadingKpi || isLoadingUser || isLoadingAnswer || showSkeleton || isFetchingKPI || isFetchingUser || isFetchingAnswers) {
         return (
@@ -227,7 +248,7 @@ const PenilaianKPI = () => {
                     keyboardShouldPersistTaps="handled"
                     refreshControl={
                         <RefreshControl
-                            refreshing={refreshing || isFetchingKPI || isFetchingUser}
+                            refreshing={refreshing || isFetchingKPI || isFetchingUser || isFetchingAnswers}
                             onRefresh={onRefresh}
                             colors={[COLORS.primary]}
                             tintColor={COLORS.primary}
@@ -302,7 +323,7 @@ const PenilaianKPI = () => {
                 keyboardShouldPersistTaps="handled"
                 refreshControl={
                     <RefreshControl
-                        refreshing={refreshing || isFetchingKPI || isFetchingUser}
+                        refreshing={refreshing || isFetchingKPI || isFetchingUser  || isFetchingAnswers}
                         onRefresh={onRefresh}
                         colors={[COLORS.primary]}
                         tintColor={COLORS.primary}
