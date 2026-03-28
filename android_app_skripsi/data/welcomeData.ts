@@ -2,19 +2,22 @@ export const welcomeData = [
     {
         id: 1,
         title: "Collaboration",
-        description: "Work together with your team seamlessly Work together with your team seamlessly Work together with your team seamlessly Work together with your team seamlessly Work together with your team seamlessly Work together with your team seamlessly Work together with your team seamlessly Work together with your team seamlessly Work together with your team seamlessly",
+        description: "Coming together is a beginning. Keeping together is progress. Working together is success.",
+        byWho: "' Henry Ford '",
         image: require("../assets/images/welcome-1.png"),
     },
     {
         id: 2,
         title: "Productivity",
-        description: "Boost efficiency with our tools",
+        description: "Don’t confuse activity with productivity. Many people are simply busy being busy.",
+        byWho: "' Robin Sharma '",
         image: require("../assets/images/welcome-2.png"),
     },
     {
         id: 3,
         title: "Innovation",
-        description: "Turn your ideas into reality",
+        description: "The only way to discover the limits of the possible is to go beyond them into the impossible.",
+        byWho: "' Arthur C. Clarke '",
         image: require("../assets/images/welcome-3.png"),
     },
 ];

@@ -12,6 +12,9 @@ import { CutiResponse } from "@/types/cuti/cutiTypes";
 import { historyStyles } from "@/assets/styles/rootstyles/history.styles";
 import SkeletonBox from "@/components/rootComponents/SkeletonBox";
 import { useAuthStore } from "@/lib/store/authStore";
+import CutiPopUpModal from "@/components/rootComponents/cutiComponent/CutiPopUpModal";
+import CutiCancelPopUpModal from "@/components/rootComponents/cutiComponent/CutiCancelPopUpModal";
+import NotificationModal from "@/components/rootComponents/NotificationModal";
 
 const CutiPage = () => {
     const user = useAuthStore((state) => state.user);
@@ -19,6 +22,7 @@ const CutiPage = () => {
 
     const userCuti = useCuti().fetchCutiByUserId(user?.id);
     const allCuti = useCuti().fetchAllCuti();
+    const { mutate: cancelCuti, isPending: isPendingCuti } = useCuti().cancelCuti();
 
     const activeData = isHR ? userCuti.data?.data : allCuti.data?.data;
     const isLoading = isHR ? userCuti.isLoading : allCuti.isLoading;
@@ -37,6 +41,20 @@ const CutiPage = () => {
 
     const [showSkeleton, setShowSkeleton] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [selectedCutiId, setSelectedCutiId] = useState("");
+
+    const [notification, setNotification] = useState<{
+        visible: boolean;
+        status: "success" | "error";
+        title?: string;
+        description?: string;
+    }>({
+        visible: false,
+        status: "success",
+    });
+
 
     const showHandlePopUpFilter = () => setModalVisible(true);
     const closeHandlePopUpFilter = () => setModalVisible(false);
@@ -106,6 +124,33 @@ const CutiPage = () => {
 
         setFilteredData(filtered);
         closeHandlePopUpFilter();
+    };
+
+    const handleCancelSubmit = () => {
+        setShowCancelModal(false);
+        cancelCuti({ id: selectedCutiId }, {
+            onSuccess: () => {
+                setNotification({
+                    visible: true,
+                    status: "success",
+                    title: "Berhasil",
+                    description: "Cuti berhasil dibatalkan.",
+                });
+            },
+            onError: (err: any) => {
+                setNotification({
+                    visible: true,
+                    status: "error",
+                    title: "Gagal",
+                    description: err?.message || "Terjadi kesalahan sistem.",
+                });
+            },
+        });
+    };
+
+    const handleCancelRequest = (id: string) => {
+        setSelectedCutiId(id);
+        setShowCancelModal(true);
     };
 
     const onChangeDate = (event: any, selectedDate?: Date) => {
@@ -261,195 +306,214 @@ const CutiPage = () => {
     }
 
     return (
-        <ScrollView
-            contentContainerStyle={{ flexGrow: 1 }}
-            keyboardShouldPersistTaps="handled"
-            refreshControl={
-                <RefreshControl
-                    refreshing={refreshing || isFetching}
-                    onRefresh={onRefresh}
-                    colors={[COLORS.primary]}
-                    tintColor={COLORS.primary}
-                />
-            }
-        >
-            <View style={cutiStyles.container}>
-                <View style={cutiStyles.header}>
-                    <View style={cutiStyles.logoHeaderContainer}>
-                        <Image
-                            style={cutiStyles.logoHeader}
-                            source={require("../../../assets/icons/cuti.png")}
-                        />
-                    </View>
-                    <View style={cutiStyles.textHeaderContainer}>
-                        <Text style={cutiStyles.headerTitle}>
-                            Cuti Status
-                        </Text>
-                        <Text style={cutiStyles.headerDescription}>
-                            Lihat status pengajuan cuti yang kamu buat
-                        </Text>
-                    </View>
-                </View>
-                <View style={cutiStyles.cutiContainer}>
-                    <Text style={{ color: COLORS.textPrimary, fontWeight: "bold", fontSize: 18 }}>
-                        Bulan {startDate ? startDate.toLocaleString("default", { month: "long", year: "numeric" }): "All"}
-                    </Text>
-                    <TouchableOpacity 
-                        style={cutiStyles.ajukanCutiButton}
-                        onPress={() => router.push('/(cuti)/create')}
-                    >
-                        <Image
-                            source={require("../../../assets/icons/add.png")}
-                            style={cutiStyles.icons}
-                        />
-                        <Text style={cutiStyles.textAjukanCuti}>Ajukan Cuti</Text>
-                    </TouchableOpacity>
-                </View>
-                <View style={cutiStyles.cutiAvailableContainer}>
-                    <View style={cutiStyles.cutiAvailable}>
-                        <Text style={cutiStyles.titleCutiAccepted}>
-                            Cuti Diterima
-                        </Text>
-                        <Image 
-                            style={cutiStyles.logoCutiAccepted}
-                            source={require("../../../assets/icons/cuti.png")}
-                        />
-                        <Text style={cutiStyles.textCutiAccepted}>
-                            {totalDiterima(activeData ?? [])}
-                        </Text>
-                    </View>
-                    <View style={cutiStyles.cutiAvailable}>
-                        <Text style={cutiStyles.titleCutiRejected}>
-                            Cuti Ditolak
-                        </Text>
-                        <Image 
-                            style={cutiStyles.logoCutiRejected}
-                            source={require("../../../assets/icons/cuti.png")}
-                        />
-                        <Text style={cutiStyles.textCutiRejected}>
-                            {totalDitolak(activeData ?? [])}
-                        </Text>
-                    </View>
-                </View>
-                <TouchableOpacity
-                    style={cutiStyles.filterContainer}
-                    onPress={showHandlePopUpFilter}
-                >
-                    <Text style={cutiStyles.filterText}>Terapkan Filter</Text>
-                </TouchableOpacity>
-                <>
-                    <Modal
-                        isVisible={modalVisible}
-                        onBackdropPress={closeHandlePopUpFilter}
-                        style={historyStyles.modalFilterContainer}
-                    >
-                        <View style={historyStyles.FilterModal}>
-                            <Text style={historyStyles.modalTitle}>
-                                Pilih Mode Filter
+        <>
+            <ScrollView
+                contentContainerStyle={{ flexGrow: 1 }}
+                keyboardShouldPersistTaps="handled"
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing || isFetching}
+                        onRefresh={onRefresh}
+                        colors={[COLORS.primary]}
+                        tintColor={COLORS.primary}
+                    />
+                }
+            >
+                <View style={cutiStyles.container}>
+                    <View style={cutiStyles.header}>
+                        <View style={cutiStyles.logoHeaderContainer}>
+                            <Image
+                                style={cutiStyles.logoHeader}
+                                source={require("../../../assets/icons/cuti.png")}
+                            />
+                        </View>
+                        <View style={cutiStyles.textHeaderContainer}>
+                            <Text style={cutiStyles.headerTitle}>
+                                Cuti Status
                             </Text>
-                            <View style={historyStyles.modeSelector}>
-                                <TouchableOpacity
-                                    style={[
-                                        cutiStyles.modeButton,
-                                        pickerMode === "month" && { backgroundColor: COLORS.primary },
-                                    ]}
-                                    onPress={() => setPickerMode("month")}
-                                >
-                                    <Text
-                                        style={[
-                                            cutiStyles.modeText,
-                                            pickerMode === "month" && { color: COLORS.white },
-                                        ]}
-                                    >
-                                        Per Bulan
-                                    </Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={[
-                                        cutiStyles.modeButton,
-                                        pickerMode === "status" && { backgroundColor: COLORS.primary },
-                                    ]}
-                                    onPress={() => setPickerMode("status")}
-                                >
-                                    <Text
-                                        style={[
-                                            cutiStyles.modeText,
-                                            pickerMode === "status" && { color: COLORS.white },
-                                        ]}
-                                    >
-                                        Berdasarkan Status
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-
-                            {pickerMode === "month" ? (
-                                <View style={historyStyles.modalPicker}>
-                                    <Text style={historyStyles.modalLabel}>Pilih Bulan</Text>
+                            <Text style={cutiStyles.headerDescription}>
+                                Lihat status pengajuan cuti yang kamu buat
+                            </Text>
+                        </View>
+                    </View>
+                    <View style={cutiStyles.cutiContainer}>
+                        <Text style={{ color: COLORS.textPrimary, fontWeight: "bold", fontSize: 18 }}>
+                            Bulan {startDate ? startDate.toLocaleString("default", { month: "long", year: "numeric" }): "All"}
+                        </Text>
+                        <TouchableOpacity 
+                            style={cutiStyles.ajukanCutiButton}
+                            onPress={() => router.push('/(cuti)/create')}
+                        >
+                            <Image
+                                source={require("../../../assets/icons/add.png")}
+                                style={cutiStyles.icons}
+                            />
+                            <Text style={cutiStyles.textAjukanCuti}>Ajukan Cuti</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={cutiStyles.cutiAvailableContainer}>
+                        <View style={cutiStyles.cutiAvailable}>
+                            <Text style={cutiStyles.titleCutiAccepted}>
+                                Cuti Diterima
+                            </Text>
+                            <Image 
+                                style={cutiStyles.logoCutiAccepted}
+                                source={require("../../../assets/icons/cuti.png")}
+                            />
+                            <Text style={cutiStyles.textCutiAccepted}>
+                                {totalDiterima(activeData ?? [])}
+                            </Text>
+                        </View>
+                        <View style={cutiStyles.cutiAvailable}>
+                            <Text style={cutiStyles.titleCutiRejected}>
+                                Cuti Ditolak
+                            </Text>
+                            <Image 
+                                style={cutiStyles.logoCutiRejected}
+                                source={require("../../../assets/icons/cuti.png")}
+                            />
+                            <Text style={cutiStyles.textCutiRejected}>
+                                {totalDitolak(activeData ?? [])}
+                            </Text>
+                        </View>
+                    </View>
+                    <TouchableOpacity
+                        style={cutiStyles.filterContainer}
+                        onPress={showHandlePopUpFilter}
+                    >
+                        <Text style={cutiStyles.filterText}>Terapkan Filter</Text>
+                    </TouchableOpacity>
+                    <>
+                        <Modal
+                            isVisible={modalVisible}
+                            onBackdropPress={closeHandlePopUpFilter}
+                            style={historyStyles.modalFilterContainer}
+                        >
+                            <View style={historyStyles.FilterModal}>
+                                <Text style={historyStyles.modalTitle}>
+                                    Pilih Mode Filter
+                                </Text>
+                                <View style={historyStyles.modeSelector}>
                                     <TouchableOpacity
-                                        style={historyStyles.buttonDate}
-                                        onPress={() => {
-                                            setPickerTarget("month");
-                                            setShowPicker(true);
-                                        }}
+                                        style={[
+                                            cutiStyles.modeButton,
+                                            pickerMode === "month" && { backgroundColor: COLORS.primary },
+                                        ]}
+                                        onPress={() => setPickerMode("month")}
                                     >
-                                        <Text style={historyStyles.dateText}>
-                                            {startDate
-                                            ? startDate.toLocaleString("default", { month: "long", year: "numeric" })
-                                            : "Pilih bulan"}
+                                        <Text
+                                            style={[
+                                                cutiStyles.modeText,
+                                                pickerMode === "month" && { color: COLORS.white },
+                                            ]}
+                                        >
+                                            Per Bulan
                                         </Text>
                                     </TouchableOpacity>
-                                    {showPicker && (
-                                        <DateTimePicker
-                                            value={startDate || new Date()}
-                                            mode="date"
-                                            display={Platform.OS === "ios" ? "spinner" : "default"}
-                                            onChange={onChangeDate}
-                                        />
-                                    )}
+                                    <TouchableOpacity
+                                        style={[
+                                            cutiStyles.modeButton,
+                                            pickerMode === "status" && { backgroundColor: COLORS.primary },
+                                        ]}
+                                        onPress={() => setPickerMode("status")}
+                                    >
+                                        <Text
+                                            style={[
+                                                cutiStyles.modeText,
+                                                pickerMode === "status" && { color: COLORS.white },
+                                            ]}
+                                        >
+                                            Berdasarkan Status
+                                        </Text>
+                                    </TouchableOpacity>
                                 </View>
-                            ) : (
-                                <View style={cutiStyles.modalPicker}>
-                                    <Text style={cutiStyles.modalLabel}>Pilih Status Cuti</Text>
 
-                                    <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-                                        {Object.values(CutiStatus).map((status) => (
-                                            <TouchableOpacity
-                                                key={status}
-                                                onPress={() => setSelectedStatus(status)}
-                                                style={[
-                                                    cutiStyles.modeButton,
-                                                    selectedStatus === status && {
-                                                        backgroundColor: COLORS.primary,
-                                                        borderWidth: 0,
-                                                    },
-                                                ]}
-                                            >
-                                                <Text
+                                {pickerMode === "month" ? (
+                                    <View style={historyStyles.modalPicker}>
+                                        <Text style={historyStyles.modalLabel}>Pilih Bulan</Text>
+                                        <TouchableOpacity
+                                            style={historyStyles.buttonDate}
+                                            onPress={() => {
+                                                setPickerTarget("month");
+                                                setShowPicker(true);
+                                            }}
+                                        >
+                                            <Text style={historyStyles.dateText}>
+                                                {startDate
+                                                ? startDate.toLocaleString("default", { month: "long", year: "numeric" })
+                                                : "Pilih bulan"}
+                                            </Text>
+                                        </TouchableOpacity>
+                                        {showPicker && (
+                                            <DateTimePicker
+                                                value={startDate || new Date()}
+                                                mode="date"
+                                                display={Platform.OS === "ios" ? "spinner" : "default"}
+                                                onChange={onChangeDate}
+                                            />
+                                        )}
+                                    </View>
+                                ) : (
+                                    <View style={cutiStyles.modalPicker}>
+                                        <Text style={cutiStyles.modalLabel}>Pilih Status Cuti</Text>
+
+                                        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+                                            {Object.values(CutiStatus).map((status) => (
+                                                <TouchableOpacity
+                                                    key={status}
+                                                    onPress={() => setSelectedStatus(status)}
                                                     style={[
-                                                        cutiStyles.modeText,
-                                                        selectedStatus === status && { color: COLORS.white },
+                                                        cutiStyles.modeButton,
+                                                        selectedStatus === status && {
+                                                            backgroundColor: COLORS.primary,
+                                                            borderWidth: 0,
+                                                        },
                                                     ]}
                                                 >
-                                                    {status}
-                                                </Text>
-                                            </TouchableOpacity>
-                                        ))}
+                                                    <Text
+                                                        style={[
+                                                            cutiStyles.modeText,
+                                                            selectedStatus === status && { color: COLORS.white },
+                                                        ]}
+                                                    >
+                                                        {status}
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
                                     </View>
-                                </View>
-                            )}
+                                )}
 
-                            <TouchableOpacity style={historyStyles.cancelButton} onPress={resetFilter}>
-                                <Text style={historyStyles.cancelText}>Hapus Filter</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={historyStyles.applyButton} onPress={handleFilter}>
-                                <Text style={historyStyles.applyText}>Terapkan Filter</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </Modal>
-                    <ListDataCutiComponent data={filteredData} />
-                </>
-            </View>
-        </ScrollView>
+                                <TouchableOpacity style={historyStyles.cancelButton} onPress={resetFilter}>
+                                    <Text style={historyStyles.cancelText}>Hapus Filter</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={historyStyles.applyButton} onPress={handleFilter}>
+                                    <Text style={historyStyles.applyText}>Terapkan Filter</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </Modal>
+                        <ListDataCutiComponent 
+                            data={filteredData}
+                            onCancelRequest={handleCancelRequest}
+                        />
+                    </>
+                </View>
+            </ScrollView>
+            <CutiCancelPopUpModal
+                visible={showCancelModal}
+                onClose={() => setShowCancelModal(false)}
+                onSave={handleCancelSubmit}
+            />
+            <NotificationModal
+                visible={notification.visible}
+                status={notification.status}
+                title={notification.title}
+                description={notification.description}
+                onContinue={() => {
+                    setNotification(prev => ({ ...prev, visible: false }));
+                }}
+            />
+        </>
     )
 }
 

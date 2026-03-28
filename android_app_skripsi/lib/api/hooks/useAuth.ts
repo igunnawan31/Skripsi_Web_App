@@ -43,8 +43,107 @@ export const useAuth = () => {
         query.clear();
     };
 
+    const verifyEmail = () => {
+        return useMutation<
+            any,
+            Error,
+            { email: string }
+        >({
+            mutationFn: async ({ email }) => {
+                const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/forgot-password`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json" 
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({ email }),
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Login failed";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                return response.json();
+            },
+        })
+    }
+
+    const verifyOTP = () => {
+        return useMutation<
+            any,
+            Error,
+            { email: string; otp: string }
+        >({
+            mutationFn: async ({ email, otp }) => {
+                const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/verify-otp`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json" 
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({ email, otp }),
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Login failed";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                return response.json();
+            },
+        })
+    }
+
+    const resetPassword = () => {
+        return useMutation<
+            any,
+            Error,
+            { email: string; otp: string, newPassword: string }
+        >({
+            mutationFn: async ({ email, otp, newPassword }) => {
+                const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/reset-password`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json" 
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({ email, otp, newPassword }),
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Login failed";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                return response.json();
+            },
+        })
+    }
+
     return {
         loginMutation,
         logoutAction,
+        verifyEmail,
+        verifyOTP,
+        resetPassword
     }
 }

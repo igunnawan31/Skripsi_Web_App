@@ -71,22 +71,22 @@ const featureNames = [
             },
         ]
     },
-    // {
-    //     label: "Penilaian KPI",
-    //     value: "Nilai KPI Karyawan",
-    //     image: require("../../../assets/icons/penilaian-kpi.png"),
-    //     linkTo: "/(kpi)/penilaian-kpi/penilaian-kpi",
-    //     accessedBy: [
-    //         {
-    //             majorRole: MajorRole.KARYAWAN, 
-    //             minorRole: MinorRole.HR,
-    //         },
-    //         {
-    //             majorRole: MajorRole.KARYAWAN, 
-    //             minorRole: MinorRole.PROJECT_MANAGER,
-    //         },
-    //     ]
-    // },
+    {
+        label: "Penilaian KPI",
+        value: "Nilai KPI Karyawan",
+        image: require("../../../assets/icons/penilaian-kpi.png"),
+        linkTo: "/(kpi)/penilaian-kpi/penilaian-kpi",
+        accessedBy: [
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.HR,
+            },
+            {
+                majorRole: MajorRole.KARYAWAN, 
+                minorRole: MinorRole.PROJECT_MANAGER,
+            },
+        ]
+    },
     // {
     //     label: "Our Team",
     //     value: "Lihat Status Tim Saya",
@@ -111,38 +111,38 @@ const featureNames = [
     //         },
     //     ]
     // },
-    {
-        label: "Hasil KPI",
-        value: "Hasil KPI",
-        image: require("../../../assets/icons/hasil-kpi.png"),
-        linkTo: "/(kpi)/hasil-kpi/hasil-kpi",
-        accessedBy: [
-            {
-                majorRole: MajorRole.KARYAWAN, 
-                minorRole: MinorRole.ADMIN,
-            },
-            {
-                majorRole: MajorRole.KARYAWAN, 
-                minorRole: MinorRole.HR,
-            },
-            {
-                majorRole: MajorRole.KARYAWAN, 
-                minorRole: MinorRole.FRONTEND,
-            },
-            {
-                majorRole: MajorRole.KARYAWAN, 
-                minorRole: MinorRole.BACKEND,
-            },
-            {
-                majorRole: MajorRole.KARYAWAN, 
-                minorRole: MinorRole.PROJECT_MANAGER,
-            },
-            {
-                majorRole: MajorRole.KARYAWAN, 
-                minorRole: MinorRole.UI_UX,
-            },
-        ]
-    },
+    // {
+    //     label: "Hasil KPI",
+    //     value: "Hasil KPI",
+    //     image: require("../../../assets/icons/hasil-kpi.png"),
+    //     linkTo: "/(kpi)/hasil-kpi/hasil-kpi",
+    //     accessedBy: [
+    //         {
+    //             majorRole: MajorRole.KARYAWAN, 
+    //             minorRole: MinorRole.ADMIN,
+    //         },
+    //         {
+    //             majorRole: MajorRole.KARYAWAN, 
+    //             minorRole: MinorRole.HR,
+    //         },
+    //         {
+    //             majorRole: MajorRole.KARYAWAN, 
+    //             minorRole: MinorRole.FRONTEND,
+    //         },
+    //         {
+    //             majorRole: MajorRole.KARYAWAN, 
+    //             minorRole: MinorRole.BACKEND,
+    //         },
+    //         {
+    //             majorRole: MajorRole.KARYAWAN, 
+    //             minorRole: MinorRole.PROJECT_MANAGER,
+    //         },
+    //         {
+    //             majorRole: MajorRole.KARYAWAN, 
+    //             minorRole: MinorRole.UI_UX,
+    //         },
+    //     ]
+    // },
     {
         label: "Reimburse",
         value: "Reimburse Pengeluaran",

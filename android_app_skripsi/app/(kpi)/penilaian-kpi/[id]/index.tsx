@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { Image, RefreshControl, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function DetailPenilaianKPIUser() {
-    const { id, evaluatee } = useLocalSearchParams();
+    const { id, evaluatee, evaluator } = useLocalSearchParams();
     const [ formJawaban, setFormJawaban ] = useState<{ 
         [key: string]: {nilai: number | null, notes: string} 
     }>({});
@@ -37,15 +37,30 @@ export default function DetailPenilaianKPIUser() {
         status: "success",
     });
 
-    const { data: detailDataPertanyaan, isLoading: isDetailPertanyaanLoading, error: detailPertanyaanError, refetch: refetchPertanyaan, isFetching: isFetchingPertanyaan } = useKpi().fetchAllQuestionByIdIndikator({id: String(id)});
-    const { data: detailDataJawaban, isLoading: isDetailJawabanLoading, error: detailJawabanError, refetch: refetchJawaban, isFetching: isFetchingJawaban} = useJawaban().fetchAllJawaban();
+    const { data: detailDataPertanyaan, isLoading: isDetailPertanyaanLoading, error: detailPertanyaanError, refetch: refetchPertanyaan, isFetching: isFetchingPertanyaan } = useKpi().fetchAllQuestionByIdIndikator({
+        id: String(id),
+        limit: 100,
+    });
+    const { data: detailDataJawaban, isLoading: isDetailJawabanLoading, error: detailJawabanError, refetch: refetchJawaban, isFetching: isFetchingJawaban } = useJawaban().fetchUserAnswersByIndikator({
+        indikatorId: String(id),
+        evaluateeId: String(evaluatee),
+        limit: 100,
+    });
+
     const { mutate: createAnswer, isPending } = useJawaban().createAnswer();
 
-    const jawabanMilikTarget = detailDataJawaban?.data?.filter(
-        (j: any) => j.evaluatee?.id === evaluatee && j.indikatorId === id
-    ) || [];
-    const sudahDinilai = jawabanMilikTarget.length > 0;
+    const questions = detailDataPertanyaan?.data || [];
+    const allAnswers = Array.isArray(detailDataJawaban) ? detailDataJawaban : [];
 
+    const answers = allAnswers.filter((j: any) => 
+        j.evaluateeId === evaluatee && (evaluator ? j.evaluatorId === evaluator : true)
+    );
+
+    console.log("tes detail", detailDataJawaban);
+    console.log("tes answers", answers);
+
+    const sudahDinilai = answers.length === questions.length && questions.length > 0;
+    
     const pertanyaanByCategory = (detailDataPertanyaan?.data || []).reduce((acc: any, p: any) => {
         const kategori = p.kategori || KategoriPertanyaanKPI.KINERJA; 
         if (!acc[kategori]) acc[kategori] = [];
@@ -59,35 +74,37 @@ export default function DetailPenilaianKPIUser() {
         formJawaban[p.id]?.nilai !== null && formJawaban[p.id]?.nilai !== undefined
     );
 
-    // const hitungNilaiAkhir = () => {
-    //     if (sudahDinilai) {
-    //         let totalWeightedScore = 0;
-    //         let totalBobot = 0;
+    const hitungNilaiAkhir = () => {
+        if (sudahDinilai) {
+            let totalWeightedScore = 0;
+            let totalBobot = 0;
 
-    //         jawabanMilikTarget.forEach((j: any) => {
-    //             const pertanyaan = detailDataPertanyaan?.data?.find((p: any) => p.id === j.pertanyaanId);
-    //             const bobot = pertanyaan?.bobot || 1;
-    //             totalWeightedScore += (j.nilai * bobot);
-    //             totalBobot += bobot;
-    //         });
+            answers.forEach((j: any) => {
+                const pertanyaan = detailDataPertanyaan?.data?.find((p: any) => p.id === j.pertanyaanId);
+                const bobot = pertanyaan?.bobot || 1;
+                totalWeightedScore += (j.nilai * bobot);
+                totalBobot += bobot;
+            });
 
-    //         return totalBobot > 0 ? (totalWeightedScore / totalBobot).toFixed(2) : "0";
-    //     } else {
-    //         let totalWeightedScore = 0;
-    //         let totalBobot = 0;
+            return totalBobot > 0 ? (totalWeightedScore / totalBobot).toFixed(2) : "0";
+        } else {
+            let totalWeightedScore = 0;
+            let totalBobot = 0;
 
-    //         Object.entries(formJawaban).forEach(([pertanyaanId, data]) => {
-    //             if (data.nilai !== null) {
-    //                 const pertanyaan = detailDataPertanyaan?.data?.find((p: any) => p.id === pertanyaanId);
-    //                 const bobot = pertanyaan?.bobot || 1;
-    //                 totalWeightedScore += (data.nilai * bobot);
-    //                 totalBobot += bobot;
-    //             }
-    //         });
+            Object.entries(formJawaban).forEach(([pertanyaanId, data]) => {
+                if (data.nilai !== null) {
+                    const pertanyaan = detailDataPertanyaan?.data?.find((p: any) => p.id === pertanyaanId);
+                    const bobot = pertanyaan?.bobot || 1;
+                    totalWeightedScore += (data.nilai * bobot);
+                    totalBobot += bobot;
+                }
+            });
 
-    //         return totalBobot > 0 ? (totalWeightedScore / totalBobot).toFixed(2) : "0";
-    //     }
-    // };
+            return totalBobot > 0 ? (totalWeightedScore / totalBobot).toFixed(2) : "0";
+        }
+    };
+
+    const nilaiAkhir = hitungNilaiAkhir();
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -111,27 +128,27 @@ export default function DetailPenilaianKPIUser() {
     }, []);
 
     useEffect(() => {
-        if (detailDataPertanyaan?.data && Object.keys(formJawaban).length === 0 && !sudahDinilai) {
-            const initialForm: { [key: string]: { nilai: number | null, notes: string } } = {};
-            detailDataPertanyaan.data.forEach((p: any) => {
-                initialForm[p.id] = { nilai: null, notes: "" };
-            });
-            setFormJawaban(initialForm);
-        }
-    }, [detailDataPertanyaan]);
+        if (!detailDataPertanyaan?.data || sudahDinilai) return;
+
+        const initialForm: { [key: string]: { nilai: number | null, notes: string } } = {};
+        detailDataPertanyaan.data.forEach((p: any) => {
+            initialForm[p.id] = { nilai: null, notes: "" };
+        });
+        setFormJawaban(initialForm);
+    }, [detailDataPertanyaan?.data, sudahDinilai]);
 
     useEffect(() => {
-        if (sudahDinilai && jawabanMilikTarget.length > 0) {
-            const existingAnswers: { [key: string]: { nilai: number | null, notes: string } } = {};
-            jawabanMilikTarget.forEach((j: any) => {
-                existingAnswers[j.pertanyaanId] = {
-                    nilai: j.nilai,
-                    notes: j.notes || ""
-                };
-            });
-            setFormJawaban(existingAnswers);
-        }
-    }, [detailDataJawaban]);
+        if (!sudahDinilai || answers.length === 0) return;
+
+        const existingAnswers: { [key: string]: { nilai: number | null, notes: string } } = {};
+        answers.forEach((j: any) => {
+            existingAnswers[j.pertanyaanId] = {
+                nilai: j.nilai,
+                notes: j.notes || ""
+            };
+        });
+        setFormJawaban(existingAnswers);
+    }, [sudahDinilai, answers.length]);
 
     const handleInputChange = (pertanyaanId: string, nilai: number) => {
         setFormJawaban((prev) => ({
@@ -325,7 +342,7 @@ export default function DetailPenilaianKPIUser() {
     }
 
     return (
-        <View style={{ flex: 1, backgroundColor: COLORS.background }}>
+        <View key={`${id}-${evaluatee}`} style={{ flex: 1, backgroundColor: COLORS.background }}>
             <View style={penilaianKpiStyles.header}>
                 <TouchableOpacity
                     style={{ flexDirection: "row", alignItems: "center" }}
@@ -349,7 +366,7 @@ export default function DetailPenilaianKPIUser() {
                     page={page}
                     setPage={setPage}
                     categoriesQuestion={categoriesQuestion}
-                    convertNilai={jawabanMilikTarget}
+                    convertNilai={answers}
                     judul={"Penilaian Telah Dilakukan"}
                     sudahDinilai={true}
                 />
@@ -358,7 +375,7 @@ export default function DetailPenilaianKPIUser() {
                     page={page}
                     setPage={setPage}
                     categoriesQuestion={categoriesQuestion}
-                    convertNilai={jawabanMilikTarget}
+                    convertNilai={answers}
                     judul={`Form Penilaian:`}
                     sudahDinilai={false}
                     formJawaban={formJawaban}

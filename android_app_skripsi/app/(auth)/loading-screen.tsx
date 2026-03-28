@@ -26,7 +26,7 @@ const LoadingScreenPage = () => {
 
         const timer = setTimeout(() => {
             router.replace("/welcome");
-        }, 10000);
+        }, 3000);
 
         return () => clearTimeout(timer);
     }, []);

@@ -311,7 +311,7 @@ const CutiCreateFormComponent = ({ kontrakData }: Props) => {
                 {error.minorRole && <Text style={cutiDetailStyles.error}>{error.minorRole}</Text>}
             </View>
             <View style={cutiDetailStyles.labelContainer}>
-                <Text style={cutiDetailStyles.labelInput}>Bukti Pendukung (PDF)</Text>
+                <Text style={cutiDetailStyles.labelInput}>Bukti Pendukung (PDF) <Text style={cutiDetailStyles.error}>*</Text></Text>
                 <TouchableOpacity
                     style={{
                         backgroundColor: isCreateCuti ? COLORS.muted : COLORS.tertiary,

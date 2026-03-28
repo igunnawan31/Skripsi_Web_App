@@ -19,7 +19,7 @@ export function NavigationGuard() {
             router.replace("/(tabs)/home");
             return;
         }
-    }, [segments, isAuthenticated, router]);
+    }, [segments, isAuthenticated]);
 
     useEffect(() => {
         const unsub = useAuthStore.subscribe(async (state) => {
@@ -27,33 +27,44 @@ export function NavigationGuard() {
                 router.replace("/(auth)/loading-screen");
             }
         });
-
         return () => unsub();
     }, [segments]);
 
     useEffect(() => {
         const originalFetch = fetch;
         global.fetch = async (...args) => {
+            let url: string;
+            const requestInfo = args[0];
+            
+            if (typeof requestInfo === 'string') {
+                url = requestInfo;
+            } else if (requestInfo instanceof Request) {
+                url = requestInfo.url;
+            } else {
+                url = requestInfo?.toString() || "";
+            }
+
+            const isLoginAttempt = url.includes('/auth/login');
+
             try {
                 const res = await originalFetch(...args);
-
-                if (res.status === 401) {
+                if (res.status === 401 && !isLoginAttempt) {
                     await logoutAndClear();
                     router.replace("/(auth)/loading-screen");
                     return new Response(JSON.stringify({ data: [] }), { status: 401 });
                 }
 
                 return res;
-            } catch {
-                await logoutAndClear();
-                router.replace("/(auth)/loading-screen");
-                return new Response(JSON.stringify({ data: [] }), { status: 500 });
+            } catch (err) {
+                if (!isLoginAttempt) {
+                    await logoutAndClear();
+                    router.replace("/(auth)/loading-screen");
+                }
+                throw err;
             }
         };
 
-        return () => {
-            global.fetch = originalFetch;
-        }
+        return () => { global.fetch = originalFetch; }
     }, []);
 
     return null;

@@ -90,7 +90,6 @@ const UpdateEventFormPage = () => {
     };
 
     const isRecurring = isOccurent;
-    console.log("detail", detailData);
     const projects = projectResponse?.data ?? [];
     let availableTargets: ProjectResponse[] = [];
 

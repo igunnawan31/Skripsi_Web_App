@@ -1,6 +1,7 @@
 import penilaianKpiStyles from "@/assets/styles/rootstyles/kpi/penilaiankpi.styles";
 import COLORS from "@/constants/colors";
 import { dummySkalaNilai } from "@/data/dummySkalaNilai";
+import { SkalaNilai } from "@/types/kpi/kpiTypes";
 import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import PagerView from "react-native-pager-view";
 
@@ -151,7 +152,7 @@ const PenilaianKPIComponent = ({
                                         </View>
                                         <View style={{ height: 2, backgroundColor: COLORS.tertiary }} />
                                         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                                            {dummySkalaNilai.map((skala) => {
+                                            {SkalaNilai.map((skala) => {
                                                 const selected = formJawaban?.[item.id]?.nilai === skala.nilai;
                                                 return (
                                                     <TouchableOpacity

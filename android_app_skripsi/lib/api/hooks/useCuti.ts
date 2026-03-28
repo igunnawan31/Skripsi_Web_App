@@ -181,10 +181,53 @@ export const useCuti = () => {
         });
     }
 
+    const cancelCuti = () => {
+        const queryClient = useQueryClient();
+
+        return useMutation<
+            any,
+            Error,
+            { id: string }
+        >({
+            mutationFn: async ({ id }) => {
+                const token = await getTokens();
+                const jwt = token?.access_token;
+                if (!token?.access_token) throw new Error("No access token found");
+
+                const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cuti/cancel/${id}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${jwt}`,
+                    },
+                    credentials: "include",
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Failed to cancel cuti"
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.response?.message || errorData.message || errorMessage;
+                    } catch {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                return response.json();
+            },
+
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["cutis"] });
+            },
+        })
+    }
+
     return {
         fetchAllCuti,
         fetchCutiByUserId,
         fetchCutiById,
         createCuti,
+        cancelCuti,
     }
 }

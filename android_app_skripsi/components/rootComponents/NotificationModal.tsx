@@ -8,6 +8,7 @@ type NotificationModalProps = {
     title?: string;
     description?: string;
     onContinue: () => void;
+    buttonText?: string;
 };
 
 const NotificationModal = ({
@@ -16,6 +17,7 @@ const NotificationModal = ({
     title,
     description,
     onContinue,
+    buttonText
 }: NotificationModalProps) => {
     const isSuccess = status === "success";
 
@@ -54,15 +56,27 @@ const NotificationModal = ({
                         onPress={onContinue}
                         style={[profileListDataStyles.activeButton, { backgroundColor: isSuccess ? COLORS.success : COLORS.error}]}
                     >
-                        <Text
-                            style={{
-                                color: COLORS.white,
-                                textAlign: "center",
-                                fontWeight: "600",
-                            }}
-                        >
-                            {isSuccess ? "Ke Beranda" : "Tutup"}
-                        </Text>
+                        {buttonText ? (
+                            <Text
+                                style={{
+                                    color: COLORS.white,
+                                    textAlign: "center",
+                                    fontWeight: "600",
+                                }}
+                            >
+                                {isSuccess ? buttonText : "Tutup"}
+                            </Text>
+                        ) : (
+                            <Text
+                                style={{
+                                    color: COLORS.white,
+                                    textAlign: "center",
+                                    fontWeight: "600",
+                                }}
+                            >
+                                {isSuccess ? "Ke Beranda" : "Tutup"}
+                            </Text>
+                        )}
                     </TouchableOpacity>
                 </View>
             </View>

@@ -382,8 +382,8 @@ const PenilaianKPI = () => {
                                 <View style={{ height: 1, backgroundColor: COLORS.border, marginTop: 12 }} />
                                 
                                 <TouchableOpacity
-                                    key={item.indikatorId}
-                                    onPress={() => router.push(`/(kpi)/penilaian-kpi/${item.indikatorId}?evaluatee=${item.evaluateeId}`)}
+                                    key={item.idUnique}
+                                    onPress={() => router.push(`/(kpi)/penilaian-kpi/${item.indikatorId}?evaluatee=${item.evaluateeId}&evaluator=${user.id}`)}
                                     style={{
                                         marginTop: 12,
                                         alignItems: 'center',

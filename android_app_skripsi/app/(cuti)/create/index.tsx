@@ -15,7 +15,7 @@ import reimburseStyles from "@/assets/styles/rootstyles/reimburse/reimburse.styl
 
 const PengajuanCuti = () => {
     const router = useRouter();
-    const user = useAuthStore((state) => state.user);
+    const user = useAuthStore((state) => state?.user);
     const [showSkeleton, setShowSkeleton] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     
