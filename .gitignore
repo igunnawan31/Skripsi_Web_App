@@ -106,6 +106,7 @@ lerna-debug.log*
 # =========================
 report.*.json
 *.orig.*
+.http
 
 # =========================
 # Uploads
