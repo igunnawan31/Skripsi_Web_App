@@ -136,12 +136,9 @@ export const useJawaban = () => {
             },
 
             onSuccess: (variables) => {
-                const indikatorId = variables[0]?.indikatorId;
-                queryClient.invalidateQueries({ queryKey: ["indicators"] });
-                if (indikatorId) {
-                    queryClient.invalidateQueries({ queryKey: ["indicator", indikatorId] });
-                    queryClient.invalidateQueries({ queryKey: ["answers", indikatorId] });
-                }
+                queryClient.invalidateQueries({ queryKey: ["answers-user"] });
+                queryClient.invalidateQueries({ queryKey: ["answers"] });
+                queryClient.invalidateQueries({ queryKey: ["indicators"] }); 
             },
         });
     }

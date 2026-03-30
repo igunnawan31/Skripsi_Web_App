@@ -331,7 +331,15 @@ export default function PenilaianIndikatorDetail({ id }: {id: string}) {
                         judul={sudahDinilai ? "Hasil Penilaian" : "Form Penilaian"}
                         sudahDinilai={sudahDinilai}
                         formJawaban={formJawaban}
-                        handleInputChange={(id, nilai) => setFormJawaban(prev => ({...prev, [id]: {...prev[id], nilai}}))}
+                        handleInputChange={(id, nilai) => {
+                            setFormJawaban(prev => ({
+                                ...prev,
+                                [id]: {
+                                    ...prev[id],
+                                    nilai: nilai === null ? null : Number(nilai)
+                                }
+                            }))
+                        }}
                         handleNotesChange={(id, notes) => setFormJawaban(prev => ({...prev, [id]: {...prev[id], notes}}))}
                         allAnswered={allAnswered}
                         onSubmit={handleOpenModal}

@@ -9,7 +9,7 @@ type PenilaianKPIComponentProps = {
     judul: string;
     sudahDinilai: boolean;
     formJawaban?: { [key: string]: { nilai: number | null; notes: string } };
-    handleInputChange?: (id: string, nilai: number) => void;
+    handleInputChange?: (id: string, nilai: number | null) => void;
     handleNotesChange?: (id: string, notes: string) => void;
     allAnswered?: boolean;
     onSubmit?: () => void;
@@ -68,7 +68,7 @@ const PenilaianIndikatorForm = ({
 
                                 const handleResetAnswer = (itemId: string) => {
                                     if (handleInputChange && handleNotesChange) {
-                                        handleInputChange(itemId, null as any); 
+                                        handleInputChange(itemId, null);
                                         handleNotesChange(itemId, "");
                                     }
                                 };
@@ -140,19 +140,15 @@ const PenilaianIndikatorForm = ({
                                                     <p>Sangat Buruk</p>
                                                     {SkalaNilai.map((skala) => (
                                                         <label
-                                                            key={skala.nilai}
+                                                            key={`${item.id}-${skala.nilai}-${currentAnswer?.nilai ?? 'reset'}`}
                                                             className="flex md:flex-col flex-row md:items-center items-left cursor-pointer gap-4 my-4"
                                                         >
                                                             <input
                                                                 type="radio"
                                                                 name={item.id}
                                                                 value={skala.nilai}
-                                                                onChange={() =>
-                                                                    handleInputChange?.(
-                                                                        item.id,
-                                                                        skala.nilai
-                                                                    )
-                                                                }
+                                                                checked={formJawaban?.[item.id]?.nilai === skala.nilai}
+                                                                onChange={() => handleInputChange?.(item.id, skala.nilai)}
                                                                 className="w-5 h-5 text-(--color-primary) focus:ring-(--color-primary)"
                                                             />
                                                             <span className="text-xs mt-1 text-gray-700">
@@ -186,11 +182,11 @@ const PenilaianIndikatorForm = ({
                 <div className="flex justify-end gap-4 pt-4">
                     {!sudahDinilai && (
                         <button
-                            disabled={!allAnswered}
+                            disabled={!allAnswered || totalPertanyaan === 0}
                             type="button"
                             onClick={onSubmit}
                             className={`flex items-center gap-2 px-5 py-2 rounded-lg text-white transition
-                            ${!allAnswered
+                            ${!allAnswered || totalPertanyaan === 0
                                 ? "bg-gray-400 cursor-not-allowed"
                                 : "bg-yellow-500 hover:bg-yellow-600 active:scale-[0.98]  cursor-pointer"
                             }`}
