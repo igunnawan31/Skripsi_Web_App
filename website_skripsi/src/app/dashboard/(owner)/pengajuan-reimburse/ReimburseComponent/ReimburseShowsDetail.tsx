@@ -249,7 +249,7 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
                     <div className="w-full md:w-1/2 flex flex-col items-center text-center gap-4">
                         <div className="relative w-full h-96 aspect-square bg-[--color-tertiary] rounded-xl overflow-hidden">
                             <Image
-                                src={previewPhoto || photo.profilePlaceholder}
+                                src={previewPhoto || icons.userProfile}
                                 alt="Gambar"
                                 fill
                                 className="object-cover"
