@@ -64,6 +64,12 @@ const AbsenseComponent = ({ data, currentDate, currentTime }: AbsenseComponentPr
     const checkInColor = isLate ? COLORS.primary : checkIn ? COLORS.success : COLORS.textMutedOpacity20;
     const checkInBgColor = isLate ? COLORS.primaryOpacity20 : checkIn ? COLORS.successOpacity20 : COLORS.textMutedOpacity20;
 
+    const getButtonLabel = () => {
+        if (checkIn && isBlocked) return "Belum Waktunya Check-Out";
+        if (isBlocked) return "Di Luar Jam Absensi";
+        return "Absen Sekarang";
+    };
+
     return (
         <View style={homeStyles.absenseContainer}>
             <View style={homeStyles.waktuContainer}>
@@ -154,7 +160,7 @@ const AbsenseComponent = ({ data, currentDate, currentTime }: AbsenseComponentPr
                     }}
                 >
                     <Text style={homeStyles.buttonText}>
-                        {isBlocked ? "Di Luar Jam Absensi" : "Absen Sekarang"}
+                        {getButtonLabel()}
                     </Text>
                 </TouchableOpacity>
 
