@@ -42,19 +42,22 @@ const AbsenseComponent = ({ data, currentDate, currentTime }: AbsenseComponentPr
 
     const isButtonBlocked = () => {
         const now = toZonedTime(new Date(), "Asia/Jakarta");
-        const hour = now.getHours();
-        const minute = now.getMinutes();
-        const timeInMinutes = hour * 60 + minute;
+        const timeInMinutes = now.getHours() * 60 + now.getMinutes();
 
-        const blockRanges = [
-            { start: 18 * 60, end: 24 * 60 },
-            { start: 0, end: 7 * 60 },
-            { start: 12 * 60, end: 16 * 60 + 30 },
-        ];
+        if (timeInMinutes >= 18 * 60 || timeInMinutes < 7 * 60) return true;
+        if (checkIn && timeInMinutes < 16 * 60 + 30) return true;
 
-        return blockRanges.some(
-            ({ start, end }) => timeInMinutes >= start && timeInMinutes < end
-        );
+        return false;
+    };
+
+    const getButtonLabel = () => {
+        const now = toZonedTime(new Date(), "Asia/Jakarta");
+        const timeInMinutes = now.getHours() * 60 + now.getMinutes();
+
+        if (timeInMinutes >= 18 * 60 || timeInMinutes < 7 * 60) return "Di Luar Jam Absensi";
+        if (checkIn && timeInMinutes < 16 * 60 + 30) return "Belum Waktunya Check-Out";
+
+        return "Absen Sekarang";
     };
 
     const isBlocked = isButtonBlocked();
@@ -63,12 +66,6 @@ const AbsenseComponent = ({ data, currentDate, currentTime }: AbsenseComponentPr
     const isLate = checkIn ? getCheckInStatus(checkIn) === "Terlambat" : false;
     const checkInColor = isLate ? COLORS.primary : checkIn ? COLORS.success : COLORS.textMutedOpacity20;
     const checkInBgColor = isLate ? COLORS.primaryOpacity20 : checkIn ? COLORS.successOpacity20 : COLORS.textMutedOpacity20;
-
-    const getButtonLabel = () => {
-        if (checkIn && isBlocked) return "Belum Waktunya Check-Out";
-        if (isBlocked) return "Di Luar Jam Absensi";
-        return "Absen Sekarang";
-    };
 
     return (
         <View style={homeStyles.absenseContainer}>
