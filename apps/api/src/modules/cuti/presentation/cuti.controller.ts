@@ -74,10 +74,6 @@ export class CutiController {
     @Req() req: Request & { user: UserRequest },
     @UploadedFile() file: Express.Multer.File,
   ) {
-    if (!file) {
-      throw new BadRequestException('Dokumen cuti wajib ada');
-    }
-
     return this.submitCutiUseCase.execute(req.user.id, data, file);
   }
 
