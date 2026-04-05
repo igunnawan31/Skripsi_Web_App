@@ -11,6 +11,9 @@ import { FileMetaData } from 'src/common/types/FileMetaData.dto';
 import { UserRequest } from 'src/common/types/UserRequest.dto';
 import { IKontrakRepository } from '../../domain/repositories/kontrak.repository.interface';
 import { KontrakValidationService } from '../../domain/services/kontrak-validation.service';
+import { KontrakPaymentUpdatedEvent } from '../events/kontrak.events';
+import { LoggerService } from 'src/modules/logger/logger.service';
+import { DeleteManySalariesUseCase } from 'src/modules/salary/application/use-cases/delete-many-salaries.use-case';
 
 @Injectable()
 export class UpdateKontrakUseCase {
@@ -18,7 +21,9 @@ export class UpdateKontrakUseCase {
     @Inject(IKontrakRepository)
     private readonly kontrakRepo: IKontrakRepository,
     private readonly validationService: KontrakValidationService,
+    private readonly deleteManySalaryUseCase: DeleteManySalariesUseCase,
     private readonly eventEmitter: EventEmitter2,
+    private readonly logger: LoggerService,
   ) { }
   async execute(
     kontrakId: string,
@@ -32,11 +37,13 @@ export class UpdateKontrakUseCase {
         throw new NotFoundException('Kontrak tidak ditemukan');
       }
 
-      let startDate: Date = dto.startDate ?? new Date(oldKontrak.startDate);
-      let endDate: Date = dto.endDate ?? new Date(oldKontrak.endDate);
+      const startDate: Date = dto.startDate ?? new Date(oldKontrak.startDate);
+      const endDate: Date = dto.endDate ?? new Date(oldKontrak.endDate);
+      const oldStartDate: Date = new Date(oldKontrak.startDate);
+      const oldEndDate: Date = new Date(oldKontrak.endDate);
       if (
-        (dto.startDate && new Date(oldKontrak.startDate) !== dto.startDate) ||
-        (dto.endDate && new Date(oldKontrak.endDate) !== dto.endDate)
+        (dto.startDate && oldStartDate !== dto.startDate) ||
+        (dto.endDate && oldEndDate !== dto.endDate)
       ) {
         this.validationService.assertValidDates(startDate, endDate);
       }
@@ -84,13 +91,31 @@ export class UpdateKontrakUseCase {
         documents: remainingDocs,
       };
 
+      await this.deleteManySalaryUseCase.execute(oldKontrak.userId, kontrakId);
+
       const updatedKontrak = await this.kontrakRepo.update(kontrakId, payload);
 
+      this.eventEmitter.emit(
+        'kontrak.created',
+        new KontrakPaymentUpdatedEvent(
+          updatedKontrak.id,
+          updatedKontrak.userId,
+          updatedKontrak.projectId,
+          dto.totalBayaran ?? oldKontrak.totalBayaran,
+          dto.metodePembayaran ?? oldKontrak.metodePembayaran,
+          dto.startDate ?? oldStartDate,
+          dto.endDate ?? oldEndDate,
+          dto.dpPercentage,
+          dto.finalPercentage,
+        ),
+      );
       return updatedKontrak;
     } catch (err) {
       if (dto.documents) {
         await deleteFileArray(dto.documents, 'Dokumen Kontrak');
       }
+      this.logger.error(err);
+      throw err;
     }
   }
 }

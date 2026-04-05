@@ -11,7 +11,7 @@ import { GetUserSalariesUseCase } from './application/use-cases/get-user-salary.
 import { GetSalaryUseCase } from './application/use-cases/get-salary.use-case';
 import { PaySalaryUseCase } from './application/use-cases/pay-salary.use-case';
 import { DeleteSalaryUseCase } from './application/use-cases/delete-salary.use-case';
-import { EventEmitterModule } from '@nestjs/event-emitter';
+import { DeleteManySalariesUseCase } from './application/use-cases/delete-many-salaries.use-case';
 
 @Module({
   controllers: [SalaryController],
@@ -19,6 +19,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     SalaryValidationService,
     SalarySchedulingService,
     KontrakCreatedListener,
+    DeleteManySalariesUseCase,
     CreateSalaryUseCase,
     DeleteSalaryUseCase,
     GetAllSalariesUseCase,
@@ -27,6 +28,6 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     PaySalaryUseCase,
     { provide: ISalaryRepository, useClass: SalaryRepository },
   ],
-  exports: [ISalaryRepository],
+  exports: [ISalaryRepository, DeleteManySalariesUseCase],
 })
 export class SalaryModule { }

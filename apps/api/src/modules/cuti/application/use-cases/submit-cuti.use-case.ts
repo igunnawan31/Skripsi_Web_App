@@ -45,11 +45,11 @@ export class SubmitCutiUseCase {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    // if (formattedStartDate < today) {
-    //   throw new BadRequestException(
-    //     'Tidak dapat mengajukan cuti untuk tanggal yang sudah lewat',
-    //   );
-    // }
+    if (formattedStartDate < today) {
+      throw new BadRequestException(
+        'Tidak dapat mengajukan cuti untuk tanggal yang sudah lewat',
+      );
+    }
 
     const hasOverlap = await this.cutiRepo.checkOverlap(
       userId,

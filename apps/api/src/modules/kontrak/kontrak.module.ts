@@ -16,6 +16,7 @@ import { CutiModule } from '../cuti/cuti.module';
 import { AbsensiModule } from '../absensi/absensi.module';
 import { ProjectModule } from '../project/project.module';
 import { MailModule } from '../mail/mail.module';
+import { SalaryModule } from '../salary/salary.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { MailModule } from '../mail/mail.module';
     forwardRef(() => AbsensiModule),
     ProjectModule,
     MailModule,
+    SalaryModule,
   ],
   controllers: [KontrakController],
   providers: [

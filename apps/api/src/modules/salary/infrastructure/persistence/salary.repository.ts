@@ -16,9 +16,13 @@ import { InternalUpdateSalaryDTO } from '../../application/dtos/request/update-s
 import { UpdateSalaryResponseDTO } from '../../application/dtos/response/update-response.dto';
 import { UserRequest } from 'src/common/types/UserRequest.dto';
 import { Prisma } from 'src/generated/prisma/client';
+import { LoggerService } from 'src/modules/logger/logger.service';
 @Injectable()
 export class SalaryRepository implements ISalaryRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly logger: LoggerService,
+  ) { }
 
   async create(dto: CreateSalaryDTO): Promise<CreateSalaryResponseDTO> {
     try {
@@ -33,7 +37,7 @@ export class SalaryRepository implements ISalaryRepository {
       });
       return plainToInstance(CreateSalaryResponseDTO, query);
     } catch (err) {
-      handlePrismaError(err, 'Salary');
+      handlePrismaError(err, 'Salary', '', this.logger);
     }
   }
 
@@ -120,13 +124,13 @@ export class SalaryRepository implements ISalaryRepository {
         },
       });
     } catch (err) {
-      handlePrismaError(err, 'Salary');
+      handlePrismaError(err, 'Salary', '', this.logger);
     }
   }
 
   async findById(id: string): Promise<RetrieveSalaryResponseDTO | null> {
     try {
-      const gaji = this.prisma.salary.findUnique({
+      const gaji = await this.prisma.salary.findUnique({
         where: { id },
         include: {
           user: true,
@@ -141,7 +145,7 @@ export class SalaryRepository implements ISalaryRepository {
         kontrak: plainToInstance(KontrakBaseDTO, gaji.kontrak),
       });
     } catch (err) {
-      handlePrismaError(err, 'Salary', id);
+      handlePrismaError(err, 'Salary', id, this.logger);
     }
   }
 
@@ -207,7 +211,7 @@ export class SalaryRepository implements ISalaryRepository {
         },
       });
     } catch (err) {
-      handlePrismaError(err, 'Salary');
+      handlePrismaError(err, 'Salary', '', this.logger);
     }
   }
 
@@ -219,7 +223,7 @@ export class SalaryRepository implements ISalaryRepository {
       if (!data) return null;
       return data.map((d) => plainToInstance(RetrieveSalaryResponseDTO, d));
     } catch (err) {
-      handlePrismaError(err, 'Salary');
+      handlePrismaError(err, 'Salary', '', this.logger);
     }
   }
   async findByKontrakIdAndPeriode(
@@ -238,7 +242,27 @@ export class SalaryRepository implements ISalaryRepository {
 
       return plainToInstance(RetrieveSalaryResponseDTO, data);
     } catch (err) {
-      handlePrismaError(err, 'Salary');
+      handlePrismaError(err, 'Salary', '', this.logger);
+    }
+  }
+  async findByUserIdAndKontrakId(
+    userId: string,
+    kontrakId: string,
+  ): Promise<RetrieveSalaryResponseDTO[] | null> {
+    try {
+      const data = await this.prisma.salary.findMany({
+        where: {
+          kontrakId,
+          userId,
+        },
+        orderBy: { createdAt: 'asc' },
+      });
+
+      if (!data) return null;
+
+      return plainToInstance(RetrieveSalaryResponseDTO, data);
+    } catch (err) {
+      handlePrismaError(err, 'Salary', '', this.logger);
     }
   }
   async update(
@@ -246,7 +270,7 @@ export class SalaryRepository implements ISalaryRepository {
     dto: InternalUpdateSalaryDTO,
   ): Promise<UpdateSalaryResponseDTO> {
     try {
-      const target = this.findById(id);
+      const target = await this.findById(id);
       if (!target) throw new NotFoundException('Salary data not found');
 
       const query = await this.prisma.salary.update({
@@ -259,13 +283,13 @@ export class SalaryRepository implements ISalaryRepository {
 
       return plainToInstance(UpdateSalaryResponseDTO, query);
     } catch (err) {
-      handlePrismaError(err, 'Salary', id);
+      handlePrismaError(err, 'Salary', id, this.logger);
     }
   }
 
   async paySalary(id: string): Promise<UpdateSalaryResponseDTO> {
     try {
-      const target = this.findById(id);
+      const target = await this.findById(id);
       if (!target) throw new NotFoundException('Salary data not found');
 
       const query = await this.prisma.salary.update({
@@ -277,20 +301,33 @@ export class SalaryRepository implements ISalaryRepository {
 
       return plainToInstance(UpdateSalaryResponseDTO, query);
     } catch (err) {
-      handlePrismaError(err, 'Salary', id);
+      handlePrismaError(err, 'Salary', id, this.logger);
     }
   }
 
   async remove(id: string): Promise<void> {
     try {
-      const target = this.findById(id);
+      const target = await this.findById(id);
       if (!target) throw new NotFoundException('Salary Data not found');
 
-      const query = await this.prisma.salary.delete({
+      await this.prisma.salary.delete({
         where: { id },
       });
     } catch (err) {
-      handlePrismaError(err, 'Salary', id);
+      handlePrismaError(err, 'Salary', id, this.logger);
+    }
+  }
+
+  async removeBulk(userId: string, kontrakId: string): Promise<void> {
+    try {
+      await this.prisma.salary.deleteMany({
+        where: {
+          userId,
+          kontrakId,
+        },
+      });
+    } catch (err) {
+      handlePrismaError(err, 'Salary', '', this.logger);
     }
   }
 }
