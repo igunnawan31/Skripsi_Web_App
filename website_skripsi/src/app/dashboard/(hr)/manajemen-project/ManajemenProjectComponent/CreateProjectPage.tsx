@@ -318,6 +318,7 @@ const CreateProjectPage = () => {
                                 type="date"
                                 name="endDate"
                                 value={formData.endDate}
+                                min={formData.startDate}
                                 onChange={handleChange}
                                 className={`border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors ${
                                     errors.endDate ? "border-(--color-primary)" : "border-(--color-border)"

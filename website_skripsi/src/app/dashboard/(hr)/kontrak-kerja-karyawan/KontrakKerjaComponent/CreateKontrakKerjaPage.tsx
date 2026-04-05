@@ -21,6 +21,7 @@ import { useUser } from "@/app/lib/hooks/user/useUser";
 
 const CreateKontrakKerjaPage = () => {
     const router = useRouter();
+    const todayStr = new Date().toISOString().split("T")[0];
 
     const [openUserData, setOpenUserData] = useState(true);
     const [openProject, setOpenProject] = useState(true);
@@ -1106,6 +1107,7 @@ const CreateKontrakKerjaPage = () => {
                                             type="date"
                                             name="startDate"
                                             value={formData.startDate}
+                                            min={todayStr}
                                             onChange={(e) => {
                                                 if (!lockDate) {
                                                     setFormData(prev => ({ ...prev, startDate: e.target.value }));
@@ -1132,6 +1134,7 @@ const CreateKontrakKerjaPage = () => {
                                             type="date"
                                             name="endDate"
                                             value={formData.endDate}
+                                            min={formData.startDate || todayStr}
                                             onChange={(e) => {
                                                 if (!lockDate) {
                                                     setFormData(prev => ({ ...prev, endDate: e.target.value }));
