@@ -32,6 +32,7 @@ export class CreateIndikatorUseCase {
       const formattedStartDate = this.dateUtil.parseDate(dto.startDate);
       const formattedEndDate = this.dateUtil.parseDate(dto.endDate);
       const now = new Date();
+      now.setHours(0, 0, 0);
 
       if (formattedStartDate < now) {
         throw new BadRequestException(

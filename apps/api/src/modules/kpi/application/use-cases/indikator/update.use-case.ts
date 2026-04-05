@@ -46,6 +46,7 @@ export class UpdateIndikatorUseCase {
         : undefined;
 
       const now = new Date();
+      now.setHours(0, 0, 0);
 
       if (formattedStartDate && formattedStartDate < now) {
         throw new BadRequestException(

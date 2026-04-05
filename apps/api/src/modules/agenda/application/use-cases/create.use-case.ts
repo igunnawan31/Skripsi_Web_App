@@ -29,7 +29,7 @@ export class CreateAgendaUseCase {
     private readonly dateUtil: DateUtilService,
     private readonly configService: ConfigService,
   ) {
-    this.timezone = this.configService.getOrThrow<string>('TZ', 'Asia/Jakarta')
+    this.timezone = this.configService.getOrThrow<string>('TZ', 'Asia/Jakarta');
   }
 
   async execute(dto: CreateAgendaDTO): Promise<CreateAgendaResponseDTO> {
@@ -51,7 +51,7 @@ export class CreateAgendaUseCase {
 
       const eventDate = this.dateUtil.parseDate(dto.eventDate);
       const now = new Date();
-
+      now.setHours(0, 0, 0);
       if (!dto.frequency && eventDate < now) {
         throw new BadRequestException(
           `Tidak dapat mengajukan untuk tanggal yang sudah lewat`,
