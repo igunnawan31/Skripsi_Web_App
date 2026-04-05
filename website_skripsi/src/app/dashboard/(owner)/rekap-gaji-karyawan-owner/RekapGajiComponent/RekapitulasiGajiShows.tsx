@@ -201,8 +201,10 @@ const RekapitulasiGajiShows = () => {
                                                                 const kontrakDibayarkan = kontrakGaji
                                                                     .filter((g: any) => g.status === "PAID")
                                                                     .reduce((acc: number, curr: any) => acc + curr.amount, 0);
+                                                                const kontrakTotalBayaran = kontrakGaji
+                                                                    .reduce((acc: number, curr: any) => acc + curr.amount, 0);
                                                                 const pct = kontrak.totalBayaran > 0 
-                                                                    ? ((kontrakDibayarkan / kontrak.totalBayaran) * 100).toFixed(1) 
+                                                                    ? ((kontrakDibayarkan / kontrakTotalBayaran) * 100).toFixed(1) 
                                                                     : "0";
 
                                                                 return (
@@ -216,7 +218,7 @@ const RekapitulasiGajiShows = () => {
 
                                                                         <div className="flex flex-col items-center w-1/4">
                                                                             <span className="text-sm text-(--color-success)">
-                                                                                Rp {kontrakDibayarkan.toLocaleString("id-ID")} / Rp {kontrak.totalBayaran.toLocaleString("id-ID")}
+                                                                                Rp {kontrakDibayarkan.toLocaleString("id-ID")} / Rp {kontrakTotalBayaran.toLocaleString("id-ID")}
                                                                             </span>
                                                                             <div className="w-full bg-gray-100 rounded-full h-1.5 mt-1">
                                                                                 <div className="bg-(--color-success) h-1.5 rounded-full" style={{ width: `${Math.min(Number(pct), 100)}%` }}></div>
