@@ -1,7 +1,10 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InternalUpdateKontrakDTO } from '../dtos/request/update-kontrak.dto';
-import { deleteFileArray, deleteFileArrayString } from 'src/common/utils/fileHelper';
+import {
+  deleteFileArray,
+  deleteFileArrayString,
+} from 'src/common/utils/fileHelper';
 import { UserRequest } from 'src/common/types/UserRequest.dto';
 import { IKontrakRepository } from '../../domain/repositories/kontrak.repository.interface';
 import { KontrakValidationService } from '../../domain/services/kontrak-validation.service';
@@ -59,10 +62,14 @@ export class UpdateKontrakUseCase {
       // Docs-related
       const oldDocs = oldKontrak.documents ?? [];
       const newDocs = dto.documents ?? [];
+      const removeDocuments = Array.isArray(dto.removeDocuments)
+        ? dto.removeDocuments
+        : dto.removeDocuments
+          ? [dto.removeDocuments]
+          : [];
+
       const removePaths = new Set(
-        (dto.removeDocuments ?? []).filter((p) =>
-          oldDocs.some((d) => d.path === p),
-        ),
+        removeDocuments.filter((p) => oldDocs.some((d) => d.path === p)),
       );
       const remainingDocs = [
         ...oldDocs.filter((d) => !removePaths.has(d.path)),
