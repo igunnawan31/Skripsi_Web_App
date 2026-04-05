@@ -1,19 +1,14 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InternalUpdateKontrakDTO } from '../dtos/request/update-kontrak.dto';
-import { deleteFileArray } from 'src/common/utils/fileHelper';
-import { FileMetaData } from 'src/common/types/FileMetaData.dto';
+import { deleteFileArray, deleteFileArrayString } from 'src/common/utils/fileHelper';
 import { UserRequest } from 'src/common/types/UserRequest.dto';
 import { IKontrakRepository } from '../../domain/repositories/kontrak.repository.interface';
 import { KontrakValidationService } from '../../domain/services/kontrak-validation.service';
 import { KontrakPaymentUpdatedEvent } from '../events/kontrak.events';
 import { LoggerService } from 'src/modules/logger/logger.service';
 import { DeleteManySalariesUseCase } from 'src/modules/salary/application/use-cases/delete-many-salaries.use-case';
+import { RetrieveKontrakResponseDTO } from '../dtos/response/read-response.dto';
 
 @Injectable()
 export class UpdateKontrakUseCase {
@@ -37,78 +32,74 @@ export class UpdateKontrakUseCase {
         throw new NotFoundException('Kontrak tidak ditemukan');
       }
 
+      // Date-related
       const startDate: Date = dto.startDate ?? new Date(oldKontrak.startDate);
       const endDate: Date = dto.endDate ?? new Date(oldKontrak.endDate);
       const oldStartDate: Date = new Date(oldKontrak.startDate);
       const oldEndDate: Date = new Date(oldKontrak.endDate);
-      if (
-        (dto.startDate && oldStartDate !== dto.startDate) ||
-        (dto.endDate && oldEndDate !== dto.endDate)
-      ) {
+      const datesChanged =
+        (dto.startDate && oldStartDate.getTime() !== startDate.getTime()) ||
+        (dto.endDate && oldEndDate.getTime() !== endDate.getTime());
+      if (datesChanged)
         this.validationService.assertValidDates(startDate, endDate);
-      }
 
-      if (
-        (dto.metodePembayaran &&
-          oldKontrak.metodePembayaran !== dto.metodePembayaran) ||
-        (dto.dpPercentage && oldKontrak.dpPercentage !== dto.dpPercentage) ||
-        (dto.finalPercentage &&
-          oldKontrak.finalPercentage !== dto.finalPercentage)
-      ) {
-        const metodePembayaran =
-          dto.metodePembayaran ?? oldKontrak.metodePembayaran;
-        const dpPercentage = dto.dpPercentage ?? oldKontrak.dpPercentage;
-        const finalPercentage =
-          dto.finalPercentage ?? oldKontrak.finalPercentage;
+      // Salary-related
+      const paymentChanged = this.hasPaymentChanged(oldKontrak, dto);
+      const totalChanged =
+        !!dto.totalBayaran && oldKontrak.totalBayaran !== dto.totalBayaran;
 
+      if (paymentChanged) {
         this.validationService.assertValidTerminPercentage(
-          metodePembayaran,
-          dpPercentage,
-          finalPercentage,
+          dto.metodePembayaran ?? oldKontrak.metodePembayaran,
+          dto.dpPercentage ?? oldKontrak.dpPercentage,
+          dto.finalPercentage ?? oldKontrak.finalPercentage,
         );
       }
 
-      let remainingDocs: FileMetaData[] = [];
-      if (dto.documents) {
-        const oldDocs = oldKontrak.documents ?? [];
-        const newDocs = dto.documents ?? [];
-        const removeDocs = dto.removeDocuments ?? [];
+      // Docs-related
+      const oldDocs = oldKontrak.documents ?? [];
+      const newDocs = dto.documents ?? [];
+      const removePaths = new Set(
+        (dto.removeDocuments ?? []).filter((p) =>
+          oldDocs.some((d) => d.path === p),
+        ),
+      );
+      const remainingDocs = [
+        ...oldDocs.filter((d) => !removePaths.has(d.path)),
+        ...newDocs,
+      ];
 
-        const validRemoveDocs = oldDocs
-          .filter((d) => removeDocs.includes(d.path))
-          .map((d) => d.path);
-
-        remainingDocs = oldDocs.filter(
-          (d) => !validRemoveDocs.includes(d.path),
-        );
-        remainingDocs = [...remainingDocs, ...newDocs];
-      }
-
-      const payload: InternalUpdateKontrakDTO = {
+      // Update query
+      const updatedKontrak = await this.kontrakRepo.update(kontrakId, {
         ...dto,
         startDate,
         endDate,
         documents: remainingDocs,
-      };
+      });
 
-      await this.deleteManySalaryUseCase.execute(oldKontrak.userId, kontrakId);
+      // handles salary changes on kontrak
+      if (paymentChanged || totalChanged) {
+        await this.deleteManySalaryUseCase.execute(
+          oldKontrak.userId,
+          kontrakId,
+        );
+        this.eventEmitter.emit(
+          'kontrak.created',
+          new KontrakPaymentUpdatedEvent(
+            updatedKontrak.id,
+            updatedKontrak.userId,
+            updatedKontrak.projectId,
+            dto.totalBayaran ?? oldKontrak.totalBayaran,
+            dto.metodePembayaran ?? oldKontrak.metodePembayaran,
+            dto.startDate ?? oldStartDate,
+            dto.endDate ?? oldEndDate,
+            dto.dpPercentage,
+            dto.finalPercentage,
+          ),
+        );
+      }
 
-      const updatedKontrak = await this.kontrakRepo.update(kontrakId, payload);
-
-      this.eventEmitter.emit(
-        'kontrak.created',
-        new KontrakPaymentUpdatedEvent(
-          updatedKontrak.id,
-          updatedKontrak.userId,
-          updatedKontrak.projectId,
-          dto.totalBayaran ?? oldKontrak.totalBayaran,
-          dto.metodePembayaran ?? oldKontrak.metodePembayaran,
-          dto.startDate ?? oldStartDate,
-          dto.endDate ?? oldEndDate,
-          dto.dpPercentage,
-          dto.finalPercentage,
-        ),
-      );
+      await deleteFileArrayString([...removePaths], 'Dokumen Kontrak');
       return updatedKontrak;
     } catch (err) {
       if (dto.documents) {
@@ -117,5 +108,18 @@ export class UpdateKontrakUseCase {
       this.logger.error(err);
       throw err;
     }
+  }
+
+  private hasPaymentChanged(
+    oldKontrak: RetrieveKontrakResponseDTO,
+    dto: InternalUpdateKontrakDTO,
+  ): boolean {
+    return (
+      (!!dto.metodePembayaran &&
+        oldKontrak.metodePembayaran !== dto.metodePembayaran) ||
+      (!!dto.dpPercentage && oldKontrak.dpPercentage !== dto.dpPercentage) ||
+      (!!dto.finalPercentage &&
+        oldKontrak.finalPercentage !== dto.finalPercentage)
+    );
   }
 }

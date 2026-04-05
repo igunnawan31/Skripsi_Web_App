@@ -121,10 +121,10 @@ export class KontrakController {
       };
       return await this.createKontrakUseCase.execute(payload, req.user.id);
     } catch (err) {
-      deleteFileArray(files.contractDocuments, 'Dokumen kontrak');
-      if (files.userPhoto) deleteFileArray(files.userPhoto, 'Foto user');
+      await deleteFileArray(files.contractDocuments, 'Dokumen kontrak');
+      if (files.userPhoto) await deleteFileArray(files.userPhoto, 'Foto user');
       if (files.projectDocuments)
-        deleteFileArray(files.projectDocuments, 'Dokumen proyek');
+        await deleteFileArray(files.projectDocuments, 'Dokumen proyek');
       throw err;
     }
   }
@@ -213,6 +213,7 @@ export class KontrakController {
       };
       return this.updateKontrakUseCase.execute(kontrakId, payload, req.user);
     } catch (err) {
+      await deleteFileArray(files.contractDocuments, 'Dokumen kontrak');
       throw err;
     }
   }
