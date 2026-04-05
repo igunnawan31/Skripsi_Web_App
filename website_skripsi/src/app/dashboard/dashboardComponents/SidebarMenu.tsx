@@ -104,7 +104,7 @@ export default function SidebarMenu({ user }: { user: User }) {
                     <div className="flex flex-col items-center gap-3">
                         <div className="rounded-full bg-white overflow-hidden w-16 h-16 border-2 border-(--color-surface)">
                             <Image
-                                src={previewPhoto || icons.userProfile}
+                                src={previewPhoto ? previewPhoto : icons.userProfile}
                                 alt="Profile Picture"
                                 width={64}
                                 height={64}

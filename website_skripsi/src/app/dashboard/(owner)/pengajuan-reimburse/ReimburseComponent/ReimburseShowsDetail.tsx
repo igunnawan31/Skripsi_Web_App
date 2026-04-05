@@ -489,6 +489,7 @@ export default function ReimburseShowsDetail({ id }: { id: string }) {
                 message={`Apakah Anda yakin ingin ${actionType === "approve" ? "menyetujui" : "menolak"} reimburse ini?`}
                 activeText={actionType === "approve" ? "Setujui" : "Tolak"}
                 passiveText="Batal"
+                titleMessage="Reimburse Berhasil Diproses!"
             />
         </div>
     );

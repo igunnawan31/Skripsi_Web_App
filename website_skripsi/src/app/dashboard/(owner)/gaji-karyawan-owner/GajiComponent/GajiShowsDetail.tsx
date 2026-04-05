@@ -117,7 +117,11 @@ export default function GajiShowsDetail({ id }: { id: string }) {
         const files = Array.from(e.target.files || []);
         if (!files.length) return;
 
-        if (files.some(file => file.type !== "application/pdf" && file.type !== "image/png" && file.type !== "image/jpg")) {
+        if (files.some(file => 
+            file.type !== "application/pdf" && 
+            file.type !== "image/png" && 
+            file.type !== "image/jpeg"
+        )) {
             toast.custom(<CustomToast type="error" message="Hanya file png, jpg dan pdf yang diperbolehkan" />);
             return;
         }
@@ -554,6 +558,7 @@ export default function GajiShowsDetail({ id }: { id: string }) {
                                         type="file"
                                         id="addDocuments"
                                         multiple
+                                        accept=".jpg,.jpeg,.png,.pdf"
                                         onChange={handleAddDocuments}
                                         className="hidden"
                                     />
@@ -602,6 +607,7 @@ export default function GajiShowsDetail({ id }: { id: string }) {
                 message="Apakah Anda yakin sudah mengisi data dengan baik?"
                 activeText="Ya, Simpan"
                 passiveText="Batal"
+                titleMessage="Gaji Berhasil Dibayar!"
             />
         </div>
     );

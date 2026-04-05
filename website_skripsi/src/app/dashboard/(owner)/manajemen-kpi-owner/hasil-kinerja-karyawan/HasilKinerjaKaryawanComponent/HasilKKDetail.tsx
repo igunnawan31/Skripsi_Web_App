@@ -384,7 +384,7 @@ export default function HasilKKDetail({ id }: { id: string }) {
                                                     <div className="flex flex-col p-3 items-center justify-center bg-gray-100 rounded-lg">
                                                         <span className="text-sm text-(--color-muted)">Total Nilai</span>
                                                         <span className="text-lg font-bold text-gray-800">
-                                                            {task.sudahDinilai ? task.totalNilai : "-"}
+                                                            {task.sudahDinilai ? task.totalNilai.toFixed(2) : "-"}
                                                         </span>
                                                     </div>
                                                 </div>
