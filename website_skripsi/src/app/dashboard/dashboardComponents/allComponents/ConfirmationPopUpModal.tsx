@@ -17,6 +17,7 @@ type ConfirmationPopUpModalProps = {
     isSuccess?: boolean;
     isError?: boolean;
     errorMessage?: string;
+    titleMessage?: string;
 };
 
 const ConfirmationPopUpModal = ({
@@ -32,6 +33,7 @@ const ConfirmationPopUpModal = ({
     isSuccess = false,
     isError = false,
     errorMessage,
+    titleMessage,
 }: ConfirmationPopUpModalProps) => {
     const cardVariants = {
         initial: { opacity: 0, scale: 0.9, y: 10 },
@@ -83,7 +85,7 @@ const ConfirmationPopUpModal = ({
                                     />
                                 </div>
                                 <div className="text-center">
-                                    <h3 className="text-xl font-bold text-gray-800">Berhasil Dibuat!</h3>
+                                    <h3 className="text-xl font-bold text-gray-800">{titleMessage ? titleMessage : "Berhasil Dibuat!"}</h3>
                                     <p className="text-sm text-gray-500 mt-2">Data Anda telah tersimpan. Mengalihkan halaman...</p>
                                 </div>
                             </motion.div>

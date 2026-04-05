@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useAuth } from "@/app/lib/hooks/auth/useAuth";
 import CustomToast from "@/app/rootComponents/CustomToast";
 import { MajorRole, MinorRole } from "@/app/lib/types/enumTypes";
+import { fetchFileBlob } from "@/app/lib/path";
 
 
 export default function Navbar({ user, withDropdown }: { user: User, withDropdown?: boolean }) {
@@ -19,6 +20,25 @@ export default function Navbar({ user, withDropdown }: { user: User, withDropdow
     const {logout, isLoggingIn, loginError } = useAuth();
     const [currentItem, setCurrentItem] = useState<any>(null);
     const pathname = usePathname();
+    const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
+
+    const loadPhoto = async (photoPath: string) => {
+        try {
+            const blob = await fetchFileBlob(photoPath);
+            const reader = new FileReader();
+            reader.onload = () => setPreviewPhoto(reader.result as string);
+            reader.readAsDataURL(blob);
+        } catch (err) {
+            console.error("Load photo error:", err);
+            setPreviewPhoto(null);
+        }
+    };
+
+    useEffect(() => {
+        if (user?.photo?.path) {
+            loadPhoto(user?.photo.path);
+        }
+    }, [user?.photo?.path]);
 
     useEffect(() => {
         let foundItem = null;
@@ -35,8 +55,6 @@ export default function Navbar({ user, withDropdown }: { user: User, withDropdow
 
         setCurrentItem(foundItem);
     }, [pathname, user]);
-
-    console.log("current", currentItem);
 
     const dropdownRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
@@ -95,7 +113,7 @@ export default function Navbar({ user, withDropdown }: { user: User, withDropdow
                                     <div className="flex items-center gap-3">
                                         <div className="rounded-full bg-gray-400 overflow-hidden w-16 h-16 border-2 border-(--color-surface)">
                                             <Image
-                                                src={photo.profilePlaceholder}
+                                                src={previewPhoto ? previewPhoto : icons.userProfile}
                                                 alt="Profile Picture"
                                                 width={128}
                                                 height={128}
