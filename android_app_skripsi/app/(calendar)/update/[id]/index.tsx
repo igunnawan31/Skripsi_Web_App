@@ -20,7 +20,7 @@ import { gajiDetailStyles, HEADER_HEIGHT } from "@/assets/styles/rootstyles/gaji
 import { GajiStyles } from "@/assets/styles/rootstyles/gaji/gaji.styles";
 
 const UpdateEventFormPage = () => {
-    const user = useAuthStore((state) => state.user);
+    const user = useAuthStore((state) => state?.user);
     const { id, occurrenceId } = useLocalSearchParams<{
         id: string;
         occurrenceId?: string;

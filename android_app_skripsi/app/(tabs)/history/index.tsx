@@ -11,7 +11,7 @@ import ListDataHistoryAbsenComponent from "@/components/rootComponents/absenComp
 import SkeletonBox from "@/components/rootComponents/SkeletonBox";
 
 const HistoryAbsensiPage = () => {
-    const user = useAuthStore((state) => state.user);
+    const user = useAuthStore((state) => state?.user);
 
     let current = new Date();
     const [selectedYear, setSelectedYear] = useState(current.getFullYear());

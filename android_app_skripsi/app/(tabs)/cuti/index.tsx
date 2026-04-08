@@ -17,7 +17,7 @@ import CutiCancelPopUpModal from "@/components/rootComponents/cutiComponent/Cuti
 import NotificationModal from "@/components/rootComponents/NotificationModal";
 
 const CutiPage = () => {
-    const user = useAuthStore((state) => state.user);
+    const user = useAuthStore((state) => state?.user);
     const isHR = user?.minorRole === MinorRole.HR;
 
     const userCuti = useCuti().fetchCutiByUserId(user?.id);

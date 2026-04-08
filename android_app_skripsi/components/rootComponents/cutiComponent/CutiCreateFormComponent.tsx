@@ -18,7 +18,7 @@ type Props = {
 };
 
 const CutiCreateFormComponent = ({ kontrakData }: Props) => {
-    const user = useAuthStore((state) => state.user);
+    const user = useAuthStore((state) => state?.user);
     const [showModal, setShowModal] = useState(false);
     const [showStartPicker, setShowStartPicker] = useState(false);
     const [showEndPicker, setShowEndPicker] = useState(false);

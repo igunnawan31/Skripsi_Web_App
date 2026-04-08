@@ -19,7 +19,7 @@ type EventCardComponentProps = {
 
 const EventCardComponent = ({ event, onNotify, onDeleteSuccess }: EventCardComponentProps) => {
     const dateObj = new Date(event.eventDate);
-    const user = useAuthStore((state) => state.user);
+    const user = useAuthStore((state) => state?.user);
     const router = useRouter();
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const { mutate, isPending } = useEvent().deleteEvent();

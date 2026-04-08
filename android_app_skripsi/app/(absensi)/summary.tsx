@@ -12,7 +12,7 @@ import { WorkStatus } from "@/types/enumTypes";
 
 const SummaryAbsensiPage = () => {
     const router = useRouter();
-    const user = useAuthStore((state) => state.user);
+    const user = useAuthStore((state) => state?.user);
     const userId = user?.id ? user.id : null;
     const { location, photoUrl, resetAbsen } = useAbsen();
 

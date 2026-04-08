@@ -123,7 +123,7 @@ const PenilaianKPIComponent = ({
                                             <Text style={{ fontSize: 14 }}>
                                                 Nilai:
                                                 <Text style={{ fontWeight: "600" }}>
-                                                    {` ${jawaban.nilai} (${jawaban.label})`}
+                                                    {` ${jawaban.nilai}`}
                                                 </Text>
                                             </Text>
                                             <Text>Catatan:</Text>

@@ -5,15 +5,18 @@ import NotificationModal from "@/components/rootComponents/NotificationModal";
 import SkeletonBox from "@/components/rootComponents/SkeletonBox";
 import COLORS from "@/constants/colors";
 import { useEvent } from "@/lib/api/hooks/useEvent";
+import { useAuthStore } from "@/lib/store/authStore";
+import { MajorRole, MinorRole } from "@/types/enumTypes";
 import { EventResponse } from "@/types/event/eventTypes";
 import { useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Dimensions, Image, RefreshControl, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 const { width } = Dimensions.get('window');
 
 const CalendarPage = () => {
     const router = useRouter();
+    const user = useAuthStore((state) => state?.user);
     const today = new Date();
     const [currentMonth, setCurrentMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
     const [selectedDay, setSelectedDay] = useState(today);
@@ -31,6 +34,20 @@ const CalendarPage = () => {
         visible: false,
         status: "success",
     });
+
+    const canCreateEvent = useMemo(() => {
+        if (!user) return false;
+
+        if (
+            user.majorRole === MajorRole.KARYAWAN &&
+            (user.minorRole === MinorRole.HR ||
+            user.minorRole === MinorRole.PROJECT_MANAGER)
+        ) {
+            return true;
+        }
+
+        return false;
+    }, [user]);
 
     const isSameDay = (d1: Date, d2: Date) => {
         return d1.getDate() === d2.getDate() && d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
@@ -193,15 +210,17 @@ const CalendarPage = () => {
 
     return (
         <View style={{ flex: 1, backgroundColor: COLORS.background }}>
-            <TouchableOpacity 
-                style={calendarStyles.addEvent}
-                onPress={() => router.push("/(calendar)/create")}
-            >
-                <Image
-                    style={[calendarStyles.logoHeader, {tintColor: COLORS.white}]}
-                    source={require("../../../assets/icons/add.png")}
-                />
-            </TouchableOpacity>
+            {canCreateEvent && (
+                <TouchableOpacity 
+                    style={calendarStyles.addEvent}
+                    onPress={() => router.push("/(calendar)/create")}
+                >
+                    <Image
+                        style={[calendarStyles.logoHeader, {tintColor: COLORS.white}]}
+                        source={require("../../../assets/icons/add.png")}
+                    />
+                </TouchableOpacity>
+            )}
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}
                 keyboardShouldPersistTaps="handled"

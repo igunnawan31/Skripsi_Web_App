@@ -19,7 +19,7 @@ import SkeletonBox from "@/components/rootComponents/SkeletonBox";
 import { gajiDetailStyles, HEADER_HEIGHT } from "@/assets/styles/rootstyles/gaji/gajidetail.styles";
 
 const CreateEventFormPage = () => {
-    const user = useAuthStore((state) => state.user);
+    const user = useAuthStore((state) => state?.user);
     const [showSubmitModal, setShowSubmitModal] = useState(false); 
     const [showBackModal, setShowBackModal] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);

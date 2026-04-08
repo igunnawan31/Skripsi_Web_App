@@ -16,7 +16,7 @@ import { useReimburse } from "@/lib/api/hooks/useReimburse";
 import NotificationModal from "../NotificationModal";
 
 const ReimburseCreateFormComponent = () => {
-    const user = useAuthStore((state) => state.user);
+    const user = useAuthStore((state) => state?.user);
     const [showModal, setShowModal] = useState(false);
     const [error, setError] = useState<{ [key: string]: string}>({});
     const today = new Date().toISOString().split("T")[0];

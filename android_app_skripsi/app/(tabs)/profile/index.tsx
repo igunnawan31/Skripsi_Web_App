@@ -26,7 +26,7 @@ const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const ProfilePage = () => {
     const { logoutAction } = useAuth();
-    const user = useAuthStore((state) => state.user);
+    const user = useAuthStore((state) => state?.user);
     const { data, isLoading, error: isKontrakError, refetch, isFetching } = useKontrak().fetchKontrakById(user?.id);
     
     const [itemPick, setItemPick] = useState("Business");
